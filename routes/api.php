@@ -19,4 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
+Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
