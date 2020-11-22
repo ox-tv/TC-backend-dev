@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Auth routes
+Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
+
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
