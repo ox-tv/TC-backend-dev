@@ -13,6 +13,9 @@ class Video extends Model
     const STATUS_ARCHIVED = 3;
     const STATUS_SUSPENDED = 4;
 
+    const UPLOAD_METHOD_DIRECT = 1;
+    const UPLOAD_METHOD_YOUTUBE = 2;
+
     use HasFactory;
     use SoftDeletes;
 
