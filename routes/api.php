@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
