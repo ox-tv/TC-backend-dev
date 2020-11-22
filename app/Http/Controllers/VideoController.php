@@ -2,29 +2,55 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\VideoCollection;
+use App\Http\Resources\VideoItem;
+use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return VideoCollection
      */
     public function index()
     {
-        //
+        $videos = Video::published()->get();
+
+        return new VideoCollection($videos);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return VideoItem
      */
     public function store(Request $request)
     {
-        //
+        $video = new Video();
+
+        $video->title = $request->get('title');
+        $video->slug = Str::slug($request->get('title'));
+        $video->description = $request->get('description');
+
+        // adding file to video
+        if($request->file('video')){
+            $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
+        }
+
+        $video->file_path = $videoFile;
+
+        // adding user to video
+        $video->user_id = auth()->user()->id;
+
+        $video->save();
+
+        return new VideoItem($video);
+
     }
 
     /**
