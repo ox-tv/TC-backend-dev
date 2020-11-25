@@ -13,7 +13,7 @@ class CreateCategoriesVideosTable extends Migration
      */
     public function up()
     {
-        Schema::create('categories_videos', function (Blueprint $table) {
+        Schema::create('category_video', function (Blueprint $table) {
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('video_id');
 
@@ -36,6 +36,6 @@ class CreateCategoriesVideosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories_videos');
+        Schema::dropIfExists('category_video');
     }
 }
