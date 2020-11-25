@@ -8,6 +8,7 @@ use App\Http\Resources\VideoItem;
 use App\Models\Category;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -16,11 +17,22 @@ class VideoController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return VideoCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $videos = Video::published()->get();
+        $query = Video::published();
+
+        $filters = $request->get('filters', []);
+
+        $timeFilter = Arr::get($filters, 'time');
+
+        if($timeFilter == 'week'){
+            $query->week();
+        }
+
+        $videos = $query->paginate();
 
         return new VideoCollection($videos);
     }
