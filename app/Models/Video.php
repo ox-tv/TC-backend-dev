@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -43,6 +44,18 @@ class Video extends Model
         if(auth()->check()){
             $query->where('user_id', auth()->user()->id);
         }
+        return $query;
+    }
+
+    // filters by time
+
+    public function scopeWeek($query){
+        $query->whereBetween('published_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        return $query;
+    }
+
+    public function scopeMonth($query){
+        $query->whereBetween('published_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
         return $query;
     }
 
