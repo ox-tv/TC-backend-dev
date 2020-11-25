@@ -21,6 +21,7 @@ class VideoItem extends JsonResource
             'slug' => $this->slug,
             'file_path' => $this->file_path,
             'url' => Storage::disk('videos')->url($this->file_path),
+            'categories' => CategoryCollection::make($this->categories),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at

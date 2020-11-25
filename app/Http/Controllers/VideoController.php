@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VideoStore;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
+use App\Models\Category;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +31,9 @@ class VideoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return VideoItem
      */
-    public function store(Request $request)
+    public function store(VideoStore $request)
     {
+
         $video = new Video();
 
         $video->title = $request->get('title');
@@ -40,14 +43,19 @@ class VideoController extends Controller
         // adding file to video
         if($request->file('video')){
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
-        }
 
-        $video->file_path = $videoFile;
+            $video->file_path = $videoFile;
+        }
 
         // adding user to video
         $video->user_id = auth()->user()->id;
 
         $video->save();
+
+        // adding categories
+        if($request->get('categories')){
+            $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+        }
 
         return new VideoItem($video);
 
@@ -67,23 +75,54 @@ class VideoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @param Video $video
+     * @return VideoItem
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Video $video)
     {
-        //
+        // updating title
+        if($request->get('title')){
+            $video->title = $request->get('title');
+
+            if(!$request->get('slug')){
+                $video->slug = Str::slug($request->get('title'));
+            }
+        }
+
+        // updating slug
+        if($request->get('slug')){
+            $video->slug = Str::slug($request->get('slug'));
+        }
+
+        // updating video file
+        if($request->file('video')){
+            $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
+
+            $video->file_path = $videoFile;
+        }
+
+        $video->save();
+
+        // updating categories
+        if($request->get('categories')){
+            $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+        }
+
+        return new VideoItem($video);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Video $video
+     * @return VideoItem
+     * @throws \Exception
      */
-    public function destroy($id)
+    public function destroy(Video $video)
     {
-        //
+        $video->delete();
+
+        return new VideoItem($video);
     }
 }
