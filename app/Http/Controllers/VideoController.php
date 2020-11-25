@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VideoStore;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
+use App\Models\Category;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +31,9 @@ class VideoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return VideoItem
      */
-    public function store(Request $request)
+    public function store(VideoStore $request)
     {
+
         $video = new Video();
 
         $video->title = $request->get('title');
@@ -40,14 +43,19 @@ class VideoController extends Controller
         // adding file to video
         if($request->file('video')){
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
-        }
 
-        $video->file_path = $videoFile;
+            $video->file_path = $videoFile;
+        }
 
         // adding user to video
         $video->user_id = auth()->user()->id;
 
         $video->save();
+
+        // adding categories
+        if($request->get('categories')){
+            $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+        }
 
         return new VideoItem($video);
 
