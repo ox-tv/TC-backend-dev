@@ -115,11 +115,14 @@ class VideoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Video $video
+     * @return VideoItem
+     * @throws \Exception
      */
-    public function destroy($id)
+    public function destroy(Video $video)
     {
-        //
+        $video->delete();
+
+        return new VideoItem($video);
     }
 }
