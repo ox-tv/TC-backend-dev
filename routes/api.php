@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Auth routes
+Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
+Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
