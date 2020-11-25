@@ -59,6 +59,18 @@ class Video extends Model
         return $query;
     }
 
+    // search scopes
+
+    public function scopeSearchTitle($query, $keyword){
+        $query->where('title', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
+    public function scopeSearchDescription($query, $keyword){
+        $query->where('description', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
     public function categories(){
         return $this->belongsToMany('App\Models\Category');
     }

@@ -27,9 +27,18 @@ class VideoController extends Controller
         $filters = $request->get('filters', []);
 
         $timeFilter = Arr::get($filters, 'time');
+        $searchFilter = Arr::get($filters, 'search');
 
         if($timeFilter == 'week'){
             $query->week();
+        }
+
+        if($searchFilter){
+            $query->where(function ($query) use ($searchFilter){
+                $query->SearchTitle($searchFilter);
+            })->orWhere(function ($query) use ($searchFilter){
+                $query->SearchDescription($searchFilter);
+            });
         }
 
         $videos = $query->paginate();
