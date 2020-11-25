@@ -45,4 +45,8 @@ class Video extends Model
         }
         return $query;
     }
+
+    public function categories(){
+        return $this->belongsToMany('App\Models\Category');
+    }
 }
