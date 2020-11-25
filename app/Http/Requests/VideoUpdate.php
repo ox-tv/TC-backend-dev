@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class VideoUpdate extends FormRequest
 {
@@ -26,7 +27,22 @@ class VideoUpdate extends FormRequest
         return [
             'title' => 'string',
             'categories' => 'exists:categories,id',
-            'video' => 'file'
+            'video' => 'file',
+            'youtube_link' => 'url'
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $parsedUrl = parse_url($this->request->get('youtube_link'),1);
+
+            if(!Str::contains(Str::lower($parsedUrl), 'youtube.com')) {
+                $validator->errors()->add('YouTube Link', 'video.validation.not_youtube_link');
+
+            }
+
+        });
     }
 }

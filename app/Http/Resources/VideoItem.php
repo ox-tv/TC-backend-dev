@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,8 +20,7 @@ class VideoItem extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
-            'file_path' => $this->file_path,
-            'url' => Storage::disk('videos')->url($this->file_path),
+            'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
             'categories' => CategoryCollection::make($this->categories),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

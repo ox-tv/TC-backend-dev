@@ -40,8 +40,12 @@ class VideoController extends Controller
         $video->slug = Str::slug($request->get('title'));
         $video->description = $request->get('description');
 
-        // adding file to video
-        if($request->file('video')){
+        if($request->get('youtube_link')){
+            $video->youtube_link = $request->get('youtube_link');
+
+            $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
+
+        }else if($request->file('video')){ // adding file to video
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
 
             $video->file_path = $videoFile;
@@ -64,12 +68,12 @@ class VideoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Video $video
+     * @return VideoItem
      */
-    public function show($id)
+    public function show(Video $video)
     {
-        //
+        return new VideoItem($video);
     }
 
     /**
@@ -95,11 +99,18 @@ class VideoController extends Controller
             $video->slug = Str::slug($request->get('slug'));
         }
 
-        // updating video file
-        if($request->file('video')){
+
+        if($request->get('youtube_link')){
+            $video->youtube_link = $request->get('youtube_link');
+
+            $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
+
+        }else if($request->file('video')){ // updating video file
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
 
             $video->file_path = $videoFile;
+
+            $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
 
         $video->save();
