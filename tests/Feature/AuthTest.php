@@ -29,10 +29,10 @@ class AuthTest extends TestCase
         $userDataPassword = $userData['password'];
         unset($userData['password']);
 
-        // after registration user must be deactive
+        // after registration user must be inactive
         // later that user verifies with a verification code
         // his/her status will change into active
-        $userData['status'] = User::STATUS_DEACTIVE;
+        $userData['status'] = User::STATUS_INACTIVE;
 
         $this->assertDatabaseHas('users', $userData);
 
