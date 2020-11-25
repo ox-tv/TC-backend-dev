@@ -24,7 +24,8 @@ class VideoItem extends JsonResource
             'categories' => CategoryCollection::make($this->categories),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'deleted_at' => $this->deleted_at
+            'deleted_at' => $this->deleted_at,
+            'published_at' => $this->published_at
         ];
     }
 }
