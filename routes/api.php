@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
+Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
