@@ -57,4 +57,56 @@ class VideoTest extends TestCase
 
     }
 
+    public function testVideoImportFromYoutubeWithValidData()
+    {
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+
+        $videoData = [
+            'title' => $this->faker->text(50),
+            'description' => $this->faker->paragraph(3),
+            'youtube_link' => "https://www.youtube.com/watch?v=u2jiRjyUbwA"
+        ];
+
+        $response = $this->json('POST', '/api/videos', $videoData, [
+            'Authorization' => "Bearer ".$apiToken
+        ]);
+
+        $response->assertStatus(201);
+
+        $videoDataToCheck = $videoData;
+        unset($videoDataToCheck['video']);
+
+        $this->assertDatabaseHas('videos', $videoDataToCheck);
+
+    }
+
+    public function testVideoImportFromYoutubeWithInvalidLink()
+    {
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+
+        $videoData = [
+            'title' => $this->faker->text(50),
+            'description' => $this->faker->paragraph(3),
+            'youtube_link' => "https://someotherdomain.com/watch?v=u2jiRjyUbwA"
+        ];
+
+        $response = $this->json('POST', '/api/videos', $videoData, [
+            'Authorization' => "Bearer ".$apiToken
+        ]);
+
+        $response->assertStatus(422);
+
+        $videoDataToCheck = $videoData;
+        unset($videoDataToCheck['video']);
+
+        $this->assertDatabaseMissing('videos', $videoDataToCheck);
+
+    }
+
 }
