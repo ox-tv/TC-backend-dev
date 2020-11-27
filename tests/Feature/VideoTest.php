@@ -32,7 +32,7 @@ class VideoTest extends TestCase
     {
         // adding a user to auth
         $user = User::factory()->create();
-        $this->actingAs($user);
+        $apiToken = $user->createToken('access_token')->accessToken;
 
         Storage::fake('videos');
 
@@ -44,7 +44,9 @@ class VideoTest extends TestCase
             'video' => $videoFile
         ];
 
-        $response = $this->json('POST', '/api/videos', $videoData);
+        $response = $this->json('POST', '/api/videos', $videoData, [
+            'Authorization' => "Bearer ".$apiToken
+        ]);
 
         $response->assertStatus(201);
 
