@@ -34,14 +34,14 @@ class VideoStore extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+                if($this->request->get('youtube_link')){
+                    $parsedUrl = parse_url($this->request->get('youtube_link'),1);
 
-                $parsedUrl = parse_url($this->request->get('youtube_link'),1);
+                    if(!Str::contains(Str::lower($parsedUrl), 'youtube.com')) {
+                        $validator->errors()->add('YouTube Link', 'video.validation.not_youtube_link');
 
-                if(!Str::contains(Str::lower($parsedUrl), 'youtube.com')) {
-                    $validator->errors()->add('YouTube Link', 'video.validation.not_youtube_link');
-
+                    }
                 }
-
         });
     }
 }
