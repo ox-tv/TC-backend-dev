@@ -11,8 +11,8 @@ class Category extends Model
     use HasFactory;
     use SoftDeletes;
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_DEACTIVE = 2;
+    const STATUS_INACTIVE = 1;
+    const STATUS_ACTIVE = 2;
 
     public function scopeActive($query){
         $query->where('status', self::STATUS_ACTIVE);
