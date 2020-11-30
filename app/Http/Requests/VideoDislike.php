@@ -35,7 +35,7 @@ class VideoDislike extends FormRequest
 
         $validator->after(function ($validator)use ($user, $video) {
             if($video->dislikedBy()->where('user_id', $user->id)->first()){
-                $validator->errors()->add('video', 'video.validation.already_liked');
+                $validator->errors()->add('video', 'video.validation.already_disliked');
             }
         });
     }
