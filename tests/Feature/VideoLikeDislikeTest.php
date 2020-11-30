@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Video;
-use App\Models\VideoUser;
+use App\Models\UserVideo;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -35,7 +35,7 @@ class VideoLikeDislikeTest extends TestCase
         $this->assertDatabaseHas('user_video', [
             'video_id' => $videoId,
             'user_id' => $user->id,
-            'relation' => VideoUser::LIKED_RELATION
+            'relation' => UserVideo::LIKED_RELATION
         ]);
     }
 
@@ -60,7 +60,7 @@ class VideoLikeDislikeTest extends TestCase
         $this->assertDatabaseHas('user_video', [
             'video_id' => $videoId,
             'user_id' => $user->id,
-            'relation' => VideoUser::DISLIKED_RELATION
+            'relation' => UserVideo::DISLIKED_RELATION
         ]);
     }
 

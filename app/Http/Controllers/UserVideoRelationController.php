@@ -9,7 +9,7 @@ use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
 use App\Models\Video;
-use App\Models\VideoUser;
+use App\Models\UserVideo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +22,7 @@ class UserVideoRelationController extends Controller
 
         $user = Auth::user();
 
-        $video->likedBy()->attach($user->id, ['relation' => VideoUser::LIKED_RELATION]);
+        $video->likedBy()->attach($user->id, ['relation' => UserVideo::LIKED_RELATION]);
 
     }
 
@@ -30,7 +30,7 @@ class UserVideoRelationController extends Controller
 
         $user = Auth::user();
 
-        $video->dislikedBy()->attach($user->id, ['relation' => VideoUser::DISLIKED_RELATION]);
+        $video->dislikedBy()->attach($user->id, ['relation' => UserVideo::DISLIKED_RELATION]);
 
     }
 }
