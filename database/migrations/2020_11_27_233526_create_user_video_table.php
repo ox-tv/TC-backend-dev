@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVideoUserTable extends Migration
+class CreateUserVideoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateVideoUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('video_user', function (Blueprint $table) {
+        Schema::create('user_video', function (Blueprint $table) {
             $table->unsignedBigInteger('video_id');
             $table->unsignedBigInteger('user_id');
 
