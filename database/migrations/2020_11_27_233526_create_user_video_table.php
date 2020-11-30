@@ -39,6 +39,6 @@ class CreateUserVideoTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('video_user');
+        Schema::dropIfExists('user_video');
     }
 }
