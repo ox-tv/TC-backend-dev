@@ -86,6 +86,12 @@ class VideoLikeDislikeTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+
+        $this->assertDatabaseHas('user_video', [
+            'video_id' => $videoId,
+            'user_id' => $user->id,
+            'relation' => UserVideo::LIKED_RELATION
+        ]);
     }
 
     public function testVideoCanBeDislikedOnlyOnce(){
@@ -110,6 +116,13 @@ class VideoLikeDislikeTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+
+        $this->assertDatabaseHas('user_video', [
+            'video_id' => $videoId,
+            'user_id' => $user->id,
+            'relation' => UserVideo::DISLIKED_RELATION
+        ]);
+
     }
 
     public function testCanNotLikedAndDisliked(){
