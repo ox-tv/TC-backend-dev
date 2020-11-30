@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class UserVideo extends Model
+{
+    use HasFactory;
+
+    const LIKED_RELATION = 1;
+    const DISLIKED_RELATION = -1;
+
+
+}
