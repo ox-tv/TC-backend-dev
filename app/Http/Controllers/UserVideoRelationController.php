@@ -22,6 +22,8 @@ class UserVideoRelationController extends Controller
 
         $user = Auth::user();
 
+        $video->dislikedBy()->detach($user->id);
+
         $video->likedBy()->attach($user->id, ['relation' => UserVideo::LIKED_RELATION]);
 
     }
@@ -29,6 +31,8 @@ class UserVideoRelationController extends Controller
     public function dislike(VideoDislike $request, Video $video){
 
         $user = Auth::user();
+
+        $video->likedBy()->detach($user->id);
 
         $video->dislikedBy()->attach($user->id, ['relation' => UserVideo::DISLIKED_RELATION]);
 
