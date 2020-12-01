@@ -19,4 +19,28 @@ class CommentsTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testCommentStore()
+    {
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $video = Video::factory()->create();
+
+        $commentData = [
+            'text' => $this->faker->text
+        ];
+
+        $response = $this->json('post', "/api/videos/{$video->id}/comments", $commentData, [
+            'Authorization' => "Bearer {$apiToken}"
+        ]);
+
+        $response->assertStatus(200);
+
+        $commentData['user_id'] = $user->id;
+        $commentData['video_id'] = $video->id;
+
+        $this->assertDatabaseHas('comments', $commentData);
+    }
+
 }
