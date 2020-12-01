@@ -27,3 +27,9 @@ Route::get('videos', '\App\Http\Controllers\VideoController@index');
 // Video like/dislike routes
 Route::middleware('auth:api')->get('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
 Route::middleware('auth:api')->get('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
+
+// Comments API
+Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
+
+// -- add a comment to a video
+Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');

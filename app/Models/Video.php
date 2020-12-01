@@ -85,6 +85,12 @@ class Video extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::DISLIKED_RELATION);
     }
 
+    public function comments(){
+        return $this->hasMany('App\Models\Comment');
+    }
+
+
+    // Attributes
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)->sum('relation');
     }
