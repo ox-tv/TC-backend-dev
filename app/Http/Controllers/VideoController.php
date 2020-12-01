@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -156,5 +159,23 @@ class VideoController extends Controller
         $video->delete();
 
         return new VideoItem($video);
+    }
+
+    /**
+     * Add comment to a video
+     *
+     * @param VideoComment $request
+     * @param Video $video
+     * @return void
+     */
+    public function comment(VideoComment $request, Video $video){
+
+        $user = Auth::user();
+
+        $comment = new Comment();
+        $comment->text = $request->get('text');
+        $comment->user_id = $user->id;
+        $comment->video()->associate($video);
+        $comment->save();
     }
 }
