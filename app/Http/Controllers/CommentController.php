@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CommentReply;
 use App\Http\Resources\CommentCollection;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -63,5 +65,21 @@ class CommentController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    /**
+     * Reply to a comment
+     * @param CommentReply $request
+     * @param Comment $comment
+     */
+    public function reply(CommentReply $request, Comment $comment){
+        $reply = new Comment();
+        $reply->text = $request->get('text');
+        $reply->user_id = Auth::user()->id;
+        $reply->video_id = $comment->video_id;
+        $reply->save();
+
+        $comment->parent()->save($reply);
     }
 }
