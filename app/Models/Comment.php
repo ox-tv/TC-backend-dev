@@ -16,4 +16,8 @@ class Comment extends Model
     public function video(){
         return $this->belongsTo('App\Models\Comment');
     }
+
+    public function parent(){
+        return $this->hasOne('App\Models\Comment', 'parent_id');
+    }
 }
