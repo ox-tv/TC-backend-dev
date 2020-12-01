@@ -34,6 +34,7 @@ class CreateCommentsTable extends Migration
                 ->on('comments');
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
