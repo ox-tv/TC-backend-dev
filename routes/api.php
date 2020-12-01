@@ -33,3 +33,5 @@ Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\Com
 
 // -- add a comment to a video
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
+// -- reply to a comment
+Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
