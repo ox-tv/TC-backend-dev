@@ -71,6 +71,7 @@ class CommentsTest extends TestCase
         $response->assertStatus(200);
 
         $commentReplyData['user_id'] = $user->id;
+        $commentReplyData['video_id'] = $comment->video_id;
         $commentReplyData['parent_id'] = $comment->id;
 
         $this->assertDatabaseHas('comments', $commentReplyData);
