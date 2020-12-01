@@ -14,9 +14,17 @@ class CommentsTest extends TestCase
 
     public function testCommentsList()
     {
-        $response = $this->json('get','/api/comments');
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $response = $this->json('get','/api/comments', [], [
+            'Authorization' => "Bearer {$apiToken}"
+        ]);
 
         $response->assertStatus(200);
+
+        $response->assertJson([]);
     }
 
     public function testCommentStore()
@@ -30,6 +38,7 @@ class CommentsTest extends TestCase
         $commentData = [
             'text' => $this->faker->text
         ];
+
 
         $response = $this->json('post', "/api/videos/{$video->id}/comments", $commentData, [
             'Authorization' => "Bearer {$apiToken}"
