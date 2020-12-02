@@ -20,4 +20,12 @@ class Comment extends Model
     public function parent(){
         return $this->hasOne('App\Models\Comment', 'parent_id');
     }
+
+    public function likedBy(){
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
+    }
+
+    public function dislikedBy(){
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
+    }
 }
