@@ -35,3 +35,6 @@ Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\Com
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
 // -- reply to a comment
 Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
+// -- like/dislike a comment
+Route::middleware('auth:api')->get('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like');
+Route::middleware('auth:api')->get('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike');
