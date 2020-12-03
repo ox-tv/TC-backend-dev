@@ -89,6 +89,10 @@ class Video extends Model
         return $this->hasMany('App\Models\Comment');
     }
 
+    public function playlists(){
+        return $this->belongsToMany('App\Models\Playlist');
+    }
+
 
     // Attributes
     public function getRatingAttribute(){

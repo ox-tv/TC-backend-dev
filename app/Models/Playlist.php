@@ -23,4 +23,8 @@ class Playlist extends Model
     public function user(){
         return $this->belongsTo('App\Models\User');
     }
+
+    public function videos(){
+        return $this->belongsToMany('App\Models\Video');
+    }
 }

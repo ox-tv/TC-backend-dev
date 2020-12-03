@@ -7,6 +7,7 @@ use App\Http\Requests\PlaylistUpdate;
 use App\Http\Resources\PlaylistCollection;
 use App\Http\Resources\PlaylistItem;
 use App\Models\Playlist;
+use App\Models\Video;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -86,5 +87,21 @@ class PlaylistController extends Controller
     public function destroy(Playlist $playlist)
     {
         $playlist->delete();
+    }
+
+    /**
+     * @param Playlist $playlist
+     * @param Video $video
+     */
+    public function add(Playlist $playlist, Video $video){
+        $playlist->videos()->attach($video);
+    }
+
+    /**
+     * @param Playlist $playlist
+     * @param Video $video
+     */
+    public function remove(Playlist $playlist, Video $video){
+        $playlist->videos()->detach($video);
     }
 }
