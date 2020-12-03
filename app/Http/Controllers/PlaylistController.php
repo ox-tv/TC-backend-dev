@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PlaylistStore;
+use App\Http\Requests\PlaylistUpdate;
 use App\Http\Resources\PlaylistCollection;
 use App\Http\Resources\PlaylistItem;
 use App\Models\Playlist;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class PlaylistController extends Controller
@@ -27,10 +29,10 @@ class PlaylistController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param PlaylistStore $request
      * @return PlaylistItem
      */
-    public function store(Request $request)
+    public function store(PlaylistStore $request)
     {
         $playlist = new Playlist();
 
@@ -47,8 +49,8 @@ class PlaylistController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
     public function show($id)
     {
@@ -58,11 +60,11 @@ class PlaylistController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param PlaylistUpdate $request
      * @param Playlist $playlist
      * @return PlaylistItem
      */
-    public function update(Request $request, Playlist $playlist)
+    public function update(PlaylistUpdate $request, Playlist $playlist)
     {
         $playlist->name = $request->get('name');
 
@@ -79,6 +81,7 @@ class PlaylistController extends Controller
      *
      * @param Playlist $playlist
      * @return void
+     * @throws Exception
      */
     public function destroy(Playlist $playlist)
     {
