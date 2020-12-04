@@ -41,12 +41,12 @@ Route::middleware('auth:api')->get('comments/{comment}/dislike', '\App\Http\Cont
 
 
 // Playlist API
-Route::middleware('auth:api')->apiResource('playlist', \App\Http\Controllers\PlaylistController::class);
+Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class);
 
 // -- add video to playlist
-Route::middleware('auth:api')->put('playlist/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');
+Route::middleware('auth:api')->put('playlists/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');
 // -- remove video from playlist
-Route::middleware('auth:api')->put('playlist/{playlist}/remove/{video}', '\App\Http\Controllers\PlaylistController@remove');
+Route::middleware('auth:api')->put('playlists/{playlist}/remove/{video}', '\App\Http\Controllers\PlaylistController@remove');
 
 
 // Channel API
