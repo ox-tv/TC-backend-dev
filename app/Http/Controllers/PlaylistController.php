@@ -10,6 +10,7 @@ use App\Models\Playlist;
 use App\Models\Video;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PlaylistController extends Controller
 {
@@ -94,6 +95,11 @@ class PlaylistController extends Controller
      * @param Video $video
      */
     public function add(Playlist $playlist, Video $video){
+
+        if($playlist->owner->id != Auth::user()->id){
+            throw new NotFoundHttpException();
+        }
+
         $playlist->videos()->attach($video);
     }
 
@@ -102,6 +108,11 @@ class PlaylistController extends Controller
      * @param Video $video
      */
     public function remove(Playlist $playlist, Video $video){
+
+        if($playlist->owner->id != Auth::user()->id){
+            throw new NotFoundHttpException();
+        }
+
         $playlist->videos()->detach($video);
     }
 }
