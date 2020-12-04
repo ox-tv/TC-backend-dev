@@ -36,6 +36,8 @@ class CreateChannelsTable extends Migration
                 ->references('id')
                 ->on('users');
 
+            $table->tinyInteger('status')->default(1);
+
             $table->timestamps();
             $table->softDeletes();
         });
