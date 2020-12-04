@@ -26,7 +26,7 @@ class VideoPlaylistTest extends TestCase
             'user_id' => $user->id
         ]);
 
-        $response = $this->json('PUT', "/api/playlist/{$playlist->id}/add/{$video->id}", [], [
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}", [], [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
@@ -54,7 +54,7 @@ class VideoPlaylistTest extends TestCase
         $playlist->videos()->attach($video);
 
 
-        $response = $this->json('PUT', "/api/playlist/{$playlist->id}/remove/{$video->id}", [], [
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}", [], [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
