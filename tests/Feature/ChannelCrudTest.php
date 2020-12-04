@@ -74,7 +74,7 @@ class ChannelCrudTest extends TestCase
             'image' => $image,
         ];
 
-        $response = $this->json('PUT', "/api/channel/{$channel->id}", $channelUpdatedData, [
+        $response = $this->json('PUT', "/api/channels/{$channel->id}", $channelUpdatedData, [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
@@ -98,7 +98,7 @@ class ChannelCrudTest extends TestCase
 
         $channel = Channel::factory()->create();
 
-        $response = $this->json('DELETE', "/api/channel/{$channel->id}", [], [
+        $response = $this->json('DELETE', "/api/channels/{$channel->id}", [], [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
