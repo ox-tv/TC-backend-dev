@@ -7,7 +7,7 @@ use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\ChannelCollection;
 use App\Http\Resources\ChannelItem;
 use App\Models\Channel;
-use Illuminate\Http\Request;
+use App\Models\Video;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -122,5 +122,21 @@ class ChannelController extends Controller
     public function destroy(Channel $channel)
     {
         $channel->delete();
+    }
+
+    /**
+     * @param Channel $channel
+     * @param Video $video
+     */
+    public function add(Channel $channel, Video $video){
+        $channel->videos()->attach($video);
+    }
+
+    /**
+     * @param Channel $channel
+     * @param Video $video
+     */
+    public function remove(Channel $channel, Video $video){
+        $channel->videos()->detach($video);
     }
 }
