@@ -11,6 +11,7 @@ use App\Models\Video;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ChannelController extends Controller
 {
@@ -129,6 +130,11 @@ class ChannelController extends Controller
      * @param Video $video
      */
     public function add(Channel $channel, Video $video){
+
+        if($channel->owner->id != Auth::user()->id){
+            throw new NotFoundHttpException();
+        }
+
         $channel->videos()->attach($video);
     }
 
@@ -137,6 +143,11 @@ class ChannelController extends Controller
      * @param Video $video
      */
     public function remove(Channel $channel, Video $video){
+
+        if($channel->owner->id != Auth::user()->id){
+            throw new NotFoundHttpException();
+        }
+
         $channel->videos()->detach($video);
     }
 }
