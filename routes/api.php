@@ -51,7 +51,3 @@ Route::middleware('auth:api')->put('playlist/{playlist}/remove/{video}', '\App\H
 
 // Channel API
 Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);
-
-
-
-
