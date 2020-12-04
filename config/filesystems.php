@@ -72,6 +72,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'channels' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/channels'),
+            'url' => env('APP_URL').'/storage/channels',
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
