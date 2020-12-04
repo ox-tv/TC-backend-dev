@@ -50,7 +50,7 @@ class ChannelVideoTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('channel_video', [
+        $this->assertDatabaseMissing('channel_video', [
             'channel_id' => $channel->id,
             'video_id' => $video->id
         ]);
