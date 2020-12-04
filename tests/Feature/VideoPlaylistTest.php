@@ -65,4 +65,59 @@ class VideoPlaylistTest extends TestCase
             'video_id' => $video->id
         ]);
     }
+
+    public function testVideoCanOnlyBeAddedToOwnedPlaylist(){
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $anotherUser = User::factory()->create();
+
+        $video = Video::factory()->create();
+
+        $playlist = Playlist::factory()->create([
+            'user_id' => $anotherUser->id
+        ]);
+
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}", [], [
+            'Authorization' => "Bearer {$apiToken}"
+        ]);
+
+
+        $response->assertStatus(404);
+
+        $this->assertDatabaseMissing('playlist_video', [
+            'playlist_id' => $playlist->id,
+            'video_id' => $video->id
+        ]);
+
+    }
+
+    public function testVideoCanOnlyBeRemovedFromOwnedPlaylist(){
+        // adding a user to auth
+        $user = User::factory()->create();
+        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $anotherUser = User::factory()->create();
+
+        $video = Video::factory()->create();
+
+        $playlist = Playlist::factory()->create([
+            'user_id' => $anotherUser->id
+        ]);
+
+        $playlist->videos()->attach($video);
+
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}", [], [
+            'Authorization' => "Bearer {$apiToken}"
+        ]);
+
+        $response->assertStatus(404);
+
+        $this->assertDatabaseHas('playlist_video', [
+            'playlist_id' => $playlist->id,
+            'video_id' => $video->id
+        ]);
+
+    }
 }
