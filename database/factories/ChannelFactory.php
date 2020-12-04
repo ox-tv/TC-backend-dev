@@ -27,7 +27,12 @@ class ChannelFactory extends Factory
             'slug' => $this->faker->slug(3),
             'url_hash' => md5($this->faker->text(50)),
             'description' => $this->faker->paragraph(3),
-            'user_id' => User::count()>0 ? User::all()->random(1)->first()->id : User::factory()->create()->id
+            'user_id' => User::count()>0 ? User::all()->random(1)->first()->id : User::factory()->create()->id,
+            'status' => $this->faker->randomElement([
+                Channel::STATUS_DRAFT,
+                Channel::STATUS_PUBLISHED,
+                Channel::STATUS_ARCHIVED,
+                Channel::STATUS_SUSPENDED])
         ];
     }
 }
