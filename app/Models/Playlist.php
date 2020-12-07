@@ -20,8 +20,8 @@ class Playlist extends Model
 
     // Relations
 
-    public function user(){
-        return $this->belongsTo('App\Models\User');
+    public function owner(){
+        return $this->belongsTo('App\Models\User', 'user_id');
     }
 
     public function videos(){

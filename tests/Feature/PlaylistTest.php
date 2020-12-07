@@ -19,7 +19,7 @@ class PlaylistTest extends TestCase
         $user = User::factory()->create();
         $apiToken = $user->createToken('access_token')->accessToken;
 
-        $response = $this->json('GET', '/api/playlist', [], [
+        $response = $this->json('GET', '/api/playlists', [], [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
@@ -37,7 +37,7 @@ class PlaylistTest extends TestCase
             'name' => $this->faker->text(50)
         ];
 
-        $response = $this->json('POST', '/api/playlist', $playlistData, [
+        $response = $this->json('POST', '/api/playlists', $playlistData, [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
@@ -57,7 +57,7 @@ class PlaylistTest extends TestCase
             'name' => $this->faker->text(50)
         ];
 
-        $response = $this->json('PUT', "/api/playlist/{$playlist->id}", $playlistUpdatedData, [
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}", $playlistUpdatedData, [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
@@ -78,7 +78,7 @@ class PlaylistTest extends TestCase
 
         $playlist = Playlist::factory()->create();
 
-        $response = $this->json('DELETE', "/api/playlist/{$playlist->id}", [], [
+        $response = $this->json('DELETE', "/api/playlists/{$playlist->id}", [], [
             'Authorization' => "Bearer {$apiToken}"
         ]);
 
