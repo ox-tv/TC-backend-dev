@@ -72,6 +72,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'videos_thumbnails' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/videos-thumbnails'),
+            'url' => env('APP_URL').'/storage/videos-thumbnails',
+            'visibility' => 'public',
+        ],
+
         'channels' => [
             'driver' => 'local',
             'root' => storage_path('app/public/channels'),
