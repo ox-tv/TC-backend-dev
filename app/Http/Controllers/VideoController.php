@@ -80,6 +80,14 @@ class VideoController extends Controller
 
         $video->save();
 
+        if($request->file('thumbnail')){
+            $thumbnailFile = Storage::disk('videos_thumbnails')->put("/{$video->id}/", $request->file('thumbnail'));
+
+            $video->thumbnail = $thumbnailFile;
+        }
+
+        $video->save();
+
         // adding categories
         if($request->get('categories')){
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
@@ -136,6 +144,14 @@ class VideoController extends Controller
 
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
+
+        if($request->file('thumbnail')){
+            $thumbnailFile = Storage::disk('thumbnail')->put("/{$video->id}/", $request->file('thumbnail'));
+
+            $video->thumbnail = $thumbnailFile;
+        }
+
+        $video->save();
 
         $video->save();
 
