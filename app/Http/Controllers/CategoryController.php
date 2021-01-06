@@ -6,7 +6,7 @@ use App\Http\Resources\CategoryItem;
 use App\Http\Resources\CategoryCollection;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -34,7 +34,10 @@ class CategoryController extends Controller
     {
         $category = new Category();
 
-        $category->name = $request->get('name');
+        $categoryName = $request->get('name');
+
+        $category->name = $categoryName;
+        $category->slug = Str::slug($categoryName);
         $category->status = $request->get('status', Category::STATUS_ACTIVE);
 
         $category->save();
@@ -63,8 +66,10 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
 
-        $category->name = $request->get('name');
+        $categoryName = $request->get('name');
 
+        $category->name = $categoryName;
+        $category->slug = Str::slug($categoryName);
         $category->status = $request->get('status', $category->status);
 
         $category->save();

@@ -19,10 +19,17 @@ class SampleDataSeeder extends Seeder
     {
         User::factory(10)->create();
 
-        $bitcoinCategory = Category::updateOrCreate(['name' => 'Bitcoin', 'status' => Category::STATUS_ACTIVE]);
-        $ethereumCategory = Category::updateOrCreate(['name' => 'Ethereum', 'status' => Category::STATUS_ACTIVE]);
-        $altcoinsCategory = Category::updateOrCreate(['name' => 'Altcoins', 'status' => Category::STATUS_ACTIVE]);
-        $difinanceCategory = Category::updateOrCreate(['name' => 'Di-finance', 'status' => Category::STATUS_ACTIVE]);
+        $categories = ['Bitcoin', 'Ethereum', 'Altcoins', 'Di-finance'];
+
+        $categoryIds = [];
+
+        foreach ($categories as $category){
+            $categoryIds[] = Category::updateOrCreate([
+                'name' => $category,
+                'slug' => Str::slug($category),
+                'status' => Category::STATUS_ACTIVE
+            ]);
+        }
 
         $video = Video::updateOrCreate([
             'title' => "Here's what different about bitcoin in 2020",
@@ -34,7 +41,7 @@ class SampleDataSeeder extends Seeder
             'user_id' => User::all()->random(1)->first()->id
             ]);
 
-        $video->categories()->attach($bitcoinCategory);
+        $video->categories()->attach($categoryIds[0]);
 
         $video = Video::updateOrCreate([
             'title' => "Bitcoin Could Become The Digital Gold - Steve Forbes | What's Ahead | Forbes",
@@ -48,7 +55,7 @@ class SampleDataSeeder extends Seeder
             'user_id' => User::all()->random(1)->first()->id
         ]);
 
-        $video->categories()->attach($bitcoinCategory);
+        $video->categories()->attach($categoryIds[0]);
 
 
     }
