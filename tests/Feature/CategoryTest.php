@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CategoryTest extends TestCase
@@ -28,8 +29,11 @@ class CategoryTest extends TestCase
 
     public function testCategoriesStore()
     {
+        $categoryName = $this->faker->text(50);
+
         $categoriesData = [
-            'name' => $this->faker->text(50),
+            'name' => $categoryName,
+            'slug' => Str::slug($categoryName),
             'status' => $this->faker->randomElement([1, 2])
         ];
 
@@ -44,8 +48,11 @@ class CategoryTest extends TestCase
     {
         $category = Category::factory()->create();
 
+        $categoryName = $this->faker->text(50);
+
         $categoryUpdatedData = [
-            'name' => $this->faker->text(50),
+            'name' => $categoryName,
+            'slug' => Str::slug($categoryName),
             'status' => $this->faker->randomElement([1, 2])
         ];
 
