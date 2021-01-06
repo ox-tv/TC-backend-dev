@@ -18,4 +18,10 @@ class Category extends Model
         $query->where('status', self::STATUS_ACTIVE);
         return $query;
     }
+
+    // Relations
+
+    public function videos(){
+        return $this->belongsToMany('App\Models\Video');
+    }
 }
