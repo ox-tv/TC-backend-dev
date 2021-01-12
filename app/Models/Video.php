@@ -71,6 +71,15 @@ class Video extends Model
         return $query;
     }
 
+    // category scope
+
+    public function scopeFilterCategory($query, $categoryId){
+        $query->whereHas('categories', function($q) use ($categoryId){
+            $q->where('id', $categoryId);
+        });
+        return $query;
+    }
+
 
     // relations
     public function categories(){
