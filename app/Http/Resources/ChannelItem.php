@@ -17,7 +17,9 @@ class ChannelItem extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'slug' => $this->slug,
             'url_hash' => $this->url_hash,
+            'avatar' => $this->avatar ?? asset('assets/images/default-avatar.png')
         ];
     }
 }
