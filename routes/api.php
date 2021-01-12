@@ -51,6 +51,8 @@ Route::middleware('auth:api')->put('playlists/{playlist}/remove/{video}', '\App\
 
 // Channel API
 Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);
+Route::get('channels', '\App\Http\Controllers\ChannelController@index');
+
 
 // -- add video to a channel
 Route::middleware('auth:api')->put('channels/{channel}/add/{video}', '\App\Http\Controllers\ChannelController@add');
