@@ -31,6 +31,7 @@ class VideoController extends Controller
 
         $timeFilter = Arr::get($filters, 'time');
         $searchFilter = Arr::get($filters, 'search');
+        $categoryId = Arr::get($filters, 'category_id');
 
         if($timeFilter == 'week'){
             $query->week();
@@ -42,6 +43,10 @@ class VideoController extends Controller
             })->orWhere(function ($query) use ($searchFilter){
                 $query->SearchDescription($searchFilter);
             });
+        }
+
+        if($categoryId){
+            $query->filterCategory($categoryId);
         }
 
         $videos = $query->paginate();

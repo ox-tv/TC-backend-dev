@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CategoryItem;
-use App\Http\Resources\CategoryCollection;
+use App\Http\Resources\Category\CategoryItem;
+use App\Http\Resources\Category\CategoryCollection;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

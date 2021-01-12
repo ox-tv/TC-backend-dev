@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Category;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +17,7 @@ class CategoryItem extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-
+            'slug' => $this->slug
         ];
     }
 }
