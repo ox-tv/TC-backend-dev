@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Channel;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Database\Seeder;
@@ -56,6 +57,22 @@ class SampleDataSeeder extends Seeder
         ]);
 
         $video->categories()->attach($categoryIds[0]);
+
+        $channels = ['Amir talks about bitcoin', 'Robert talks about Etherium', 'Someone talks about whatever he can'];
+
+        foreach ($channels as $channel){
+            Channel::updateOrCreate([
+                'name' => $channel,
+                'slug' => Str::slug($channel),
+                'user_id' => User::all()->random(1)->first()->id,
+                'status' => Channel::STATUS_PUBLISHED
+            ]);
+
+        }
+
+        Channel::all()->random(1)->first()->videos()->attach(Video::all()->random(1)->first->id);
+        Channel::all()->random(1)->first()->videos()->attach(Video::all()->random(1)->first->id);
+
 
 
     }
