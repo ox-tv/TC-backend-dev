@@ -21,8 +21,9 @@ class RegisterController extends Controller
 
         $verificationCode = rand(111111, 999999);
 
-        if (env('APP_DEBUG', false) == true) {
+        if (config('app.env') == 'local') {
             $verificationCode = 111111;
+            $user->status = User::STATUS_ACTIVE;
         }
 
         $user->email = $request->get('email');
