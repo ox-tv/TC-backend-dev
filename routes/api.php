@@ -58,3 +58,8 @@ Route::get('channels', '\App\Http\Controllers\ChannelController@index');
 Route::middleware('auth:api')->put('channels/{channel}/add/{video}', '\App\Http\Controllers\ChannelController@add');
 // -- remove video from channels
 Route::middleware('auth:api')->put('channels/{channel}/remove/{video}', '\App\Http\Controllers\ChannelController@remove');
+
+
+// User controller
+// -- get profile
+Route::middleware('auth:api')->get('profile', '\App\Http\Controllers\UserController@profile');
