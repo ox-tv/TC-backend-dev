@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 
 class ChannelStore extends FormRequest
 {
@@ -25,9 +24,8 @@ class ChannelStore extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'cover' => 'file',
-            'image' => 'file',
+            'name' => 'required|unique:channels',
+            'website' => 'sometimes|nullable|url'
         ];
     }
 

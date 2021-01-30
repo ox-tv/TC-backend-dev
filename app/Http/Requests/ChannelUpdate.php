@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ChannelUpdate extends FormRequest
 {
@@ -24,11 +25,12 @@ class ChannelUpdate extends FormRequest
      */
     public function rules()
     {
+
+        $thisChannelId = request()->route('channel') ?? Auth::user()->channel->id;
+        
         return [
-            'name' => 'required',
-            'cover' => 'file',
-            'image' => 'file',
-            'website' => 'url'
+            'name' => ['required', Rule::unique('channels')->ignore($thisChannelId)],
+            'website' => 'sometimes|nullable|url'
         ];
     }
 

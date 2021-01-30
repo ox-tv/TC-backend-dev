@@ -62,5 +62,15 @@ class Channel extends Model
         return $this->belongsToMany('App\Models\Video');
     }
 
+    // Accessors
+
+    public function getCoverAttribute($value){
+        return $value ? url($value) : $value;
+    }
+
+    public function getAvatarAttribute($value){
+        return $value ? url($value) : $value;
+    }
+
 
 }
