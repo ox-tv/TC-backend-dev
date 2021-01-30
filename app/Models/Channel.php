@@ -11,10 +11,19 @@ class Channel extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public $fillable = [
+      'user_id'
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_PUBLISHED = 2;
     const STATUS_ARCHIVED = 3;
     const STATUS_SUSPENDED = 4;
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     // Scopes
 
