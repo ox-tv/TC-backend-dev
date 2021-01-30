@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Playlist;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
@@ -13,15 +12,20 @@ class PlaylistTest extends TestCase
 {
     use DatabaseTransactions, WithFaker;
 
-    public function testPlaylistIndex()
+    protected function setUp(): void
     {
+        parent::setUp();
+
         // adding a user to auth
         $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
-        $response = $this->json('GET', '/api/playlists', [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $this->actingAs($user, 'api');
+    }
+
+    public function testPlaylistIndex()
+    {
+
+        $response = $this->json('GET', '/api/playlists');
 
         $response->assertStatus(200);
 
@@ -29,17 +33,12 @@ class PlaylistTest extends TestCase
     }
 
     public function testPlaylistStore(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $playlistData = [
             'name' => $this->faker->text(50)
         ];
 
-        $response = $this->json('POST', '/api/playlists', $playlistData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('POST', '/api/playlists', $playlistData);
 
         $response->assertStatus(201);
 
@@ -47,9 +46,6 @@ class PlaylistTest extends TestCase
     }
 
     public function testPlaylistUpdate(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $playlist = Playlist::factory()->create();
 
@@ -57,9 +53,7 @@ class PlaylistTest extends TestCase
             'name' => $this->faker->text(50)
         ];
 
-        $response = $this->json('PUT', "/api/playlists/{$playlist->id}", $playlistUpdatedData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}", $playlistUpdatedData);
 
         $response->assertStatus(200);
 
@@ -72,15 +66,10 @@ class PlaylistTest extends TestCase
     }
 
     public function testPlaylistDelete(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $playlist = Playlist::factory()->create();
 
-        $response = $this->json('DELETE', "/api/playlists/{$playlist->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('DELETE', "/api/playlists/{$playlist->id}");
 
         $response->assertStatus(200);
 

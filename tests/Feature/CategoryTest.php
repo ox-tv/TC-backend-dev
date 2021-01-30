@@ -12,6 +12,7 @@ class CategoryTest extends TestCase
 {
     use WithFaker;
     use DatabaseTransactions;
+
     /**
      * Categories list test..
      *

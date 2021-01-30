@@ -7,21 +7,27 @@ use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class CommentsTest extends TestCase
 {
     use WithFaker, DatabaseTransactions;
 
-    public function testCommentsList()
+    public function setUp(): void
     {
+        parent::setUp();
+
         // adding a user to auth
         $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
-        $response = $this->json('get','/api/comments', [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $this->actingAs($user, 'api');
+    }
+
+    public function testCommentsList()
+    {
+
+        $response = $this->json('get','/api/comments');
 
         $response->assertStatus(200);
 
@@ -30,9 +36,6 @@ class CommentsTest extends TestCase
 
     public function testCommentStore()
     {
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $video = Video::factory()->create();
 
@@ -41,22 +44,17 @@ class CommentsTest extends TestCase
         ];
 
 
-        $response = $this->json('post', "/api/videos/{$video->id}/comments", $commentData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('post', "/api/videos/{$video->id}/comments", $commentData);
 
         $response->assertStatus(200);
 
-        $commentData['user_id'] = $user->id;
+        $commentData['user_id'] = Auth::user()->id;
         $commentData['video_id'] = $video->id;
 
         $this->assertDatabaseHas('comments', $commentData);
     }
 
     public function testCommentReply(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $comment = Comment::factory()->create();
 
@@ -64,13 +62,11 @@ class CommentsTest extends TestCase
             'text' => $this->faker->text
         ];
 
-        $response = $this->json('post', "/api/comments/{$comment->id}/reply", $commentReplyData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('post', "/api/comments/{$comment->id}/reply", $commentReplyData);
 
         $response->assertStatus(200);
 
-        $commentReplyData['user_id'] = $user->id;
+        $commentReplyData['user_id'] = Auth::user()->id;
         $commentReplyData['video_id'] = $comment->video_id;
         $commentReplyData['parent_id'] = $comment->id;
 

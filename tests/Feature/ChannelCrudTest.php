@@ -14,24 +14,27 @@ class ChannelCrudTest extends TestCase
 
     use DatabaseTransactions, WithFaker;
 
-    public function testChannelList()
+
+    public function setUp(): void
     {
+        parent::setUp();
+
         // adding a user to auth
         $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
-        $response = $this->json('GET', '/api/channels', [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $this->actingAs($user, 'api');
+    }
+
+    public function testChannelList()
+    {
+
+        $response = $this->json('GET', '/api/channels');
 
         $response->assertStatus(200);
         $response->assertJson([]);
     }
 
     public function testChannelStore(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $coverPhoto = UploadedFile::fake()->image('faker-cover.png');
 
@@ -44,9 +47,7 @@ class ChannelCrudTest extends TestCase
             'image' => $image,
         ];
 
-        $response = $this->json('POST', '/api/channels', $channelData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('POST', '/api/channels', $channelData);
 
         $response->assertStatus(201);
 
@@ -58,9 +59,6 @@ class ChannelCrudTest extends TestCase
     }
 
     public function testChannelUpdate(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $channel = Channel::factory()->create();
 
@@ -74,9 +72,7 @@ class ChannelCrudTest extends TestCase
             'image' => $image,
         ];
 
-        $response = $this->json('PUT', "/api/channels/{$channel->id}", $channelUpdatedData, [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/channels/{$channel->id}", $channelUpdatedData);
 
         $response->assertStatus(200);
 
@@ -92,15 +88,10 @@ class ChannelCrudTest extends TestCase
     }
 
     public function testChannelDelete(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $channel = Channel::factory()->create();
 
-        $response = $this->json('DELETE', "/api/channels/{$channel->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('DELETE', "/api/channels/{$channel->id}");
 
         $response->assertStatus(200);
 
