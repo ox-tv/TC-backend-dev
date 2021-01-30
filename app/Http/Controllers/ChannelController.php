@@ -8,6 +8,7 @@ use App\Http\Resources\ChannelCollection;
 use App\Http\Resources\ChannelItem;
 use App\Models\Channel;
 use App\Models\Video;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -69,12 +70,30 @@ class ChannelController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Channel $channel
+     * @param Request $request
+     * @return ChannelItem
      */
-    public function show($id)
+    public function show(Channel $channel, Request $request)
     {
-        //
+        if($request->route('channel')){
+            return new ChannelItem($channel);
+        }
+
+        $user = Auth::user();
+        $userChannel = $user->channel;
+
+        if(is_null($userChannel)){
+            $newChannel = new Channel();
+            $newChannel->name = $user->username ? $user->username : $user->email;
+            $newChannel->owner()->associate($user);
+            $newChannel->save();
+            return new ChannelItem($newChannel);
+        }
+
+        return new ChannelItem($userChannel);
+
+
     }
 
     /**
@@ -86,6 +105,9 @@ class ChannelController extends Controller
      */
     public function update(ChannelUpdate $request, Channel $channel)
     {
+        if(is_null($request->route('channel'))){
+            $channel = Auth::user()->channel;
+        }
 
         $channel->name = $request->get('name');
         $channel->description = $request->get('description');
@@ -150,4 +172,5 @@ class ChannelController extends Controller
 
         $channel->videos()->detach($video);
     }
+
 }
