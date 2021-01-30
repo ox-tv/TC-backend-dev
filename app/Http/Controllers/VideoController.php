@@ -25,7 +25,14 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Video::published();
+
+        $publisherVideos = $request->is('api/publisher/videos');
+
+        if($publisherVideos){
+            $query = Video::mine();
+        }else{
+            $query = Video::published();
+        }
 
         $filters = $request->get('filters', []);
 
