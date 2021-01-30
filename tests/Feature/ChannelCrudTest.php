@@ -36,23 +36,23 @@ class ChannelCrudTest extends TestCase
 
     public function testChannelStore(){
 
-        $coverPhoto = UploadedFile::fake()->image('faker-cover.png');
+        $coverPhoto = UploadedFile::fake()->image('faker-cover.png')->name;
 
-        $image = UploadedFile::fake()->image('image.png');
+        $image = UploadedFile::fake()->image('image.png')->name;
 
         $channelData = [
             'name' => $this->faker->text,
             'description' => $this->faker->paragraph(3),
             'cover' => $coverPhoto,
-            'image' => $image,
+            'avatar' => $image,
         ];
 
         $response = $this->json('POST', '/api/channels', $channelData);
 
         $response->assertStatus(201);
 
-        unset($channelData['cover']);
-        unset($channelData['image']);
+        //unset($channelData['cover']);
+        //unset($channelData['image']);
 
 
         $this->assertDatabaseHas('channels', $channelData);
@@ -62,22 +62,22 @@ class ChannelCrudTest extends TestCase
 
         $channel = Channel::factory()->create();
 
-        $coverPhoto = UploadedFile::fake()->image('cover.png');
-        $image = UploadedFile::fake()->image('image.png');
+        $coverPhoto = UploadedFile::fake()->image('cover.png')->name;
+        $image = UploadedFile::fake()->image('image.png')->name;
 
         $channelUpdatedData = [
             'name' => $this->faker->text,
             'description' => $this->faker->paragraph(3),
             'cover' => $coverPhoto,
-            'image' => $image,
+            'avatar' => $image,
         ];
 
         $response = $this->json('PUT', "/api/channels/{$channel->id}", $channelUpdatedData);
 
         $response->assertStatus(200);
 
-        unset($channelUpdatedData['cover']);
-        unset($channelUpdatedData['image']);
+        //unset($channelUpdatedData['cover']);
+        //unset($channelUpdatedData['image']);
 
         $this->assertDatabaseHas('channels', $channelUpdatedData);
 
