@@ -14,6 +14,16 @@ class VideoTest extends TestCase
     use DatabaseTransactions;
     use WithFaker;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        // adding a user to auth
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'api');
+    }
+
     /**
      * List videos test.
      *
@@ -30,9 +40,6 @@ class VideoTest extends TestCase
 
     public function testVideoStore()
     {
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         Storage::fake('videos');
 
@@ -44,9 +51,7 @@ class VideoTest extends TestCase
             'video' => $videoFile
         ];
 
-        $response = $this->json('POST', '/api/videos', $videoData, [
-            'Authorization' => "Bearer ".$apiToken
-        ]);
+        $response = $this->json('POST', '/api/videos', $videoData);
 
         $response->assertStatus(201);
 
@@ -59,10 +64,6 @@ class VideoTest extends TestCase
 
     public function testVideoImportFromYoutubeWithValidData()
     {
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
-
 
         $videoData = [
             'title' => $this->faker->text(50),
@@ -70,9 +71,7 @@ class VideoTest extends TestCase
             'youtube_link' => "https://www.youtube.com/watch?v=u2jiRjyUbwA"
         ];
 
-        $response = $this->json('POST', '/api/videos', $videoData, [
-            'Authorization' => "Bearer ".$apiToken
-        ]);
+        $response = $this->json('POST', '/api/videos', $videoData);
 
         $response->assertStatus(201);
 
@@ -85,20 +84,13 @@ class VideoTest extends TestCase
 
     public function testVideoImportFromYoutubeWithInvalidLink()
     {
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
-
-
         $videoData = [
             'title' => $this->faker->text(50),
             'description' => $this->faker->paragraph(3),
             'youtube_link' => "https://someotherdomain.com/watch?v=u2jiRjyUbwA"
         ];
 
-        $response = $this->json('POST', '/api/videos', $videoData, [
-            'Authorization' => "Bearer ".$apiToken
-        ]);
+        $response = $this->json('POST', '/api/videos', $videoData);
 
         $response->assertStatus(422);
 

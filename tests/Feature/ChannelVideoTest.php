@@ -7,26 +7,32 @@ use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class ChannelVideoTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function testVideoCanBeAddedToChannel()
+    public function setUp(): void
     {
+        parent::setUp();
+
         // adding a user to auth
         $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $this->actingAs($user, 'api');
+    }
+
+    public function testVideoCanBeAddedToChannel()
+    {
 
         $channel = Channel::factory()->create([
-            'user_id' => $user->id
+            'user_id' => Auth::user()->id
         ]);
         $video = Video::factory()->create();
 
-        $response = $this->json('PUT', "/api/channels/{$channel->id}/add/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/channels/{$channel->id}/add/{$video->id}");
 
         $response->assertStatus(200);
 
@@ -37,20 +43,15 @@ class ChannelVideoTest extends TestCase
     }
 
     public function testVideoCanBeRemovedFromChannel(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $channel = Channel::factory()->create([
-            'user_id' => $user->id
+            'user_id' => Auth::user()->id
         ]);
         $video = Video::factory()->create();
 
         $channel->videos()->attach($video);
 
-        $response = $this->json('PUT', "/api/channels/{$channel->id}/remove/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/channels/{$channel->id}/remove/{$video->id}");
 
         $response->assertStatus(200);
 
@@ -87,9 +88,6 @@ class ChannelVideoTest extends TestCase
     }
 
     public function testVideoCanOnlyBeRemovedFromOwnedChannel(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $anotherUser = User::factory()->create();
 
@@ -101,9 +99,7 @@ class ChannelVideoTest extends TestCase
 
         $channel->videos()->attach($video);
 
-        $response = $this->json('PUT', "/api/channels/{$channel->id}/remove/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/channels/{$channel->id}/remove/{$video->id}");
 
         $response->assertStatus(404);
 

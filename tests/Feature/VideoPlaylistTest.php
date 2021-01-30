@@ -6,29 +6,33 @@ use App\Models\Playlist;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class VideoPlaylistTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function testVideoCanBeAddedToPlaylist()
+    protected function setUp(): void
     {
+        parent::setUp();
+
         // adding a user to auth
         $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
+
+        $this->actingAs($user, 'api');
+    }
+
+    public function testVideoCanBeAddedToPlaylist()
+    {
 
         $video = Video::factory()->create();
 
         $playlist = Playlist::factory()->create([
-            'user_id' => $user->id
+            'user_id' => Auth::user()->id
         ]);
 
-        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}");
 
         $response->assertStatus(200);
 
@@ -40,23 +44,18 @@ class VideoPlaylistTest extends TestCase
 
     public function testVideoCanBeDeletedFromPlaylist()
     {
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $video = Video::factory()->create();
 
         $playlist = Playlist::factory()->create([
-            'user_id' => $user->id
+            'user_id' => Auth::user()->id
         ]);
 
 
         $playlist->videos()->attach($video);
 
 
-        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}");
 
         $response->assertStatus(200);
 
@@ -67,9 +66,6 @@ class VideoPlaylistTest extends TestCase
     }
 
     public function testVideoCanOnlyBeAddedToOwnedPlaylist(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $anotherUser = User::factory()->create();
 
@@ -79,9 +75,7 @@ class VideoPlaylistTest extends TestCase
             'user_id' => $anotherUser->id
         ]);
 
-        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/add/{$video->id}");
 
 
         $response->assertStatus(404);
@@ -94,9 +88,6 @@ class VideoPlaylistTest extends TestCase
     }
 
     public function testVideoCanOnlyBeRemovedFromOwnedPlaylist(){
-        // adding a user to auth
-        $user = User::factory()->create();
-        $apiToken = $user->createToken('access_token')->accessToken;
 
         $anotherUser = User::factory()->create();
 
@@ -108,9 +99,7 @@ class VideoPlaylistTest extends TestCase
 
         $playlist->videos()->attach($video);
 
-        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}", [], [
-            'Authorization' => "Bearer {$apiToken}"
-        ]);
+        $response = $this->json('PUT', "/api/playlists/{$playlist->id}/remove/{$video->id}");
 
         $response->assertStatus(404);
 
