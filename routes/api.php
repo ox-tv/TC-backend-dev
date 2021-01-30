@@ -71,3 +71,13 @@ Route::middleware('auth:api')->get('profile', '\App\Http\Controllers\UserControl
 
 // -- upload
 Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadController@upload');
+
+
+// Publisher api routes
+Route::group([
+    'middleware' => 'auth:api',
+    'as' => '.publisher',
+    'prefix' => 'publisher'
+], function(){
+    Route::get('videos', '\App\Http\Controllers\VideoController@index');
+});
