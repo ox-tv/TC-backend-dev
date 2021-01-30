@@ -28,6 +28,7 @@ class ChannelUpdate extends FormRequest
             'name' => 'required',
             'cover' => 'file',
             'image' => 'file',
+            'website' => 'url'
         ];
     }
 
