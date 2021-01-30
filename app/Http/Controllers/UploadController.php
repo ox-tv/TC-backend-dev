@@ -15,7 +15,7 @@ class UploadController extends Controller
             'file' => [
                 'required',
                 'file',
-                'mimes:jpg,png,mov,mp4,mkv',
+                'image',
                 ],
         ]);
 
