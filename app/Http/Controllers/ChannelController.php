@@ -10,7 +10,6 @@ use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -45,18 +44,11 @@ class ChannelController extends Controller
         $channel->description = $request->get('description');
         $channel->slug = Str::slug($request->get('name'));
 
-        if($request->file('cover')){
-            $coverPhoto = Storage::disk('channels')->put('/', $request->file('cover'));
-            $channel->cover = $coverPhoto;
-        }
-
-        if($request->file('image')){
-            $channelImage = Storage::disk('channels')->put('/', $request->file('image'));
-            $channel->image = $channelImage;
-        }
+        $channel->cover = $request->get('cover');
+        $channel->avatar = $request->get('avatar');
 
         if($request->get('intro_video_id')){
-            $channel->intro_video_id = $request->get(intro_video_id);
+            $channel->intro_video_id = $request->get('intro_video_id');
         }
 
         $channel->user_id = Auth::user()->id;
@@ -114,20 +106,11 @@ class ChannelController extends Controller
 
         $channel->slug = $request->get('slug')? $request->get('slug'): Str::slug($request->get('name'));
 
-        if($request->file('cover')){
-            // Delete old cover file
-            $coverPhoto = Storage::disk('channels')->put('/', $request->file('cover'));
-            $channel->cover = $coverPhoto;
-        }
-
-        if($request->file('image')){
-            // Delete old image file
-            $channelImage = Storage::disk('channels')->put('/', $request->file('image'));
-            $channel->image = $channelImage;
-        }
+        $channel->cover = $request->get('cover');
+        $channel->avatar = $request->get('avatar');
 
         if($request->get('intro_video_id')){
-            $channel->intro_video_id = $request->get(intro_video_id);
+            $channel->intro_video_id = $request->get('intro_video_id');
         }
 
         $channel->save();
