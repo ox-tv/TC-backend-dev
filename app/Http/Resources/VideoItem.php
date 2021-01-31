@@ -20,6 +20,7 @@ class VideoItem extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'description' => $this->description,
             'slug' => $this->slug,
             'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
             'categories' => CategoryCollection::make($this->categories),
