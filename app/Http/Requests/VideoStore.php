@@ -25,7 +25,6 @@ class VideoStore extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required',
             'categories' => 'exists:categories,id',
             'youtube_link' => 'url'
         ];
