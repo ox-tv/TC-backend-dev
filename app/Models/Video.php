@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\OrderDescScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,11 @@ class Video extends Model
 
     use HasFactory;
     use SoftDeletes;
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new OrderDescScope);
+    }
 
     public function scopeDraft($query){
         $query->where('status', self::STATUS_DRAFT);
