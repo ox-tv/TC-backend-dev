@@ -90,13 +90,8 @@ class VideoController extends Controller
         // adding user to video
         $video->user_id = auth()->user()->id;
 
-        $video->save();
-
-        if($request->file('thumbnail')){
-            $thumbnailFile = Storage::disk('videos_thumbnails')->put("/{$video->id}/", $request->file('thumbnail'));
-
-            $video->thumbnail = $thumbnailFile;
-        }
+        // thumbnail
+        $video->thumbnail = $request->get('thumbnail');
 
         $video->save();
 
@@ -157,13 +152,7 @@ class VideoController extends Controller
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
 
-        if($request->file('thumbnail')){
-            $thumbnailFile = Storage::disk('thumbnail')->put("/{$video->id}/", $request->file('thumbnail'));
-
-            $video->thumbnail = $thumbnailFile;
-        }
-
-        $video->save();
+        $video->thumbnail = $request->get('thumbnail');
 
         $video->save();
 
