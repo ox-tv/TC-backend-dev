@@ -108,10 +108,18 @@ class VideoController extends Controller
      * Display the specified resource.
      *
      * @param Video $video
-     * @return VideoItem
+     * @param Request $request
+     * @return VideoItem|\Illuminate\Http\JsonResponse
      */
-    public function show(Video $video)
+    public function show(Video $video, Request $request)
     {
+
+        if(!($request->route('video')->isPublished || $request->route('video')->isMine)){
+            return response()->json([
+                'message' => 'You can\'t access this video'
+            ], 422);
+        }
+
         return new VideoItem($video);
     }
 

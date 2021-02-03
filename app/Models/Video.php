@@ -118,4 +118,13 @@ class Video extends Model
         return UserVideo::where('video_id', $this->id)->sum('relation');
     }
 
+    public function getIsPublishedAttribute(){
+        return $this->status == self::STATUS_PUBLISHED;
+    }
+
+    public function getIsMineAttribute(){
+        return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
+    }
+
+
 }
