@@ -138,6 +138,8 @@ class VideoController extends Controller
             $video->slug = Str::slug($request->get('slug'));
         }
 
+        $video->description = $request->get('description');
+
 
         if($request->get('youtube_link')){
             $video->youtube_link = $request->get('youtube_link');
