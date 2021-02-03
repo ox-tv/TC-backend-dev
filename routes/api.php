@@ -23,6 +23,7 @@ Route::apiResource('categories', \App\Http\Controllers\CategoryController::class
 // Video API routes
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
+Route::get('videos/{video}', '\App\Http\Controllers\VideoController@show');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->get('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
