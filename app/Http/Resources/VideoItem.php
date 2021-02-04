@@ -17,16 +17,19 @@ class VideoItem extends JsonResource
      */
     public function toArray($request)
     {
+        $withComments = in_array('comments', explode(',', $request->get('include', '')));
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'slug' => $this->slug,
             'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
-            'categories' => CategoryCollection::make($this->categories),
             'thumbnail' => $this->thumbnail,
             'rating' => $this->rating,
             'user' => new UserItem($this->user),
+            'categories' => CategoryCollection::make($this->categories),
+            'comments' => $this->when($withComments ,$this->comments()->paginate(100)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
