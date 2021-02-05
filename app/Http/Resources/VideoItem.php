@@ -7,6 +7,8 @@ use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
+use FFMpeg;
+
 class VideoItem extends JsonResource
 {
     /**
@@ -18,6 +20,11 @@ class VideoItem extends JsonResource
     public function toArray($request)
     {
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
+
+        $ffprobe = FFMpeg\FFProbe::create([
+            'ffmpeg.binaries'  => '/usr/local/bin/ffmpeg',
+            'ffprobe.binaries' => '/usr/local/bin/ffprobe'
+        ]);
 
         return [
             'id' => $this->id,
@@ -34,6 +41,10 @@ class VideoItem extends JsonResource
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
             'published_at' => $this->published_at,
+            'duration' => $this->file_path ? $ffprobe
+                ->format(Storage::disk('videos')->path($this->file_path)
+                ) // extracts file informations
+                ->get('duration') : 0
         ];
     }
 }
