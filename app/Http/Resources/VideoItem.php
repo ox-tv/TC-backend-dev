@@ -22,8 +22,8 @@ class VideoItem extends JsonResource
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
 
         $ffprobe = FFMpeg\FFProbe::create([
-            'ffmpeg.binaries'  => '/usr/local/bin/ffmpeg',
-            'ffprobe.binaries' => '/usr/local/bin/ffprobe'
+            'ffmpeg.binaries'  => config('video.ffmpeg_binaries'),
+            'ffprobe.binaries' => config('video.ffprobe_binaries')
         ]);
 
         return [
