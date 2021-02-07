@@ -18,7 +18,7 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = Comment::paginate();
+        $comments = Comment::whereNull('parent_id')->paginate();
 
         return new CommentCollection($comments);
     }
