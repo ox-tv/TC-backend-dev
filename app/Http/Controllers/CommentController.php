@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\CommentCollection;
+use App\Http\Resources\CommentItem;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,12 +37,12 @@ class CommentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Comment $comment
+     * @return CommentItem
      */
-    public function show($id)
+    public function show(Comment $comment)
     {
-        //
+        return new CommentItem($comment);
     }
 
     /**
