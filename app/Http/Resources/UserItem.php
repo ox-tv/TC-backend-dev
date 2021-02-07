@@ -16,7 +16,7 @@ class UserItem extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
             'avatar' => config('app.url').'/assets/images/default-avatar.png',
             'created_at' => $this->created_at,
