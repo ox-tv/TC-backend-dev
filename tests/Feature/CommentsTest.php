@@ -64,7 +64,7 @@ class CommentsTest extends TestCase
 
         $response = $this->json('post', "/api/comments/{$comment->id}/reply", $commentReplyData);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         $commentReplyData['user_id'] = Auth::user()->id;
         $commentReplyData['video_id'] = $comment->video_id;
