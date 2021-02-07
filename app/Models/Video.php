@@ -112,6 +112,10 @@ class Video extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    public function channels(){
+        return $this->belongsToMany('App\Models\Channel');
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
