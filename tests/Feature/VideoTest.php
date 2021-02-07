@@ -40,6 +40,7 @@ class VideoTest extends TestCase
 
     public function testVideoStore()
     {
+        $this->withoutExceptionHandling();
 
         Storage::fake('videos');
 
