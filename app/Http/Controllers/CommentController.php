@@ -82,5 +82,7 @@ class CommentController extends Controller
         $reply->save();
 
         $comment->parent()->save($reply);
+
+        return new CommentItem($comment);
     }
 }
