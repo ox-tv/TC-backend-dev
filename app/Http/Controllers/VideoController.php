@@ -14,6 +14,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use FFMpeg;
 
 class VideoController extends Controller
 {
@@ -85,6 +86,11 @@ class VideoController extends Controller
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
 
             $video->file_path = $videoFile;
+
+            // duration
+
+            $video->duration = $this->getDuration($videoFile);
+
         }
 
         // adding user to video
@@ -162,6 +168,10 @@ class VideoController extends Controller
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
 
+        if(is_null($video->duration) && !is_null($video->file_path)){
+            $video->duration = $this->getDuration($video->file_path);
+        }
+
         $video->thumbnail = $request->get('thumbnail');
 
         $video->save();
@@ -205,4 +215,21 @@ class VideoController extends Controller
         $comment->video()->associate($video);
         $comment->save();
     }
+
+    private function getDuration($filePath){
+
+        try {
+            $ffprobe = FFMpeg\FFProbe::create([
+                'ffmpeg.binaries'  => config('video.ffmpeg_binaries'),
+                'ffprobe.binaries' => config('video.ffprobe_binaries')
+            ]);
+
+            return $ffprobe
+                ->format(Storage::disk('videos')->path($filePath)
+                )->get('duration');
+        }catch (\Exception $e){
+            return null;
+        }
+    }
+
 }
