@@ -18,6 +18,7 @@ class VideoItem extends JsonResource
      */
     public function toArray($request)
     {
+        //dd($this->channels->first());
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
 
         return [
@@ -29,6 +30,7 @@ class VideoItem extends JsonResource
             'thumbnail' => $this->thumbnail,
             'rating' => $this->rating,
             'user' => new UserItem($this->user),
+            'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
             'comments' => $this->when($withComments ,$this->comments()->paginate(100)),
             'created_at' => $this->created_at,
