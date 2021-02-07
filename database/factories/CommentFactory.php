@@ -27,6 +27,7 @@ class CommentFactory extends Factory
             'text' => $this->faker->text(50),
             'user_id' => User::count()>0 ? User::all()->random(1)->first()->id : User::factory()->create()->id,
             'video_id' => Video::count()>0 ? Video::all()->random(1)->first()->id : Video::factory()->create()->id,
+            'parent_id' => Comment::count()>0 ? Comment::all()->random(1)->first()->id : null,
         ];
     }
 }
