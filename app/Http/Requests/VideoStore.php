@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Video;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class VideoStore extends FormRequest
 {
@@ -26,6 +28,7 @@ class VideoStore extends FormRequest
     {
         return [
             'categories' => 'exists:categories,id',
+            'status' => Rule::in([Video::STATUS_DRAFT, Video::STATUS_PUBLISHED]),
             'youtube_link' => 'url'
         ];
     }

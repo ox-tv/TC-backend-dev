@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Video;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class VideoUpdate extends FormRequest
 {
@@ -28,7 +30,8 @@ class VideoUpdate extends FormRequest
             'title' => 'string',
             'categories' => 'exists:categories,id',
             'video' => 'file',
-            'youtube_link' => 'url'
+            'youtube_link' => 'url',
+            'status' => Rule::in([Video::STATUS_DRAFT, Video::STATUS_PUBLISHED]),
         ];
     }
 
