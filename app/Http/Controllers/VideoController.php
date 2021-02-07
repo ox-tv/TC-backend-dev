@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
+use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
@@ -99,6 +100,9 @@ class VideoController extends Controller
         // thumbnail
         $video->thumbnail = $request->get('thumbnail');
 
+        // status
+        $video->status = $request->get('status');
+
         $video->save();
 
         // adding categories
@@ -136,7 +140,7 @@ class VideoController extends Controller
      * @param Video $video
      * @return VideoItem
      */
-    public function update(Request $request, Video $video)
+    public function update(VideoUpdate $request, Video $video)
     {
         // updating title
         if($request->get('title')){
@@ -168,11 +172,16 @@ class VideoController extends Controller
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
 
+        // duration
         if(is_null($video->duration) && !is_null($video->file_path)){
             $video->duration = $this->getDuration($video->file_path);
         }
 
+        // thumbnail
         $video->thumbnail = $request->get('thumbnail');
+
+        // status
+        $video->status = $request->get('status');
 
         $video->save();
 
