@@ -19,6 +19,17 @@ class Category extends Model
         return $query;
     }
 
+    public function scopeHasVideo($query){
+        $query->whereHas('videos');
+        return $query;
+    }
+
+    public function scopeFeatured($query){
+        $query->active();
+        $query->where('featured', 1);
+        return $query;
+    }
+
     // Relations
 
     public function videos(){
