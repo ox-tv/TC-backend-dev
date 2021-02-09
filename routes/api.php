@@ -18,6 +18,9 @@ Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register'
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
 Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
+// Home Page
+Route::get('home', '\App\Http\Controllers\GeneralController@home');
+
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
 // Video API routes
