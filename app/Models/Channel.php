@@ -12,7 +12,7 @@ class Channel extends Model
     use HasFactory, SoftDeletes;
 
     public $fillable = [
-      'user_id'
+      'name', 'user_id'
     ];
 
     const STATUS_DRAFT = 1;
