@@ -18,7 +18,6 @@ class VideoItem extends JsonResource
      */
     public function toArray($request)
     {
-        //dd($this->channels->first());
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
 
         return [
@@ -29,6 +28,8 @@ class VideoItem extends JsonResource
             'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
             'thumbnail' => $this->thumbnail,
             'rating' => $this->rating,
+            'view_count' => $this->view_count,
+            'duration' => $this->duration,
             'user' => new UserItem($this->user),
             'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
@@ -37,7 +38,6 @@ class VideoItem extends JsonResource
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
             'published_at' => $this->published_at,
-            'duration' => $this->duration
         ];
     }
 }
