@@ -130,5 +130,9 @@ class Video extends Model
         return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
     }
 
+    public function getViewCountAttribute(){
+        return rand(1, 2000);
+    }
+
 
 }
