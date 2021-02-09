@@ -8,6 +8,7 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
+use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -105,6 +106,18 @@ class VideoController extends Controller
 
         $video->save();
 
+        // channel
+        $channel = Auth::user()->channel;
+
+        if(is_null($channel)){
+            $channel = Channel::create([
+                'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
+                'user_id' => Auth::user()->id
+            ]);
+        }
+
+        $video->channels()->save($channel);
+
         // adding categories
         if($request->get('categories')){
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
@@ -184,6 +197,20 @@ class VideoController extends Controller
         $video->status = $request->get('status');
 
         $video->save();
+
+        if(is_null($video->channels()->first())){
+            // channel
+            $channel = Auth::user()->channel;
+
+            if(is_null($channel)){
+                $channel = Channel::create([
+                    'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
+                    'user_id' => Auth::user()->id
+                ]);
+            }
+
+            $video->channels()->save($channel);
+        }
 
         // updating categories
         if($request->get('categories')){
