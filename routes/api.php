@@ -58,6 +58,7 @@ Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\Cha
 Route::middleware('auth:api')->get('channel/{channel?}', '\App\Http\Controllers\ChannelController@show');
 Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
 Route::get('channels', '\App\Http\Controllers\ChannelController@index');
+Route::middleware('auth:api')->put('channels/{channel}/subscription', '\App\Http\Controllers\ChannelController@subscription');
 
 
 // -- add video to a channel
