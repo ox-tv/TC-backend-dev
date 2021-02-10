@@ -31,7 +31,7 @@ class VideoItem extends JsonResource
             'rating' => $this->rating,
             'view_count' => $this->view_count,
             'duration' => $this->duration,
-            'status' => Video::STATUS_TEXT[$this->status],
+            'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
             'user' => new UserItem($this->user),
             'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
