@@ -50,4 +50,8 @@ class User extends Authenticatable
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
     }
+
+    public function subscribedChannels(){
+        return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
+    }
 }

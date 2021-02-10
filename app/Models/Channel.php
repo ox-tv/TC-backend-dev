@@ -62,5 +62,9 @@ class Channel extends Model
         return $this->belongsToMany('App\Models\Video');
     }
 
+    public function subscribers(){
+        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id');
+    }
+
 
 }
