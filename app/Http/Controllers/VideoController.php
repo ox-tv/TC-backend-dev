@@ -16,7 +16,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use FFMpeg;
 
 class VideoController extends Controller
 {
@@ -89,10 +88,6 @@ class VideoController extends Controller
 
             $video->file_path = $videoFile;
 
-            // duration
-
-            $video->duration = $this->getDuration($videoFile);
-
         }
 
         // adding user to video
@@ -102,21 +97,11 @@ class VideoController extends Controller
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        $video->status = $request->get('status');
-
-        $video->save();
-
-        // channel
-        $channel = Auth::user()->channel;
-
-        if(is_null($channel)){
-            $channel = Channel::create([
-                'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
-                'user_id' => Auth::user()->id
-            ]);
+        if($request->get('status')){
+            $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
-        $video->channels()->save($channel);
+        $video->save();
 
         // adding categories
         if($request->get('categories')){
@@ -130,14 +115,21 @@ class VideoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Video $video
+     * @param mixed $id_or_url_hash
      * @param Request $request
      * @return VideoItem|\Illuminate\Http\JsonResponse
      */
-    public function show(Video $video, Request $request)
+    public function show($id_or_url_hash, Request $request)
     {
+        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
 
-        if(!($request->route('video')->isPublished || $request->route('video')->isMine)){
+        if(is_null($video)){
+            return response()->json([
+                'message' => _('general.not_found')
+            ],404);
+        }
+
+        if(!($video->isPublished || $video->isMine)){
             return response()->json([
                 'message' => 'You can\'t access this video'
             ], 422);
@@ -185,32 +177,15 @@ class VideoController extends Controller
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
         }
 
-        // duration
-        if(is_null($video->duration) && !is_null($video->file_path)){
-            $video->duration = $this->getDuration($video->file_path);
-        }
-
         // thumbnail
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        $video->status = $request->get('status');
+        if($request->get('status')){
+            $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
+        }
 
         $video->save();
-
-        if(is_null($video->channels()->first())){
-            // channel
-            $channel = Auth::user()->channel;
-
-            if(is_null($channel)){
-                $channel = Channel::create([
-                    'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
-                    'user_id' => Auth::user()->id
-                ]);
-            }
-
-            $video->channels()->save($channel);
-        }
 
         // updating categories
         if($request->get('categories')){
@@ -250,22 +225,6 @@ class VideoController extends Controller
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
-    }
-
-    private function getDuration($filePath){
-
-        try {
-            $ffprobe = FFMpeg\FFProbe::create([
-                'ffmpeg.binaries'  => config('video.ffmpeg_binaries'),
-                'ffprobe.binaries' => config('video.ffprobe_binaries')
-            ]);
-
-            return $ffprobe
-                ->format(Storage::disk('videos')->path($filePath)
-                )->get('duration');
-        }catch (\Exception $e){
-            return null;
-        }
     }
 
 }
