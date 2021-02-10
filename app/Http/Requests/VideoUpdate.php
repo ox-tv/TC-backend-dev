@@ -31,7 +31,7 @@ class VideoUpdate extends FormRequest
             'categories' => 'exists:categories,id',
             'video' => 'file',
             'youtube_link' => 'url',
-            'status' => Rule::in([Video::STATUS_DRAFT, Video::STATUS_PUBLISHED]),
+            'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
         ];
     }
 
