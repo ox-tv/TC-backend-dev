@@ -39,7 +39,7 @@ class Video extends Model
                 $model->save();
             }
 
-            if(is_null($model->channels()->first())){
+            if(is_null($model->channels()->first()) && Auth::check('api')){
                 // channel
                 $channel = Auth::user()->channel;
 
