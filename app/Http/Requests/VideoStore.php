@@ -28,7 +28,7 @@ class VideoStore extends FormRequest
     {
         return [
             'categories' => 'exists:categories,id',
-            'status' => Rule::in([Video::STATUS_DRAFT, Video::STATUS_PUBLISHED]),
+            'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
             'youtube_link' => 'url'
         ];
     }
