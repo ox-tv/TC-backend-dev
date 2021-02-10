@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Video extends Model
 {
@@ -31,6 +32,37 @@ class Video extends Model
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
+
+        self::saved(function($model){
+            if(is_null($model->url_hash) && !is_null($model->id)){
+                $model->url_hash = encode_id(str_pad($model->id,10,0,STR_PAD_RIGHT));
+                $model->save();
+            }
+
+            if(is_null($model->channels()->first())){
+                // channel
+                $channel = Auth::user()->channel;
+
+                if(is_null($channel)){
+                    $channel = Channel::create([
+                        'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
+                        'user_id' => Auth::user()->id
+                    ]);
+                }
+
+                $model->channels()->save($channel);
+            }
+
+            // duration
+            if(is_null($model->duration) && !is_null($model->file_path)){
+                $model->duration = get_duration($model->file_path);
+
+                if($model->duration){
+                    $model->save();
+                }
+            }
+
+        });
     }
 
     public function scopeDraft($query){
