@@ -140,7 +140,9 @@ class ChannelController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $channel->videos()->attach($video);
+        if(is_null($video->channels()->first())){
+            $channel->videos()->attach($video);
+        }
     }
 
     /**

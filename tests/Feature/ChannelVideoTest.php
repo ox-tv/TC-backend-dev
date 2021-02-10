@@ -49,8 +49,6 @@ class ChannelVideoTest extends TestCase
         ]);
         $video = Video::factory()->create();
 
-        $channel->videos()->attach($video);
-
         $response = $this->json('PUT', "/api/channels/{$channel->id}/remove/{$video->id}");
 
         $response->assertStatus(200);
