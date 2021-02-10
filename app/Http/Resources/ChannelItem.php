@@ -29,6 +29,7 @@ class ChannelItem extends JsonResource
             "slogan" => $this->slogan,
             "user" => $this->owner,
             "status" => $this->status,
+            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
         ];
