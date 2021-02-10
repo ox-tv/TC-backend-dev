@@ -158,4 +158,22 @@ class ChannelController extends Controller
         $channel->videos()->detach($video);
     }
 
+    /**
+     * @param Channel $channel
+     */
+    public function subscription(Channel $channel){
+
+        $user = Auth::user();
+
+        if($channel->subscribers()->find($user->id)){
+            $channel->subscribers()->detach(Auth::user());
+        }else{
+            $channel->subscribers()->attach(Auth::user());
+        }
+
+        return new ChannelItem($channel);
+
+    }
+
+
 }
