@@ -6,6 +6,7 @@ use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
@@ -37,6 +38,26 @@ class Comment extends Model
 
     public function dislikedBy(){
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
+    }
+
+    public function getIsLikedAttribute(){
+        if(auth('api')->check()){
+            if($this->likedBy()->find(Auth::user()->id)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getIsDislikedAttribute(){
+        if(auth('api')->check()){
+            if($this->dislikedBy()->find(Auth::user()->id)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function replies(){
