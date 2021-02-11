@@ -3,18 +3,18 @@
 namespace Database\Factories;
 
 use App\Models\Comment;
+use App\Models\CommentUser;
 use App\Models\User;
-use App\Models\Video;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CommentFactory extends Factory
+class CommentUserFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Comment::class;
+    protected $model = CommentUser::class;
 
     /**
      * Define the model's default state.
@@ -24,10 +24,9 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
-            'text' => $this->faker->text(50),
+            'comment_id' => Comment::count()>0 ? Comment::all()->random(1)->first()->id : Comment::factory()->create()->id,
             'user_id' => User::count()>0 ? User::all()->random(1)->first()->id : User::factory()->create()->id,
-            'video_id' => Video::count()>0 ? Video::all()->random(1)->first()->id : Video::factory()->create()->id,
-            'parent_id' => rand(1,10) > 5 ? (Comment::count()>0 ? Comment::all()->random(1)->first()->id : null) : null,
+            'relation' => $this->faker->randomElement([1,-1]),
         ];
     }
 }
