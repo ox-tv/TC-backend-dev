@@ -9,6 +9,8 @@ class CommentUser extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'comment_user';
 
     const LIKED_RELATION = 1;
