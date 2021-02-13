@@ -26,9 +26,9 @@ class CommentItem extends JsonResource
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
             'user' => new UserItem($this->user),
-            'video' => new VideoItem($this->video),
+            'video' => new VideoSummaryItem($this->video),
             'replies_count' => $this->replies()->count(),
-            'replies' => $this->when($withReplies, CommentCollection::make($this->replies)),
+            'replies' => $this->when($withReplies, CommentSummaryCollection::make($this->replies)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at
