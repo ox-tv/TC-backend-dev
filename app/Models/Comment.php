@@ -6,7 +6,6 @@ use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
@@ -42,7 +41,7 @@ class Comment extends Model
 
     public function getIsLikedAttribute(){
         if(auth('api')->check()){
-            if($this->likedBy()->find(Auth::user()->id)){
+            if($this->likedBy()->find(auth('api')->user()->id)){
                 return true;
             }
         }
@@ -52,7 +51,7 @@ class Comment extends Model
 
     public function getIsDislikedAttribute(){
         if(auth('api')->check()){
-            if($this->dislikedBy()->find(Auth::user()->id)){
+            if($this->dislikedBy()->find(auth('api')->user()->id)){
                 return true;
             }
         }
