@@ -204,6 +204,19 @@ class VideoController extends Controller
             $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
         }
 
+        // updating tags
+        if($request->get('tags')){
+            $tags = collect($request->get('tags', []));
+
+            $tagIds = $tags->map(function ($tag){
+                return Tag::firstOrCreate([
+                    'name' => $tag
+                ])->id;
+            });
+
+            $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+        }
+
         return new VideoItem($video);
     }
 
