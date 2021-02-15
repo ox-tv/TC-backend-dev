@@ -8,8 +8,8 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
-use App\Models\Channel;
 use App\Models\Comment;
+use App\Models\Tag;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -108,6 +108,17 @@ class VideoController extends Controller
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
         }
 
+        // adding tags
+        if($request->get('tags')){
+            $tags = collect($request->get('tags', []));
+
+            $tags->map(function ($tag) use ($video){
+                $video->tags()->save(Tag::firstOrCreate([
+                    'name' => $tag
+                ]));
+            });
+        }
+
         return new VideoItem($video);
 
     }
@@ -190,6 +201,19 @@ class VideoController extends Controller
         // updating categories
         if($request->get('categories')){
             $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+        }
+
+        // updating tags
+        if($request->get('tags')){
+            $tags = collect($request->get('tags', []));
+
+            $tagIds = $tags->map(function ($tag){
+                return Tag::firstOrCreate([
+                    'name' => $tag
+                ])->id;
+            });
+
+            $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
         }
 
         return new VideoItem($video);
