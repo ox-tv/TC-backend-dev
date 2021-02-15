@@ -35,6 +35,7 @@ class VideoItem extends JsonResource
             'user' => new UserItem($this->user),
             'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
+            'tags' => $this->tags->map(function($tag){ return $tag->name; }),
             'comments' => $this->when($withComments ,VideoCommentCollection::make($this->comments()->paginate(50))->response()->getData(true)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
