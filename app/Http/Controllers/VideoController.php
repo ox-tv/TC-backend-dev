@@ -9,6 +9,7 @@ use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -119,6 +120,11 @@ class VideoController extends Controller
             });
         }
 
+        // adding playlist
+        if($request->get('playlists')){
+            $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
+        }
+
         return new VideoItem($video);
 
     }
@@ -214,6 +220,11 @@ class VideoController extends Controller
             });
 
             $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+        }
+
+        // adding playlist
+        if($request->get('playlists')){
+            $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
         }
 
         return new VideoItem($video);
