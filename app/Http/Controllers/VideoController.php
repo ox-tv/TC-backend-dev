@@ -10,6 +10,7 @@ use App\Http\Resources\VideoItem;
 use App\Models\Category;
 use App\Models\Channel;
 use App\Models\Comment;
+use App\Models\Tag;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -106,6 +107,17 @@ class VideoController extends Controller
         // adding categories
         if($request->get('categories')){
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+        }
+
+        // adding tags
+        if($request->get('tags')){
+            $tags = collect($request->get('tags', []));
+
+            $tags->map(function ($tag) use ($video){
+                $video->tags()->save(Tag::firstOrCreate([
+                    'name' => $tag
+                ]));
+            });
         }
 
         return new VideoItem($video);
