@@ -8,7 +8,6 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
-use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Tag;
 use App\Models\Video;
