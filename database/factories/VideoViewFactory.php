@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Video;
-use App\Models\UserVideo;
 use App\Models\User;
 use App\Models\VideoView;
 use Illuminate\Database\Eloquent\Factories\Factory;
