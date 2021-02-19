@@ -177,5 +177,29 @@ class Video extends Model
         return rand(1, 2000);
     }
 
+    public function getIsLikedAttribute(){
+        if(auth('api')->check()){
+            if($this->likedBy()->find(auth('api')->user()->id)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getIsDislikedAttribute(){
+        if(auth('api')->check()){
+            if($this->dislikedBy()->find(auth('api')->user()->id)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getPublishedAtAttribute(){
+        return $this->created_at;
+    }
+
 
 }
