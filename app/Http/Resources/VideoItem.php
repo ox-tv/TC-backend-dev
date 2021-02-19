@@ -41,7 +41,7 @@ class VideoItem extends JsonResource
             'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
             'tags' => $this->tags->map(function($tag){ return $tag->name; }),
-            'playlists' => $this->playlists->map(function($tag){ return $tag->id; }),
+            'playlists' => $this->playlists,
             'comments' => $this->when($withComments ,VideoCommentCollection::make($this->comments()->paginate(50))->response()->getData(true)),
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
