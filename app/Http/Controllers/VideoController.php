@@ -59,6 +59,13 @@ class VideoController extends Controller
             $query->filterCategory($categoryId);
         }
 
+        $sort = $request->get('sort');
+        if($sort === 'most_liked'){
+            $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
+        }elseif ($sort === 'most_viewed'){
+            $query->withCount('views')->orderBy('views_count', 'desc');
+        }
+
         $videos = $query->paginate();
 
         return new VideoCollection($videos);
