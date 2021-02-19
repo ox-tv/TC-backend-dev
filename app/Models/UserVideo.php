@@ -10,6 +10,7 @@ class UserVideo extends Model
     use HasFactory;
 
     protected $table = 'user_video';
+    public $timestamps = false;
 
     const LIKED_RELATION = 1;
     const DISLIKED_RELATION = -1;
