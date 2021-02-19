@@ -18,6 +18,7 @@ class PlaylistItem extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'url_hash' => $this->url_hash,
+            'videos' => VideoSummaryCollection::make($this->videos),
         ];
     }
 }
