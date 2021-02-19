@@ -52,6 +52,12 @@ Route::middleware('auth:api')->put('playlists/{playlist}/add/{video}', '\App\Htt
 // -- remove video from playlist
 Route::middleware('auth:api')->put('playlists/{playlist}/remove/{video}', '\App\Http\Controllers\PlaylistController@remove');
 
+// -- bulk add video to playlist
+Route::middleware('auth:api')->put('playlist/add', '\App\Http\Controllers\PlaylistController@bulkAdd');
+// -- bulk remove video from playlist
+Route::middleware('auth:api')->put('playlist/remove', '\App\Http\Controllers\PlaylistController@bulkRemove');
+
+
 
 // Channel API
 Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);

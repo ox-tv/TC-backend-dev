@@ -9,8 +9,8 @@ use App\Http\Resources\PlaylistItem;
 use App\Models\Playlist;
 use App\Models\Video;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PlaylistController extends Controller
 {
@@ -97,10 +97,16 @@ class PlaylistController extends Controller
     public function add(Playlist $playlist, Video $video){
 
         if($playlist->owner->id != Auth::user()->id){
-            throw new NotFoundHttpException();
+            return response()->json([
+               'message' => 'general.not_found'
+            ], 404);
         }
 
-        $playlist->videos()->attach($video);
+        $playlist->videos()->syncWithoutDetaching($video);
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);
     }
 
     /**
@@ -110,9 +116,43 @@ class PlaylistController extends Controller
     public function remove(Playlist $playlist, Video $video){
 
         if($playlist->owner->id != Auth::user()->id){
-            throw new NotFoundHttpException();
+            return response()->json([
+                'message' => 'general.not_found'
+            ], 404);
         }
 
         $playlist->videos()->detach($video);
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);
+    }
+
+    public function bulkAdd(Request $request){
+        $playlists = Playlist::whereIn('id', $request->get('playlists',[]))->get();
+        $videos = Video::whereIn('id', $request->get('videos', []))->get();
+
+        $playlists->map(function($playlist) use($videos) {
+            $playlist->videos()->syncWithoutDetaching($videos);
+        });
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);
+
+    }
+
+    public function bulkRemove(Request $request){
+        $playlists = Playlist::whereIn('id', $request->get('playlists',[]))->get();
+        $videos = Video::whereIn('id', $request->get('videos', []))->get();
+
+        $playlists->map(function($playlist) use($videos) {
+            $playlist->videos()->detach($videos);
+        });
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);
+
     }
 }
