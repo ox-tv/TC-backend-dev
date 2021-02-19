@@ -28,7 +28,7 @@ class VideoItem extends JsonResource
             'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
             'url_hash' => $this->url_hash,
             'thumbnail' => $this->thumbnail,
-            'rating' => $this->rating,
+            'rating' => (float)$this->rating,
             'view_count' => $this->view_count,
             'comment_count' => $this->comments()->count(),
             'likes_count' => $this->likedBy()->count(),
@@ -47,7 +47,6 @@ class VideoItem extends JsonResource
             'published_at' => $this->published_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
-            'published_at' => $this->published_at,
         ];
     }
 }

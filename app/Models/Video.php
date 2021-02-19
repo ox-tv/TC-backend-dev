@@ -159,6 +159,10 @@ class Video extends Model
         return $this->belongsToMany('App\Models\Tag');
     }
 
+    public function views(){
+        return $this->hasMany('App\Models\VideoView');
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
@@ -174,7 +178,7 @@ class Video extends Model
     }
 
     public function getViewCountAttribute(){
-        return rand(1, 2000);
+        return $this->views()->count();
     }
 
     public function getIsLikedAttribute(){
