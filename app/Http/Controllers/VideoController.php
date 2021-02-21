@@ -251,14 +251,20 @@ class VideoController extends Controller
      * Remove the specified resource from storage.
      *
      * @param Video $video
-     * @return VideoItem
+     * @return VideoItem|\Illuminate\Http\JsonResponse
      * @throws \Exception
      */
     public function destroy(Video $video)
     {
-        $video->delete();
 
-        return new VideoItem($video);
+        if($video->user->id === Auth::guard('api')->id()){
+            $video->delete();
+            return new VideoItem($video);
+        }else{
+            return response()->json([
+                'general.not_authorized'
+            ], 403);
+        }
     }
 
     /**
@@ -277,6 +283,32 @@ class VideoController extends Controller
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
+    }
+
+    public function bulkDestroy(Request $request){
+        $request->validate([
+            'videos.*' => 'exists:videos,id'
+        ]);
+
+        $videos = Video::whereIn('id', $request->get('videos'));
+
+
+        $owners = $videos->select('user_id')->get()->pluck('user_id')->unique()->toArray();
+
+        if(count($owners) == 1 && in_array(Auth::guard('api')->id(), $owners)){
+
+            $videos->delete();
+
+            return response()->json([
+                'message' => 'general.successful'
+            ]);
+
+        }
+
+        return response()->json([
+            'message' => 'general.not_authorized'
+        ], 403);
+
     }
 
 }
