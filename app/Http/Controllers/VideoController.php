@@ -285,4 +285,30 @@ class VideoController extends Controller
         $comment->save();
     }
 
+    public function bulkDestroy(Request $request){
+        $request->validate([
+            'videos.*' => 'exists:videos,id'
+        ]);
+
+        $videos = Video::whereIn('id', $request->get('videos'));
+
+
+        $owners = $videos->select('user_id')->get()->pluck('user_id')->unique()->toArray();
+
+        if(count($owners) == 1 && in_array(Auth::guard('api')->id(), $owners)){
+
+            $videos->delete();
+
+            return response()->json([
+                'message' => 'general.successful'
+            ]);
+
+        }
+
+        return response()->json([
+            'message' => 'general.not_authorized'
+        ], 403);
+
+    }
+
 }
