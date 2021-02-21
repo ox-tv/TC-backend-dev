@@ -251,14 +251,20 @@ class VideoController extends Controller
      * Remove the specified resource from storage.
      *
      * @param Video $video
-     * @return VideoItem
+     * @return VideoItem|\Illuminate\Http\JsonResponse
      * @throws \Exception
      */
     public function destroy(Video $video)
     {
-        $video->delete();
 
-        return new VideoItem($video);
+        if($video->user->id === Auth::guard('api')->id()){
+            $video->delete();
+            return new VideoItem($video);
+        }else{
+            return response()->json([
+                'general.not_authorized'
+            ], 403);
+        }
     }
 
     /**
