@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Category\CategoryCollection;
+use App\Http\Resources\Category\CategoryItem;
 use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +41,7 @@ class VideoItem extends JsonResource
             'user' => new UserItem($this->user),
             'channel' => new ChannelItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
+            'category' => CategoryItem::make($this->category),
             'tags' => $this->tags->map(function($tag){ return $tag->name; }),
             'playlists' => $this->playlists,
             'comments' => $this->when($withComments ,VideoCommentCollection::make($this->comments()->paginate(50))->response()->getData(true)),

@@ -131,6 +131,10 @@ class Video extends Model
         return $this->belongsToMany('App\Models\Category');
     }
 
+    public function category(){
+        return $this->belongsTo('App\Models\Category');
+    }
+
     public function likedBy(){
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::LIKED_RELATION);
     }
