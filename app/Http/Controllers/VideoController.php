@@ -45,7 +45,8 @@ class VideoController extends Controller
         $categorySlug = Arr::get($filters, 'category_slug');
 
         if($categorySlug){
-            $categoryId = Category::where('slug', $categorySlug)->first()->id;
+            $category = Category::where('slug', $categorySlug)->first();
+            $categoryId = is_null($category) ? null : $category->id;
         }
 
         if($timeFilter == 'week'){
