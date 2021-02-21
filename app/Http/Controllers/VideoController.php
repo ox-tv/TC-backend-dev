@@ -42,6 +42,12 @@ class VideoController extends Controller
         $timeFilter = Arr::get($filters, 'time');
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
+        $categorySlug = Arr::get($filters, 'category_slug');
+
+        if($categorySlug){
+            $category = Category::where('slug', $categorySlug)->first();
+            $categoryId = is_null($category) ? null : $category->id;
+        }
 
         if($timeFilter == 'week'){
             $query->week();
@@ -59,6 +65,8 @@ class VideoController extends Controller
             $query->filterCategory($categoryId);
         }
 
+
+
         $sort = $request->get('sort');
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
@@ -68,7 +76,15 @@ class VideoController extends Controller
 
         $videos = $query->paginate();
 
-        return new VideoCollection($videos);
+        $result = new VideoCollection($videos);
+
+        if($categorySlug){
+            $result->additional([
+                'category' => $categorySlug == "all" ? "All" : $category->name
+            ]);
+        }
+
+        return $result;
     }
 
     /**
