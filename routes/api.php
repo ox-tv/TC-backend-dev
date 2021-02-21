@@ -27,6 +27,7 @@ Route::apiResource('categories', \App\Http\Controllers\CategoryController::class
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
+Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->get('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
