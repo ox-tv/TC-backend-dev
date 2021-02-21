@@ -42,6 +42,11 @@ class VideoController extends Controller
         $timeFilter = Arr::get($filters, 'time');
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
+        $categorySlug = Arr::get($filters, 'category_slug');
+
+        if($categorySlug){
+            $categoryId = Category::where('slug', $categorySlug)->first()->id;
+        }
 
         if($timeFilter == 'week'){
             $query->week();
@@ -58,6 +63,8 @@ class VideoController extends Controller
         if($categoryId){
             $query->filterCategory($categoryId);
         }
+
+
 
         $sort = $request->get('sort');
         if($sort === 'most_liked'){
