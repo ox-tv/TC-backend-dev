@@ -109,6 +109,11 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        // adding main category
+        if($request->get('category')){
+            $video->category()->associate($request->get('category'));
+        }
+
         $video->save();
 
         // adding categories
@@ -207,6 +212,11 @@ class VideoController extends Controller
         // status
         if($request->get('status')){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
+        }
+
+        // adding main category
+        if($request->get('category')){
+            $video->category()->associate($request->get('category'));
         }
 
         $video->save();
