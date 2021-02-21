@@ -23,7 +23,7 @@ class PlaylistController extends Controller
     {
         $query = Playlist::mine();
 
-        $playlists = $query->paginate();
+        $playlists = $query->get();
 
         return new PlaylistCollection($playlists);
     }
