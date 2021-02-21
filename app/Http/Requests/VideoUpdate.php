@@ -29,6 +29,7 @@ class VideoUpdate extends FormRequest
         return [
             'title' => 'string',
             'categories' => 'exists:categories,id',
+            'category' => 'exists:categories,id',
             'video' => 'file',
             'youtube_link' => 'url',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
