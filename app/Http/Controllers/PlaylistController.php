@@ -40,8 +40,6 @@ class PlaylistController extends Controller
 
         $playlist->name = $request->get('name');
 
-        // TODO:: maybe we could use better hash than MD5
-        $playlist->url_hash = md5($request->get('name'));
         $playlist->owner()->associate(Auth::user());
         $playlist->save();
 
@@ -70,8 +68,6 @@ class PlaylistController extends Controller
     {
         $playlist->name = $request->get('name');
 
-        // TODO:: maybe we could use better hash than MD5
-        $playlist->url_hash = md5($request->get('name'));
         $playlist->owner()->associate(Auth::user());
         $playlist->save();
 
