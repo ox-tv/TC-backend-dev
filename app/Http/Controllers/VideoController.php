@@ -76,7 +76,15 @@ class VideoController extends Controller
 
         $videos = $query->paginate();
 
-        return new VideoCollection($videos);
+        $result = new VideoCollection($videos);
+
+        if($categorySlug){
+            $result->additional([
+                'category' => $categorySlug == "all" ? "All" : $category->name
+            ]);
+        }
+
+        return $result;
     }
 
     /**
