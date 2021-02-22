@@ -17,6 +17,13 @@ class Comment extends Model
         static::addGlobalScope(new OrderDescScope);
     }
 
+    // scopes
+
+    public function scopeHasVideo($query){
+        $query->whereHas('video');
+        return $query;
+    }
+
     // Relations
 
     public function video(){
