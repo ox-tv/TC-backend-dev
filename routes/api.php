@@ -61,8 +61,9 @@ Route::middleware('auth:api')->put('playlist/remove', '\App\Http\Controllers\Pla
 
 
 // Channel API
+Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
 Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);
-Route::middleware('auth:api')->get('channel/{channel?}', '\App\Http\Controllers\ChannelController@show');
+Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show');
 Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
 Route::get('channels', '\App\Http\Controllers\ChannelController@index');
 Route::middleware('auth:api')->put('channels/{channel}/subscription', '\App\Http\Controllers\ChannelController@subscription');
