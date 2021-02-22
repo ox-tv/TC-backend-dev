@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
-use App\Http\Resources\ChannelCollection;
 use App\Http\Resources\ChannelItem;
+use App\Http\Resources\ChannelSummaryCollection;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class ChannelController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return ChannelCollection
+     * @return ChannelSummaryCollection
      */
     public function index()
     {
@@ -26,7 +26,7 @@ class ChannelController extends Controller
 
         $channels = $query->paginate();
 
-        return new ChannelCollection($channels);
+        return new ChannelSummaryCollection($channels);
 
     }
 
@@ -62,17 +62,18 @@ class ChannelController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Channel $channel
      * @param Request $request
+     * @param null $id_or_slug
      * @return ChannelItem
      */
-    public function show(Channel $channel, Request $request)
+    public function show(Request $request, $id_or_slug=null)
     {
-        if($request->route('channel')){
+        if($id_or_slug){
+            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->first();
             return new ChannelItem($channel);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
         $userChannel = $user->channel;
 
         if(is_null($userChannel)){
