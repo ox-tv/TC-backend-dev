@@ -6,6 +6,7 @@ use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
+use App\Http\Resources\VideoCollection;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -69,22 +70,44 @@ class ChannelController extends Controller
     public function show(Request $request, $id_or_slug=null)
     {
         if($id_or_slug){
+
             $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->first();
-            return new ChannelItem($channel);
+
+        }else{
+
+            $user = Auth::guard('api')->user();
+            $userChannel = $user->channel;
+
+            if(is_null($userChannel)){
+
+                $newChannel = new Channel();
+                $newChannel->name = $user->username ? $user->username : $user->email;
+                $newChannel->owner()->associate($user);
+                $newChannel->save();
+                $channel = $newChannel;
+
+            }else{
+
+                $channel = $userChannel;
+
+            }
+
         }
 
-        $user = Auth::guard('api')->user();
-        $userChannel = $user->channel;
+        $result = new ChannelItem($channel);
 
-        if(is_null($userChannel)){
-            $newChannel = new Channel();
-            $newChannel->name = $user->username ? $user->username : $user->email;
-            $newChannel->owner()->associate($user);
-            $newChannel->save();
-            return new ChannelItem($newChannel);
+        if(in_array('videos', explode(',', $request->get('include', '')))){
+
+            $videos = Video::published()->whereHas('channels', function ($query) use ($id_or_slug) {
+                return $query->where('id', $id_or_slug)->orWhere('slug', $id_or_slug);
+            })->paginate()->appends($request->all());
+
+            $result->additional([
+                'videos' => VideoCollection::make($videos)
+            ]);
         }
 
-        return new ChannelItem($userChannel);
+        return $result;
 
 
     }
