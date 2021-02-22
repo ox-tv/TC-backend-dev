@@ -39,7 +39,7 @@ class VideoItem extends JsonResource
             'duration' => $this->duration,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
             'user' => new UserItem($this->user),
-            'channel' => new ChannelItem($this->channels->first()),
+            'channel' => new ChannelSummaryItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
             'category' => CategoryItem::make($this->category),
             'tags' => $this->tags->map(function($tag){ return $tag->name; }),
