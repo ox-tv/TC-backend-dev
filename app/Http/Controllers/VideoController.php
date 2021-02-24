@@ -43,6 +43,7 @@ class VideoController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
+        $playlistId = Arr::get($filters, 'playlist');
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->first();
@@ -65,7 +66,9 @@ class VideoController extends Controller
             $query->filterCategory($categoryId);
         }
 
-
+        if($playlistId){
+            $query->inPlaylist($playlistId);
+        }
 
         $sort = $request->get('sort');
         if($sort === 'most_liked'){
