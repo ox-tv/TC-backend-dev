@@ -24,6 +24,13 @@ class Comment extends Model
         return $query;
     }
 
+    public function scopeInVideos($query, $videos){
+        if(is_array($videos) && count($videos)>0){
+            return $query->whereIn('video_id', $videos);
+        }
+        return $query;
+    }
+
     // Relations
 
     public function video(){
