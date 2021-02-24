@@ -125,6 +125,14 @@ class Video extends Model
         return $query;
     }
 
+    // playlist scope
+    public function scopeInPlaylist($query, $playlistId){
+        $query->whereHas('playlists', function($q) use ($playlistId){
+            $q->where('id', $playlistId);
+        });
+        return $query;
+    }
+
 
     // relations
     public function categories(){
