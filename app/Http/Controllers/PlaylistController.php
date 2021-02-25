@@ -49,12 +49,12 @@ class PlaylistController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
-     * @return void
+     * @param Playlist $playlist
+     * @return PlaylistItem
      */
-    public function show($id)
+    public function show(Playlist $playlist)
     {
-        //
+        return new PlaylistItem($playlist);
     }
 
     /**
