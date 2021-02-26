@@ -73,7 +73,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        return response()->json(new UserItem($user), '200');
+        return response()->json(new UserItem($user));
 
     }
 
