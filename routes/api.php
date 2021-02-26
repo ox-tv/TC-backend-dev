@@ -78,6 +78,7 @@ Route::middleware('auth:api')->put('channels/{channel}/remove/{video}', '\App\Ht
 // User controller
 // -- get profile
 Route::middleware('auth:api')->get('profile', '\App\Http\Controllers\UserController@profile');
+Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserController@updateProfile');
 
 
 // Utils
