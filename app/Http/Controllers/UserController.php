@@ -77,5 +77,29 @@ class UserController extends Controller
 
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'username' => 'nullable|string',
+            'email' => 'nullable|email',
+            'password' => 'nullable|string',
+            'new_password' => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+
+        $user->username = $request->get('username');
+        $user->save();
+
+        return response()->json(new UserItem($user));
+
+    }
+
 
 }
