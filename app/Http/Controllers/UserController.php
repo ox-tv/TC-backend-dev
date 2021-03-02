@@ -6,6 +6,7 @@ use App\Http\Resources\UserItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -86,15 +87,23 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'username' => 'nullable|string',
-            'email' => 'nullable|email',
-            'password' => 'nullable|string',
-            'new_password' => 'nullable|string',
+            'username' => 'nullable|string|alpha_dash',
+            //'email' => 'nullable|email',
+            'avatar' => 'nullable|string',
+            'current_password' => 'nullable||string|password|required_with:new_password',
+            'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
         ]);
 
         $user = Auth::user();
 
         $user->username = $request->get('username');
+
+        $user->avatar = $request->get('avatar');
+
+        if($request->get('new_password')){
+            $user->password = Hash::make($request->get('new_password'));
+        }
+
         $user->save();
 
         return response()->json(new UserItem($user));
