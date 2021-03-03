@@ -83,6 +83,7 @@ class PlaylistController extends Controller
      */
     public function destroy(Playlist $playlist)
     {
+        $playlist->videos()->detach();
         $playlist->delete();
     }
 
