@@ -77,6 +77,23 @@ class VideoController extends Controller
             $query->withCount('views')->orderBy('views_count', 'desc');
         }
 
+        $excludedVideos = [];
+
+        $excludePlaylistsId = $request->get('exclude_playlist');
+        if($excludePlaylistsId){
+            $playlistVideos = Playlist::find($excludePlaylistsId)->videos()->select('id')->get()->pluck('id')->toArray();
+            $excludedVideos = array_merge($excludedVideos, $playlistVideos);
+        }
+
+        $excludeVideosIds = $request->get('exclude_videos', []);
+        if(count($excludeVideosIds)>0){
+            $excludedVideos = array_merge($excludedVideos, $excludeVideosIds);
+        }
+
+        if(count($excludedVideos) > 0){
+            $query->whereNotIn('id', $excludedVideos);
+        }
+
         $videos = $query->paginate();
 
         $result = new VideoCollection($videos);
