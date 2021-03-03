@@ -94,4 +94,5 @@ Route::group([
     'prefix' => 'publisher'
 ], function(){
     Route::get('videos', '\App\Http\Controllers\VideoController@index');
+    Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher');
 });
