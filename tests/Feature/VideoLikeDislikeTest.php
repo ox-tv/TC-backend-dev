@@ -33,7 +33,7 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/like");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/like");
 
         $response->assertStatus(200);
 
@@ -53,7 +53,7 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/dislike");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/dislike");
 
         $response->assertStatus(200);
 
@@ -72,15 +72,15 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/like");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/like");
 
         $response->assertStatus(200);
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/like");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/like");
 
-        $response->assertStatus(422);
+        $response->assertStatus(200);
 
-        $this->assertDatabaseHas('user_video', [
+        $this->assertDatabaseMissing('user_video', [
             'video_id' => $videoId,
             'user_id' => Auth::user()->id,
             'relation' => UserVideo::LIKED_RELATION
@@ -95,15 +95,15 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/dislike");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/dislike");
 
         $response->assertStatus(200);
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/dislike");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/dislike");
 
-        $response->assertStatus(422);
+        $response->assertStatus(200);
 
-        $this->assertDatabaseHas('user_video', [
+        $this->assertDatabaseMissing('user_video', [
             'video_id' => $videoId,
             'user_id' => Auth::user()->id,
             'relation' => UserVideo::DISLIKED_RELATION
@@ -119,7 +119,7 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/like");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/like");
 
         $response->assertStatus(200);
 
@@ -129,7 +129,7 @@ class VideoLikeDislikeTest extends TestCase
             'relation' => UserVideo::LIKED_RELATION
         ]);
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/dislike");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/dislike");
 
         $response->assertStatus(200);
 
@@ -154,7 +154,7 @@ class VideoLikeDislikeTest extends TestCase
 
         $videoId = $video->id;
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/dislike");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/dislike");
 
         $response->assertStatus(200);
 
@@ -164,7 +164,7 @@ class VideoLikeDislikeTest extends TestCase
             'relation' => UserVideo::DISLIKED_RELATION
         ]);
 
-        $response = $this->json('GET', "/api/videos/{$videoId}/like");
+        $response = $this->json('PUT', "/api/videos/{$videoId}/like");
 
         $response->assertStatus(200);
 

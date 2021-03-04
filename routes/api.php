@@ -30,8 +30,8 @@ Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 
 // Video like/dislike routes
-Route::middleware('auth:api')->get('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
-Route::middleware('auth:api')->get('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
+Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
+Route::middleware('auth:api')->put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
 
 // Comments API
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
