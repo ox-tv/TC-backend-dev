@@ -33,6 +33,10 @@ Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
 Route::middleware('auth:api')->put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
 
+// Bookmark a video
+Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Controllers\UserVideoRelationController@bookmark');
+
+
 // Comments API
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
 
