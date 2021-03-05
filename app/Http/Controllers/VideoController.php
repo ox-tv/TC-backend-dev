@@ -260,7 +260,11 @@ class VideoController extends Controller
 
         // updating categories
         if($request->get('categories')){
-            $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+            if(is_array($request->get('categories'))){
+                $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+            }else{
+                $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
+            }
         }
 
         // updating tags
