@@ -33,6 +33,10 @@ Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
 Route::middleware('auth:api')->put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
 
+// Bookmark a video
+Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Controllers\UserVideoRelationController@bookmark');
+
+
 // Comments API
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
 
@@ -41,8 +45,8 @@ Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Contro
 // -- reply to a comment
 Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
 // -- like/dislike a comment
-Route::middleware('auth:api')->get('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like');
-Route::middleware('auth:api')->get('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike');
+Route::middleware('auth:api')->put('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like');
+Route::middleware('auth:api')->put('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike');
 
 
 // Playlist API

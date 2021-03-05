@@ -10,23 +10,69 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentUserRelationController extends Controller
 {
-    public function like(CommentLike $request, Comment $comment){
+    public function like(Comment $comment){
 
-        $user = Auth::user();
+        $userId = Auth::id();
 
-        $comment->dislikedBy()->detach($user->id);
+        $isDisliked = $comment->dislikedBy()->find($userId);
+        $isLiked = $comment->likedBy()->find($userId);
 
-        $comment->likedBy()->attach($user->id, ['relation' => CommentUser::LIKED_RELATION]);
+        if($isDisliked){
+
+            $comment->dislikedBy()->detach($userId);
+            $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
+
+        }else if($isLiked){
+
+            $comment->likedBy()->detach($userId, ['relation' => CommentUser::LIKED_RELATION]);
+
+            $userRelation = null;
+
+        }else{
+
+            $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
+
+        }
+
+        return response()->json([
+            'is_liked' => $comment->is_liked,
+            'is_disliked' => $comment->is_disliked,
+            'likes_count' => $comment->likedBy()->count(),
+            'dislikes_count' => $comment->dislikedBy()->count(),
+        ]);
 
     }
 
-    public function dislike(CommentDislike $request, Comment $comment){
+    public function dislike(Comment $comment){
 
-        $user = Auth::user();
+        $userId = Auth::id();
 
-        $comment->likedBy()->detach($user->id);
+        $isDisliked = $comment->dislikedBy()->find($userId);
+        $isLiked = $comment->likedBy()->find($userId);
 
-        $comment->dislikedBy()->attach($user->id, ['relation' => CommentUser::DISLIKED_RELATION]);
+        if($isLiked){
+
+            $comment->likedBy()->detach($userId);
+            $comment->dislikedBy()->attach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
+
+        }else if($isDisliked){
+
+            $comment->dislikedBy()->detach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
+
+            $userRelation = null;
+
+        }else{
+
+            $comment->dislikedBy()->attach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
+
+        }
+
+        return response()->json([
+            'is_liked' => $comment->is_liked,
+            'is_disliked' => $comment->is_disliked,
+            'likes_count' => $comment->likedBy()->count(),
+            'dislikes_count' => $comment->dislikedBy()->count(),
+        ]);
 
     }
 }

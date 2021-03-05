@@ -29,6 +29,7 @@ class VideoSummaryItem extends JsonResource
             'url_hash' => $this->url_hash,
             'thumbnail' => $this->thumbnail,
             'rating' => $this->rating,
+            'is_bookmarked' => $this->is_bookmarked,
             'view_count' => $this->view_count,
             'duration' => $this->duration,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,

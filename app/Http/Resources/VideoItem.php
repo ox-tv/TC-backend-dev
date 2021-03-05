@@ -36,6 +36,7 @@ class VideoItem extends JsonResource
             'dislikes_count' => $this->dislikedBy()->count(),
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
+            'is_bookmarked' => $this->is_bookmarked,
             'duration' => $this->duration,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
             'user' => new UserItem($this->user),

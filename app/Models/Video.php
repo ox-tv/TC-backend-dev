@@ -151,6 +151,10 @@ class Video extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::DISLIKED_RELATION);
     }
 
+    public function bookmarkedBy(){
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::BOOKMARKED_RELATION);
+    }
+
     public function comments(){
         return $this->hasMany('App\Models\Comment');
     }
@@ -206,6 +210,16 @@ class Video extends Model
     public function getIsDislikedAttribute(){
         if(auth('api')->check()){
             if($this->dislikedBy()->find(auth('api')->user()->id)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getIsBookmarkedAttribute(){
+        if(auth('api')->check()){
+            if($this->bookmarkedBy()->find(auth('api')->user()->id)){
                 return true;
             }
         }
