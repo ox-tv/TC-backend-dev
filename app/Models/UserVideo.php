@@ -14,6 +14,7 @@ class UserVideo extends Model
 
     const LIKED_RELATION = 1;
     const DISLIKED_RELATION = -1;
+    const BOOKMARKED_RELATION = 0;
 
 
 }
