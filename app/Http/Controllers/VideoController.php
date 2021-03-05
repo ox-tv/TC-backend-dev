@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
+use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Models\Category;
@@ -319,6 +320,8 @@ class VideoController extends Controller
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
+
+        return new CommentItem($comment);
     }
 
     public function bulkDestroy(Request $request){
