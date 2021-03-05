@@ -21,8 +21,6 @@ class UserVideoRelationController extends Controller
 {
     public function like(Video $video){
 
-        $userRelation = 'like';
-
         $userId = Auth::id();
 
         $isDisliked = $video->dislikedBy()->find($userId);
@@ -30,12 +28,12 @@ class UserVideoRelationController extends Controller
 
         if($isDisliked){
 
-            $video->dislikedBy()->detach($userId);
+            $video->dislikedBy()->wherePivot('relation', UserVideo::DISLIKED_RELATION)->detach($userId);
             $video->likedBy()->attach($userId, ['relation' => UserVideo::LIKED_RELATION]);
 
         }else if($isLiked){
 
-            $video->likedBy()->detach($userId, ['relation' => UserVideo::LIKED_RELATION]);
+            $video->likedBy()->wherePivot('relation', UserVideo::LIKED_RELATION)->detach($userId);
 
             $userRelation = null;
 
@@ -56,8 +54,6 @@ class UserVideoRelationController extends Controller
 
     public function dislike(Video $video){
 
-        $userRelation = 'dislike';
-
         $userId = Auth::id();
 
         $isDisliked = $video->dislikedBy()->find($userId);
@@ -65,12 +61,12 @@ class UserVideoRelationController extends Controller
 
         if($isLiked){
 
-            $video->likedBy()->detach($userId);
+            $video->likedBy()->wherePivot('relation', UserVideo::LIKED_RELATION)->detach($userId);
             $video->dislikedBy()->attach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
 
         }else if($isDisliked){
 
-            $video->dislikedBy()->detach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
+            $video->dislikedBy()->wherePivot('relation', UserVideo::DISLIKED_RELATION)->detach($userId);
 
             $userRelation = null;
 
