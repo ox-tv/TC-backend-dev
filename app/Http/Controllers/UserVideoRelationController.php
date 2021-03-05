@@ -84,4 +84,30 @@ class UserVideoRelationController extends Controller
         ]);
 
     }
+
+    public function bookmark(Video $video){
+
+        $userId = Auth::id();
+
+        $isBookmarked = $video->bookmarkedBy()->find($userId);
+
+        $bookmarkStatus = null;
+
+        if($isBookmarked){
+
+            $video->bookmarkedBy()->wherePivot('relation', UserVideo::BOOKMARKED_RELATION)->detach($userId);
+            $bookmarkStatus = false;
+
+        }else{
+
+            $video->bookmarkedBy()->attach($userId, ['relation' => UserVideo::BOOKMARKED_RELATION]);
+            $bookmarkStatus = true;
+
+        }
+
+        return response()->json([
+            'is_bookmarked' => $bookmarkStatus,
+        ]);
+
+    }
 }
