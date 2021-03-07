@@ -99,4 +99,6 @@ Route::group([
 ], function(){
     Route::get('videos', '\App\Http\Controllers\VideoController@index');
     Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher');
+
+    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard');
 });

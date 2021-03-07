@@ -66,5 +66,39 @@ class Channel extends Model
         return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id');
     }
 
+    // Attribute
+
+    public function getPointsAttribute(){
+        return rand(1000, 9000);
+    }
+
+    public function getUploadsCountAttribute(){
+        return $this->videos()->count();
+    }
+
+    public function getTotalViewsAttribute(){
+        $totalViews = 0;
+
+        $videos = $this->videos;
+
+        foreach ($videos as $video){
+            $totalViews += $video->view_count;
+        }
+
+        return $totalViews;
+    }
+
+    public function getTotalLikesAttribute(){
+        $totalLikes = 0;
+
+        $videos = $this->videos;
+
+        foreach ($videos as $video){
+            $totalLikes += $video->likedBy()->count();
+        }
+
+        return $totalLikes;
+    }
+
 
 }
