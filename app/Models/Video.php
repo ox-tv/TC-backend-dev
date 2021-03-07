@@ -231,5 +231,45 @@ class Video extends Model
         return $this->created_at;
     }
 
+    public function getRelatedVideosAttribute(){
+        $tags = $this->tags->pluck('id')->toArray();
+
+
+        $relatedVideos = collect();
+
+        if( count($tags) ){
+            $relatedVideosByTag = Video::published()->whereHas('tags', function($q) use ($tags){
+                $q->whereIn('id', $tags);
+            })->get();
+
+            $relatedVideos = $relatedVideos->merge($relatedVideosByTag);
+        }
+
+        if( count($relatedVideos) < 15 ){
+            $secondaryCategories = $this->categories->pluck('id')->toArray();
+
+            $relatedVideosBySecondaryCategories = Video::published()->whereHas('categories', function($q) use ($secondaryCategories){
+                $q->whereIn('id', $secondaryCategories);
+            })->get();
+
+            $relatedVideos = $relatedVideos->merge($relatedVideosBySecondaryCategories);
+        }
+
+        if( count($relatedVideos) < 15 ){
+            $category = $this->category ? $this->category->id : null;
+
+            $relatedVideosByCategory = Video::published()->whereHas('categories', function($q) use ($category){
+                $q->where('id', $category);
+            })->get();
+
+            $relatedVideos = $relatedVideos->merge($relatedVideosByCategory);
+        }
+
+        $relatedVideos = $relatedVideos->unique();
+
+        return $relatedVideos;
+
+    }
+
 
 }
