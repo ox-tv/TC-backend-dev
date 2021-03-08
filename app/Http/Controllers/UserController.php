@@ -96,13 +96,15 @@ class UserController extends Controller
 
         $user = Auth::user();
 
-        $user->username = $request->get('username');
+        $user->username = $request->get('username', $user->username);
 
-        $user->avatar = $request->get('avatar');
+        $user->avatar = $request->get('avatar', $user->avatar);
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
         }
+
+        $user->eth_address = $request->get('eth_address', $request->eth_address);
 
         $user->save();
 
