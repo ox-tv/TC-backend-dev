@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Category\CategoryItem;
 use App\Http\Resources\VideoCollection;
+use App\Http\Resources\VideoSummaryCollection;
 use App\Models\Category;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class GeneralController extends Controller
 
         foreach ($featuredCategories as $featuredCategory){
             $videoByCategories[] = [
-                'videos' => VideoCollection::make($featuredCategory->videos()->published()->paginate()),
+                'videos' => VideoSummaryCollection::make($featuredCategory->videos()->published()->paginate()),
                 'category' => CategoryItem::make($featuredCategory)
             ];
         }
