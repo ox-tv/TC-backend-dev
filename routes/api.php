@@ -40,6 +40,9 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 // Comments API
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
 
+Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
+
+
 // -- add a comment to a video
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
 // -- reply to a comment
