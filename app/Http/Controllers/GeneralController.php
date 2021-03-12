@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class GeneralController extends Controller
 {
     public function home(Request $request){
-        $latestVideos = VideoCollection::make(Video::published()->latest()->paginate());
+        $latestVideos = VideoSummaryCollection::make(Video::published()->latest()->paginate());
 
         $featuredCategories = Category::hasVideo()->featured()->get();
 
