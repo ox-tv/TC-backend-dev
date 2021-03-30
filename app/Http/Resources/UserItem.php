@@ -22,6 +22,7 @@ class UserItem extends JsonResource
             'eth_address' => $this->eth_address,
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
+            'role' => 'publisher',
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
