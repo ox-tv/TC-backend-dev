@@ -105,3 +105,13 @@ Route::group([
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard');
 });
+
+
+// Publisher api routes
+Route::group([
+    'middleware' => 'auth:api',
+    'as' => '.admin',
+    'prefix' => 'admin'
+], function(){
+    Route::get('users', '\App\Http\Controllers\UserController@index');
+});
