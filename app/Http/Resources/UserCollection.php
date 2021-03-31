@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class UserCollection extends ResourceCollection
 {
 
-    public $collects = CategoryItem::class;
+    public $collects = UserItem::class;
 
     /**
      * Transform the resource collection into an array.
