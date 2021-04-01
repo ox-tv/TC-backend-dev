@@ -3,6 +3,10 @@
 return [
 
     'application_subject' => 'Request for becoming a publisher',
-    'application_message' => 'YouTube URL: :youtube_url \n Other URL: :other_url \n'
+    'application_message' => 'Email: :email \n YouTube Channel: :youtube_url \n Verification URL: :verification_url',
+
+    'messages' => [
+        'wait_for_verification' => 'Your request submitted, TodaysCrypto support will contact you as soon as we can verify your request'
+    ]
 
 ];
