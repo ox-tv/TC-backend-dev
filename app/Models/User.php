@@ -48,6 +48,18 @@ class User extends Authenticatable
         'hero_due_at' => 'datetime',
     ];
 
+    // search scopes
+
+    public function scopeSearchUsername($query, $keyword){
+        $query->where('username', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
+    public function scopeSearchEmail($query, $keyword){
+        $query->where('email', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
 
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
