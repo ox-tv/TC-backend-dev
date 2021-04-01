@@ -6,6 +6,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserItem;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,11 +15,27 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return UserCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate();
+        $query = User::query();
+
+        $filters = $request->get('filters', []);
+
+        $usernameFilter = Arr::get($filters, 'username');
+
+        $emailFilter = Arr::get($filters, 'email');
+
+        if($usernameFilter){
+            $query->SearchUsername($usernameFilter);
+        }
+
+        if($emailFilter){
+            $query->SearchEmail($emailFilter);
+        }
+
+        $users = $query->paginate();
 
         return UserCollection::make($users);
     }
