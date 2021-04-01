@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+
+// -- publisher auth routes
+Route::post('publisher/register', '\App\Http\Controllers\PublisherController@register');
+
 Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
 // Home Page
