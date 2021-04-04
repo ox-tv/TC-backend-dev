@@ -102,4 +102,27 @@ class CommentController extends Controller
 
         return new CommentItem($reply);
     }
+
+    /**
+     * @param Comment $comment
+     * @return CommentItem
+     */
+    public function pin(Comment $comment){
+        $comment->is_pinned = 1;
+        $comment->save();
+
+        return new CommentItem($comment);
+    }
+
+    /**
+     * @param Comment $comment
+     * @return CommentItem
+     */
+    public function unpin(Comment $comment){
+        $comment->is_pinned = 0;
+        $comment->save();
+
+        return new CommentItem($comment);
+    }
+
 }
