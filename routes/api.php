@@ -32,6 +32,7 @@ Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@sho
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
+Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');

@@ -12,6 +12,9 @@ class Comment extends Model
     use HasFactory;
     use SoftDeletes;
 
+    const COMMENT_PINNED = 1;
+    const COMMENT_NOT_PINNED = 0;
+
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);

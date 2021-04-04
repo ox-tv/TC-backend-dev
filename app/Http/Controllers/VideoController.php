@@ -354,4 +354,29 @@ class VideoController extends Controller
 
     }
 
+    public function bulkPinMessage(Request $request){
+        $request->validate([
+            'videos.*' => 'exists:videos,id',
+            'text' => 'required'
+        ]);
+
+        $userId = Auth::guard('api')->id();
+        $videoIds = collect($request->get('videos'));
+        $text = $request->get('text');
+
+        $videoIds->map(function ($videoId) use ($userId, $text){
+            $comment = new Comment();
+            $comment->text = $text;
+            $comment->user_id = $userId;
+            $comment->video()->associate($videoId);
+            $comment->is_pinned = Comment::COMMENT_PINNED;
+            $comment->save();
+        });
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);;
+
+    }
+
 }
