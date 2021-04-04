@@ -20,6 +20,7 @@ class VideoItem extends JsonResource
     public function toArray($request)
     {
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
+        $withRelated = in_array('related', explode(',', $request->get('include', '')));
 
         return [
             'id' => $this->id,
@@ -45,7 +46,7 @@ class VideoItem extends JsonResource
             'category' => CategoryItem::make($this->category),
             'tags' => $this->tags->map(function($tag){ return $tag->name; }),
             'playlists' => $this->playlists,
-            'related_videos' => VideoSummaryCollection::make($this->related_videos),
+            'related_videos' => $this->when($withRelated, VideoSummaryCollection::make($this->related_videos)),
             'comments' => $this->when($withComments ,VideoCommentCollection::make($this->comments()->paginate(50))->response()->getData(true)),
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
