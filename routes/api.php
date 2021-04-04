@@ -56,8 +56,8 @@ Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Contr
 Route::middleware('auth:api')->put('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like');
 Route::middleware('auth:api')->put('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike');
 // -- pin/unpin a comment
-Route::middleware('auth:api')->put('comments/{comment}/pin', '\App\Http\Controllers\CommentUserRelationController@pin');
-Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Controllers\CommentUserRelationController@unpin');
+Route::middleware('auth:api')->put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
+Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
 
 
 
