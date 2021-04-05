@@ -8,6 +8,7 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
+use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Playlist;
@@ -292,15 +293,19 @@ class VideoController extends Controller
      * Remove the specified resource from storage.
      *
      * @param Video $video
-     * @return VideoItem|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse | VideoSummaryItem
      * @throws \Exception
      */
     public function destroy(Video $video)
     {
+        if(\request()->is('api/admin/videos/*')){
+            $video->delete();
+            return new VideoSummaryItem($video);
+        }
 
         if($video->user->id === Auth::guard('api')->id()){
             $video->delete();
-            return new VideoItem($video);
+            return new VideoSummaryItem($video);
         }else{
             return response()->json([
                 'general.not_authorized'
