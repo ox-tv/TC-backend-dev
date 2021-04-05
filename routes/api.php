@@ -126,4 +126,7 @@ Route::group([
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index');
 
+    Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy');
+
+
 });
