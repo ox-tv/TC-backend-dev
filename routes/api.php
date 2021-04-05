@@ -123,4 +123,7 @@ Route::group([
     'prefix' => 'admin'
 ], function(){
     Route::get('users', '\App\Http\Controllers\UserController@index');
+
+    Route::get('videos', '\App\Http\Controllers\VideoController@index');
+
 });
