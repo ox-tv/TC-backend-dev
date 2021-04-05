@@ -32,9 +32,12 @@ class VideoController extends Controller
     {
 
         $publisherVideos = $request->is('api/publisher/videos');
+        $adminVideos = $request->is('api/admin/videos');
 
         if($publisherVideos){
             $query = Video::mine();
+        }else if($adminVideos){
+            $query = Video::query();
         }else{
             $query = Video::published();
         }
