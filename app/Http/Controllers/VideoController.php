@@ -384,4 +384,13 @@ class VideoController extends Controller
 
     }
 
+    public function hide(Video $video){
+
+        $video->status = Video::STATUS_HIDDEN;
+        $video->save();
+
+        return VideoSummaryItem::make($video);
+
+    }
+
 }
