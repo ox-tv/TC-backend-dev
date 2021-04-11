@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "154c97a1bce0d3902d714398c8c7ae1d",
+    "content-hash": "f070e392c75858dc4b129f1e2d0bdecc",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -67,6 +67,50 @@
                 "driver"
             ],
             "time": "2020-02-12T19:35:11+00:00"
+        },
+        {
+            "name": "amir/laravel-permission",
+            "version": "v1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amiryousefi/laravel-permission.git",
+                "reference": "2745cd50904cd32b68ad6770bc31bf454bb4705e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amiryousefi/laravel-permission/zipball/2745cd50904cd32b68ad6770bc31bf454bb4705e",
+                "reference": "2745cd50904cd32b68ad6770bc31bf454bb4705e",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Amir\\Permission\\LaravelPermissionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Amir\\Permission\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Amir Yousefi",
+                    "email": "amiryousefi.it@gmail.com"
+                }
+            ],
+            "description": "an easy and flexible way for permissions management",
+            "support": {
+                "issues": "https://github.com/amiryousefi/laravel-permission/issues",
+                "source": "https://github.com/amiryousefi/laravel-permission/tree/v1.1"
+            },
+            "time": "2021-04-07T08:32:13+00:00"
         },
         {
             "name": "asm89/stack-cors",
@@ -8761,5 +8805,5 @@
         "php": "^7.3|^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
