@@ -55,6 +55,8 @@ class PublisherController extends Controller
 
         $message->department()->associate($department);
 
+        $message->user()->associate($user);
+
         $message->save();
 
 
