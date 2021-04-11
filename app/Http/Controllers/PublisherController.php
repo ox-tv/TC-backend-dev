@@ -46,7 +46,7 @@ class PublisherController extends Controller
         $message->message = trans('publisher.application_message', [
             'email' => $request->get('email'),
             'youtube_url' => $request->get('youtube_url'),
-            'verification_url' => $request->get('youtube_url')
+            'verification_url' => $request->get('verification_url')
         ]);
 
         $message->image = $request->get('image');
