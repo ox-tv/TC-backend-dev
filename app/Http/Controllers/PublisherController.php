@@ -59,9 +59,6 @@ class PublisherController extends Controller
 
         $message->save();
 
-
-        // TODO:: send verification code by email
-
         return response()->json([
             'email' => $request->input('email'),
             'message' => __('publisher.messages.wait_for_verification'),
