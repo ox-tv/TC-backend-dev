@@ -65,4 +65,33 @@ class PublisherController extends Controller
         ]);
 
     }
+
+    public function confirm(Request $request, User $user){
+        $reason = $request->get('reason');
+
+        //TODO:: save reason as a message
+
+        $user->role_id = Role::firstOrCreate(['name' => 'publisher'])->id;
+        $user->save();
+
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+
+        Message::where([
+                'user_id' => $user->id,
+                'department_id' => $publisherApplicationDepartmentId
+            ]
+        )->delete();
+
+        return UserItem::make($user);
+
+    }
+
+    public function reject(Request $request, User $user){
+        $reason = $request->get('reason');
+
+        //TODO:: save reason as a message
+
+        return UserItem::make($user);
+
+    }
 }
