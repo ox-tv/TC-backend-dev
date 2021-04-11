@@ -105,30 +105,38 @@ Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadContr
 
 // Publisher api routes
 Route::group([
-    'middleware' => 'auth:api',
-    'as' => '.publisher',
-    'prefix' => 'publisher'
+    'middleware' => 'auth.role',
+    'as' => 'publisher',
+    'prefix' => 'publisher',
+    'role' => ['publisher', 'admin']
 ], function(){
-    Route::get('videos', '\App\Http\Controllers\VideoController@index');
-    Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher');
+    Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
+    Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.messages');
 
-    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard');
+    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 });
 
 
-// Publisher api routes
+// Admin api routes
 Route::group([
-    'middleware' => 'auth:api',
-    'as' => '.admin',
-    'prefix' => 'admin'
+    'middleware' => 'auth.role',
+    'as' => 'admin',
+    'prefix' => 'admin',
+    'role' => 'admin'
 ], function(){
-    Route::get('users', '\App\Http\Controllers\UserController@index');
+    Route::get('users', '\App\Http\Controllers\UserController@index')->name('.users');
+    Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('.publishers');
+    Route::get('admins', '\App\Http\Controllers\UserController@index')->name('.admins');
 
-    Route::get('videos', '\App\Http\Controllers\VideoController@index');
+    Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('.publisher_requests');
+    Route::get('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('.publisher_requests.confirm');
+    Route::get('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('.publisher_requests.reject');
 
-    Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy');
+    Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
 
-    Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide');
+    Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('.videos.delete');
+
+    Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('.videos.hide');
 
 
 });
