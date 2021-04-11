@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserItem;
+use App\Models\Department;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -19,7 +21,22 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query();
+
+        if($request->is('api/admin/publishers')){
+            $query = User::publishers();
+        }elseif ($request->is('api/admin/admins')){
+            $query = User::admins();
+        }elseif ($request->is('api/admin/publisher-requests')){
+            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+
+            $publisherRequestUserId = Message::where([
+                    'department_id' => $publisherApplicationDepartmentId
+                ]
+            )->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
+            $query = User::whereIn('id', $publisherRequestUserId);
+        }else{
+            $query = User::query();
+        }
 
         $filters = $request->get('filters', []);
 
