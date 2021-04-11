@@ -129,8 +129,8 @@ Route::group([
     Route::get('admins', '\App\Http\Controllers\UserController@index')->name('.admins');
 
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('.publisher_requests');
-    Route::get('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('.publisher_requests.confirm');
-    Route::get('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('.publisher_requests.reject');
+    Route::put('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('.publisher_requests.confirm');
+    Route::put('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('.publisher_requests.reject');
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
 
