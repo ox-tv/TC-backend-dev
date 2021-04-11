@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Amir\Permission\Models\Role;
+use Amir\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,11 +12,15 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
 
     const STATUS_INACTIVE = 1;
     const STATUS_ACTIVE = 2;
+
+    // roles
+    const ADMIN_ROLE = 'admin';
+    const PUBLISHER_ROLE = 'publisher';
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +63,25 @@ class User extends Authenticatable
 
     public function scopeSearchEmail($query, $keyword){
         $query->where('email', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
+    // roles scopes
+
+    public function scopePublishers($query){
+        $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+        $query->where('role_id', $publisherRoleId);
+        return $query;
+    }
+
+    public function scopeAdmins($query){
+        $adminRoleId = Role::firstOrCreate(['name' => self::ADMIN_ROLE])->id;
+        $query->where('role_id', $adminRoleId);
+        return $query;
+    }
+
+    public function scopeUsers($query){
+        $query->where('role_id', null);
         return $query;
     }
 
