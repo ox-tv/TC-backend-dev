@@ -138,5 +138,6 @@ Route::group([
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('.videos.hide');
 
+    Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
 });
