@@ -120,23 +120,26 @@ Route::group([
 // Admin api routes
 Route::group([
     'middleware' => 'auth.role',
-    'as' => 'admin',
+    'as' => 'admin.',
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-    Route::get('users', '\App\Http\Controllers\UserController@index')->name('.users');
-    Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('.publishers');
-    Route::get('admins', '\App\Http\Controllers\UserController@index')->name('.admins');
+    Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
+    Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
+    Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
+    Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
+    Route::get('admins', '\App\Http\Controllers\UserController@index')->name('admins');
 
-    Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('.publisher_requests');
-    Route::put('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('.publisher_requests.confirm');
-    Route::put('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('.publisher_requests.reject');
+    Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
+    Route::put('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('publisher_requests.confirm');
+    Route::put('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('publisher_requests.reject');
 
-    Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
+    Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('videos');
 
-    Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('.videos.delete');
+    Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
-    Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('.videos.hide');
+    Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
 
+    Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
 });
