@@ -21,9 +21,13 @@ class ChannelController extends Controller
      *
      * @return ChannelSummaryCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $query = Channel::published();
+        if($request->is('api/admin/channels')){
+            $query = Channel::query();
+        }else{
+            $query = Channel::published();
+        }
 
         $channels = $query->paginate();
 
