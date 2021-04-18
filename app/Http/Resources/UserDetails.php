@@ -28,6 +28,8 @@ class UserDetails extends JsonResource
             'is_hero' => $this->is_hero,
             'likes_count' => rand(10,99),
             'dislikes_count' => rand(10,99),
+            'watch_hours' => rand(10,99),
+            'subscription_count' => $this->subscribedChannels()->count(),
             'role' => $this->role_name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
