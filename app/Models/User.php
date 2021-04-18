@@ -85,6 +85,7 @@ class User extends Authenticatable
         return $query;
     }
 
+    // Relations
 
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
