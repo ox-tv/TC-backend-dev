@@ -128,6 +128,7 @@ Route::group([
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
+    Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::get('admins', '\App\Http\Controllers\UserController@index')->name('admins');
 
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
