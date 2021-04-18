@@ -6,7 +6,7 @@ use App\Models\Department;
 use App\Models\Message;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserItem extends JsonResource
+class UserDetails extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,6 @@ class UserItem extends JsonResource
      */
     public function toArray($request)
     {
-        $withPublisherRequest = $request->is('api/admin/publisher-requests');
-
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
         return [
             'id' => $this->id,
@@ -29,15 +26,11 @@ class UserItem extends JsonResource
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
+            'likes_count' => rand(10,99),
+            'dislikes_count' => rand(10,99),
+            'watch_hours' => rand(10,99),
+            'subscription_count' => $this->subscribedChannels()->count(),
             'role' => $this->role_name,
-            'request_details' => $this->when(
-                $withPublisherRequest,
-                Message::where([
-                    'user_id' => $this->id,
-                    'department_id' => $publisherApplicationDepartmentId
-                    ]
-                )->orderBy('created_at', 'desc')->first()
-            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

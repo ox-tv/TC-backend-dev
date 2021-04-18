@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
 use App\Models\Department;
 use App\Models\Message;
@@ -74,9 +75,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        //
+        return UserDetails::make($user);
     }
 
     /**

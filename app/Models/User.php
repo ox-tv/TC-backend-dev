@@ -85,6 +85,7 @@ class User extends Authenticatable
         return $query;
     }
 
+    // Relations
 
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
@@ -92,5 +93,9 @@ class User extends Authenticatable
 
     public function subscribedChannels(){
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
+    }
+
+    public function getIsHeroAttribute(){
+        return $this->hero_due_at > now();
     }
 }
