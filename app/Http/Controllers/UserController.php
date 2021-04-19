@@ -84,12 +84,34 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  User  $user
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'username' => 'nullable|string|alpha_dash',
+            'email' => 'nullable|email',
+            'avatar' => 'nullable|string',
+            'eth_address' => 'nullable|string',
+            'new_password' => 'nullable|string|min:6|max:32',
+        ]);
+
+        $user->username = $request->get('username', $user->username);
+        $user->email = $request->get('email', $user->email);
+
+        $user->avatar = $request->get('avatar', $user->avatar);
+
+        if($request->get('new_password')){
+            $user->password = Hash::make($request->get('new_password'));
+        }
+
+        $user->eth_address = $request->get('eth_address', $request->eth_address);
+
+        $user->save();
+
+        return response()->json(new UserItem($user));
+
     }
 
     /**
