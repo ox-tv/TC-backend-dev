@@ -145,4 +145,6 @@ Route::group([
 
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
+    Route::apiResource('messages', \App\Http\Controllers\MessageController::class);
+
 });
