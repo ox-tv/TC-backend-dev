@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Message;
 
-use App\Http\Resources\MessageItem;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class MessageCollection extends ResourceCollection

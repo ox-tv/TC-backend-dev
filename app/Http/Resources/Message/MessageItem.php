@@ -18,6 +18,8 @@ class MessageItem extends JsonResource
             'id' => $this->id,
             'subject' => $this->subject,
             'message' => $this->message,
+            'department' => $this->department->name,
+            'replies' => []
         ];
     }
 }
