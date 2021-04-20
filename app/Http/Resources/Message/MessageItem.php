@@ -19,7 +19,8 @@ class MessageItem extends JsonResource
             'subject' => $this->subject,
             'message' => $this->message,
             'department' => $this->department->name,
-            'replies' => []
+            'replies' => [],
+            'created_at' => $this->created_at
         ];
     }
 }
