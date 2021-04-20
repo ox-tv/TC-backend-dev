@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Message\BecomeAPublisherStore;
+use App\Http\Resources\Message\MessageCollection;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Department;
 use App\Models\Message;
@@ -15,9 +16,15 @@ class MessageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $isAdmin = $request->is('api/admin/messages');
+        if($isAdmin){
+            $query = Message::query();
+
+            $messages = $query->paginate();
+            return MessageCollection::make($messages);
+        }
     }
 
     /**
@@ -39,7 +46,7 @@ class MessageController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**
