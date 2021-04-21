@@ -91,6 +91,11 @@ class Channel extends Model
         return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id');
     }
 
+    public function heroSubscribers(){
+        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id')
+            ->whereDate('hero_due_at', '>=', Carbon::now());
+    }
+
     // Attribute
 
     public function getUploadsCountAttribute(){
