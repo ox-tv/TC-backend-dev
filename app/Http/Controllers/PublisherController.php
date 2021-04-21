@@ -17,8 +17,41 @@ use Illuminate\Support\Facades\Hash;
 
 class PublisherController extends Controller
 {
-    public function scoreBoard(){
-        return new ChannelSummaryCollection(Channel::published()->paginate(50));
+    public function scoreBoard(Request $request){
+
+        $filters = $request->get('filters', []);
+
+        $timeFilter = Arr::get($filters, 'time');
+        $searchFilter = Arr::get($filters, 'search');
+
+        $query = Channel::published();
+
+        switch ($timeFilter){
+            case 'week': {
+                $query->week();
+                break;
+            }
+
+            case 'month': {
+                $query->month();
+                break;
+            }
+
+            case 'year': {
+                $query->year();
+                break;
+            }
+        }
+
+        if($searchFilter){
+            $query->SearchTitle($searchFilter);
+        }
+
+        $query->orderBy('points', 'desc');
+
+        $channels = $query->paginate(50);
+
+        return new ChannelSummaryCollection($channels);
     }
 
     public function register(PublisherRegister $request){

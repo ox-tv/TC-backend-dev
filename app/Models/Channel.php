@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,6 +52,30 @@ class Channel extends Model
         return $query;
     }
 
+    // filters by time
+
+    public function scopeWeek($query){
+        $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        return $query;
+    }
+
+    public function scopeMonth($query){
+        $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+        return $query;
+    }
+
+    public function scopeYear($query){
+        $query->whereBetween('created_at', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()]);
+        return $query;
+    }
+
+    // search scopes
+
+    public function scopeSearchTitle($query, $keyword){
+        $query->where('name', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
 
     // Relations
 
@@ -67,10 +92,6 @@ class Channel extends Model
     }
 
     // Attribute
-
-    public function getPointsAttribute(){
-        return rand(1000, 9000);
-    }
 
     public function getUploadsCountAttribute(){
         return $this->videos()->count();
