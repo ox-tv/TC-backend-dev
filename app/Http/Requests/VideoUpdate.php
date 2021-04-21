@@ -28,7 +28,7 @@ class VideoUpdate extends FormRequest
     {
         return [
             'title' => 'string',
-            'categories' => 'exists:categories,id',
+            'categories.*.id' => 'exists:categories,id',
             'category' => 'exists:categories,id',
             'video' => 'file',
             'youtube_link' => 'url',
