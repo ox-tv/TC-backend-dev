@@ -15,14 +15,12 @@ class ChannelSummaryItem extends JsonResource
     public function toArray($request)
     {
 
-        $subscribersCount = $this->subscribers->count();
-
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
             'points' => $this->points,
-            'subscribers_count' => $subscribersCount,
+            'subscribers_count' => $this->subscribers->count(),
             'uploads_count' => $this->uploads_count,
             'total_views' => $this->total_views,
             'total_likes' => $this->total_likes,
