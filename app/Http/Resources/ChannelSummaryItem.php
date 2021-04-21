@@ -24,7 +24,7 @@ class ChannelSummaryItem extends JsonResource
             'uploads_count' => $this->uploads_count,
             'total_views' => $this->total_views,
             'total_likes' => $this->total_likes,
-            'hero_subscribers_count' => (int) ($subscribersCount * 0.7),
+            'hero_subscribers_count' => $this->heroSubscribers->count(),
             'url_hash' => $this->url_hash,
             'avatar' => $this->avatar,
             "slogan" => $this->slogan,
