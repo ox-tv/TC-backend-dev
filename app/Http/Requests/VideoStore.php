@@ -27,7 +27,7 @@ class VideoStore extends FormRequest
     public function rules()
     {
         return [
-            'categories.*' => 'exists:categories,id',
+            'categories.*.id' => 'exists:categories,id',
             'category' => 'exists:categories,id',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
             'youtube_link' => 'url'
