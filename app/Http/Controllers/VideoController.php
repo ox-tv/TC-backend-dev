@@ -127,16 +127,19 @@ class VideoController extends Controller
         $video->slug = Str::slug($request->get('title'));
         $video->description = $request->get('description');
 
-        if($request->get('youtube_link')){
-            $video->youtube_link = $request->get('youtube_link');
+        if($request->is('api/admin/videos')){
 
+            $video->file_path = $request->get('video_name');
+
+        }elseif($request->get('youtube_link')){
+
+            $video->youtube_link = $request->get('youtube_link');
             $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
 
         }else if($request->file('video')){ // adding file to video
+
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
-
             $video->file_path = $videoFile;
-
         }
 
         // adding user to video

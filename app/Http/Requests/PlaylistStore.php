@@ -26,7 +26,7 @@ class PlaylistStore extends FormRequest
     {
         return [
             'name' => 'required',
-            'user_id' => 'sometimes|exists:users'
+            'user_id' => 'sometimes|exists:users,id'
         ];
     }
 

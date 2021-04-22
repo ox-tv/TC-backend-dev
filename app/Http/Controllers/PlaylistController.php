@@ -42,10 +42,7 @@ class PlaylistController extends Controller
         $playlist->name = $request->get('name');
 
         if($request->is('api/admin/playlists')){
-
-            $user = User::find($request->get('user_id'));
-            $playlist->owner()->associate($user);
-
+            $playlist->user_id = $request->get('user_id');
         }else{
             $playlist->owner()->associate(Auth::user());
         }

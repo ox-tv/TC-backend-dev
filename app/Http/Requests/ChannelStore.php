@@ -26,7 +26,7 @@ class ChannelStore extends FormRequest
         return [
             'name' => 'required|unique:channels',
             'website' => 'sometimes|nullable|url',
-            'user_id' => 'sometimes|exists:users'
+            'user_id' => 'sometimes|exists:users,id'
         ];
     }
 
