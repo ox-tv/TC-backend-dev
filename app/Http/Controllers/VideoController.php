@@ -49,6 +49,7 @@ class VideoController extends Controller
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
         $playlistId = Arr::get($filters, 'playlist');
+        $channelId = Arr::get($filters, 'channel');
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->first();
@@ -98,6 +99,11 @@ class VideoController extends Controller
         if(count($excludedVideos) > 0){
             $query->whereNotIn('id', $excludedVideos);
         }
+
+        if($channelId){
+            $query->inChannel($channelId);
+        }
+
 
         $videos = $query->paginate();
 
