@@ -94,6 +94,15 @@ class Video extends Model
         return $query;
     }
 
+    public function scopeInChannel($query, $channelId){
+        $channel = Channel::find($channelId);
+
+        $query->where('user_id', $channel->user_id);
+
+        return $query;
+
+    }
+
     // filters by time
 
     public function scopeWeek($query){
