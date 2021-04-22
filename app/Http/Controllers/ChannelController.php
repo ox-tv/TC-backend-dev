@@ -56,7 +56,12 @@ class ChannelController extends Controller
             $channel->intro_video_id = $request->get('intro_video_id');
         }
 
-        $channel->user_id = Auth::user()->id;
+        if($request->is('api/admin/channels')){
+            $channel->user_id = $request->get('user_id');
+        }else{
+            $channel->user_id = Auth::user()->id;
+        }
+
 
         $channel->save();
 

@@ -12,7 +12,7 @@ class Channel extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public $fillable = [
+    protected $fillable = [
       'name', 'user_id'
     ];
 

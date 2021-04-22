@@ -41,14 +41,15 @@ class Video extends Model
                 $model->save();
             }
 
-            if(is_null($model->channels()->first()) && Auth::check('api')){
+            if(is_null($model->channels()->first()) && Auth::guard('api')->check()){
                 // channel
-                $channel = Auth::user()->channel;
+                $user = User::find($model->user_id);
+                $channel = $user->channel;
 
                 if(is_null($channel)){
                     $channel = Channel::create([
-                        'name' => Auth::user()->username ? Auth::user()->username : Auth::user()->email,
-                        'user_id' => Auth::user()->id
+                        'name' => $user->username ? $user->username : $user->email,
+                        'user_id' => $user->id
                     ]);
                 }
 

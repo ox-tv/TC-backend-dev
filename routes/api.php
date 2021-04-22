@@ -138,12 +138,16 @@ Route::group([
     Route::put('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('publisher_requests.reject');
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('videos');
+    Route::post('videos', '\App\Http\Controllers\VideoController@store')->name("videos.store");
 
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
 
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
+    Route::post('channels', '\App\Http\Controllers\ChannelController@store')->name("channels.store");
+
+    Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class);
 
