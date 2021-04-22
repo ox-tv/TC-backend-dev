@@ -7,6 +7,7 @@ use App\Http\Requests\PlaylistUpdate;
 use App\Http\Resources\PlaylistCollection;
 use App\Http\Resources\PlaylistItem;
 use App\Models\Playlist;
+use App\Models\User;
 use App\Models\Video;
 use Exception;
 use Illuminate\Http\Request;
@@ -40,7 +41,15 @@ class PlaylistController extends Controller
 
         $playlist->name = $request->get('name');
 
-        $playlist->owner()->associate(Auth::user());
+        if($request->is('api/admin/playlists')){
+
+            $user = User::find($request->get('user_id'));
+            $playlist->owner()->associate($user);
+
+        }else{
+            $playlist->owner()->associate(Auth::user());
+        }
+
         $playlist->save();
 
         return new PlaylistItem($playlist);
