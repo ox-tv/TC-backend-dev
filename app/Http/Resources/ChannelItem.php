@@ -25,6 +25,7 @@ class ChannelItem extends JsonResource
             'total_likes' => $this->total_likes,
             'total_dislikes' => $this->total_dislikes,
             'comments_count' => $this->total_comments,
+            'points' => $this->points,
             // TODO:: calculate real watch hours
             'watch_hours' => rand(1,99),
             'hero_subscribers_count' => $this->heroSubscribers->count(),
