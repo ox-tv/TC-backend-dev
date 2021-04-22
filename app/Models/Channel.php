@@ -126,5 +126,29 @@ class Channel extends Model
         return $totalLikes;
     }
 
+    public function getTotalDislikesAttribute(){
+        $totalDislikes = 0;
+
+        $videos = $this->videos;
+
+        foreach ($videos as $video){
+            $totalDislikes += $video->dislikedBy()->count();
+        }
+
+        return $totalDislikes;
+    }
+
+    public function getTotalCommentsAttribute(){
+        $totalDislikes = 0;
+
+        $videos = $this->videos;
+
+        foreach ($videos as $video){
+            $totalDislikes += $video->comments()->count();
+        }
+
+        return $totalDislikes;
+    }
+
 
 }
