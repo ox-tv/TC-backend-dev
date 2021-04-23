@@ -20,6 +20,15 @@ class Channel extends Model
     const STATUS_PUBLISHED = 2;
     const STATUS_ARCHIVED = 3;
     const STATUS_SUSPENDED = 4;
+    const STATUS_FREEZE= 5;
+
+    const STATUS_TEXT = [
+        self::STATUS_DRAFT => 'draft',
+        self::STATUS_PUBLISHED => 'published',
+        self::STATUS_ARCHIVED => 'archived',
+        self::STATUS_SUSPENDED => 'suspended',
+        self::STATUS_FREEZE => 'freeze',
+    ];
 
     protected $casts = [
         'created_at' => 'datetime',
