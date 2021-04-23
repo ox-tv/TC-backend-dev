@@ -11,6 +11,7 @@ use App\Http\Resources\VideoCollection;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -28,6 +29,14 @@ class ChannelController extends Controller
             $query = Channel::query();
         }else{
             $query = Channel::published();
+        }
+
+        $filters = $request->get('filters', []);
+
+        $searchFilter = Arr::get($filters, 'search');
+
+        if($searchFilter){
+            $query->SearchByOwner($searchFilter);
         }
 
         $channels = $query->paginate();
@@ -60,7 +69,19 @@ class ChannelController extends Controller
         if($request->is('api/admin/channels')){
             $channel->user_id = $request->get('user_id');
         }else{
-            $channel->user_id = Auth::user()->id;
+            $channel->user_id = auth('guard')->id();
+        }
+
+        $channel->slogan = $request->get('slogan', $channel->slogan);
+
+        $channel->website = $request->get('website', $channel->website);
+        $channel->instagram = $request->get('instagram', $channel->instagram);
+        $channel->facebook = $request->get('facebook', $channel->facebook);
+        $channel->twitter = $request->get('twitter', $channel->twitter);
+
+
+        if($request->is('api/admin/channels') && $request->get('status')){
+            $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
         }
 
 
@@ -135,17 +156,38 @@ class ChannelController extends Controller
             $channel = Auth::user()->channel;
         }
 
-        $channel->name = $request->get('name');
-        $channel->description = $request->get('description');
+        if(!$request->is('api/admin/channels/*') && $channel->owner->id != auth('api')->id()){
+            return new ChannelItem($channel);
+        }
+
+        $channel->name = $request->get('name', $channel->name);
+        $channel->description = $request->get('description', $channel->description);
 
         $channel->slug = $request->get('slug')? $request->get('slug'): Str::slug($request->get('name'));
 
-        $channel->cover = $request->get('cover');
-        $channel->avatar = $request->get('avatar');
+        $channel->cover = $request->get('cover', $channel->cover);
+        $channel->avatar = $request->get('avatar', $channel->avatar);
 
         if($request->get('intro_video_id')){
             $channel->intro_video_id = $request->get('intro_video_id');
         }
+
+        $channel->slogan = $request->get('slogan', $channel->slogan);
+
+        $channel->website = $request->get('website', $channel->website);
+        $channel->instagram = $request->get('instagram', $channel->instagram);
+        $channel->facebook = $request->get('facebook', $channel->facebook);
+        $channel->twitter = $request->get('twitter', $channel->twitter);
+
+
+        if($request->is('api/admin/channels/*') && $request->get('status')){
+            $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
+        }
+
+        if($request->is('api/admin/channels/*') && $request->get('points')){
+            $channel->points = $request->get('points');
+        }
+
 
         $channel->save();
 

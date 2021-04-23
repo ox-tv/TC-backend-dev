@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Channel;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ChannelItem extends JsonResource
@@ -38,7 +39,7 @@ class ChannelItem extends JsonResource
             "website" => $this->website,
             "slogan" => $this->slogan,
             "user" => UserItem::make($this->owner),
-            "status" => $this->status,
+            "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
             'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
