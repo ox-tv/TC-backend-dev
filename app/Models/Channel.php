@@ -76,6 +76,15 @@ class Channel extends Model
         return $query;
     }
 
+    public function scopeSearchByOwner($query, $keyword){
+
+        $usersIds = User::where('username', 'LIKE', '%'.$keyword.'%')->orWhere('email', 'LIKE', '%'.$keyword.'%')->select('id')->pluck('id')->toArray();
+
+        $query->whereIn('user_id', $usersIds);
+
+        return $query;
+    }
+
 
     // Relations
 
