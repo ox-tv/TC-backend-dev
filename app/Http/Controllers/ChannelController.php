@@ -11,6 +11,7 @@ use App\Http\Resources\VideoCollection;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -28,6 +29,14 @@ class ChannelController extends Controller
             $query = Channel::query();
         }else{
             $query = Channel::published();
+        }
+
+        $filters = $request->get('filters', []);
+
+        $searchFilter = Arr::get($filters, 'search');
+
+        if($searchFilter){
+            $query->SearchByOwner($searchFilter);
         }
 
         $channels = $query->paginate();
