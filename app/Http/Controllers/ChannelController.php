@@ -39,6 +39,15 @@ class ChannelController extends Controller
             $query->SearchByOwner($searchFilter);
         }
 
+        $sort = $request->get('sort');
+        if($sort === 'most_uploads'){
+            $query->withCount('videos')->orderBy('videos_count', 'desc');
+        }elseif ($sort === 'most_subscribers'){
+            $query->withCount('subscribers')->orderBy('subscribers_count', 'desc');
+        }elseif ($sort === 'most_points'){
+            $query->orderBy('points', 'desc');
+        }
+
         $channels = $query->paginate();
 
         return new ChannelSummaryCollection($channels);
