@@ -69,7 +69,7 @@ class ChannelController extends Controller
         if($request->is('api/admin/channels')){
             $channel->user_id = $request->get('user_id');
         }else{
-            $channel->user_id = Auth::user()->id;
+            $channel->user_id = auth('guard')->id();
         }
 
 
