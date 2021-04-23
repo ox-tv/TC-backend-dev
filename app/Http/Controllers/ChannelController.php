@@ -184,6 +184,10 @@ class ChannelController extends Controller
             $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
         }
 
+        if($request->is('api/admin/channels/*') && $request->get('points')){
+            $channel->points = $request->get('points');
+        }
+
 
         $channel->save();
 
