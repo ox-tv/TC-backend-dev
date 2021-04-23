@@ -72,6 +72,18 @@ class ChannelController extends Controller
             $channel->user_id = auth('guard')->id();
         }
 
+        $channel->slogan = $request->get('slogan', $channel->slogan);
+
+        $channel->website = $request->get('website', $channel->website);
+        $channel->instagram = $request->get('instagram', $channel->instagram);
+        $channel->facebook = $request->get('facebook', $channel->facebook);
+        $channel->twitter = $request->get('twitter', $channel->twitter);
+
+
+        if($request->is('api/admin/channels') && $request->get('status')){
+            $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
+        }
+
 
         $channel->save();
 
