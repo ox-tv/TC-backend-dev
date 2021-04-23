@@ -14,6 +14,7 @@ class ChannelSummaryItem extends JsonResource
      */
     public function toArray($request)
     {
+        $withOwner = in_array('owner', explode(',', $request->get('include', '')));
 
         return [
             'id' => $this->id,
@@ -25,6 +26,7 @@ class ChannelSummaryItem extends JsonResource
             'total_views' => $this->total_views,
             'total_likes' => $this->total_likes,
             'hero_subscribers_count' => $this->heroSubscribers->count(),
+            "owner" => $this->when($withOwner, UserItem::make($this->owner)),
             'url_hash' => $this->url_hash,
             'avatar' => $this->avatar,
             "slogan" => $this->slogan,
