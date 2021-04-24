@@ -98,7 +98,13 @@ class Video extends Model
     public function scopeInChannel($query, $channelId){
         $channel = Channel::find($channelId);
 
-        $query->where('user_id', $channel->user_id);
+        if($channel){
+            $query->whereHas('channels', function($q) use ($channel){
+                $q->where('id', $channel->id);
+            });
+        }else{
+            $query->where('user_id', null);
+        }
 
         return $query;
 
