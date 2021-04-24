@@ -117,8 +117,10 @@ class UserController extends Controller
         if ($request->is('api/admin/users/'.$user->id)){
             $user->is_mute = $request->get('is_mute', $user->is_mute);
 
-            if ($request->get('muted_until') && $request->get('muted_until') != User::MUTE_PERMANENT){
+            if ($request->get('is_mute', $user->is_mute) && $request->get('muted_until') && $request->get('muted_until') != User::MUTE_PERMANENT){
                 $user->muted_until = Carbon::now()->addSeconds(array_flip(User::MUTED_UNTIL_TEXT)[$request->get('muted_until')]);
+            }else{
+                $user->muted_until = null;
             }
         }
 
