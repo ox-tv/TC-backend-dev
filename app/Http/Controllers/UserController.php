@@ -95,6 +95,7 @@ class UserController extends Controller
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
             'new_password' => 'nullable|string|min:6|max:32',
+            'muted_until' => 'nullable|date',
         ]);
 
         $user->username = $request->get('username', $user->username);
@@ -107,6 +108,10 @@ class UserController extends Controller
         }
 
         $user->eth_address = $request->get('eth_address', $request->eth_address);
+
+        if ($request->is('api/admin/users/'.$user->id)){
+            $user->muted_until = $request->get('muted_until', $user->muted_until);
+        }
 
         $user->save();
 

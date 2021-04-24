@@ -26,6 +26,7 @@ class UserDetails extends JsonResource
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
+            'is_mute' => $this->is_mute,
             'likes_count' => rand(10,99),
             'dislikes_count' => rand(10,99),
             'watch_hours' => rand(10,99),

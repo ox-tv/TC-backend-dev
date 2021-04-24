@@ -98,4 +98,8 @@ class User extends Authenticatable
     public function getIsHeroAttribute(){
         return $this->hero_due_at > now();
     }
+
+    public function getIsMuteAttribute(){
+        return $this->muted_until > now();
+    }
 }
