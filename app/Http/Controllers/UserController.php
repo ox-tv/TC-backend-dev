@@ -97,6 +97,7 @@ class UserController extends Controller
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
             'new_password' => 'nullable|string|min:6|max:32',
+            'hero_due_at' => 'nullable|date',
             'muted_until' => [
                 'nullable',
                 Rule::in(User::MUTED_UNTIL_TEXT),
@@ -114,13 +115,22 @@ class UserController extends Controller
 
         $user->eth_address = $request->get('eth_address', $request->eth_address);
 
+        // For Admin permissions
         if ($request->is('api/admin/users/'.$user->id)){
+            // Is mute
             $user->is_mute = $request->get('is_mute', $user->is_mute);
 
             if ($request->get('is_mute', $user->is_mute) && $request->get('muted_until') && $request->get('muted_until') != User::MUTE_PERMANENT){
                 $user->muted_until = Carbon::now()->addSeconds(array_flip(User::MUTED_UNTIL_TEXT)[$request->get('muted_until')]);
             }else{
                 $user->muted_until = null;
+            }
+
+            // hero member
+            $user->hero_due_at = $request->get('hero_due_at', null);
+
+            if (!$user->hero_member_at && $user->is_hero){
+                $user->hero_member_at = Carbon::now();
             }
         }
 
