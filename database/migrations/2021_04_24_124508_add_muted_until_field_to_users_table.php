@@ -14,6 +14,7 @@ class AddMutedUntilFieldToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->boolean("is_mute")->default(false);
             $table->dateTime("muted_until")->nullable();
         });
     }
@@ -26,6 +27,7 @@ class AddMutedUntilFieldToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn("is_mute");
             $table->dropColumn("muted_until");
         });
     }
