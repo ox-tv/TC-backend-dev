@@ -8,10 +8,12 @@ use App\Http\Resources\UserItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -95,7 +97,10 @@ class UserController extends Controller
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
             'new_password' => 'nullable|string|min:6|max:32',
-            'muted_until' => 'nullable|date',
+            'muted_until' => [
+                'nullable',
+                Rule::in(User::MUTED_UNTIL_TEXT),
+            ],
         ]);
 
         $user->username = $request->get('username', $user->username);
@@ -111,7 +116,10 @@ class UserController extends Controller
 
         if ($request->is('api/admin/users/'.$user->id)){
             $user->is_mute = $request->get('is_mute', $user->is_mute);
-            $user->muted_until = $request->get('muted_until', $user->muted_until);
+
+            if ($request->get('muted_until') && $request->get('muted_until') != User::MUTE_PERMANENT){
+                $user->muted_until = Carbon::now()->addSeconds(array_flip(User::MUTED_UNTIL_TEXT)[$request->get('muted_until')]);
+            }
         }
 
         $user->save();

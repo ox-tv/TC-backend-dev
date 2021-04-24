@@ -22,6 +22,25 @@ class User extends Authenticatable
     const ADMIN_ROLE = 'admin';
     const PUBLISHER_ROLE = 'publisher';
 
+    // mute durations
+    const MUTE_1WEEK = 604800;
+    const MUTE_2WEEK = 1209600;
+    const MUTE_1MONTH = 2592000;
+    const MUTE_3MONTH = 7776000;
+    const MUTE_6MONTH = 15552000;
+    const MUTE_1YEAR = 31104000;
+    const MUTE_PERMANENT = 0;
+
+    const MUTED_UNTIL_TEXT = [
+        self::MUTE_1WEEK => '1_week',
+        self::MUTE_2WEEK => '2_week',
+        self::MUTE_1MONTH => '1_month',
+        self::MUTE_3MONTH => '3_month',
+        self::MUTE_6MONTH => '6_month',
+        self::MUTE_1YEAR => '1_year',
+        self::MUTE_PERMANENT => 'permanent',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
