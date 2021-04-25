@@ -89,8 +89,8 @@ class Video extends Model
     }
 
     public function scopeMine($query){
-        if(auth()->check()){
-            $query->where('user_id', auth()->user()->id);
+        if(auth('api')->check()){
+            $query->where('user_id', auth('api')->id());
         }
         return $query;
     }
