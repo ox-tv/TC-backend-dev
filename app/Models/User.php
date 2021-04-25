@@ -85,11 +85,30 @@ class User extends Authenticatable
         return $query;
     }
 
+    public function scopeIsHero($query){
+        $query->where('hero_due_at', '>', now());
+        return $query;
+    }
+
+    public function scopeIsNotHero($query){
+        $query->where(function ($query) {
+            $query->whereNull('hero_due_at')
+                ->orWhere('hero_due_at', '<=', now());
+        });
+        return $query;
+    }
+
     // roles scopes
 
     public function scopePublishers($query){
         $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
         $query->where('role_id', $publisherRoleId);
+        return $query;
+    }
+
+    public function scopeNotPublishers($query){
+        $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+        $query->where('role_id', "<>", $publisherRoleId);
         return $query;
     }
 
@@ -112,6 +131,10 @@ class User extends Authenticatable
 
     public function subscribedChannels(){
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
+    }
+
+    public function comments(){
+        return $this->hasMany('App\Models\Comment');
     }
 
     public function getIsHeroAttribute(){

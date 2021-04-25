@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserStore;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
@@ -24,10 +25,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-
-        if($request->is('api/admin/publishers')){
-            $query = User::publishers();
-        }elseif ($request->is('api/admin/admins')){
+        if ($request->is('api/admin/admins')){
             $query = User::admins();
         }elseif ($request->is('api/admin/publisher-requests')){
             $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
@@ -47,12 +45,28 @@ class UserController extends Controller
 
         $emailFilter = Arr::get($filters, 'email');
 
+        $isHeroFilter = Arr::get($filters, 'is_hero');
+
+        $isPublisherFilter = Arr::get($filters, 'is_publisher');
+
         if($usernameFilter){
             $query->SearchUsername($usernameFilter);
         }
 
         if($emailFilter){
             $query->SearchEmail($emailFilter);
+        }
+
+        if($isHeroFilter == "yes"){
+            $query->IsHero();
+        }elseif($isHeroFilter == "no"){
+            $query->IsNotHero();
+        }
+
+        if($isPublisherFilter == "yes"){
+            $query->Publishers();
+        }elseif($isPublisherFilter == "no"){
+            $query->NotPublishers();
         }
 
         $users = $query->paginate();
@@ -66,9 +80,24 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserStore $request)
     {
-        //
+        $user = new User();
+
+        $user->email = $request->get("email");
+        $user->username = $request->get("username");
+        $user->status = User::STATUS_ACTIVE;
+        $user->email_verified_at = now();
+        $user->role_id = $request->get("role_id");
+        $user->avatar = $request->get('avatar');
+        $user->eth_address = $request->get('eth_address');
+
+        $user->password = Hash::make(rand(100000,1000000000));
+        // TODO: send reset password link here
+
+        $user->save();
+
+        return response()->json(new UserItem($user));
     }
 
     /**
