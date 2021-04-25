@@ -90,11 +90,25 @@ class User extends Authenticatable
         return $query;
     }
 
+    public function scopeIsNotHero($query){
+        $query->where(function ($query) {
+            $query->whereNull('hero_due_at')
+                ->orWhere('hero_due_at', '<=', now());
+        });
+        return $query;
+    }
+
     // roles scopes
 
     public function scopePublishers($query){
         $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
         $query->where('role_id', $publisherRoleId);
+        return $query;
+    }
+
+    public function scopeNotPublishers($query){
+        $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+        $query->where('role_id', "<>", $publisherRoleId);
         return $query;
     }
 

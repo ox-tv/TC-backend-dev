@@ -24,7 +24,6 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-
         if ($request->is('api/admin/admins')){
             $query = User::admins();
         }elseif ($request->is('api/admin/publisher-requests')){
@@ -57,12 +56,16 @@ class UserController extends Controller
             $query->SearchEmail($emailFilter);
         }
 
-        if($isHeroFilter){
+        if($isHeroFilter == "yes"){
             $query->IsHero();
+        }elseif($isHeroFilter == "no"){
+            $query->IsNotHero();
         }
 
-        if($isPublisherFilter){
-            $query->publishers();
+        if($isPublisherFilter == "yes"){
+            $query->Publishers();
+        }elseif($isPublisherFilter == "no"){
+            $query->NotPublishers();
         }
 
         $users = $query->paginate();
