@@ -126,7 +126,9 @@ Route::group([
 ], function(){
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
-    Route::post('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
+    Route::post('users', '\App\Http\Controllers\UserController@store')->name('users.store');
+    Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
+    Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');

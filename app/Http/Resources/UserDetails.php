@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserVideo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserDetails extends JsonResource
@@ -26,10 +27,13 @@ class UserDetails extends JsonResource
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
-            'likes_count' => rand(10,99),
-            'dislikes_count' => rand(10,99),
+            'is_mute' => $this->is_mute,
+            'muted_until' => $this->muted_until,
+            'likes_count' => UserVideo::where("user_id", $this->id)->where("relation", UserVideo::LIKED_RELATION)->count(),
+            'dislikes_count' => UserVideo::where("user_id", $this->id)->where("relation", UserVideo::DISLIKED_RELATION)->count(),
             'watch_hours' => rand(10,99),
             'subscription_count' => $this->subscribedChannels()->count(),
+            'comments_count' => $this->comments()->count(),
             'role' => $this->role_name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
