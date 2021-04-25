@@ -119,6 +119,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
     }
 
+    public function comments(){
+        return $this->hasMany('App\Models\Comment');
+    }
+
     public function getIsHeroAttribute(){
         return $this->hero_due_at > now();
     }
