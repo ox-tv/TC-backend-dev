@@ -47,12 +47,18 @@ class UserController extends Controller
 
         $emailFilter = Arr::get($filters, 'email');
 
+        $isHeroFilter = Arr::get($filters, 'is_hero');
+
         if($usernameFilter){
             $query->SearchUsername($usernameFilter);
         }
 
         if($emailFilter){
             $query->SearchEmail($emailFilter);
+        }
+
+        if($isHeroFilter){
+            $query->IsHero();
         }
 
         $users = $query->paginate();

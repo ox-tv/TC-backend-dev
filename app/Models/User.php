@@ -85,6 +85,11 @@ class User extends Authenticatable
         return $query;
     }
 
+    public function scopeIsHero($query){
+        $query->where('hero_due_at', '>', now());
+        return $query;
+    }
+
     // roles scopes
 
     public function scopePublishers($query){
