@@ -25,9 +25,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
 
-        if($request->is('api/admin/publishers')){
-            $query = User::publishers();
-        }elseif ($request->is('api/admin/admins')){
+        if ($request->is('api/admin/admins')){
             $query = User::admins();
         }elseif ($request->is('api/admin/publisher-requests')){
             $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
@@ -49,6 +47,8 @@ class UserController extends Controller
 
         $isHeroFilter = Arr::get($filters, 'is_hero');
 
+        $isPublisherFilter = Arr::get($filters, 'is_publisher');
+
         if($usernameFilter){
             $query->SearchUsername($usernameFilter);
         }
@@ -59,6 +59,10 @@ class UserController extends Controller
 
         if($isHeroFilter){
             $query->IsHero();
+        }
+
+        if($isPublisherFilter){
+            $query->publishers();
         }
 
         $users = $query->paginate();
