@@ -103,6 +103,10 @@ Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserContro
 Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadController@upload');
 
 
+// Departments
+Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
+
+
 // Publisher api routes
 Route::group([
     'middleware' => 'auth.role',
