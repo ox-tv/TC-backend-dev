@@ -30,6 +30,7 @@ class UserItem extends JsonResource
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
             'is_mute' => $this->is_mute,
+            'muted_until' => $this->muted_until,
             'role' => $this->role_name,
             'request_details' => $this->when(
                 $withPublisherRequest,

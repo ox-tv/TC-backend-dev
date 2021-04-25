@@ -28,6 +28,7 @@ class UserDetails extends JsonResource
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
             'is_mute' => $this->is_mute,
+            'muted_until' => $this->muted_until,
             'likes_count' => UserVideo::where("user_id", $this->id)->where("relation", UserVideo::LIKED_RELATION)->count(),
             'dislikes_count' => UserVideo::where("user_id", $this->id)->where("relation", UserVideo::DISLIKED_RELATION)->count(),
             'watch_hours' => rand(10,99),
