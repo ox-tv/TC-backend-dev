@@ -35,7 +35,19 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
+        $message = new Message();
 
+        $message->subject = $request->get("subject");
+        $message->message = $request->get("message");
+        $message->image = $request->get("image");
+        $message->user_id = auth("api")->id();
+        $message->department_id = $request->get("department_id");
+        $message->status = Message::STATUS_NEW;
+        $message->parent_id = $request->route("replay_id");
+
+        $message->save();
+
+        return new MessageItem($message);
     }
 
     /**

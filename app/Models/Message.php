@@ -10,6 +10,17 @@ class Message extends Model
 {
     use HasFactory, SoftDeletes;
 
+    const STATUS_NEW = 1;
+    const STATUS_VIEWED = 2;
+    const STATUS_ANSWERED = 3;
+
+    const STATUS_TEXT = [
+        self::STATUS_NEW => 'new',
+        self::STATUS_VIEWED => 'viewed',
+        self::STATUS_ANSWERED => 'answered',
+    ];
+
+
     // search scopes
 
     public function scopeMine($query){
