@@ -38,7 +38,7 @@ class ChannelItem extends JsonResource
             "twitter" => $this->twitter,
             "website" => $this->website,
             "slogan" => $this->slogan,
-            "user" => UserItem::make($this->owner),
+            "owner" => UserItem::make($this->owner),
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
             'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
             "created_at" => $this->created_at,
