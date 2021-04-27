@@ -21,9 +21,10 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $isAdmin = $request->is('api/admin/messages');
-        if($isAdmin){
-            $query = Message::query();
+        $query = Message::NullParent();
+
+        if($request->is('api/messages')){
+            $query->Mine();
 
             $messages = $query->paginate();
             return MessageCollection::make($messages);

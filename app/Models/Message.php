@@ -37,7 +37,14 @@ class Message extends Model
 
     public function scopeMine($query){
         if(auth('api')->check()){
-            $query->where('user_id', auth('api')->user()->id);
+            $message_ids = MessageUser::where([
+                "user_id" => auth("api")->id()
+            ])->pluck("message_id");
+
+            $query->where(function ($query) use ($message_ids){
+                $query->where('user_id', auth('api')->id())
+                    ->orWhereIn('id', $message_ids);
+            });
         }
         return $query;
     }
@@ -45,6 +52,10 @@ class Message extends Model
     public function scopeDepartment($query, $departmentId){
         $query->where('department_id', $departmentId);
         return $query;
+    }
+
+    public function scopeNullParent($query){
+        return $query->whereNull('parent_id');
     }
 
     public function user(){
