@@ -103,6 +103,11 @@ Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserContro
 Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadController@upload');
 
 
+// messages
+Route::middleware('auth:api')->post('messages', '\App\Http\Controllers\MessageController@store')->name('messages.store');
+Route::middleware('auth:api')->post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name('messages.reply');
+
+
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
@@ -155,7 +160,7 @@ Route::group([
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
 
-    Route::apiResource('messages', \App\Http\Controllers\MessageController::class);
-    Route::post('messages/replay/{message}', '\App\Http\Controllers\MessageController@store')->name("messages.store");
+    Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except("update");
+    Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
 
 });
