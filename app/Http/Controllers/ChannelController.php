@@ -36,7 +36,13 @@ class ChannelController extends Controller
         $searchFilter = Arr::get($filters, 'search');
 
         if($searchFilter){
-            $query->SearchByOwner($searchFilter);
+
+            $query->where(function ($query) use ($searchFilter) {
+                $query->SearchByOwner($searchFilter);
+            })->orWhere(function ($query) use($searchFilter) {
+                $query->SearchTitle($searchFilter);
+            });
+
         }
 
         $sort = $request->get('sort');
