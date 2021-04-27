@@ -10,14 +10,26 @@ class Message extends Model
 {
     use HasFactory, SoftDeletes;
 
-    const STATUS_NEW = 1;
-    const STATUS_VIEWED = 2;
-    const STATUS_ANSWERED = 3;
+    // type field values
+    const TYPE_WARNING = 1;
 
-    const STATUS_TEXT = [
-        self::STATUS_NEW => 'new',
-        self::STATUS_VIEWED => 'viewed',
-        self::STATUS_ANSWERED => 'answered',
+    const TYPE_TEXT = [
+        self::TYPE_WARNING => 'warning',
+    ];
+
+    // user group field values
+    const USER_GROUP_CUSTOM = 1;
+    const USER_GROUP_ALL = 2;
+    const USER_GROUP_PUBLISHER = 3;
+    const USER_GROUP_HERO = 4;
+    const USER_GROUP_NON_HERO = 5;
+
+    const USER_GROUP_TEXT = [
+        self::USER_GROUP_CUSTOM => 'custom',
+        self::USER_GROUP_ALL => 'all',
+        self::USER_GROUP_PUBLISHER => 'publisher',
+        self::USER_GROUP_HERO => 'hero',
+        self::USER_GROUP_NON_HERO => 'non-hero',
     ];
 
 
@@ -43,5 +55,11 @@ class Message extends Model
         return $this->belongsTo('App\Models\Department');
     }
 
+    public function parent(){
+        return $this->belongsTo('App\Models\Message', 'parent_id');
+    }
 
+    public function replies(){
+        return $this->hasMany('App\Models\Message', 'parent_id');
+    }
 }
