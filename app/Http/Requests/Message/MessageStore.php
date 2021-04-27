@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Message;
 
 use App\Models\Message;
+use App\Models\MessageUser;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -36,10 +37,10 @@ class MessageStore extends FormRequest
             "subject" => ["required"],
             "message" => ["required"],
             "image" => ["nullable"],
-            "can_reply" => ["required", Rule::in(["yes","no"])],
+            "can_reply" => ["required", "boolean"],
             "user_group" => ["required", Rule::in(Message::USER_GROUP_TEXT)],
             "department_id" => [
-                Rule::requiredIf(function () { return $this->get("can_reply") == "yes";}),
+                Rule::requiredIf(function () { return $this->get("can_reply");}),
                 "exists:departments,id"
             ],
             "type" => ["nullable", Rule::in(Message::TYPE_TEXT)],
@@ -60,10 +61,7 @@ class MessageStore extends FormRequest
             "subject" => ["required"],
             "message" => ["required"],
             "image" => ["nullable"],
-            "department_id" => [
-                Rule::requiredIf(function () { return $this->get("can_reply") == "yes";}),
-                "exists:departments,id"
-            ],
+            "department_id" => ["required", "exists:departments,id"],
         ];
 
         $user_reply_rule = [
@@ -91,6 +89,25 @@ class MessageStore extends FormRequest
         }
 
         return $default_rule;
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $reply_to = $this->route("reply_to");
+            if ($this->is("api/messages/{$reply_to}/reply")){
+                $message = Message::find($reply_to);
+
+                $exist = MessageUser::where([
+                    "user_id" => auth("api")->id(),
+                    "message_id" => $message->id
+                ])->exists();
+
+                if ($message->user_id != auth('api')->id() || !$exist){
+                    $validator->errors()->add('Can Reply', 'message.validation.can_not_reply');
+                }
+            }
+        });
     }
 
 }
