@@ -28,6 +28,9 @@ jobs:
         
       - name: Clear cache
         run: php artisan cache:clear
+        
+      - name: Permissions generation
+        run: php artisan permissions:generate
       
       - name: Execute tests
         run: vendor/bin/phpunit
