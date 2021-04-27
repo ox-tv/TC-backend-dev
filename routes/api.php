@@ -156,5 +156,6 @@ Route::group([
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class);
+    Route::post('messages/replay/{message}', '\App\Http\Controllers\MessageController@store')->name("messages.store");
 
 });
