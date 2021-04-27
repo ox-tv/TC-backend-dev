@@ -104,7 +104,7 @@ class MessageStore extends FormRequest
                 ])->exists();
 
                 if ($message->user_id != auth('api')->id() || !$exist){
-                    $validator->errors()->add('YouTube Link', 'message.validation.can_not_reply');
+                    $validator->errors()->add('Can Reply', 'message.validation.can_not_reply');
                 }
             }
         });
