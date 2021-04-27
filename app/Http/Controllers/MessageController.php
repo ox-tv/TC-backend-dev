@@ -50,7 +50,7 @@ class MessageController extends Controller
         if ($request->is("api/admin/messages")){
             $message->subject = $request->get("subject");
             $message->department_id = $request->get("department_id");
-            $message->can_reply = $request->get("can_reply") == "yes";
+            $message->can_reply = $request->get("can_reply");
             $message->type = array_flip(Message::TYPE_TEXT)[$request->get("type")]?? null;
             $message->user_group = array_flip($user_group_text)[$request->get("user_group")??"custom"];
             $user_group = $request->get("user_group");
@@ -73,7 +73,7 @@ class MessageController extends Controller
                     $user_ids = $request->get("user_ids", []);
             }
 
-            if ($request->get("can_reply") == "yes"){
+            if ($request->get("can_reply")){
 
                 foreach ($user_ids as $user_id){
 

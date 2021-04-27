@@ -36,10 +36,10 @@ class MessageStore extends FormRequest
             "subject" => ["required"],
             "message" => ["required"],
             "image" => ["nullable"],
-            "can_reply" => ["required", Rule::in(["yes","no"])],
+            "can_reply" => ["required", "boolean"],
             "user_group" => ["required", Rule::in(Message::USER_GROUP_TEXT)],
             "department_id" => [
-                Rule::requiredIf(function () { return $this->get("can_reply") == "yes";}),
+                Rule::requiredIf(function () { return $this->get("can_reply");}),
                 "exists:departments,id"
             ],
             "type" => ["nullable", Rule::in(Message::TYPE_TEXT)],
