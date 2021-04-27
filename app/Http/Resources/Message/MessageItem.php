@@ -18,8 +18,13 @@ class MessageItem extends JsonResource
             'id' => $this->id,
             'subject' => $this->subject,
             'message' => $this->message,
+            'image' => $this->image,
+            'parent_id' => $this->parent_id,
+            'type' => $this->type,
+            'can_reply' => $this->can_reply,
+            'user_group' => $this->user_group,
             'department' => $this->department->name,
-            'replies' => [],
+            'replies' => $this->replies,
             'created_at' => $this->created_at
         ];
     }
