@@ -138,7 +138,7 @@ class MessageController extends Controller
     {
         $query = Message::nullParent()->where("id", $id);
 
-        if ($request->is("api/messages")){
+        if ($request->is("api/messages/{$id}")){
             $query->mine();
         }
 
