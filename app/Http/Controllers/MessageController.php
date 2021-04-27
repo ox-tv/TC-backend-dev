@@ -21,10 +21,10 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Message::NullParent();
+        $query = Message::nullParent();
 
         if($request->is('api/messages')){
-            $query->Mine();
+            $query->mine();
 
             $messages = $query->paginate();
             return MessageCollection::make($messages);
