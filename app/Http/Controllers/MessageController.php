@@ -47,7 +47,7 @@ class MessageController extends Controller
         $message->image = $request->get("image");
         $message->user_id = auth("api")->id();
 
-        if ($this->is("api/admin/messages")){
+        if ($request->is("api/admin/messages")){
             $message->subject = $request->get("subject");
             $message->department_id = $request->get("department_id");
             $message->can_reply = $request->get("can_reply") == "yes";
@@ -103,18 +103,18 @@ class MessageController extends Controller
             }
         }
 
-        if ($this->is("api/messages")){
+        if ($request->is("api/messages")){
             $message->subject = $request->get("subject");
             $message->department_id = $request->get("department_id");
             $message->save();
         }
 
-        if ($this->is("api/admin/messages/{$reply_to}/reply")){
+        if ($request->is("api/admin/messages/{$reply_to}/reply")){
             $message->parent_id = $request->route("reply_to");
             $message->save();
         }
 
-        if ($this->is("api/messages/{$reply_to}/reply")){
+        if ($request->is("api/messages/{$reply_to}/reply")){
             $message->parent_id = $request->route("reply_to");
             $message->save();
         }
