@@ -26,10 +26,10 @@ class MessageController extends Controller
 
         if($request->is('api/messages')){
             $query->mine();
-
-            $messages = $query->paginate();
-            return MessageCollection::make($messages);
         }
+
+        $messages = $query->paginate();
+        return MessageCollection::make($messages);
     }
 
     /**
