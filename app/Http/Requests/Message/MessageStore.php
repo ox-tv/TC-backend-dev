@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Message;
 
 use App\Models\Message;
+use App\Models\MessageUser;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -88,6 +89,25 @@ class MessageStore extends FormRequest
         }
 
         return $default_rule;
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $reply_to = $this->route("reply_to");
+            if ($this->is("api/messages/{$reply_to}/reply")){
+                $message = Message::find($reply_to);
+
+                $exist = MessageUser::where([
+                    "user_id" => auth("api")->id(),
+                    "message_id" => $message->id
+                ])->exists();
+
+                if ($message->user_id != auth('api')->id() || !$exist){
+                    $validator->errors()->add('YouTube Link', 'message.validation.can_not_reply');
+                }
+            }
+        });
     }
 
 }

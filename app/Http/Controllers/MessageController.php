@@ -54,6 +54,7 @@ class MessageController extends Controller
             $message->type = array_flip(Message::TYPE_TEXT)[$request->get("type")]?? null;
             $message->user_group = array_flip($user_group_text)[$request->get("user_group")??"custom"];
             $user_group = $request->get("user_group");
+            $message->save();
 
             switch ($user_group){
                 case $user_group_text[Message::USER_GROUP_ALL]:
@@ -73,39 +74,20 @@ class MessageController extends Controller
                     $user_ids = $request->get("user_ids", []);
             }
 
-            if ($request->get("can_reply")){
+            foreach ($user_ids as $user_id){
 
-                foreach ($user_ids as $user_id){
-
-                    $message->save();
-
-                    $message_user = new MessageUser();
-                    $message_user->user_id = $user_id;
-                    $message_user->message_id = $message->id;
-                    $message_user->status = MessageUser::STATUS_NEW;
-                    $message_user->save();
-
-                    $message = $message->replicate();
-                }
-
-            }else{
-
-                $message->save();
-
-                foreach ($user_ids as $user_id){
-
-                    $message_user = new MessageUser();
-                    $message_user->user_id = $user_id;
-                    $message_user->message_id = $message->id;
-                    $message_user->status = MessageUser::STATUS_NEW;
-                    $message_user->save();
-                }
+                $message_user = new MessageUser();
+                $message_user->user_id = $user_id;
+                $message_user->message_id = $message->id;
+                $message_user->status = MessageUser::STATUS_NEW;
+                $message_user->save();
             }
         }
 
         if ($request->is("api/messages")){
             $message->subject = $request->get("subject");
             $message->department_id = $request->get("department_id");
+            $message->can_reply = true;
             $message->save();
         }
 
@@ -115,7 +97,29 @@ class MessageController extends Controller
         }
 
         if ($request->is("api/messages/{$reply_to}/reply")){
-            $message->parent_id = $request->route("reply_to");
+
+            $parent_id = null;
+            $old_message = Message::find($request->route("reply_to"));
+
+            if ($old_message->users->count > 1){
+
+                $new_message = $old_message->replicate();
+                $new_message->save();
+
+                $parent_id = $new_message->id;
+
+                $message_user = MessageUser::where([
+                    "user_id" => auth("api")->id(),
+                    "message_id" => $old_message->id
+                ])->first();
+                $message_user->message_id = $parent_id;
+                $message_user->save();
+
+            }else{
+                $parent_id = $old_message->id;
+            }
+
+            $message->parent_id = $parent_id;
             $message->save();
         }
 
