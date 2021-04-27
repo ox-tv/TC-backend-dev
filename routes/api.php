@@ -104,8 +104,9 @@ Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadContr
 
 
 // messages
-Route::middleware('auth:api')->post('messages', '\App\Http\Controllers\MessageController@store')->name('messages.store');
-Route::middleware('auth:api')->post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name('messages.reply');
+Route::middleware('auth:api')->apiResource('messages', \App\Http\Controllers\MessageController::class)->except(["update","destroy"]);
+Route::middleware('auth:api')->post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
+
 
 
 // Departments

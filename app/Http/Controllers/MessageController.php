@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageCollection;
+use App\Http\Resources\Message\MessageDetail;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Department;
 use App\Models\Message;
@@ -133,9 +134,17 @@ class MessageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $query = Message::nullParent()->where("id", $id);
 
+        if ($request->is("api/messages")){
+            $query->mine();
+        }
+
+        $message = $query->firstOrFail();
+
+        return new MessageDetail($message);
     }
 
     /**
