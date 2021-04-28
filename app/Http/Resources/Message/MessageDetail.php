@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Message;
 
+use App\Models\MessageUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MessageDetail extends JsonResource
@@ -22,7 +23,7 @@ class MessageDetail extends JsonResource
             'parent_id' => $this->parent_id,
             'user' => $this->user,
             'type' => $this->type,
-            'status' => $this->status,
+            'status' => MessageUser::STATUS_TEXT[$this->status],
             'can_reply' => $this->can_reply,
             'user_group' => $this->user_group,
             'department' => $this->department->name?? "",
