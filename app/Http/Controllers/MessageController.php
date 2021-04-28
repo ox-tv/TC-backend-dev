@@ -110,7 +110,7 @@ class MessageController extends Controller
 
             $message_user = MessageUser::where([
                 "message_id" => $message->id
-            ])->first();
+            ])->first();dd($message_user);
 
             $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
             $message_user->save();
@@ -119,26 +119,25 @@ class MessageController extends Controller
         if ($request->is("api/messages/{$reply_to}/reply")){
 
             $parent_id = null;
-            $old_message = Message::find($request->route("reply_to"));
 
-            if ($old_message->users->count() > 1){
+            if ($parent_message->users()->count() > 1){
 
-                $new_message = $old_message->replicate();
+                $new_message = $parent_message->replicate();
                 $new_message->save();
 
                 $parent_id = $new_message->id;
 
                 $message_user = MessageUser::where([
                     "user_id" => auth("api")->id(),
-                    "message_id" => $old_message->id
+                    "message_id" => $parent_message->id
                 ])->first();
                 $message_user->message_id = $parent_id;
 
             }else{
-                $parent_id = $old_message->id;
+                $parent_id = $parent_message->id;
 
                 $message_user = MessageUser::where([
-                    "message_id" => $message->id
+                    "message_id" => $parent_message->id
                 ])->first();
             }
 

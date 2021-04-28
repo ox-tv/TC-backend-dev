@@ -103,7 +103,7 @@ class MessageStore extends FormRequest
                     "message_id" => $message->id
                 ])->exists();
 
-                if ($message->user_id != auth('api')->id() || !$exist){
+                if ($message->user_id != auth('api')->id() && !$exist){
                     $validator->errors()->add('Can Reply', 'message.validation.can_not_reply');
                 }
             }

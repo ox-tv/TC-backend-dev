@@ -22,7 +22,7 @@ class MessageItem extends JsonResource
             'type' => $this->type,
             'can_reply' => $this->can_reply,
             'user_group' => $this->user_group,
-            'department' => $this->department->name,
+            'department' => $this->department->name??"",
             'created_at' => $this->created_at
         ];
     }
