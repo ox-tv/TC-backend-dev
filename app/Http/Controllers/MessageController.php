@@ -12,6 +12,7 @@ use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
 use Illuminate\Http\Request;
+use const http\Client\Curl\AUTH_ANY;
 
 class MessageController extends Controller
 {
@@ -95,10 +96,8 @@ class MessageController extends Controller
             $message->can_reply = true;
             $message->save();
 
-            $admin = User::admins()->first();
-
             $message_user = new MessageUser();
-            $message_user->user_id = $admin->id;
+            $message_user->user_id = auth('api')->id();
             $message_user->message_id = $message->id;
             $message_user->status = MessageUser::STATUS_NEW;
             $message_user->save();
