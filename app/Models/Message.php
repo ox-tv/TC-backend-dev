@@ -33,6 +33,8 @@ class Message extends Model
         self::USER_GROUP_NON_HERO => 'non-hero',
     ];
 
+    protected $appends = ['status'];
+
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
@@ -82,5 +84,14 @@ class Message extends Model
 
     public function replies(){
         return $this->hasMany('App\Models\Message', 'parent_id');
+    }
+
+    public function getStatusAttribute()
+    {
+        $message_id = $this->parent_id ?? $this->id;
+
+        $message_user = MessageUser::where("message_id", $message_id)->first();
+
+        return $message_user->status;
     }
 }
