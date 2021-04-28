@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,6 +32,11 @@ class Message extends Model
         self::USER_GROUP_HERO => 'hero',
         self::USER_GROUP_NON_HERO => 'non-hero',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new OrderDescScope);
+    }
 
 
     // search scopes
