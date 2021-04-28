@@ -20,6 +20,7 @@ class MessageItem extends JsonResource
             'message' => $this->message,
             'image' => $this->image,
             'type' => $this->type,
+            'status' => $this->status,
             'can_reply' => $this->can_reply,
             'user_group' => $this->user_group,
             'department' => $this->department->name??"",

@@ -22,6 +22,7 @@ class MessageDetail extends JsonResource
             'parent_id' => $this->parent_id,
             'user' => $this->user,
             'type' => $this->type,
+            'status' => $this->status,
             'can_reply' => $this->can_reply,
             'user_group' => $this->user_group,
             'department' => $this->department->name?? "",
