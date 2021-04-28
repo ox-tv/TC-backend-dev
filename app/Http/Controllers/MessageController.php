@@ -106,6 +106,7 @@ class MessageController extends Controller
 
         if ($request->is("api/admin/messages/{$reply_to}/reply")){
             $message->parent_id = $request->route("reply_to");
+            $message->subject = $parent_message->subject;
             $message->save();
 
             $message_user = MessageUser::where([
@@ -113,7 +114,6 @@ class MessageController extends Controller
             ])->first();
 
             $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
-            $message->subject = $parent_message->subject;
             $message_user->save();
         }
 
