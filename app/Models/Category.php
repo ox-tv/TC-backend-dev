@@ -22,7 +22,7 @@ class Category extends Model
     }
 
     public function scopeHasVideo($query){
-        $query->whereHas('videos');
+        $query->whereHas('videos')->orWhereHas("main_videos");
         return $query;
     }
 
@@ -36,5 +36,9 @@ class Category extends Model
 
     public function videos(){
         return $this->belongsToMany('App\Models\Video');
+    }
+
+    public function main_videos(){
+        return $this->hasMany('App\Models\Video',"category_id");
     }
 }

@@ -12,15 +12,15 @@ use Illuminate\Http\Request;
 class GeneralController extends Controller
 {
     public function home(Request $request){
+
         $latestVideos = VideoSummaryCollection::make(Video::published()->latest()->paginate());
 
-        $featuredCategories = Category::hasVideo()->featured()->get();
-
+        $featuredCategories = Category::whereHas("main_videos")->featured()->get();
         $videoByCategories = [];
 
         foreach ($featuredCategories as $featuredCategory){
             $videoByCategories[] = [
-                'videos' => VideoSummaryCollection::make($featuredCategory->videos()->published()->paginate()),
+                'videos' => VideoSummaryCollection::make($featuredCategory->main_videos()->published()->paginate()),
                 'category' => CategoryItem::make($featuredCategory)
             ];
         }
@@ -29,6 +29,5 @@ class GeneralController extends Controller
             'latest_videos' => $latestVideos,
             'video_by_categories' => $videoByCategories
         ]);
-
     }
 }
