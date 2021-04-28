@@ -25,7 +25,7 @@ class MessageDetail extends JsonResource
             'can_reply' => $this->can_reply,
             'user_group' => $this->user_group,
             'department' => $this->department->name?? "",
-            'replies' => $this->replies,
+            'replies' => $this->replies()->with("user")->get(),
             'created_at' => $this->created_at
         ];
     }
