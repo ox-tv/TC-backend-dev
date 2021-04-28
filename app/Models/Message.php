@@ -33,8 +33,6 @@ class Message extends Model
         self::USER_GROUP_NON_HERO => 'non-hero',
     ];
 
-    protected $appends = ['status'];
-
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
