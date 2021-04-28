@@ -106,6 +106,8 @@ Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadContr
 // messages
 Route::middleware('auth:api')->apiResource('messages', \App\Http\Controllers\MessageController::class)->except(["update","destroy"]);
 Route::middleware('auth:api')->post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
+Route::middleware('auth:api')->put('messages/{message}/seen', '\App\Http\Controllers\MessageController@update')->name("messages.seen");
+Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
 
 
@@ -163,5 +165,7 @@ Route::group([
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except("update");
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
+    Route::put('messages/{message}/seen', '\App\Http\Controllers\MessageController@update')->name("messages.seen");
+    Route::put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
 });

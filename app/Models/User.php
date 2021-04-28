@@ -144,4 +144,10 @@ class User extends Authenticatable
     public function getIsMuteAttribute($value){
         return $value && (empty($this->muted_until) || $this->muted_until > now());
     }
+
+    public function getIsAdminAttribute(){
+        $adminRoleId = Role::firstOrCreate(['name' => self::ADMIN_ROLE])->id;
+
+        return $this->role_id == $adminRoleId;
+    }
 }

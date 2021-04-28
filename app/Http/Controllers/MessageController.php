@@ -43,6 +43,9 @@ class MessageController extends Controller
     {
         $user_group_text = Message::USER_GROUP_TEXT;
 
+        if ($reply_to)
+            $parent_message = Message::find($reply_to);
+
         $message = new Message();
 
         $message->message = $request->get("message");
@@ -91,11 +94,27 @@ class MessageController extends Controller
             $message->department_id = $request->get("department_id");
             $message->can_reply = true;
             $message->save();
+
+            $admin = User::admins()->first();
+
+            $message_user = new MessageUser();
+            $message_user->user_id = $admin->id;
+            $message_user->message_id = $message->id;
+            $message_user->status = MessageUser::STATUS_NEW;
+            $message_user->save();
         }
 
         if ($request->is("api/admin/messages/{$reply_to}/reply")){
             $message->parent_id = $request->route("reply_to");
             $message->save();
+
+            $message_user = MessageUser::where([
+                "message_id" => $message->id
+            ])->first();
+
+            $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
+            $message->subject = $parent_message->subject;
+            $message_user->save();
         }
 
         if ($request->is("api/messages/{$reply_to}/reply")){
@@ -103,7 +122,7 @@ class MessageController extends Controller
             $parent_id = null;
             $old_message = Message::find($request->route("reply_to"));
 
-            if ($old_message->users->count > 1){
+            if ($old_message->users->count() > 1){
 
                 $new_message = $old_message->replicate();
                 $new_message->save();
@@ -115,12 +134,19 @@ class MessageController extends Controller
                     "message_id" => $old_message->id
                 ])->first();
                 $message_user->message_id = $parent_id;
-                $message_user->save();
 
             }else{
                 $parent_id = $old_message->id;
+
+                $message_user = MessageUser::where([
+                    "message_id" => $message->id
+                ])->first();
             }
 
+            $message_user->status = MessageUser::STATUS_REPLIED_BY_USER;
+            $message_user->save();
+
+            $message->subject = $parent_message->subject;
             $message->parent_id = $parent_id;
             $message->save();
         }
@@ -156,7 +182,54 @@ class MessageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $is_admin = false;
+        $action = "";
+        $message = Message::findOrFail($id);
+
+        if ($request->is("api/admin/messages/{$id}/seen")){
+            $is_admin = true;
+            $action = "seen";
+        }elseif ($request->is("api/admin/messages/{$id}/close")){
+            $is_admin = true;
+            $action = "close";
+        }elseif ($request->is("api/messages/{$id}/seen")){
+            $is_admin = false;
+            $action = "seen";
+        }elseif ($request->is("api/messages/{$id}/close")){
+            $is_admin = false;
+            $action = "close";
+        }else{
+            abort(404);
+        }
+
+        if ($is_admin){
+            $message_user = MessageUser::where([
+                "message_id" => $id
+            ])->firstOrFail();
+        }else{
+            $message_user = MessageUser::where([
+                "user_id" => auth("api")->id(),
+                "message_id" => $id
+            ])->firstOrFail();
+        }
+
+        if ($action == "close"){
+            $message_user->status = MessageUser::STATUS_CLOSE;
+        }elseif ($action == "seen"){
+            if($message_user->status == MessageUser::STATUS_NEW && $message->user_id == $message_user->user_id && $is_admin){
+                $message_user->status = MessageUser::STATUS_SEEN;
+            }elseif($message_user->status == MessageUser::STATUS_NEW && $message->user_id != $message_user->user_id && !$is_admin){
+                $message_user->status = MessageUser::STATUS_SEEN;
+            }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
+                $message_user->status = MessageUser::STATUS_SEEN;
+            }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_ADMIN && !$is_admin){
+                $message_user->status = MessageUser::STATUS_SEEN;
+            }
+        }
+
+        $message_user->save();
+
+        return response()->json(["status" => "ok"]);
     }
 
     /**
