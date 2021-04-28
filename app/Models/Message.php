@@ -62,6 +62,10 @@ class Message extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    public function users(){
+        return $this->belongsToMany('App\Models\User');
+    }
+
     public function department(){
         return $this->belongsTo('App\Models\Department');
     }
