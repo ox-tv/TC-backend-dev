@@ -109,8 +109,8 @@ class MessageController extends Controller
             $message->save();
 
             $message_user = MessageUser::where([
-                "message_id" => $message->id
-            ])->first();dd($message_user);
+                "message_id" => $parent_message->id
+            ])->first();
 
             $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
             $message_user->save();
