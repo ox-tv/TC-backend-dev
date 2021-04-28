@@ -13,13 +13,17 @@ class MessageUser extends Model
     public $timestamps = false;
 
     const STATUS_NEW = 1;
-    const STATUS_READ = 2;
-    const STATUS_REPLIED = 3;
+    const STATUS_SEEN = 2;
+    const STATUS_CLOSE = 3;
+    const STATUS_REPLIED_BY_ADMIN = 4;
+    const STATUS_REPLIED_BY_USER = 5;
 
     const STATUS_TEXT = [
         self::STATUS_NEW => 'new',
-        self::STATUS_READ => 'read',
-        self::STATUS_REPLIED => 'replied',
+        self::STATUS_SEEN => 'seen',
+        self::STATUS_CLOSE => 'close',
+        self::STATUS_REPLIED_BY_ADMIN => 'replied_by_admin',
+        self::STATUS_REPLIED_BY_USER => 'replied_by_user',
     ];
 
 
