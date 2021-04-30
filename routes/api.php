@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
+Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
 // -- publisher auth routes
 Route::post('publisher/register', '\App\Http\Controllers\PublisherController@register');
