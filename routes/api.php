@@ -28,6 +28,7 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
 // Video API routes
+Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');

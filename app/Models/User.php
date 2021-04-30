@@ -137,6 +137,12 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Comment');
     }
 
+    public function bookmarkVideos(){
+        return $this->belongsToMany('App\Models\Video')->withPivot('relation')->where('relation', UserVideo::BOOKMARKED_RELATION);
+    }
+
+
+    // Attributes
     public function getIsHeroAttribute(){
         return $this->hero_due_at > now();
     }

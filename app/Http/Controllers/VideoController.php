@@ -8,6 +8,7 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
+use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
@@ -329,6 +330,11 @@ class VideoController extends Controller
                 'general.not_authorized'
             ], 403);
         }
+    }
+
+    public function bookmarks()
+    {
+        return VideoSummaryCollection::make(auth('api')->user()->bookmarkVideos);
     }
 
     /**
