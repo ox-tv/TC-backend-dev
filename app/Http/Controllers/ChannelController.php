@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ImportRequestsCollection;
@@ -268,9 +269,21 @@ class ChannelController extends Controller
 
     }
 
+    public function importRequest(ChannelImportRequest $request, Channel $channel){
+
+        $channel->is_import_requested = 1;
+
+        $channel->youtube_channel_id = $request->get("youtube_channel_id");
+
+        $channel->save();
+
+        return response()->json([
+            'message' => __('channel.messages.import_request_submitted'),
+        ]);
+    }
+
     public function importRequests(){
         $requests = Channel::where('is_import_requested', 1)->get();
-
 
         return ImportRequestsCollection::make($requests);
     }

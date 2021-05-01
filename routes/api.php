@@ -163,6 +163,7 @@ Route::group([
 
     Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
     Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
+    Route::put('channels/{channel}/import-request', '\App\Http\Controllers\ChannelController@importRequest')->name("channels.import_request");
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
