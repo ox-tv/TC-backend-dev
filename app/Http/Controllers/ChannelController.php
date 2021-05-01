@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\VideoCollection;
+use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -266,12 +269,38 @@ class ChannelController extends Controller
 
     }
 
+    public function importRequest(ChannelImportRequest $request, Channel $channel){
+
+        $channel->is_import_requested = 1;
+
+        $channel->youtube_channel_id = $request->get("youtube_channel_id");
+
+        $channel->save();
+
+        return response()->json([
+            'message' => __('channel.messages.import_request_submitted'),
+        ]);
+    }
+
     public function importRequests(){
         $requests = Channel::where('is_import_requested', 1)->get();
 
-
         return ImportRequestsCollection::make($requests);
+    }
 
+    public function importCompleted(Channel $channel){
+
+        $channel->is_import_requested = 0;
+        $channel->save();
+
+        $user = $channel->owner;
+
+        Mail::to($user->email)
+            ->queue(new ImportRequestCompletedMail());
+
+        return response()->json([
+            'message' => __('channel.messages.import_completed'),
+        ]);
     }
 
 
