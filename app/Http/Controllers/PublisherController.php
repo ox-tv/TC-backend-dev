@@ -7,6 +7,7 @@ use Amir\Permission\Models\Role;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\UserItem;
+use App\Mail\PublisherApprovedMail;
 use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
@@ -14,6 +15,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class PublisherController extends Controller
 {
@@ -117,8 +119,10 @@ class PublisherController extends Controller
             ]
         )->delete();
 
-        return UserItem::make($user);
+        Mail::to($user->email)
+            ->queue(new PublisherApprovedMail());
 
+        return UserItem::make($user);
     }
 
     public function reject(Request $request, User $user){
