@@ -8,11 +8,13 @@ use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\VideoCollection;
+use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -271,7 +273,21 @@ class ChannelController extends Controller
 
 
         return ImportRequestsCollection::make($requests);
+    }
 
+    public function importCompleted(Channel $channel){
+
+        $channel->is_import_requested = 0;
+        $channel->save();
+
+        $user = $channel->owner;
+
+        Mail::to($user->email)
+            ->queue(new ImportRequestCompletedMail());
+
+        return response()->json([
+            'message' => __('channel.messages.import_completed'),
+        ]);
     }
 
 

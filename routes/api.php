@@ -162,6 +162,7 @@ Route::group([
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
 
     Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
+    Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
