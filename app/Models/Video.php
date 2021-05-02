@@ -233,9 +233,11 @@ class Video extends Model
 
     public function getIsBookmarkedAttribute(){
         if(auth('api')->check()){
-            if($this->bookmarkedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
+            return UserVideo::where([
+                "user_id" => auth('api')->id(),
+                "video_id" => $this->id,
+                "relation" => UserVideo::BOOKMARKED_RELATION
+            ])->exists();
         }
 
         return false;
