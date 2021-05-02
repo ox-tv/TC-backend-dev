@@ -211,10 +211,6 @@ class Video extends Model
         return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
     }
 
-    public function getViewCountAttribute(){
-        return $this->views()->count();
-    }
-
     public function getIsLikedAttribute(){
         if(auth('api')->check()){
             if($this->likedBy()->find(auth('api')->user()->id)){

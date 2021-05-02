@@ -31,6 +31,7 @@ Route::apiResource('categories', \App\Http\Controllers\CategoryController::class
 
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
+Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');

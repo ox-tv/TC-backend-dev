@@ -404,7 +404,7 @@ class VideoController extends Controller
 
         return response()->json([
             'message' => 'general.successful'
-        ]);;
+        ]);
 
     }
 
@@ -415,6 +415,14 @@ class VideoController extends Controller
 
         return VideoSummaryItem::make($video);
 
+    }
+
+    public function increase_view(Video $video)
+    {
+        $video->view_count++;
+        $video->save();
+
+        return $video->view_count;
     }
 
 }
