@@ -125,6 +125,8 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
+    Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
+
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
     Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.messages');
 
