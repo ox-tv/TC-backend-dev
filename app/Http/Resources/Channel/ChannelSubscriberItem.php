@@ -24,6 +24,7 @@ class ChannelSubscriberItem extends JsonResource
             'avatar' => $this->avatar,
             "slogan" => $this->slogan,
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
+            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->id()) ? true : false) : false,
         ];
     }
 }
