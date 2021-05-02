@@ -99,6 +99,7 @@ Route::middleware('auth:api')->put('channels/{channel}/remove/{video}', '\App\Ht
 // -- get profile
 Route::middleware('auth:api')->get('profile', '\App\Http\Controllers\UserController@profile');
 Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserController@updateProfile');
+Route::middleware('auth:api')->get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
 
 // Utils
