@@ -17,7 +17,7 @@ class ImportRequest extends JsonResource
         return [
             'id' => $this->id,
             'youtube_channel_id' => $this->youtube_channel_id,
-            'user_id' => $this->owner->id
+            'user_id' => $this->user_id
         ];
     }
 }
