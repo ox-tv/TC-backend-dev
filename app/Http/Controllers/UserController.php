@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStore;
+use App\Http\Resources\Channel\ChannelSubscriberItem;
+use App\Http\Resources\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
@@ -231,5 +233,9 @@ class UserController extends Controller
 
     }
 
+    public function subscribedChannels()
+    {
+        return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels);
+    }
 
 }
