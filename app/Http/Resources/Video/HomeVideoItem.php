@@ -18,7 +18,7 @@ class HomeVideoItem extends JsonResource
      */
     public function toArray($request)
     {
-        $channel = $this->channels()->first(["name","avatar"]);
+        $channel = $this->channels()->first(["name","avatar","slug"]);
         return [
             'id' => $this->id,
             'title' => $this->title,
