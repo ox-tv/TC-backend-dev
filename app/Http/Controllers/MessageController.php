@@ -262,4 +262,26 @@ class MessageController extends Controller
         return new MessageItem($message);
 
     }
+
+    public function channelImportRequest(){
+
+        $user = auth('api')->user();
+
+        $message = new Message();
+
+        $message->subject = trans("channel.request_subject");
+
+        $message->message = trans('channel.request_message', [
+            'email' => $user->email,
+            'youtube_url' => $user->channel->youtube_channel_url,
+        ]);
+
+        $department = Department::firstOrCreate(['name' => 'Publisher Import Request']);
+
+        $message->department()->associate($department);
+
+        $message->save();
+
+        return new MessageItem($message);
+    }
 }
