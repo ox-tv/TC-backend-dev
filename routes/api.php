@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
+Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
 // -- publisher auth routes
 Route::post('publisher/register', '\App\Http\Controllers\PublisherController@register');
@@ -28,6 +30,7 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
 // Video API routes
+Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
@@ -159,6 +162,8 @@ Route::group([
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
 
     Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
+    Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
+    Route::put('channels/{channel}/import-request', '\App\Http\Controllers\ChannelController@importRequest')->name("channels.import_request");
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
