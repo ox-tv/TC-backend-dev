@@ -174,7 +174,7 @@ class Video extends Model
     }
 
     public function comments(){
-        return $this->hasMany('App\Models\Comment')->whereNull('parent_id');
+        return $this->hasMany('App\Models\Comment')->whereNull('parent_id')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
     }
 
     public function playlists(){
