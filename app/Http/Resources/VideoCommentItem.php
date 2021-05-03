@@ -23,6 +23,7 @@ class VideoCommentItem extends JsonResource
             'status' => $this->status,
             'likes_count' => $this->likedBy()->count(),
             'dislikes_count' => $this->dislikedBy()->count(),
+            'is_pinned' => $this->is_pinned,
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
             'user' => new UserItem($this->user),
