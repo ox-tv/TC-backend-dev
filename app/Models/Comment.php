@@ -41,11 +41,11 @@ class Comment extends Model
     // Relations
 
     public function video(){
-        return $this->belongsTo('App\Models\Video');
+        return $this->belongsTo('App\Models\Video')->withTrashed();
     }
 
     public function user(){
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function parent(){
