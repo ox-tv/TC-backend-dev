@@ -40,6 +40,7 @@ class ChannelItem extends JsonResource
             "slogan" => $this->slogan,
             "owner" => UserItem::make($this->owner),
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
+            "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
             'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
