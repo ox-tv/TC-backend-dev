@@ -271,7 +271,7 @@ class ChannelController extends Controller
 
     public function importRequest(ChannelImportRequest $request, Channel $channel){
 
-        $channel->is_import_requested = 1;
+        $channel->import_request_status = Channel::IMPORT_STATUS_REQUESTED;
 
         $channel->youtube_channel_id = $request->get("youtube_channel_id");
 
@@ -283,14 +283,14 @@ class ChannelController extends Controller
     }
 
     public function importRequests(){
-        $requests = Channel::where('is_import_requested', 1)->get();
+        $requests = Channel::where('import_request_status', Channel::IMPORT_STATUS_REQUESTED)->get();
 
         return ImportRequestsCollection::make($requests);
     }
 
     public function importCompleted(Channel $channel){
 
-        $channel->is_import_requested = 0;
+        $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
         $user = $channel->owner;

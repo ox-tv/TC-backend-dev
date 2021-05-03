@@ -30,6 +30,15 @@ class Channel extends Model
         self::STATUS_FREEZE => 'freeze',
     ];
 
+
+    const IMPORT_STATUS_REQUESTED = 1;
+    const IMPORT_STATUS_COMPLETED = 2;
+
+    const IMPORT_STATUS_TEXT = [
+        self::IMPORT_STATUS_REQUESTED => 'requested',
+        self::IMPORT_STATUS_COMPLETED => 'completed',
+    ];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
