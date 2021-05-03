@@ -21,7 +21,7 @@ class CommentItem extends JsonResource
             'id' => $this->id,
             'text' => $this->text,
             'status' => $this->status,
-            'is_pinned' => $this->is_pinned,
+            'is_pinned' => (bool) $this->is_pinned,
             'likes_count' => $this->likedBy()->count(),
             'dislikes_count' => $this->dislikedBy()->count(),
             'is_liked' => $this->is_liked,
