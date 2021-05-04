@@ -133,6 +133,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
     }
 
+    public function messages(){
+        return $this->belongsToMany('App\Models\Message');
+    }
+
     public function comments(){
         return $this->hasMany('App\Models\Comment');
     }
