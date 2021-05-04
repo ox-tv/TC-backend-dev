@@ -44,8 +44,9 @@ class MessageController extends Controller
     {
         $user_group_text = Message::USER_GROUP_TEXT;
 
-        if ($reply_to)
+        if ($reply_to) {
             $parent_message = Message::find($reply_to);
+        }
 
         $message = new Message();
 
@@ -80,14 +81,11 @@ class MessageController extends Controller
                     $user_ids = $request->get("user_ids", []);
             }
 
-            foreach ($user_ids as $user_id){
+            $message_users = [];
+            foreach ($user_ids as $user_id)
+                $message_users[$user_id] = ['status' => MessageUser::STATUS_NEW];
 
-                $message_user = new MessageUser();
-                $message_user->user_id = $user_id;
-                $message_user->message_id = $message->id;
-                $message_user->status = MessageUser::STATUS_NEW;
-                $message_user->save();
-            }
+            $message->users()->attach($message_users);
         }
 
         if ($request->is("api/messages")){
@@ -96,11 +94,7 @@ class MessageController extends Controller
             $message->can_reply = true;
             $message->save();
 
-            $message_user = new MessageUser();
-            $message_user->user_id = auth('api')->id();
-            $message_user->message_id = $message->id;
-            $message_user->status = MessageUser::STATUS_NEW;
-            $message_user->save();
+            $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
         }
 
         if ($request->is("api/admin/messages/{$reply_to}/reply")){
@@ -112,8 +106,7 @@ class MessageController extends Controller
                 "message_id" => $parent_message->id
             ])->first();
 
-            $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
-            $message_user->save();
+            $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
         }
 
         if ($request->is("api/messages/{$reply_to}/reply")){
