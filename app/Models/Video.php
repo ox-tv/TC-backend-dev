@@ -200,7 +200,21 @@ class Video extends Model
 
     // Attributes
     public function getRatingAttribute(){
-        return UserVideo::where('video_id', $this->id)->sum('relation');
+        return UserVideo::where('video_id', $this->id)
+            ->whereIn("relation",[UserVideo::LIKED_RELATION, UserVideo::DISLIKED_RELATION])
+            ->sum('relation');
+    }
+
+    public function getCommentCountAttribute(){
+        return $this->comments()->count();
+    }
+
+    public function getLikesCountAttribute(){
+        return $this->likedBy()->count();
+    }
+
+    public function getDislikesCountAttribute(){
+        return $this->dislikedBy()->count();
     }
 
     public function getIsPublishedAttribute(){
@@ -213,21 +227,23 @@ class Video extends Model
 
     public function getIsLikedAttribute(){
         if(auth('api')->check()){
-            if($this->likedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
+            return UserVideo::where([
+                "user_id" => auth('api')->id(),
+                "video_id" => $this->id,
+                "relation" => UserVideo::LIKED_RELATION
+            ])->exists();
         }
-
         return false;
     }
 
     public function getIsDislikedAttribute(){
         if(auth('api')->check()){
-            if($this->dislikedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
+            return UserVideo::where([
+                "user_id" => auth('api')->id(),
+                "video_id" => $this->id,
+                "relation" => UserVideo::DISLIKED_RELATION
+            ])->exists();
         }
-
         return false;
     }
 
@@ -239,7 +255,6 @@ class Video extends Model
                 "relation" => UserVideo::BOOKMARKED_RELATION
             ])->exists();
         }
-
         return false;
     }
 
@@ -248,8 +263,7 @@ class Video extends Model
     }
 
     public function getRelatedVideosAttribute(){
-        $tags = $this->tags->pluck('id')->toArray();
-
+        $tags = $this->tags()->pluck('id')->toArray();
 
         $relatedVideos = collect();
 
@@ -262,11 +276,11 @@ class Video extends Model
         }
 
         if( count($relatedVideos) < 15 ){
-            $secondaryCategories = $this->categories->pluck('id')->toArray();
+            $secondaryCategories = $this->categories()->pluck('id')->toArray();
 
             $relatedVideosBySecondaryCategories = Video::published()->whereHas('categories', function($q) use ($secondaryCategories){
                 $q->whereIn('id', $secondaryCategories);
-            })->get();
+            })->whereNotIn("id", $relatedVideos->pluck("id")->toArray())->get();
 
             $relatedVideos = $relatedVideos->merge($relatedVideosBySecondaryCategories);
         }
@@ -274,14 +288,12 @@ class Video extends Model
         if( count($relatedVideos) < 15 ){
             $category = $this->category ? $this->category->id : null;
 
-            $relatedVideosByCategory = Video::published()->whereHas('categories', function($q) use ($category){
+            $relatedVideosByCategory = Video::published()->whereHas('category', function($q) use ($category){
                 $q->where('id', $category);
-            })->get();
+            })->whereNotIn("id", $relatedVideos->pluck("id")->toArray())->get();
 
             $relatedVideos = $relatedVideos->merge($relatedVideosByCategory);
         }
-
-        $relatedVideos = $relatedVideos->unique();
 
         return $relatedVideos;
 
