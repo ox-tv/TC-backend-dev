@@ -35,8 +35,6 @@ class VideoItem extends JsonResource
         $withCategories = in_array('categories', $include) || $this->relationLoaded('categories');
         $withTags = in_array('tags', $include) || $this->relationLoaded('tags');
         $withPlaylists = in_array('playlists', $include) || $this->relationLoaded('playlists');
-        $withComments = in_array('comments', $include) || $this->relationLoaded('comments');
-        $withRelated = in_array('related', $include) || $this->hasAppended("related_videos");
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channels->first()) : [];
@@ -44,8 +42,6 @@ class VideoItem extends JsonResource
         $categories = ($withCategories)? CategoryMinimalItem::collection($this->categories) : [];
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
-        $related_videos = ($withRelated)? VideoMinimalItem::collection($this->related_videos) : [];
-        $comments = ($withComments)? VideoCommentCollection::make($this->comments()->paginate(50))->response()->getData(true) : [];
 
         return [
             'id' => $this->id,
@@ -76,8 +72,6 @@ class VideoItem extends JsonResource
             'category' => $this->when($withMainCategory, $category),
             'tags' => $this->when($withTags, $tags),
             'playlists' => $this->when($withPlaylists, $playlists),
-            'related_videos' => $this->when($withRelated, $related_videos),
-            'comments' => $this->when($withComments, $comments),
         ];
     }
 }
