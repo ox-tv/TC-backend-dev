@@ -23,7 +23,12 @@ class CreateReportsTable extends Migration
 
             $table->morphs('reportable');
 
-            $table->string("reason");
+            $table->unsignedBigInteger("reported_user_id");
+            $table->foreign('reported_user_id')
+                ->references('id')
+                ->on('users');
+
+            $table->string("reason")->nullable();
 
             $table->timestamps();
         });
