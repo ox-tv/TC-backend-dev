@@ -34,6 +34,7 @@ class ReportMinimalItem extends JsonResource
             'user_id' => $this->user_id,
             'reported_type' => $type,
             'reported_id' => $this->reportable_id,
+            'reported_user_id' => $this->reported_user_id,
             'reason' => $this->reason,
             'created_at' => $this->created_at,
         ];
