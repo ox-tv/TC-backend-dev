@@ -35,7 +35,7 @@ class RegisterController extends Controller
         $user->verification_code = $token;
         $user->save();
 
-        $link = route("users.verification.verify",["token" => $token]);
+        $link = env('EMAIL_VERIFICATION_URL').$token;
         Mail::to($user->email)
             ->queue(new VerificationMail($link));
 
@@ -65,7 +65,7 @@ class RegisterController extends Controller
         $user->verification_code = $token;
         $user->save();
 
-        $link = route("users.verification.verify",["token" => $token]);
+        $link = env('EMAIL_VERIFICATION_URL').$token;
         Mail::to($user->email)
             ->queue(new VerificationMail($link));
 
