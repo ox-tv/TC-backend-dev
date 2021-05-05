@@ -35,15 +35,15 @@ class ReportController extends Controller
         $reportedUserFilter = Arr::get($filters, 'reported_user_id');
         $reasonFilter = Arr::get($filters, 'reason');
 
-        if($userFilter){
+        if(!empty($userFilter)){
             $query->whereIn("user_id", (array) $userFilter);
         }
 
-        if($reportedUserFilter){
+        if(!empty($reportedUserFilter)){
             $query->whereIn("reported_user_id", (array) $reportedUserFilter);
         }
 
-        if($reasonFilter){
+        if(!empty($reasonFilter)){
             $query->whereIn("reason", (array) $reasonFilter);
         }
 
