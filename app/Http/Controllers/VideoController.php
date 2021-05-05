@@ -110,7 +110,11 @@ class VideoController extends Controller
 
         $videos = $query->paginate();
 
-        $result = new VideoCollection($videos);
+        if ($publisherVideos || $adminVideos){
+            $result = \App\Http\Resources\Video\VideoItem::collection($videos);
+        }else{
+            $result = new VideoCollection($videos);
+        }
 
         if($categorySlug){
             $result->additional([
