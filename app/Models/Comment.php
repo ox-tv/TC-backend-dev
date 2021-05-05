@@ -52,6 +52,11 @@ class Comment extends Model
         return $this->hasOne('App\Models\Comment', 'parent_id');
     }
 
+    public function reports()
+    {
+        return $this->morphMany(Report::class, "reportable");
+    }
+
     public function likedBy(){
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
     }
