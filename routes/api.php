@@ -29,6 +29,13 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
+
+// reports
+Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
+Route::middleware('auth:api')->post('channels/{id}/report', '\App\Http\Controllers\ReportController@store');
+Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
+
+
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
@@ -176,5 +183,10 @@ Route::group([
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
     Route::put('messages/{message}/seen', '\App\Http\Controllers\MessageController@update')->name("messages.seen");
     Route::put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
+
+
+    Route::get('reports/video', '\App\Http\Controllers\ReportController@index');
+    Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
+    Route::get('reports/channel', '\App\Http\Controllers\ReportController@index');
 
 });
