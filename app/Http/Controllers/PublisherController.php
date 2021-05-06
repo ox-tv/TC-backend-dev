@@ -82,6 +82,7 @@ class PublisherController extends Controller
 
         $message->message = trans('publisher.application_message', [
             'email' => $request->get('email'),
+            'channel_name' => $request->get('channel_name'),
             'youtube_url' => $request->get('youtube_url'),
             'verification_url' => $request->get('verification_url')
         ]);
