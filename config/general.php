@@ -1,0 +1,9 @@
+<?php
+
+return [
+
+    'EMAIL_VERIFICATION_URL' => env('EMAIL_VERIFICATION_URL', ''),
+    'PUBLISHER_PANEL_URL' => env('PUBLISHER_PANEL_URL', ''),
+    'IMPORT_REQUEST_URL' => env('IMPORT_REQUEST_URL', ''),
+
+];

@@ -561,7 +561,7 @@ For this service, just click the "Request Import" button below. You can create a
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Arial; font-size: 16px; padding: 18px;">
-                                                    <a class="mcnButton " title="Request Import" href="" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Request Import</a>
+                                                    <a class="mcnButton " title="Request Import" href="{{ config("general.IMPORT_REQUEST_URL") }}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Request Import</a>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -577,7 +577,7 @@ For this service, just click the "Request Import" button below. You can create a
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 15px;">
-                                                    <a class="mcnButton " title="Visit your Publisher Panel" href="" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Visit your Publisher Panel</a>
+                                                    <a class="mcnButton " title="Visit your Publisher Panel" href="{{ config("general.PUBLISHER_PANEL_URL") }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Visit your Publisher Panel</a>
                                                 </td>
                                             </tr>
                                             </tbody>
