@@ -71,6 +71,13 @@ class UserController extends Controller
             $query->NotPublishers();
         }
 
+        $sort = $request->get('sort');
+        if($sort === 'most_like'){
+            $query->withCount(['likedVideos', 'dislikedVideos'])->orderByRaw('(liked_videos_count - disliked_videos_count) DESC');
+        }elseif ($sort === 'most_commente'){
+            $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }
+
         $users = $query->paginate();
 
         return UserCollection::make($users);
