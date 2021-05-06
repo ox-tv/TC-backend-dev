@@ -63,9 +63,11 @@ class VideoController extends Controller
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
-                $query->SearchTitle($searchFilter);
-            })->orWhere(function ($query) use ($searchFilter){
-                $query->SearchDescription($searchFilter);
+                $query->where(function ($query) use ($searchFilter){
+                    $query->SearchTitle($searchFilter);
+                })->orWhere(function ($query) use ($searchFilter){
+                    $query->SearchDescription($searchFilter);
+                });
             });
         }
 
