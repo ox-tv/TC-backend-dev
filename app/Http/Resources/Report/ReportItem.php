@@ -5,6 +5,7 @@ namespace App\Http\Resources\Report;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\CommentSummaryItem;
+use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Models\Channel;
 use App\Models\Comment;
@@ -25,7 +26,7 @@ class ReportItem extends JsonResource
         $type = "";
 
         if($this->reportable_type == Video::class){
-            $reported_item = VideoMinimalItem::make($this->reportable);
+            $reported_item = VideoItem::make($this->reportable()->with("channels")->first());
             $type = "video";
         }
         if($this->reportable_type == Channel::class){
@@ -33,7 +34,7 @@ class ReportItem extends JsonResource
             $type = "channel";
         }
         if($this->reportable_type == Comment::class){
-            $reported_item = CommentSummaryItem::make($this->reportable);
+            $reported_item = \App\Http\Resources\Comment\CommentItem::make($this->reportable()->with("video")->first());
             $type = "comment";
         }
 
