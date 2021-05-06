@@ -31,6 +31,12 @@ class UserItem extends JsonResource
             'is_hero' => $this->is_hero,
             'is_mute' => $this->is_mute,
             'muted_until' => $this->muted_until,
+            'liked_videos_count' => $this->likedVideos()->count(),
+            'disliked_videos_count' => $this->dislikedVideos()->count(),
+            'comments_count' => $this->comments()->count(),
+            'subscribed_channels_count' => $this->subscribedChannels()->count(),
+            // TODO:: calculate real watch hours
+            'watch_hours' => rand(1,99),
             'role' => $this->role_name,
             'request_details' => $this->when(
                 $withPublisherRequest,
