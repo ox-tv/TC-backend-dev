@@ -74,7 +74,7 @@ class UserController extends Controller
         $sort = $request->get('sort');
         if($sort === 'most_like'){
             $query->withCount(['likedVideos', 'dislikedVideos'])->orderByRaw('(liked_videos_count - disliked_videos_count) DESC');
-        }elseif ($sort === 'most_commente'){
+        }elseif ($sort === 'most_comment'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
 
