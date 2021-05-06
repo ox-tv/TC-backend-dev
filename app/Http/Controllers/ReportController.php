@@ -47,7 +47,7 @@ class ReportController extends Controller
             $query->whereIn("reason", (array) $reasonFilter);
         }
 
-        return ReportItem::collection($query->get());
+        return ReportItem::collection($query->paginate());
     }
 
     public function store(Request $request, $id)
