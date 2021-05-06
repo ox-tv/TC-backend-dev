@@ -24,9 +24,8 @@ class BecomeAPublisherStore extends FormRequest
     public function rules()
     {
         return [
-            'selfie' => 'required|string',
-            'youtube_url' => 'required|string',
-            'other_url' => 'nullable',
+            'youtube_url' => 'required',
+            'verification_url' => 'required',
             'current_password' => 'required|password'
         ];
     }
