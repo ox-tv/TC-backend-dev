@@ -26,7 +26,7 @@ class BecomeAPublisherStore extends FormRequest
         return [
             'youtube_url' => 'required',
             'verification_url' => 'required',
-            'current_password' => 'required|password'
+            'current_password' => 'required|password:api'
         ];
     }
 
