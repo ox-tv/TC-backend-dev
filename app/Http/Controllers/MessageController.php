@@ -240,8 +240,10 @@ class MessageController extends Controller
         $message->subject = trans("publisher.application_subject");
 
         $message->message = trans('publisher.application_message', [
+            'email' => auth('api')->user()->email,
+            'channel_name' => $request->get('channel_name'),
             'youtube_url' => $request->get('youtube_url'),
-            'other_url' => $request->get('youtube_url')
+            'verification_url' => $request->get('verification_url')
         ]);
 
         $message->image = $request->get('image');
@@ -250,9 +252,14 @@ class MessageController extends Controller
 
         $message->department()->associate($department);
 
+        $message->user()->associate(auth('api')->user());
+
         $message->save();
 
-        return new MessageItem($message);
+        return response()->json([
+            'email' => $request->input('email'),
+            'message' => __('publisher.messages.wait_for_verification'),
+        ]);
 
     }
 
