@@ -13,9 +13,6 @@ return [
     |
     */
 
-    'failed' => 'These credentials do not match our records.',
-    'password' => 'The provided password is incorrect.',
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-    'unauthorized' => 'Your email or password is not correct'
+    'not_found' => 'The resource you are looking for is not found',
 
 ];
