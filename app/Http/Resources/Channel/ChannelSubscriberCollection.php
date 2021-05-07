@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Channel;
 
-use App\Http\Resources\Channel\ChannelSubscriberItem;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ChannelSubscriberCollection extends ResourceCollection
