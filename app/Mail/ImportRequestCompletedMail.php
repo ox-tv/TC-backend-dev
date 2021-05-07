@@ -28,7 +28,7 @@ class ImportRequestCompletedMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("app.name");
+        $app_name = config("general.SITE_NAME");
 
         return $this->subject( "{$app_name} - Import request completed")->view('emails.import-completed');
     }
