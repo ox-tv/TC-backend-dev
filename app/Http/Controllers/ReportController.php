@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Comment\CommentItem;
+use App\Http\Resources\CommentSummaryItem;
 use App\Http\Resources\Report\ReportItem;
+use App\Http\Resources\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Report;
@@ -14,6 +17,34 @@ use Illuminate\Support\Arr;
 class ReportController extends Controller
 {
     public function index(Request $request)
+    {
+        $is_video = $request->is("api/admin/reports/video");
+        $is_comment = $request->is("api/admin/reports/comment");
+
+        if ($is_video){
+            $query = Video::with(["user", "channels"]);
+        }
+
+        if ($is_comment){
+            $query = Comment::with(["user", "video"]);
+        }
+
+        $query->whereHas("reports");
+
+        $query->withCount('reports')->orderBy('reports_count', 'desc');
+
+        $result =$query->paginate();
+
+        if ($is_video){
+            return \App\Http\Resources\Video\VideoItem::collection($result);
+        }
+
+        if ($is_comment){
+            return CommentItem::collection($result);
+        }
+    }
+
+    public function index2(Request $request)
     {
         $query = Report::query();
 

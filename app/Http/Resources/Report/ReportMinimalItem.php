@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Report;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Http\Resources\Video\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Video;
@@ -31,7 +33,7 @@ class ReportMinimalItem extends JsonResource
         }
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
+            'user' => $this->user,
             'reported_type' => $type,
             'reported_id' => $this->reportable_id,
             'reported_user_id' => $this->reported_user_id,
