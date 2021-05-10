@@ -186,5 +186,7 @@ Route::group([
 
     Route::get('reports/video', '\App\Http\Controllers\ReportController@index');
     Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
+    Route::get('reports/video/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("video.reports");
+    Route::get('reports/comment/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("comment.reports");
 
 });
