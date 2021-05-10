@@ -32,7 +32,6 @@ Route::apiResource('categories', \App\Http\Controllers\CategoryController::class
 
 // reports
 Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
-Route::middleware('auth:api')->post('channels/{id}/report', '\App\Http\Controllers\ReportController@store');
 Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
 
 
@@ -187,6 +186,5 @@ Route::group([
 
     Route::get('reports/video', '\App\Http\Controllers\ReportController@index');
     Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
-    Route::get('reports/channel', '\App\Http\Controllers\ReportController@index');
 
 });
