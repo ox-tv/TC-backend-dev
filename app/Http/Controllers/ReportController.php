@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\CommentSummaryItem;
 use App\Http\Resources\Report\ReportItem;
+use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
@@ -44,41 +45,35 @@ class ReportController extends Controller
         }
     }
 
-    public function index2(Request $request)
+    public function index_reports(Request $request, $id)
     {
-        $query = Report::query();
+        $is_video = $request->is("api/admin/reports/video/{$id}");
+        $is_comment = $request->is("api/admin/reports/comment/{$id}");
 
-        if ($request->is("api/admin/reports/video")){
+        $query = Report::where("reportable_id", $id);
+
+        if ($is_video){
             $query->video();
         }
 
-        if ($request->is("api/admin/reports/channel")){
-            $query->channel();
-        }
-
-        if ($request->is("api/admin/reports/comment")){
+        if ($is_comment){
             $query->comment();
         }
 
         $filters = $request->get('filters', []);
 
         $userFilter = Arr::get($filters, 'user_id');
-        $reportedUserFilter = Arr::get($filters, 'reported_user_id');
         $reasonFilter = Arr::get($filters, 'reason');
 
         if(!empty($userFilter)){
             $query->whereIn("user_id", (array) $userFilter);
         }
 
-        if(!empty($reportedUserFilter)){
-            $query->whereIn("reported_user_id", (array) $reportedUserFilter);
-        }
-
         if(!empty($reasonFilter)){
             $query->whereIn("reason", (array) $reasonFilter);
         }
 
-        return ReportItem::collection($query->paginate());
+        return ReportMinimalItem::collection($query->paginate());
     }
 
     public function store(Request $request, $id)
