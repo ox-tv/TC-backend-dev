@@ -183,6 +183,7 @@ Route::group([
     Route::put('messages/{message}/seen', '\App\Http\Controllers\MessageController@update')->name("messages.seen");
     Route::put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
+    Route::delete('comments/{comment}', '\App\Http\Controllers\CommentController@destroy')->name('comments.destroy');
 
     Route::get('reports/video', '\App\Http\Controllers\ReportController@index');
     Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
