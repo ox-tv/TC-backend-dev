@@ -121,6 +121,11 @@ Route::middleware('auth:api')->put('messages/{message}/seen', '\App\Http\Control
 Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
 
+// options
+Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_video_reasons_show')->name("options.report.video.reasons.show");
+Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_comment_reasons_show')->name("options.report.comment.reasons.show");
+
+
 
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
@@ -189,5 +194,8 @@ Route::group([
     Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
     Route::get('reports/video/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("video.reports");
     Route::get('reports/comment/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("comment.reports");
+
+    Route::post('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.video.reasons.store");
+    Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
 
 });
