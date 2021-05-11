@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Report extends Model
 {
+    protected static function booted()
+    {
+        static::addGlobalScope(new OrderDescScope);
+    }
 
     // Scopes
     public function scopeVideo($query){
         $query->where('reportable_type', Video::class);
-        return $query;
-    }
-
-    public function scopeChannel($query){
-        $query->where('reportable_type', Channel::class);
         return $query;
     }
 
