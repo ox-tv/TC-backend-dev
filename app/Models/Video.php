@@ -202,6 +202,10 @@ class Video extends Model
         return $this->hasMany('App\Models\VideoView');
     }
 
+    public function watch_times(){
+        return $this->belongsToMany('App\Models\User', "watch_times")->withTimestamps()->withPivot(["start_time","end_time"]);
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
