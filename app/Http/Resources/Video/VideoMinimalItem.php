@@ -35,6 +35,7 @@ class VideoMinimalItem extends JsonResource
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
             'is_published' => $this->published_at,
+            'watch_time' => $this->watch_time,
         ];
     }
 }

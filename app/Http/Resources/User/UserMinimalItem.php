@@ -29,6 +29,7 @@ class UserMinimalItem extends JsonResource
             'muted_until' => $this->muted_until,
             'role_id' => $this->role_id,
             'created_at' => $this->created_at,
+            'watch_time' => $this->watch_time,
         ];
     }
 }
