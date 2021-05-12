@@ -434,7 +434,7 @@ class VideoController extends Controller
     public function watch_time_store(WatchTimeStore $request, $id)
     {
         $video = Video::findOrFail($id);
-        $user = auth()->user();
+        $user = auth("api")->user();
 
         $video->watch_times()->attach($user->id, [
             "start_time" => $request->get("start_time"),
