@@ -14,7 +14,7 @@ class AddWatchHoursToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger("watch_hours")->default(0);
+            $table->unsignedBigInteger("watch_time")->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddWatchHoursToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn("watch_hours");
+            $table->dropColumn("watch_time");
         });
     }
 }

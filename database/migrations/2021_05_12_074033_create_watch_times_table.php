@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWatchHoursTable extends Migration
+class CreateWatchTimesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,9 @@ class CreateWatchHoursTable extends Migration
      */
     public function up()
     {
-        Schema::create('watch_hours', function (Blueprint $table) {
+        Schema::create('watch_times', function (Blueprint $table) {
+            $table->id();
+
             $table->unsignedBigInteger('video_id');
             $table->unsignedBigInteger('user_id');
 
@@ -29,8 +31,6 @@ class CreateWatchHoursTable extends Migration
             $table->unsignedMediumInteger("end_time");
 
             $table->timestamps();
-
-            $table->primary(['message_id', 'user_id']);
         });
     }
 
@@ -41,6 +41,6 @@ class CreateWatchHoursTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('watch_hours');
+        Schema::dropIfExists('watch_times');
     }
 }
