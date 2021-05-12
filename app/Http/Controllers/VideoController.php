@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
+use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
@@ -430,7 +431,7 @@ class VideoController extends Controller
         return $video->view_count;
     }
 
-    public function watch_time_store(Request $request, $id)
+    public function watch_time_store(WatchTimeStore $request, $id)
     {
         $video = Video::findOrFail($id);
         $user = auth()->user();
