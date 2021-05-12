@@ -32,6 +32,7 @@ class VideoSummaryItem extends JsonResource
             'is_bookmarked' => $this->is_bookmarked,
             'view_count' => $this->view_count,
             'duration' => $this->duration,
+            'watch_time' => $this->watch_time,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
             'channel' => ChannelSummaryItem::make($this->channels->first()),
             'category' => $this->category,
