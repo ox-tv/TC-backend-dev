@@ -24,7 +24,7 @@ class CommentItem extends JsonResource
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $video = ($withVideo)? VideoMinimalItem::make($this->video) : [];
-        $replies = ($withReplies)? CommentItem::make($this->replies) : [];
+        $replies = ($withReplies)? CommentItem::collection($this->replies()->with(["user", "replies"])->get()) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
 
         return [
