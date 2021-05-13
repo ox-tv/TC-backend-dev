@@ -363,6 +363,13 @@ class VideoController extends Controller
         return new CommentItem($comment);
     }
 
+    public function comments($id)
+    {
+        $video = Video::findOrFail($id);
+
+        return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
+    }
+
     public function bulkDestroy(Request $request){
         $request->validate([
             'videos.*' => 'exists:videos,id'
@@ -421,6 +428,13 @@ class VideoController extends Controller
 
         return VideoSummaryItem::make($video);
 
+    }
+
+    public function related_videos($id)
+    {
+        $video = Video::findOrFail($id);
+
+        return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }
 
     public function increase_view(Video $video)
