@@ -37,6 +37,7 @@ Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controlle
 
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
+Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);

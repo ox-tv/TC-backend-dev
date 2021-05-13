@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
+use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
@@ -31,7 +32,6 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-
         $publisherVideos = $request->is('api/publisher/videos');
         $adminVideos = $request->is('api/admin/videos');
 
@@ -429,6 +429,27 @@ class VideoController extends Controller
         $video->save();
 
         return $video->view_count;
+    }
+
+    public function watch_time_store(WatchTimeStore $request, $id)
+    {
+        $video = Video::findOrFail($id);
+        $user = auth("api")->user();
+
+        $video->watch_times()->attach($user->id, [
+            "start_time" => $request->get("start_time"),
+            "end_time" => $request->get("end_time")
+        ]);
+
+        $duration = $request->get("end_time") - $request->get("start_time");
+
+        $video->watch_time += $duration;
+        $video->save();
+
+        $user->watch_time += $duration;
+        $user->save();
+
+        return response()->json(["message" => "ok"]);
     }
 
 }
