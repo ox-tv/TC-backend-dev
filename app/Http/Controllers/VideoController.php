@@ -141,6 +141,7 @@ class VideoController extends Controller
         $video->title = $request->get('title');
         $video->slug = Str::slug($request->get('title'));
         $video->description = $request->get('description');
+        $video->published_at = $request->get('published_at');
 
         if($request->is('api/admin/videos')){
 
