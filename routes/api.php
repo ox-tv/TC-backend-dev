@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::post('password/send', '\App\Http\Controllers\Auth\LoginController@send_password_reset_link');
+Route::get('password/verify/{token}', '\App\Http\Controllers\Auth\LoginController@verify_password_reset_token');
+Route::put('password/reset', '\App\Http\Controllers\Auth\LoginController@reset_password');
 Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
 Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 

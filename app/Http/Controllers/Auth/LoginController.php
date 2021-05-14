@@ -4,9 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Mail\PasswordResetMail;
+use App\Models\PasswordReset;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
@@ -50,5 +56,50 @@ class LoginController extends Controller
             'message' => __('users.messages.success_logout_message')
         ]);
 
+    }
+
+    public function send_password_reset_link(Request $request)
+    {
+        $user = User::where("email", $request->get("email"))->firstOrFail();
+
+        $reset_password = new PasswordReset();
+
+        $token = sha1($user->id . time());
+
+        $reset_password->email = $user->email;
+        $reset_password->token = $token;
+        $reset_password->save();
+
+        $link = config('general.PASSWORD_RESET_URL') . $token;
+        Mail::to($user->email)
+            ->queue(new PasswordResetMail($link));
+
+        return response()->json([
+            'message' => __('users.messages.password_reset_link_sent'),
+        ]);
+    }
+
+    public function verify_password_reset_token($token)
+    {
+        PasswordReset::where('token', $token)
+            ->where('created_at', '>', Carbon::now()->subDays(1))
+            ->firstOrFail();
+
+        return response()->json(['message' => 'ok']);
+    }
+
+    public function reset_password(\App\Http\Requests\PasswordReset $request)
+    {
+        $password_reset = PasswordReset::where('token', $request->get('token'))
+            ->where('created_at', '>', Carbon::now()->subDays(1))
+            ->firstOrFail();
+
+        $user = User::where('email', $password_reset->email)->firstOrFail();
+
+        $user->password = Hash::make($request->get('password'));
+
+        $user->save();
+
+        return response()->json(['message' => 'ok']);
     }
 }
