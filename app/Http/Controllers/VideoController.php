@@ -230,7 +230,7 @@ class VideoController extends Controller
             ], 422);
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**
