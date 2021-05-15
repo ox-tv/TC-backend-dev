@@ -44,6 +44,7 @@ Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\Video
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
+Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -57,6 +58,7 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
 
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
+Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
 
 
 // -- add a comment to a video
