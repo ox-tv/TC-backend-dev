@@ -365,7 +365,7 @@ class VideoController extends Controller
 
     public function comments($id)
     {
-        $video = Video::findOrFail($id);
+        $video = Video::published()->findOrFail($id);
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }
@@ -432,7 +432,7 @@ class VideoController extends Controller
 
     public function related_videos($id)
     {
-        $video = Video::findOrFail($id);
+        $video = Video::published()->findOrFail($id);
 
         return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }
