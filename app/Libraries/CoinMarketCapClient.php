@@ -18,6 +18,39 @@ class CoinMarketCapClient
         $this->api_key = '006c9e55-9015-4f2a-8186-7b20d4314f9f';//config("general.COIN_MARKET_CAP_API_KEY");
     }
 
+    public function GetPriceRatio($symbol)
+    {
+        try {
+            $response = Http::withOptions([
+                'verify' => false,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'X-CMC_PRO_API_KEY' => $this->api_key,
+                ]
+            ])->get("{$this->base_url}/v1/cryptocurrency/quotes/latest",[
+                "symbol" => $symbol,
+                "aux" => 'date_added',
+            ]);
+
+            if(!$response->successful()){
+                throw new Exception($response->status());
+            }
+
+            $body = $response->json();
+
+            if(empty($body['data'][$symbol]['quote']['USD'])){
+                throw new Exception('Not Found');
+            }
+
+            return $body['data'][$symbol]['quote']['USD'];
+
+        }catch(Exception $e){
+            Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+        }
+
+        return null;
+    }
+
     public function GetCryptoCurrencies($start = 1, $limit = 1000)
     {
         try {
@@ -40,7 +73,7 @@ class CoinMarketCapClient
             throw new Exception($response->status());
 
         }catch(Exception $e){
-            Log::error("CoinMarketCap Api Error: {$e->getMessage()}");
+            Log::error("CoinMarketCap GetCryptoCurrencies Api Error: {$e->getMessage()}");
         }
 
         return [];
