@@ -202,6 +202,10 @@ class Video extends Model
         return $this->hasMany('App\Models\VideoView');
     }
 
+    public function watch_times(){
+        return $this->belongsToMany('App\Models\User', "watch_times")->withTimestamps()->withPivot(["start_time","end_time"]);
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
@@ -275,19 +279,9 @@ class Video extends Model
         if( count($tags) ){
             $relatedVideosByTag = Video::published()->whereHas('tags', function($q) use ($tags){
                 $q->whereIn('id', $tags);
-            })->get();
+            })->where("id", "!=", $this->id)->inRandomOrder()->take(15)->get();
 
             $relatedVideos = $relatedVideos->merge($relatedVideosByTag);
-        }
-
-        if( count($relatedVideos) < 15 ){
-            $secondaryCategories = $this->categories()->pluck('id')->toArray();
-
-            $relatedVideosBySecondaryCategories = Video::published()->whereHas('categories', function($q) use ($secondaryCategories){
-                $q->whereIn('id', $secondaryCategories);
-            })->whereNotIn("id", $relatedVideos->pluck("id")->toArray())->get();
-
-            $relatedVideos = $relatedVideos->merge($relatedVideosBySecondaryCategories);
         }
 
         if( count($relatedVideos) < 15 ){
@@ -295,12 +289,15 @@ class Video extends Model
 
             $relatedVideosByCategory = Video::published()->whereHas('category', function($q) use ($category){
                 $q->where('id', $category);
-            })->whereNotIn("id", $relatedVideos->pluck("id")->toArray())->get();
+            })
+                ->where("id", "!=", $this->id)
+                ->whereNotIn("id", $relatedVideos->pluck("id")->toArray())
+                ->inRandomOrder()->take(15)->get();
 
             $relatedVideos = $relatedVideos->merge($relatedVideosByCategory);
         }
 
-        return $relatedVideos;
+        return $relatedVideos->take(15);
 
     }
 

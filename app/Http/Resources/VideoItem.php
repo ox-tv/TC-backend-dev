@@ -39,6 +39,7 @@ class VideoItem extends JsonResource
             'is_disliked' => $this->is_disliked,
             'is_bookmarked' => $this->is_bookmarked,
             'duration' => $this->duration,
+            'watch_time' => $this->watch_time,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
             'user' => new UserItem($this->user),
             'channel' => new ChannelSummaryItem($this->channels->first()),

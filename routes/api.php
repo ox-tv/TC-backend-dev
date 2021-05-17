@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
 Route::post('login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::post('password/send', '\App\Http\Controllers\Auth\LoginController@send_password_reset_link');
+Route::get('password/verify/{token}', '\App\Http\Controllers\Auth\LoginController@verify_password_reset_token');
+Route::put('password/reset', '\App\Http\Controllers\Auth\LoginController@reset_password');
 Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
 Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
@@ -32,18 +35,19 @@ Route::apiResource('categories', \App\Http\Controllers\CategoryController::class
 
 // reports
 Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
-Route::middleware('auth:api')->post('channels/{id}/report', '\App\Http\Controllers\ReportController@store');
 Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
 
 
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
+Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
+Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -57,6 +61,7 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
 
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
+Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
 
 
 // -- add a comment to a video
@@ -122,6 +127,11 @@ Route::middleware('auth:api')->put('messages/{message}/seen', '\App\Http\Control
 Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
 
+// options
+Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_video_reasons_show')->name("options.report.video.reasons.show");
+Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_comment_reasons_show')->name("options.report.comment.reasons.show");
+
+
 
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
@@ -184,9 +194,14 @@ Route::group([
     Route::put('messages/{message}/seen', '\App\Http\Controllers\MessageController@update')->name("messages.seen");
     Route::put('messages/{message}/close', '\App\Http\Controllers\MessageController@update')->name("messages.close");
 
+    Route::delete('comments/{comment}', '\App\Http\Controllers\CommentController@destroy')->name('comments.destroy');
 
     Route::get('reports/video', '\App\Http\Controllers\ReportController@index');
     Route::get('reports/comment', '\App\Http\Controllers\ReportController@index');
-    Route::get('reports/channel', '\App\Http\Controllers\ReportController@index');
+    Route::get('reports/video/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("video.reports");
+    Route::get('reports/comment/{id}', '\App\Http\Controllers\ReportController@index_reports')->name("comment.reports");
+
+    Route::post('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.video.reasons.store");
+    Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
 
 });

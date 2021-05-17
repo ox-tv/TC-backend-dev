@@ -181,7 +181,7 @@ class ChannelController extends Controller
         $channel->name = $request->get('name', $channel->name);
         $channel->description = $request->get('description', $channel->description);
 
-        $channel->slug = $request->get('slug')? $request->get('slug'): Str::slug($request->get('name'));
+        $channel->slug = $request->get('slug')? $request->get('slug'): Str::slug($request->get('name', $channel->name));
 
         $channel->cover = $request->get('cover', $channel->cover);
         $channel->avatar = $request->get('avatar', $channel->avatar);

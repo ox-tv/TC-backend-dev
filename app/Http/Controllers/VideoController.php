@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
+use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
@@ -31,7 +32,6 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-
         $publisherVideos = $request->is('api/publisher/videos');
         $adminVideos = $request->is('api/admin/videos');
 
@@ -112,11 +112,13 @@ class VideoController extends Controller
 
         $videos = $query->paginate();
 
-        if ($publisherVideos || $adminVideos){
+        $result = \App\Http\Resources\Video\VideoItem::collection($videos);
+
+        /*if ($publisherVideos || $adminVideos){
             $result = \App\Http\Resources\Video\VideoItem::collection($videos);
         }else{
             $result = new VideoCollection($videos);
-        }
+        }*/
 
         if($categorySlug){
             $result->additional([
@@ -141,6 +143,7 @@ class VideoController extends Controller
         $video->title = $request->get('title');
         $video->slug = Str::slug($request->get('title'));
         $video->description = $request->get('description');
+        $video->published_at = $request->get('published_at');
 
         if($request->is('api/admin/videos')){
 
@@ -363,6 +366,13 @@ class VideoController extends Controller
         return new CommentItem($comment);
     }
 
+    public function comments($id)
+    {
+        $video = Video::published()->findOrFail($id);
+
+        return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
+    }
+
     public function bulkDestroy(Request $request){
         $request->validate([
             'videos.*' => 'exists:videos,id'
@@ -423,12 +433,40 @@ class VideoController extends Controller
 
     }
 
+    public function related_videos($id)
+    {
+        $video = Video::published()->findOrFail($id);
+
+        return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
+    }
+
     public function increase_view(Video $video)
     {
         $video->view_count++;
         $video->save();
 
         return $video->view_count;
+    }
+
+    public function watch_time_store(WatchTimeStore $request, $id)
+    {
+        $video = Video::findOrFail($id);
+        $user = auth("api")->user();
+
+        $video->watch_times()->attach($user->id, [
+            "start_time" => $request->get("start_time"),
+            "end_time" => $request->get("end_time")
+        ]);
+
+        $duration = $request->get("end_time") - $request->get("start_time");
+
+        $video->watch_time += $duration;
+        $video->save();
+
+        $user->watch_time += $duration;
+        $user->save();
+
+        return response()->json(["message" => "ok"]);
     }
 
 }

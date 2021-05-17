@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Comment;
 
+use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,10 +20,12 @@ class CommentItem extends JsonResource
         $withUser = $this->relationLoaded('user');
         $withVideo = $this->relationLoaded('video');
         $withReplies = $this->relationLoaded('replies');
+        $withReports = $this->relationLoaded('reports');
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $video = ($withVideo)? VideoMinimalItem::make($this->video) : [];
-        $replies = ($withReplies)? CommentItem::make($this->replies) : [];
+        $replies = ($withReplies)? CommentItem::collection($this->replies()->with(["user", "replies"])->get()) : [];
+        $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
 
         return [
             'id' => $this->id,
@@ -37,6 +40,7 @@ class CommentItem extends JsonResource
             'video' => $this->when($withVideo, $video),
             'replies_count' => $this->replies()->count(),
             'replies' => $this->when($withReplies, $replies),
+            'reports' => $this->when($withReports, $reports),
             'created_at' => $this->created_at,
         ];
     }

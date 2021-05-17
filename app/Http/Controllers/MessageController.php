@@ -204,21 +204,25 @@ class MessageController extends Controller
             ])->firstOrFail();
         }
 
+        $status = $message_user->status;
+
         if ($action == "close"){
-            $message_user->status = MessageUser::STATUS_CLOSE;
+            $status = MessageUser::STATUS_CLOSE;
         }elseif ($action == "seen"){
             if($message_user->status == MessageUser::STATUS_NEW && $message->user_id == $message_user->user_id && $is_admin){
-                $message_user->status = MessageUser::STATUS_SEEN;
+                $status = MessageUser::STATUS_SEEN;
             }elseif($message_user->status == MessageUser::STATUS_NEW && $message->user_id != $message_user->user_id && !$is_admin){
-                $message_user->status = MessageUser::STATUS_SEEN;
+                $status = MessageUser::STATUS_SEEN;
             }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
-                $message_user->status = MessageUser::STATUS_SEEN;
+                $status = MessageUser::STATUS_SEEN;
             }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_ADMIN && !$is_admin){
-                $message_user->status = MessageUser::STATUS_SEEN;
+                $status = MessageUser::STATUS_SEEN;
             }
         }
 
-        $message_user->save();
+        $message->users()->updateExistingPivot($message_user->user_id, ["status"=> $status]);
+
+        //$message_user->save();
 
         return response()->json(["status" => "ok"]);
     }
