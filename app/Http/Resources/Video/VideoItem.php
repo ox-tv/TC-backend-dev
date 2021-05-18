@@ -7,6 +7,7 @@ use App\Http\Resources\Category\CategoryItem;
 use App\Http\Resources\Category\CategoryMinimalCollection;
 use App\Http\Resources\Category\CategoryMinimalItem;
 use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Playlist\PlaylistMinimalCollection;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
 use App\Http\Resources\Report\ReportItem;
@@ -35,6 +36,7 @@ class VideoItem extends JsonResource
         $withChannel = in_array('channel', $include) || $this->relationLoaded('channels');
         $withMainCategory = in_array('category', $include) || $this->relationLoaded('category');
         $withCategories = in_array('categories', $include) || $this->relationLoaded('categories');
+        $withCryptoCurrencies = in_array('crypto_currencies', $include) || $this->relationLoaded('crypto_currencies');
         $withTags = in_array('tags', $include) || $this->relationLoaded('tags');
         $withPlaylists = in_array('playlists', $include) || $this->relationLoaded('playlists');
         $withReports = in_array('reports', $include) || $this->relationLoaded('reports');
@@ -43,6 +45,7 @@ class VideoItem extends JsonResource
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channels->first()) : [];
         $category = ($withMainCategory)? CategoryMinimalItem::make($this->category) : [];
         $categories = ($withCategories)? CategoryMinimalItem::collection($this->categories) : [];
+        $crypto_currencies = ($withCryptoCurrencies)? CryptoCurrencyItem::collection($this->crypto_currencies) : [];
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
@@ -74,6 +77,7 @@ class VideoItem extends JsonResource
             'user' => $this->when($withUser, $user),
             'channel' => $this->when($withChannel, $channel),
             'categories' => $this->when($withCategories, $categories),
+            'crypto_currencies' => $this->when($withCryptoCurrencies, $crypto_currencies),
             'category' => $this->when($withMainCategory, $category),
             'tags' => $this->when($withTags, $tags),
             'playlists' => $this->when($withPlaylists, $playlists),
