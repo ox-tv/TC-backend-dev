@@ -18,7 +18,10 @@ class CoinMarketCapClient
         $this->api_key = '006c9e55-9015-4f2a-8186-7b20d4314f9f';//config("general.COIN_MARKET_CAP_API_KEY");
     }
 
-    public function GetPriceRatio($symbol)
+    /*
+     * Can pass multi symbols separated by comma
+     * */
+    public function GetPriceRatio($symbols)
     {
         try {
             $response = Http::withOptions([
@@ -28,7 +31,7 @@ class CoinMarketCapClient
                     'X-CMC_PRO_API_KEY' => $this->api_key,
                 ]
             ])->get("{$this->base_url}/v1/cryptocurrency/quotes/latest",[
-                "symbol" => $symbol,
+                "symbol" => $symbols,
                 "aux" => 'date_added',
             ]);
 
@@ -38,11 +41,17 @@ class CoinMarketCapClient
 
             $body = $response->json();
 
-            if(empty($body['data'][$symbol]['quote']['USD'])){
-                throw new Exception('Not Found');
+            $result = [];
+
+            foreach (explode(',', $symbols) as $symbol){
+                if(empty($body['data'][$symbol]['quote']['USD'])){
+                    throw new Exception('Not Found');
+                }
+
+                $result[$symbol] = $body['data'][$symbol]['quote']['USD'];
             }
 
-            return $body['data'][$symbol]['quote']['USD'];
+            return $result;
 
         }catch(Exception $e){
             Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
