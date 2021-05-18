@@ -32,12 +32,37 @@ class CryptoCurrencyController extends Controller
         return CryptoCurrencyItem::collection($query->get());
     }
 
-    public function GetRatio($symbol)
+    public function GetRatio(Request $request)
     {
-        return cache()->remember("crypto_currency_{$symbol}_USD", 60 * 5, function () use ($symbol) {
+        $request->validate([
+            'symbols' => ['required', 'array']
+        ]);
+
+        $symbols = $request->get("symbols");
+
+        $result = [];
+        $need_to_get = [];
+
+        foreach($symbols as $symbol){
+            if(cache()->has("crypto_currency_{$symbol}_USD")){
+                $result[$symbol] = cache()->get("crypto_currency_{$symbol}_USD");
+            }else{
+                $need_to_get[] = $symbol;
+            }
+        }
+
+        if(!empty($need_to_get)){
             $client = new CoinMarketCapClient();
-            return $client->GetPriceRatio($symbol)?? abort(404);
-        });
+            $res = $client->GetPriceRatio(implode(',', $need_to_get))?? abort(404);
+
+            foreach($need_to_get as $symbol){
+                $result[$symbol] = cache()->remember("crypto_currency_{$symbol}_USD", 60 * 5, function () use ($symbol, $res) {
+                    return $res[$symbol]?? abort(404);
+                });
+            }
+        }
+
+        return $result;
     }
 
 }
