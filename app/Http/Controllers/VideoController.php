@@ -181,6 +181,11 @@ class VideoController extends Controller
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
         }
 
+        // adding crypto currencies
+        if($request->get('crypto_currencies')){
+            $video->crypto_currencies()->saveMany($request->get('crypto_currencies'));
+        }
+
         // adding tags
         if($request->get('tags')){
             $tags = collect($request->get('tags', []));
@@ -288,6 +293,11 @@ class VideoController extends Controller
             }else{
                 $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
             }
+        }
+
+        // updating crypto currency
+        if($request->get('crypto_currencies')){
+            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
         }
 
         // updating tags
