@@ -98,6 +98,10 @@ class ReportController extends Controller
             $report->reported_user_id = $model->user_id;
         }
 
+        if($model->reports()->where('user_id', auth("api")->id())->exists()){
+            return response()->json(['message' => 'reports.already_submitted'],400);
+        }
+
         $model->reports()->save($report);
 
         return ReportItem::make($report);
