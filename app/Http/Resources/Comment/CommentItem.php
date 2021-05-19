@@ -39,6 +39,7 @@ class CommentItem extends JsonResource
             'user' => $this->when($withUser, $user),
             'video' => $this->when($withVideo, $video),
             'replies_count' => $this->replies()->count(),
+            'reports_count' => $this->reports_count,
             'replies' => $this->when($withReplies, $replies),
             'reports' => $this->when($withReports, $reports),
             'created_at' => $this->created_at,
