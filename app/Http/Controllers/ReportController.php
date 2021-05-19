@@ -81,7 +81,7 @@ class ReportController extends Controller
         $report = new Report();
 
         $report->reason = $request->get("reason");
-        $report->user_id = auth("api")->id();
+        $report->user_id = auth('api')->id();
 
         if ($request->is("api/videos/{$id}/report")){
             $model = Video::findOrFail($id);
@@ -98,7 +98,7 @@ class ReportController extends Controller
             $report->reported_user_id = $model->user_id;
         }
 
-        if($model->reports()->where('user_id', auth("api")->id())->exists()){
+        if($model->reports()->where('user_id', auth('api')->id())->exists()){
             return response()->json(['message' => 'reports.already_submitted'],400);
         }
 
