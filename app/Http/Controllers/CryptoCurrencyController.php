@@ -35,10 +35,10 @@ class CryptoCurrencyController extends Controller
     public function GetRatio(Request $request)
     {
         $request->validate([
-            'symbols' => ['required', 'array']
+            'symbols' => ['required']
         ]);
 
-        $symbols = $request->get("symbols");
+        $symbols = explode(',', $request->get("symbols"));
 
         $result = [];
         $need_to_get = [];
