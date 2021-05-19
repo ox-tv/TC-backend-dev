@@ -67,6 +67,7 @@ class VideoItem extends JsonResource
             'comment_count' => $this->comment_count,
             'likes_count' => $this->likes_count,
             'dislikes_count' => $this->dislikes_count,
+            'reports_count' => $this->reports_count,
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
             'is_bookmarked' => $this->is_bookmarked,

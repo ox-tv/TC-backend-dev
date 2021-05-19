@@ -65,6 +65,10 @@ class Comment extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
     }
 
+    public function getReportsCountAttribute(){
+        return $this->reports()->count();
+    }
+
     public function getIsLikedAttribute(){
         if(auth('api')->check()){
             if($this->likedBy()->find(auth('api')->user()->id)){

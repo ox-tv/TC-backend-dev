@@ -230,6 +230,10 @@ class Video extends Model
         return $this->status == self::STATUS_PUBLISHED;
     }
 
+    public function getReportsCountAttribute(){
+        return $this->reports()->count();
+    }
+
     public function getIsMineAttribute(){
         return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
     }
