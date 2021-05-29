@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\Category\CategoryCollection;
 use App\Http\Resources\Category\CategoryItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -44,6 +45,7 @@ class VideoItem extends JsonResource
             'user' => new UserItem($this->user),
             'channel' => new ChannelSummaryItem($this->channels->first()),
             'categories' => CategoryCollection::make($this->categories),
+            'crypto_currencies' => CryptoCurrencyItem::collection($this->crypto_currencies),
             'category' => CategoryItem::make($this->category),
             'tags' => $this->tags->map(function($tag){ return $tag->name; }),
             'playlists' => $this->playlists,

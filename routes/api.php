@@ -63,6 +63,9 @@ Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\Com
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
 Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
 
+// Crypto Currencies API
+Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
+Route::get('cryptocurrencies/ratio', '\App\Http\Controllers\CryptoCurrencyController@GetRatio');
 
 // -- add a comment to a video
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');

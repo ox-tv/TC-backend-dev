@@ -37,6 +37,7 @@ class VideoSummaryItem extends JsonResource
             'channel' => ChannelSummaryItem::make($this->channels->first()),
             'category' => $this->category,
             'categories' => $this->categories,
+            'crypto_currencies' => $this->crypto_currencies,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
