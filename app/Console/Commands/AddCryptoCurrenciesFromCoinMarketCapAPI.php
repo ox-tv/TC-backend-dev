@@ -57,10 +57,11 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
                     'symbol' => $value['symbol'],
                     'name' => $value['name'],
                     'slug' => $value['slug'],
+                    'coinmarketcap_id' => $value['id'],
                 ];
             }
 
-            CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol']);
+            CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'coinmarketcap_id']);
 
             $start += $limit;
 
