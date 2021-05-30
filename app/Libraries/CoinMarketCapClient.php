@@ -21,7 +21,7 @@ class CoinMarketCapClient
     /*
      * Can pass multi symbols separated by comma
      * */
-    public function GetPriceRatio($symbols)
+    public function GetPriceRatio($slugs)
     {
         try {
             $response = Http::withOptions([
@@ -31,7 +31,7 @@ class CoinMarketCapClient
                     'X-CMC_PRO_API_KEY' => $this->api_key,
                 ]
             ])->get("{$this->base_url}/v1/cryptocurrency/quotes/latest",[
-                "symbol" => $symbols,
+                "slug" => $slugs,
                 "aux" => 'date_added',
             ]);
 
@@ -43,12 +43,10 @@ class CoinMarketCapClient
 
             $result = [];
 
-            foreach (explode(',', $symbols) as $symbol){
-                if(empty($body['data'][$symbol]['quote']['USD'])){
-                    throw new Exception('Not Found');
+            if (!empty($body['data'])){
+                foreach ($body['data'] as $id => $value){
+                    $result[$value['slug']] = $value['quote']['USD'];
                 }
-
-                $result[$symbol] = $body['data'][$symbol]['quote']['USD'];
             }
 
             return $result;

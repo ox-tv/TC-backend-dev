@@ -35,29 +35,34 @@ class CryptoCurrencyController extends Controller
     public function GetRatio(Request $request)
     {
         $request->validate([
-            'symbols' => ['required', 'array']
+            'ids' => ['required', 'array']
         ]);
 
-        $symbols = $request->get("symbols");
+        $ids = $request->get("ids");
+
+        $crypto_currencies = CryptoCurrency::whereIn('id', $ids)->get();
 
         $result = [];
         $need_to_get = [];
 
-        foreach($symbols as $symbol){
-            if(cache()->has("crypto_currency_{$symbol}_USD")){
-                $result[$symbol] = cache()->get("crypto_currency_{$symbol}_USD");
+        foreach($crypto_currencies as $crypto_currency){
+            if(cache()->has("crypto_currency_{$crypto_currency->id}_USD")){
+                $result[$crypto_currency->id] = cache()->get("crypto_currency_{$crypto_currency->id}_USD");
             }else{
-                $need_to_get[] = $symbol;
+                $need_to_get[] = $crypto_currency;
             }
         }
 
         if(!empty($need_to_get)){
             $client = new CoinMarketCapClient();
-            $res = $client->GetPriceRatio(implode(',', $need_to_get))?? abort(404);
 
-            foreach($need_to_get as $symbol){
-                $result[$symbol] = cache()->remember("crypto_currency_{$symbol}_USD", 60 * 5, function () use ($symbol, $res) {
-                    return $res[$symbol]?? abort(404);
+            $slugs = array_column($need_to_get, 'slug');
+
+            $res = $client->GetPriceRatio(implode(',', $slugs))?? abort(404);
+
+            foreach($need_to_get as $crypto_currency){
+                $result[$crypto_currency->id] = cache()->remember("crypto_currency_{$crypto_currency->id}_USD", 60 * 5, function () use ($crypto_currency, $res) {
+                    return $res[$crypto_currency->slug]?? abort(404);
                 });
             }
         }
