@@ -26,4 +26,10 @@ class CryptoCurrency extends Model
         return $this->belongsToMany('App\Models\Video', 'crypto_currency_video');
     }
 
+    // Mutators
+    public function setRatioAttribute($value)
+    {
+        $this->attributes['ratio'] = $value;
+    }
+
 }
