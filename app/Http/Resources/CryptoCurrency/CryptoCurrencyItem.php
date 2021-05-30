@@ -29,12 +29,20 @@ class CryptoCurrencyItem extends JsonResource
      */
     public function toArray($request)
     {
+        $image_small = '';
+
+        if($this->coinmarketcap_id){
+            $image_small = "https://s2.coinmarketcap.com/static/img/coins/64x64/{$this->coinmarketcap_id}.png";
+        }
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
             'symbol' => $this->symbol,
+            'thumbnails' => [
+                'small' => $image_small
+            ],
         ];
     }
 }
