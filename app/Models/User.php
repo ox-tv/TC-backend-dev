@@ -90,7 +90,7 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeIsNotHero($query){
+    public function scopeIsNonHero($query){
         $query->where(function ($query) {
             $query->whereNull('hero_due_at')
                 ->orWhere('hero_due_at', '<=', now());

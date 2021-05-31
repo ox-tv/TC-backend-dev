@@ -84,6 +84,7 @@ class Message extends Model
         return $this->hasMany('App\Models\Message', 'parent_id');
     }
 
+    // Attributes
     public function getStatusAttribute()
     {
         $message_id = $this->parent_id ?? $this->id;
