@@ -18,6 +18,7 @@ class CryptoCurrencyController extends Controller
         $filters = $request->get('filters', []);
 
         $searchFilter = Arr::get($filters, 'search');
+        $idsFilter = Arr::get($filters, 'ids');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -29,32 +30,33 @@ class CryptoCurrencyController extends Controller
             });
         }
 
+        if($idsFilter && is_array($idsFilter)){
+            $query->whereIn('id', $idsFilter);
+        }
+
         if ($request->get('per_page') == -1){
             $data = $query->get();
         }else{
             $data = $query->paginate();
         }
 
+        $ratios = $this->GetRatios($data);
+
+        foreach($data as $crypto_currency){
+            $crypto_currency->ratio = $ratios[$crypto_currency->id];
+        }
+
         return CryptoCurrencyItem::collection($data);
     }
 
-    public function GetRatio(Request $request)
+    private function GetRatios($crypto_currencies)
     {
-        //dd(cache()->get("crypto_currency_1_USD"));
-        $request->validate([
-            'ids' => ['required', 'array']
-        ]);
-
-        $ids = $request->get("ids");
-
-        $crypto_currencies = CryptoCurrency::whereIn('id', $ids)->get();
-
         $result = [];
         $need_to_get = [];
 
         foreach($crypto_currencies as $crypto_currency){
             if(cache()->has("crypto_currency_{$crypto_currency->id}_USD")){
-                $result[] = cache()->get("crypto_currency_{$crypto_currency->id}_USD");
+                $result[$crypto_currency->id] = cache()->get("crypto_currency_{$crypto_currency->id}_USD");
             }else{
                 $need_to_get[] = $crypto_currency;
             }
@@ -68,14 +70,13 @@ class CryptoCurrencyController extends Controller
             $res = $client->GetPriceRatio(implode(',', $slugs))?? abort(404);
 
             foreach($need_to_get as $crypto_currency){
-                $result[] = cache()->remember(
+                $result[$crypto_currency->id] = cache()->remember(
                     "crypto_currency_{$crypto_currency->id}_USD",
                     60 * 5,
                     function () use ($crypto_currency, $res) {
-                        $crypto_currency->ratio = $res[$crypto_currency->slug]?? abort(404);
-                        $resource = CryptoCurrencyItem::make($crypto_currency);
-                        return $resource;
-                });
+                        return $res[$crypto_currency->slug]?? abort(404);
+                    }
+                );
             }
         }
 
