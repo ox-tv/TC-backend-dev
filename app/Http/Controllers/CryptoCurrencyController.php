@@ -35,12 +35,17 @@ class CryptoCurrencyController extends Controller
             $data = $query->paginate();
         }
 
+        $ratios = $this->GetRatios($data);
+
+        foreach($data as $crypto_currency){
+            $crypto_currency->ratio = $ratios[$crypto_currency->id];
+        }
+
         return CryptoCurrencyItem::collection($data);
     }
 
     public function GetRatio(Request $request)
     {
-        //dd(cache()->get("crypto_currency_1_USD"));
         $request->validate([
             'ids' => ['required', 'array']
         ]);
@@ -49,12 +54,23 @@ class CryptoCurrencyController extends Controller
 
         $crypto_currencies = CryptoCurrency::whereIn('id', $ids)->get();
 
+        $ratios = $this->GetRatios($crypto_currencies);
+
+        foreach($crypto_currencies as $crypto_currency){
+            $crypto_currency->ratio = $ratios[$crypto_currency->id];
+        }
+
+        return CryptoCurrencyItem::collection($crypto_currencies);
+    }
+
+    private function GetRatios($crypto_currencies)
+    {
         $result = [];
         $need_to_get = [];
 
         foreach($crypto_currencies as $crypto_currency){
             if(cache()->has("crypto_currency_{$crypto_currency->id}_USD")){
-                $result[] = cache()->get("crypto_currency_{$crypto_currency->id}_USD");
+                $result[$crypto_currency->id] = cache()->get("crypto_currency_{$crypto_currency->id}_USD");
             }else{
                 $need_to_get[] = $crypto_currency;
             }
@@ -68,14 +84,13 @@ class CryptoCurrencyController extends Controller
             $res = $client->GetPriceRatio(implode(',', $slugs))?? abort(404);
 
             foreach($need_to_get as $crypto_currency){
-                $result[] = cache()->remember(
+                $result[$crypto_currency->id] = cache()->remember(
                     "crypto_currency_{$crypto_currency->id}_USD",
                     60 * 5,
                     function () use ($crypto_currency, $res) {
-                        $crypto_currency->ratio = $res[$crypto_currency->slug]?? abort(404);
-                        $resource = CryptoCurrencyItem::make($crypto_currency);
-                        return $resource;
-                });
+                        return $res[$crypto_currency->slug]?? abort(404);
+                    }
+                );
             }
         }
 
