@@ -18,6 +18,7 @@ class CryptoCurrencyController extends Controller
         $filters = $request->get('filters', []);
 
         $searchFilter = Arr::get($filters, 'search');
+        $idsFilter = Arr::get($filters, 'ids');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -27,6 +28,10 @@ class CryptoCurrencyController extends Controller
                     $query->SearchSymbol($searchFilter);
                 });
             });
+        }
+
+        if($idsFilter && is_array($idsFilter)){
+            $query->whereIn('id', $idsFilter);
         }
 
         if ($request->get('per_page') == -1){
@@ -42,25 +47,6 @@ class CryptoCurrencyController extends Controller
         }
 
         return CryptoCurrencyItem::collection($data);
-    }
-
-    public function GetRatio(Request $request)
-    {
-        $request->validate([
-            'ids' => ['required', 'array']
-        ]);
-
-        $ids = $request->get("ids");
-
-        $crypto_currencies = CryptoCurrency::whereIn('id', $ids)->get();
-
-        $ratios = $this->GetRatios($crypto_currencies);
-
-        foreach($crypto_currencies as $crypto_currency){
-            $crypto_currency->ratio = $ratios[$crypto_currency->id];
-        }
-
-        return CryptoCurrencyItem::collection($crypto_currencies);
     }
 
     private function GetRatios($crypto_currencies)
