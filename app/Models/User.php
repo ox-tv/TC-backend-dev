@@ -7,6 +7,7 @@ use Amir\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
@@ -124,6 +125,11 @@ class User extends Authenticatable
     }
 
     // Relations
+
+    public function notifications()
+    {
+        return $this->morphMany(DatabaseNotification::class, 'notifiable')->orderBy('updated_at', 'desc');
+    }
 
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
