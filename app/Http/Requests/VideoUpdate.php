@@ -29,6 +29,7 @@ class VideoUpdate extends FormRequest
         return [
             'title' => 'string',
             'categories.*.id' => 'exists:categories,id',
+            'crypto_currencies.*' => 'exists:crypto_currencies,id',
             'category' => 'exists:categories,id',
             'video' => 'file',
             'youtube_link' => 'url',

@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
-use App\Http\Resources\Message\MessageCollection;
-use App\Http\Resources\Message\MessageDetail;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
 use Illuminate\Http\Request;
-use const http\Client\Curl\AUTH_ANY;
 
 class MessageController extends Controller
 {
@@ -29,8 +26,9 @@ class MessageController extends Controller
             $query->mine();
         }
 
-        $messages = $query->paginate();
-        return MessageCollection::make($messages);
+        $messages = $query->with(['user', 'users', 'department'])->paginate();
+
+        return MessageItem::collection($messages);
     }
 
     /**
@@ -42,107 +40,161 @@ class MessageController extends Controller
      */
     public function store(MessageStore $request, $reply_to = null)
     {
-        $user_group_text = Message::USER_GROUP_TEXT;
-
-        if ($reply_to) {
-            $parent_message = Message::find($reply_to);
+        if ($request->is("api/admin/messages")){
+            $message = $this->store_admin($request);
         }
 
+        if ($request->is("api/messages")){
+            $message = $this->store_user($request);
+        }
+
+        if ($request->is("api/admin/messages/{$reply_to}/reply")){
+            $message = $this->reply_admin($request, $reply_to);
+        }
+
+        if ($request->is("api/messages/{$reply_to}/reply")){
+            $message = $this->reply_user($request, $reply_to);
+        }
+
+        return new MessageItem($message);
+    }
+
+    private function store_admin(Request $request)
+    {
+        $user_group_text = Message::USER_GROUP_TEXT;
         $message = new Message();
 
         $message->message = $request->get("message");
         $message->image = $request->get("image");
         $message->user_id = auth("api")->id();
+        $message->subject = $request->get("subject");
+        $message->can_reply = $request->get("can_reply");
+        $message->type = array_flip(Message::TYPE_TEXT)[$request->get("type")]?? null;
+        $message->user_group = array_flip($user_group_text)[$request->get("user_group")??"custom"];
 
-        if ($request->is("api/admin/messages")){
-            $message->subject = $request->get("subject");
+        if($request->get("department_id")){
             $message->department_id = $request->get("department_id");
-            $message->can_reply = $request->get("can_reply");
-            $message->type = array_flip(Message::TYPE_TEXT)[$request->get("type")]?? null;
-            $message->user_group = array_flip($user_group_text)[$request->get("user_group")??"custom"];
-            $user_group = $request->get("user_group");
-            $message->save();
-
-            switch ($user_group){
-                case $user_group_text[Message::USER_GROUP_ALL]:
-                    $user_ids = User::pluck("id");
-                    break;
-                case $user_group_text[Message::USER_GROUP_PUBLISHER]:
-                    $user_ids = User::Publishers()->pluck("id");
-                    break;
-                case $user_group_text[Message::USER_GROUP_HERO]:
-                    $user_ids = User::IsHero()->pluck("id");
-                    break;
-                case $user_group_text[Message::USER_GROUP_NON_HERO]:
-                    $user_ids = User::IsNotHero()->pluck("id");
-                    break;
-                case $user_group_text[Message::USER_GROUP_CUSTOM]:
-                default:
-                    $user_ids = $request->get("user_ids", []);
-            }
-
-            $message_users = [];
-            foreach ($user_ids as $user_id)
-                $message_users[$user_id] = ['status' => MessageUser::STATUS_NEW];
-
-            $message->users()->attach($message_users);
+        }else{
+            $department = Department::firstOrCreate(['name' => 'General']);
+            $message->department_id = $department->id;
         }
 
-        if ($request->is("api/messages")){
-            $message->subject = $request->get("subject");
-            $message->department_id = $request->get("department_id");
-            $message->can_reply = true;
-            $message->save();
+        $message->save();
 
-            $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
+        switch ($request->get("user_group")){
+            case $user_group_text[Message::USER_GROUP_ALL]:
+                $user_ids = User::pluck("id");
+                break;
+            case $user_group_text[Message::USER_GROUP_PUBLISHER]:
+                $user_ids = User::Publishers()->pluck("id");
+                break;
+            case $user_group_text[Message::USER_GROUP_HERO]:
+                $user_ids = User::IsHero()->pluck("id");
+                break;
+            case $user_group_text[Message::USER_GROUP_NON_HERO]:
+                $user_ids = User::IsNonHero()->pluck("id");
+                break;
+            case $user_group_text[Message::USER_GROUP_CUSTOM]:
+            default:
+                $user_ids = $request->get("user_ids", []);
         }
 
-        if ($request->is("api/admin/messages/{$reply_to}/reply")){
-            $message->parent_id = $request->route("reply_to");
-            $message->subject = $parent_message->subject;
-            $message->save();
+        $message_users = [];
+        foreach ($user_ids as $user_id)
+            $message_users[$user_id] = ['status' => MessageUser::STATUS_NEW];
+
+        $message->users()->attach($message_users);
+
+        return $message;
+    }
+
+    private function store_user(Request $request)
+    {
+        $message = new Message();
+
+        $message->subject = $request->get("subject");
+        $message->message = $request->get("message");
+        $message->image = $request->get("image");
+        $message->user_id = auth("api")->id();
+        $message->can_reply = true;
+
+        if($request->get("department_id")){
+            $message->department_id = $request->get("department_id");
+        }else{
+            $department = Department::firstOrCreate(['name' => 'General']);
+            $message->department_id = $department->id;
+        }
+
+        $message->save();
+
+        $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
+
+        return $message;
+    }
+
+    private function reply_admin(Request $request, $reply_to)
+    {
+        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->first();
+
+        $message = new Message();
+
+        $message->subject = $parent_message->subject;
+        $message->message = $request->get("message");
+        $message->image = $request->get("image");
+        $message->user_id = auth("api")->id();
+        $message->parent_id = $parent_message->id;
+
+        $message->save();
+
+        $message_user = MessageUser::where([
+            "message_id" => $parent_message->id
+        ])->first();
+
+        $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+        return $message;
+    }
+
+    private function reply_user(Request $request, $reply_to)
+    {
+        $parent_message = Message::find($reply_to);
+
+        $message = new Message();
+
+        $message->subject = $parent_message->subject;
+        $message->message = $request->get("message");
+        $message->image = $request->get("image");
+        $message->user_id = auth("api")->id();
+
+        if ($parent_message->users()->count() > 1){
+
+            $new_message = $parent_message->replicate();
+            $new_message->save();
+
+            $parent_id = $new_message->id;
+
+            $message_user = MessageUser::where([
+                "user_id" => auth("api")->id(),
+                "message_id" => $parent_message->id
+            ])->first();
+            $message_user->message_id = $parent_id;
+
+        }else{
+            $parent_id = $parent_message->id;
 
             $message_user = MessageUser::where([
                 "message_id" => $parent_message->id
             ])->first();
-
-            $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
         }
 
-        if ($request->is("api/messages/{$reply_to}/reply")){
+        $message_user->status = MessageUser::STATUS_REPLIED_BY_USER;
+        $message_user->save();
 
-            $parent_id = null;
+        $message->parent_id = $parent_id;
 
-            if ($parent_message->users()->count() > 1){
+        $message->save();
 
-                $new_message = $parent_message->replicate();
-                $new_message->save();
-
-                $parent_id = $new_message->id;
-
-                $message_user = MessageUser::where([
-                    "user_id" => auth("api")->id(),
-                    "message_id" => $parent_message->id
-                ])->first();
-                $message_user->message_id = $parent_id;
-
-            }else{
-                $parent_id = $parent_message->id;
-
-                $message_user = MessageUser::where([
-                    "message_id" => $parent_message->id
-                ])->first();
-            }
-
-            $message_user->status = MessageUser::STATUS_REPLIED_BY_USER;
-            $message_user->save();
-
-            $message->subject = $parent_message->subject;
-            $message->parent_id = $parent_id;
-            $message->save();
-        }
-
-        return new MessageItem($message);
+        return $message;
     }
 
     /**
@@ -159,9 +211,9 @@ class MessageController extends Controller
             $query->mine();
         }
 
-        $message = $query->firstOrFail();
+        $message = $query->with(['user', 'users', 'department', 'replies'])->firstOrFail();
 
-        return new MessageDetail($message);
+        return MessageItem::make($message);
     }
 
     /**
@@ -221,8 +273,6 @@ class MessageController extends Controller
         }
 
         $message->users()->updateExistingPivot($message_user->user_id, ["status"=> $status]);
-
-        //$message_user->save();
 
         return response()->json(["status" => "ok"]);
     }

@@ -24,6 +24,7 @@ class CommentSummaryItem extends JsonResource
             'is_pinned' => (bool) $this->is_pinned,
             'likes_count' => $this->likedBy()->count(),
             'dislikes_count' => $this->dislikedBy()->count(),
+            'reports_count' => $this->reports_count,
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
             'user' => new UserItem($this->user),

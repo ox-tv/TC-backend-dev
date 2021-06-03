@@ -61,7 +61,7 @@ class UserController extends Controller
         if($isHeroFilter == "yes"){
             $query->IsHero();
         }elseif($isHeroFilter == "no"){
-            $query->IsNotHero();
+            $query->IsNonHero();
         }
 
         if($isPublisherFilter == "yes"){

@@ -7,6 +7,7 @@ use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CommentItem;
+use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
 use App\Http\Resources\VideoSummaryCollection;
@@ -109,16 +110,9 @@ class VideoController extends Controller
             $query->inChannel($channelId);
         }
 
-
         $videos = $query->paginate();
 
         $result = \App\Http\Resources\Video\VideoItem::collection($videos);
-
-        /*if ($publisherVideos || $adminVideos){
-            $result = \App\Http\Resources\Video\VideoItem::collection($videos);
-        }else{
-            $result = new VideoCollection($videos);
-        }*/
 
         if($categorySlug){
             $result->additional([
@@ -187,6 +181,11 @@ class VideoController extends Controller
             $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
         }
 
+        // adding crypto currencies
+        if($request->get('crypto_currencies')){
+            $video->crypto_currencies()->saveMany($request->get('crypto_currencies'));
+        }
+
         // adding tags
         if($request->get('tags')){
             $tags = collect($request->get('tags', []));
@@ -230,7 +229,7 @@ class VideoController extends Controller
             ], 422);
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**
@@ -296,6 +295,11 @@ class VideoController extends Controller
             }
         }
 
+        // updating crypto currency
+        if($request->get('crypto_currencies')){
+            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
+        }
+
         // updating tags
         if($request->get('tags')){
             $tags = collect($request->get('tags', []));
@@ -343,7 +347,7 @@ class VideoController extends Controller
 
     public function bookmarks()
     {
-        return VideoSummaryCollection::make(auth('api')->user()->bookmarkVideos);
+        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos);
     }
 
     /**
@@ -363,12 +367,14 @@ class VideoController extends Controller
         $comment->video()->associate($video);
         $comment->save();
 
-        return new CommentItem($comment);
+        return new \App\Http\Resources\Comment\CommentItem($comment);
     }
 
-    public function comments($id)
+    public function comments($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }
@@ -429,13 +435,15 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        return VideoSummaryItem::make($video);
-
+        return VideoMinimalItem::make($video);
     }
 
-    public function related_videos($id)
+    public function related_videos($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
+
 
         return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }

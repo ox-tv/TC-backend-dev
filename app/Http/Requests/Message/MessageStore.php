@@ -40,7 +40,7 @@ class MessageStore extends FormRequest
             "can_reply" => ["required", "boolean"],
             "user_group" => ["required", Rule::in(Message::USER_GROUP_TEXT)],
             "department_id" => [
-                Rule::requiredIf(function () { return $this->get("can_reply");}),
+                //Rule::requiredIf(function () { return $this->get("can_reply");}),
                 "exists:departments,id"
             ],
             "type" => ["nullable", Rule::in(Message::TYPE_TEXT)],

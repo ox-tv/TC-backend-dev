@@ -157,6 +157,10 @@ class Video extends Model
         return $this->belongsToMany('App\Models\Category');
     }
 
+    public function crypto_currencies(){
+        return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_video');
+    }
+
     public function category(){
         return $this->belongsTo('App\Models\Category');
     }
@@ -228,6 +232,10 @@ class Video extends Model
 
     public function getIsPublishedAttribute(){
         return $this->status == self::STATUS_PUBLISHED;
+    }
+
+    public function getReportsCountAttribute(){
+        return $this->reports()->count();
     }
 
     public function getIsMineAttribute(){
