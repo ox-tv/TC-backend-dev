@@ -157,6 +157,8 @@ Route::group([
     Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.messages');
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
+
+    Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 });
 
 
@@ -211,4 +213,5 @@ Route::group([
     Route::post('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.video.reasons.store");
     Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
 
+    Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 });

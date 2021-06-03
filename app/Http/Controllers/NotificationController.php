@@ -3,16 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Notification\NotificationItem;
-use App\Notifications\TestNotify;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth('api')->user();
 
-        $notifications = $user->notifications()->with(['notifiable'])->paginate();
+        $scope = 'user';
+
+        if ($request->is('api/admin/notifications')){
+            $scope = 'admin';
+        }elseif ($request->is('api/publisher/notifications')){
+            $scope = 'publisher';
+        }
+
+        $notifications = $user->notifications()->where('data->scope', $scope)->with(['notifiable'])->paginate();
 
         return NotificationItem::collection($notifications);
     }
