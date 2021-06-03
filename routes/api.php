@@ -38,6 +38,12 @@ Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers
 Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
 
 
+// notifications
+Route::middleware('auth:api')->get('notifications', '\App\Http\Controllers\NotificationController@index');
+Route::middleware('auth:api')->post('notifications/{id}/mark-as-read', '\App\Http\Controllers\NotificationController@markASRead');
+Route::middleware('auth:api')->post('notifications/send', '\App\Http\Controllers\NotificationController@send_notify');
+
+
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
 Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
