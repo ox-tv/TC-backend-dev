@@ -40,8 +40,7 @@ Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controlle
 
 // notifications
 Route::middleware('auth:api')->get('notifications', '\App\Http\Controllers\NotificationController@index');
-Route::middleware('auth:api')->post('notifications/{id}/mark-as-read', '\App\Http\Controllers\NotificationController@markASRead');
-Route::middleware('auth:api')->post('notifications/send', '\App\Http\Controllers\NotificationController@send_notify');
+Route::middleware('auth:api')->put('notifications/{id}/read', '\App\Http\Controllers\NotificationController@markASRead');
 
 
 // Video API routes
