@@ -10,13 +10,13 @@ class CryptoCurrency extends Model
 
     public function scopeSearchName($query, $keyword){
         $keyword = strtolower($keyword);
-        $query->where('name', 'LIKE', '%'.$keyword.'%');
+        $query->where('name', 'LIKE', $keyword.'%');
         return $query;
     }
 
     public function scopeSearchSymbol($query, $keyword){
         $keyword = strtoupper($keyword);
-        $query->where('symbol', 'LIKE', '%'.$keyword.'%');
+        $query->where('symbol', 'LIKE', $keyword.'%');
         return $query;
     }
 
