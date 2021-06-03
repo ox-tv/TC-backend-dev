@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\User\UserMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
+use App\Notifications\NewPublisherRequest;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -289,12 +291,15 @@ class MessageController extends Controller
     }
 
     public function becomeAPublisher(BecomeAPublisherStore $request){
+
+        $user = auth('api')->user();
+
         $message = new Message();
 
         $message->subject = trans("publisher.application_subject");
 
         $message->message = trans('publisher.application_message', [
-            'email' => auth('api')->user()->email,
+            'email' => $user->email,
             'channel_name' => $request->get('channel_name'),
             'youtube_url' => $request->get('youtube_url'),
             'verification_url' => $request->get('verification_url')
@@ -306,9 +311,22 @@ class MessageController extends Controller
 
         $message->department()->associate($department);
 
-        $message->user()->associate(auth('api')->user());
+        $message->user()->associate($user);
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewPublisherRequest('admin',
+                [
+                    'message' => MessageItem::make($message),
+                    'user' => UserMinimalItem::make($user),
+                    'channel_name' => $request->get('channel_name')
+                ]
+            ));
+        }
 
         return response()->json([
             'email' => $request->input('email'),

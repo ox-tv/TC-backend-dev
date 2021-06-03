@@ -6,12 +6,15 @@ namespace App\Http\Controllers;
 use Amir\Permission\Models\Role;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\ChannelSummaryCollection;
+use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\UserItem;
 use App\Mail\PublisherApprovedMail;
 use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\User;
+use App\Notifications\NewPublisherRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -96,6 +99,19 @@ class PublisherController extends Controller
         $message->user()->associate($user);
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewPublisherRequest('admin',
+                [
+                    'message' => MessageItem::make($message),
+                    'user' => UserMinimalItem::make($user),
+                    'channel_name' => $request->get('channel_name')
+                ]
+            ));
+        }
 
         return response()->json([
             'email' => $request->input('email'),
