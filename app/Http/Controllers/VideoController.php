@@ -370,9 +370,11 @@ class VideoController extends Controller
         return new \App\Http\Resources\Comment\CommentItem($comment);
     }
 
-    public function comments($id)
+    public function comments($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }
@@ -436,9 +438,12 @@ class VideoController extends Controller
         return VideoMinimalItem::make($video);
     }
 
-    public function related_videos($id)
+    public function related_videos($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
+
 
         return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }
