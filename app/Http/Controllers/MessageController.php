@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
+use App\Notifications\NewImportRequest;
 use App\Notifications\NewPublisherRequest;
 use Illuminate\Http\Request;
 
@@ -353,6 +354,19 @@ class MessageController extends Controller
         $message->department()->associate($department);
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewImportRequest('admin',
+                [
+                    'message' => MessageItem::make($message),
+                    'user' => UserMinimalItem::make($user),
+                    'youtube_url' => $user->channel->youtube_channel_url
+                ]
+            ));
+        }
 
         return new MessageItem($message);
     }
