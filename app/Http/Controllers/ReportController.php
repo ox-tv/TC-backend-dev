@@ -6,11 +6,15 @@ use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\CommentSummaryItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
+use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Report;
+use App\Models\User;
 use App\Models\Video;
+use App\Notifications\ReportComment;
+use App\Notifications\ReportVideo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -83,19 +87,18 @@ class ReportController extends Controller
         $report->reason = $request->get("reason");
         $report->user_id = auth('api')->id();
 
+
+
         if ($request->is("api/videos/{$id}/report")){
             $model = Video::findOrFail($id);
             $report->reported_user_id = $model->user_id;
-        }
-
-        if ($request->is("api/channels/{$id}/report")){
-            $model = Channel::findOrFail($id);
-            $report->reported_user_id = $model->user_id;
+            $model_name = 'video';
         }
 
         if ($request->is("api/comments/{$id}/report")){
             $model = Comment::findOrFail($id);
             $report->reported_user_id = $model->user_id;
+            $model_name = 'comment';
         }
 
         if($model->reports()->where('user_id', auth('api')->id())->exists()){
@@ -103,6 +106,38 @@ class ReportController extends Controller
         }
 
         $model->reports()->save($report);
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+
+            $notification = $admin->notifications()->where("data->payload->{$model_name}->id", $model->id)->first();
+
+            if ($notification){
+                $data = $notification->data;
+                $data['payload']['report_count'] += 1;
+                $notification->data = $data;
+                $notification->save();
+            }else{
+                if($model_name == 'video'){
+                    $admin->notify(new ReportVideo('admin',
+                        [
+                            $model_name => VideoMinimalItem::make($model),
+                            'report_count' => 1
+                        ]
+                    ));
+                }else{
+                    $admin->notify(new ReportComment('admin',
+                        [
+                            $model_name => CommentItem::make($model),
+                            'report_count' => 1
+                        ]
+                    ));
+                }
+
+            }
+        }
 
         return ReportItem::make($report);
     }
