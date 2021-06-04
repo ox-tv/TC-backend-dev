@@ -11,7 +11,9 @@ use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
 use App\Notifications\NewImportRequest;
+use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
+use App\Notifications\ReplyMessage;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -132,6 +134,17 @@ class MessageController extends Controller
 
         $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
 
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewMessage('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
+
         return $message;
     }
 
@@ -196,6 +209,17 @@ class MessageController extends Controller
         $message->parent_id = $parent_id;
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new ReplyMessage('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
@@ -322,8 +346,7 @@ class MessageController extends Controller
         foreach ($admins as $admin){
             $admin->notify(new NewPublisherRequest('admin',
                 [
-                    'message' => MessageItem::make($message),
-                    'user' => UserMinimalItem::make($user),
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
                     'channel_name' => $request->get('channel_name')
                 ]
             ));
@@ -361,8 +384,7 @@ class MessageController extends Controller
         foreach ($admins as $admin){
             $admin->notify(new NewImportRequest('admin',
                 [
-                    'message' => MessageItem::make($message),
-                    'user' => UserMinimalItem::make($user),
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
                     'youtube_url' => $user->channel->youtube_channel_url
                 ]
             ));
