@@ -15,6 +15,7 @@ use App\Models\Department;
 use App\Models\Message;
 use App\Models\User;
 use App\Notifications\NewPublisherRequest;
+use App\Notifications\PublisherApproved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -135,6 +136,8 @@ class PublisherController extends Controller
                 'department_id' => $publisherApplicationDepartmentId
             ]
         )->delete();
+
+        $user->notify(new PublisherApproved('user'));
 
         Mail::to($user->email)
             ->queue(new PublisherApprovedMail());
