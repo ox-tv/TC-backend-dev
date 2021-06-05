@@ -88,27 +88,35 @@ class MessageController extends Controller
 
         switch ($request->get("user_group")){
             case $user_group_text[Message::USER_GROUP_ALL]:
-                $user_ids = User::pluck("id");
+                $users = User::get();
                 break;
             case $user_group_text[Message::USER_GROUP_PUBLISHER]:
-                $user_ids = User::Publishers()->pluck("id");
+                $users = User::Publishers()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_HERO]:
-                $user_ids = User::IsHero()->pluck("id");
+                $users = User::IsHero()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_NON_HERO]:
-                $user_ids = User::IsNonHero()->pluck("id");
+                $users = User::IsNonHero()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_CUSTOM]:
             default:
-                $user_ids = $request->get("user_ids", []);
+            $users = $request->get("user_ids", []);
         }
 
         $message_users = [];
-        foreach ($user_ids as $user_id)
-            $message_users[$user_id] = ['status' => MessageUser::STATUS_NEW];
+        foreach ($users as $user)
+            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW];
 
         $message->users()->attach($message_users);
+
+        foreach ($users as $user){
+            $user->notify(new NewMessage('publisher',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
@@ -167,6 +175,15 @@ class MessageController extends Controller
         ])->first();
 
         $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+
+        $user = User::findOrFail($message_user->user_id);
+
+        $user->notify(new ReplyMessage('publisher',
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ]
+        ));
 
         return $message;
     }
