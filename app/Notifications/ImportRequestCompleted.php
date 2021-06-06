@@ -42,7 +42,7 @@ class ImportRequestCompleted extends Notification
         return [
             'payload' => $this->payload,
             'scope' => $this->scope,
-            'type' => 'ImportRequestAccepted',
+            'type' => 'ImportRequestCompleted',
         ];
     }
 }
