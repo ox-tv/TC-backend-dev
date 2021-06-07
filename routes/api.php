@@ -143,6 +143,8 @@ Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionContro
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
+// Become A Publisher
+Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
 // Publisher api routes
 Route::group([
@@ -154,7 +156,6 @@ Route::group([
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
-    Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.messages');
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 
