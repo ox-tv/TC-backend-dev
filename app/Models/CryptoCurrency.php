@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\OrderByOrderASCScope;
 use Illuminate\Database\Eloquent\Model;
 
 class CryptoCurrency extends Model
 {
+    protected static function booted()
+    {
+        static::addGlobalScope(new OrderByOrderASCScope());
+    }
+
     // Scopes
 
     public function scopeSearchName($query, $keyword){
