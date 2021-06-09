@@ -14,6 +14,7 @@ use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\VideoCommentCollection;
 use App\Http\Resources\VideoSummaryCollection;
+use App\Models\CryptoCurrency;
 use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +41,7 @@ class CryptoCurrencyItem extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'symbol' => $this->symbol,
+            'status' => $this->status ? CryptoCurrency::STATUS_TEXT[$this->status] : null,
             'thumbnails' => [
                 'small' => $image_small
             ],
