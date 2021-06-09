@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class CryptoCurrency extends Model
 {
+    const STATUS_LIST = 1;
+    const STATUS_DELIST = 2;
+
+    const STATUS_TEXT = [
+        self::STATUS_LIST => 'list',
+        self::STATUS_DELIST => 'delist',
+    ];
+
     protected static function booted()
     {
         static::addGlobalScope(new OrderByOrderASCScope());

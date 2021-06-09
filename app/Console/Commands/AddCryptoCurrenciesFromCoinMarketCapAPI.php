@@ -71,7 +71,10 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
 
         } while(1);
 
-        CryptoCurrency::whereNotIn('slug', $available_slugs)->update(['order' => 100000]);
+        CryptoCurrency::whereNotIn('slug', $available_slugs)->update([
+            'order' => 100000,
+            'status' => CryptoCurrency::STATUS_DELIST,
+        ]);
 
         return 0;
     }
