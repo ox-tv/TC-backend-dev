@@ -438,6 +438,14 @@ class VideoController extends Controller
         return VideoMinimalItem::make($video);
     }
 
+    public function unHide(Video $video){
+
+        $video->status = Video::STATUS_PUBLISHED;
+        $video->save();
+
+        return VideoMinimalItem::make($video);
+    }
+
     public function related_videos($id_or_url_hash)
     {
         $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
