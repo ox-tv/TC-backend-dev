@@ -52,23 +52,23 @@ class OptionController extends Controller
     {
         $key = '';
 
-        if($request->is('api/admin/options/report/video/reasons')){
+        if($request->is('api/options/report/video/reasons')){
             $key = 'report_video_reasons';
         }
 
-        if($request->is('api/admin/options/report/comment/reasons')){
+        if($request->is('api/options/report/comment/reasons')){
             $key = 'report_comment_reasons';
         }
 
-        if($request->is('api/admin/options/video/hide/reasons')){
+        if($request->is('api/options/video/hide/reasons')){
             $key = 'video_hide_reasons';
         }
 
-        if($request->is('api/admin/options/video/delete/reasons')){
+        if($request->is('api/options/video/delete/reasons')){
             $key = 'video_delete_reasons';
         }
 
-        if($request->is('api/admin/options/comment/delete/reasons')){
+        if($request->is('api/options/comment/delete/reasons')){
             $key = 'comment_delete_reasons';
         }
 
