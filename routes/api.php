@@ -135,8 +135,11 @@ Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Contro
 
 
 // options
-Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_video_reasons_show')->name("options.report.video.reasons.show");
-Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_comment_reasons_show')->name("options.report.comment.reasons.show");
+Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.report.video.reasons.show");
+Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.report.comment.reasons.show");
+Route::get('options/video/hide/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.video.hide.reasons.show");
+Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.video.delete.reasons.show");
+Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.comment.delete.reasons.show");
 
 
 
@@ -214,6 +217,10 @@ Route::group([
 
     Route::post('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.video.reasons.store");
     Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
+    Route::post('options/video/hide/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.hide.reasons.store");
+    Route::post('options/video/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.delete.reasons.store");
+    Route::post('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.comment.delete.reasons.store");
+
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 });

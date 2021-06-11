@@ -12,27 +12,33 @@ class OptionController extends Controller
 
     public function report_reasons_store(Request $request)
     {
-        $is_video = $request->is('api/admin/options/report/video/reasons');
-        $is_comment = $request->is('api/admin/options/report/comment/reasons');
+        $key = '';
 
-        if($is_video){
-            $option = Option::where("key", "report_video_reasons")->first();
+        if($request->is('api/admin/options/report/video/reasons')){
+            $key = 'report_video_reasons';
         }
 
-        if($is_comment){
-            $option = Option::where("key", "report_comment_reasons")->first();
+        if($request->is('api/admin/options/report/comment/reasons')){
+            $key = 'report_comment_reasons';
         }
+
+        if($request->is('api/admin/options/video/hide/reasons')){
+            $key = 'video_hide_reasons';
+        }
+
+        if($request->is('api/admin/options/video/delete/reasons')){
+            $key = 'video_delete_reasons';
+        }
+
+        if($request->is('api/admin/options/comment/delete/reasons')){
+            $key = 'comment_delete_reasons';
+        }
+
+        $option = Option::where("key", $key)->first();
 
         if(!$option){
             $option = new Option();
-        }
-
-        if($is_video){
-            $option->key = "report_video_reasons";
-        }
-
-        if($is_comment){
-            $option->key = "report_comment_reasons";
+            $option->key = $key;
         }
 
         $option->value = json_encode($request->get('reasons'));
@@ -42,14 +48,31 @@ class OptionController extends Controller
         return response()->json(["message" => "ok"]);
     }
 
-    public function report_video_reasons_show()
+    public function reasons_show(Request $request)
     {
-        return Option::where("key", "report_video_reasons")->first()->value ?? [];
-    }
+        $key = '';
 
-    public function report_comment_reasons_show()
-    {
-        return Option::where("key", "report_comment_reasons")->first()->value ?? [];
+        if($request->is('api/admin/options/report/video/reasons')){
+            $key = 'report_video_reasons';
+        }
+
+        if($request->is('api/admin/options/report/comment/reasons')){
+            $key = 'report_comment_reasons';
+        }
+
+        if($request->is('api/admin/options/video/hide/reasons')){
+            $key = 'video_hide_reasons';
+        }
+
+        if($request->is('api/admin/options/video/delete/reasons')){
+            $key = 'video_delete_reasons';
+        }
+
+        if($request->is('api/admin/options/comment/delete/reasons')){
+            $key = 'comment_delete_reasons';
+        }
+
+        return Option::where("key", $key)->first()->value ?? [];
     }
 
 }
