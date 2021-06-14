@@ -42,6 +42,8 @@ class CommentItem extends JsonResource
             'reports_count' => $this->reports_count,
             'replies' => $this->when($withReplies, $replies),
             'reports' => $this->when($withReports, $reports),
+            'reason_key' => $this->when($this->reason_key, $this->reason_key),
+            'reason_text' => $this->when($this->reason_text, $this->reason_text),
             'created_at' => $this->created_at,
         ];
     }

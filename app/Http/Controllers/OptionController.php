@@ -72,7 +72,7 @@ class OptionController extends Controller
             $key = 'comment_delete_reasons';
         }
 
-        return Option::where("key", $key)->first()->value ?? [];
+        return Option::where("key", $key)->first()->value ?? null;
     }
 
 }
