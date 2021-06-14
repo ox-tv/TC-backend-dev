@@ -44,7 +44,8 @@ class ReportItem extends JsonResource
             'reported_type' => $type,
             'reported_item' => $reported_item,
             'reported_user' => $this->reported_user,
-            'reason' => $this->reason,
+            'reason_key' => $this->reason_key,
+            'reason_text' => $this->reason_text,
             'created_at' => $this->created_at,
         ];
     }
