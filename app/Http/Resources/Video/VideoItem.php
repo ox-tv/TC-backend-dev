@@ -75,6 +75,8 @@ class VideoItem extends JsonResource
             'is_disliked' => $this->is_disliked,
             'is_bookmarked' => $this->is_bookmarked,
             'watch_time' => $this->watch_time,
+            'reason_key' => $this->when($this->reason_key, $this->reason_key),
+            'reason_text' => $this->when($this->reason_text, $this->reason_text),
             'user' => $this->when($withUser, $user),
             'channel' => $this->when($withChannel, $channel),
             'categories' => $this->when($withCategories, $categories),
