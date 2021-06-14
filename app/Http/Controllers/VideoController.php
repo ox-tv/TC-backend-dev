@@ -14,6 +14,7 @@ use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
@@ -430,7 +431,24 @@ class VideoController extends Controller
 
     }
 
-    public function hide(Video $video){
+    public function hide(Request $request, Video $video){
+
+        $request->validate([
+            'reason' => 'required'
+        ]);
+
+        $option_key = 'video_hide_reasons';
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+
+        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+            $video->reason_key = $request->get('reason');
+            $video->reason_text = $reasons[$key]->value;
+        }else{
+            $video->reason_key = 'other';
+            $video->reason_text = $request->get('reason');
+        }
+
 
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
@@ -440,6 +458,8 @@ class VideoController extends Controller
 
     public function unHide(Video $video){
 
+        $video->reason_key = null;
+        $video->reason_text = null;
         $video->status = Video::STATUS_PUBLISHED;
         $video->save();
 
