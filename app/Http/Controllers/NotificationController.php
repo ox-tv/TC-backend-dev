@@ -11,7 +11,10 @@ use App\Http\Resources\Video\VideoMinimalItem;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Message;
+use App\Models\Notification;
+use App\Models\User;
 use App\Models\Video;
+use App\Notifications\CustomNotification;
 use App\Notifications\DeleteVideo;
 use App\Notifications\HideVideo;
 use App\Notifications\ImportRequestAccepted;
@@ -54,99 +57,37 @@ class NotificationController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    public function send()
+    public function store(Request $request, $scope)
     {
-        $user = auth('api')->user();
-        $message = Message::inRandomOrder()->first();
-        $video = Video::inRandomOrder()->first();
-        $comment = Comment::inRandomOrder()->first();
-        $channel = Channel::inRandomOrder()->first();
+        $user_group_text = Notification::USER_GROUP_TEXT;
 
-        //Admin notifications
-        $user->notify(new NewMessage('admin',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
+        $users_query = User::query();
 
-        $user->notify(new ReplyMessage('admin',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
+        switch ($request->get("user_group")){
+            case $user_group_text[Notification::USER_GROUP_ALL]:
+                break;
+            case $user_group_text[Notification::USER_GROUP_HERO]:
+                $users_query = $users_query->isHero();
+                break;
+            case $user_group_text[Notification::USER_GROUP_NON_HERO]:
+                $users_query = $users_query->isNonHero();
+                break;
+            case $user_group_text[Notification::USER_GROUP_CUSTOM]:
+            default:
+                $users_query = $users_query->whereIn('id', $request->get("user_ids", []));
+        }
 
-        $user->notify(new ReportVideo('admin',
-            [
-                'video' => VideoMinimalItem::make($video),
-                'report_count' => 2
-            ]
-        ));
-        $user->notify(new ReportComment('admin',
-            [
-                'comment' => CommentItem::make($comment),
-                'report_count' => 3
-            ]
-        ));
+        if($scope == 'publisher'){
+            $users_query = $users_query->publishers();
+        }
 
-        $user->notify(new NewPublisherRequest('admin',
-            [
-                'message' => MessageItem::make($message),
-                'user' => UserMinimalItem::make($user),
-                'channel_name' => 'Hassan guli'
-            ]
-        ));
+        $users = $users_query->get();
 
-        $user->notify(new NewImportRequest('admin',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-                'youtube_url' => 'https://youtube.com/Xsdiglfm843985'
-            ]
-        ));
+        $message = $request->get('message');
 
-        // Publisher notifications
-        $user->notify(new NewMessage('publisher',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
-
-        $user->notify(new ReplyMessage('publisher',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
-
-        $user->notify(new HideVideo('publisher',
-            [
-                'video' => videoMinimalItem::make($video)
-            ]
-        ));
-
-        $user->notify(new DeleteVideo('publisher',
-            [
-                'video' => videoMinimalItem::make($video)
-            ]
-        ));
-
-        $user->notify(new UpdateChannelStatus('publisher', [
-            'prev_status' => Channel::STATUS_TEXT[Channel::STATUS_PUBLISHED],
-            'current_status' => Channel::STATUS_TEXT[Channel::STATUS_FREEZE],
-        ]));
-
-        $user->notify(new ImportRequestAccepted('publisher',
-            [
-                'channel' => ChannelMinimalItem::make($channel)
-            ]
-        ));
-
-        $user->notify(new ImportRequestCompleted('publisher',
-            [
-                'channel' => ChannelMinimalItem::make($channel)
-            ]
-        ));
-
-        $user->notify(new PublisherApproved('user'));
+        \Illuminate\Support\Facades\Notification::send($users, new CustomNotification($scope, $message));
 
         return response()->json(['message' => 'ok']);
     }
+
 }

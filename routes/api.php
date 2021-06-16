@@ -214,4 +214,6 @@ Route::group([
     Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+    Route::post('notifications/{scope}', '\App\Http\Controllers\NotificationController@store')
+        ->where('scope', 'publisher|user')->name('notifications.store');
 });
