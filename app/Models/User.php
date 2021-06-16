@@ -126,6 +126,11 @@ class User extends Authenticatable
 
     // Relations
 
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')->orderBy('created_at', 'desc');
+    }
+
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
     }
