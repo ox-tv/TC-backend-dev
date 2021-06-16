@@ -28,6 +28,8 @@ class CommentSummaryItem extends JsonResource
             'is_liked' => $this->is_liked,
             'is_disliked' => $this->is_disliked,
             'user' => new UserItem($this->user),
+            'reason_key' => $this->when($this->reason_key, $this->reason_key),
+            'reason_text' => $this->when($this->reason_text, $this->reason_text),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at

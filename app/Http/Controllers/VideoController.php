@@ -14,6 +14,7 @@ use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
@@ -377,9 +378,11 @@ class VideoController extends Controller
         return new \App\Http\Resources\Comment\CommentItem($comment);
     }
 
-    public function comments($id)
+    public function comments($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }
@@ -435,7 +438,24 @@ class VideoController extends Controller
 
     }
 
-    public function hide(Video $video){
+    public function hide(Request $request, Video $video){
+
+        $request->validate([
+            'reason' => 'required'
+        ]);
+
+        $option_key = 'video_hide_reasons';
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+
+        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+            $video->reason_key = $request->get('reason');
+            $video->reason_text = $reasons[$key]->value;
+        }else{
+            $video->reason_key = 'other';
+            $video->reason_text = $request->get('reason');
+        }
+
 
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
@@ -449,9 +469,22 @@ class VideoController extends Controller
         return VideoMinimalItem::make($video);
     }
 
-    public function related_videos($id)
+    public function unHide(Video $video){
+
+        $video->reason_key = null;
+        $video->reason_text = null;
+        $video->status = Video::STATUS_PUBLISHED;
+        $video->save();
+
+        return VideoMinimalItem::make($video);
+    }
+
+    public function related_videos($id_or_url_hash)
     {
-        $video = Video::published()->findOrFail($id);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+
+        abort_if(is_null($video), 404);
+
 
         return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }

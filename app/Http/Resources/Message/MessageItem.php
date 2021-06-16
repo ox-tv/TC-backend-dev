@@ -36,7 +36,7 @@ class MessageItem extends JsonResource
             'from' => $this->when($withFrom, $user),
             'to' => $this->when($withTo, $users),
             'type' => $this->type,
-            'status' => MessageUser::STATUS_TEXT[$this->status],
+            'status' => $this->status? MessageUser::STATUS_TEXT[$this->status]: null,
             'can_reply' => $this->can_reply,
             'user_group' => Message::USER_GROUP_TEXT[$this->user_group]?? null,
             'department' => $this->when($withDepartment, $department),
