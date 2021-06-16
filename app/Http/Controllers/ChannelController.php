@@ -124,7 +124,7 @@ class ChannelController extends Controller
     {
         if($id_or_slug){
 
-            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->first();
+            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->firstOrFail();
 
         }else{
 
