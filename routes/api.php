@@ -223,4 +223,6 @@ Route::group([
 
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+    Route::post('notifications/{scope}', '\App\Http\Controllers\NotificationController@store')
+        ->where('scope', 'publisher|user')->name('notifications.store');
 });

@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\User\UserMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\User;
+use App\Notifications\NewImportRequest;
+use App\Notifications\NewMessage;
+use App\Notifications\NewPublisherRequest;
+use App\Notifications\ReplyMessage;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -83,27 +88,35 @@ class MessageController extends Controller
 
         switch ($request->get("user_group")){
             case $user_group_text[Message::USER_GROUP_ALL]:
-                $user_ids = User::pluck("id");
+                $users = User::get();
                 break;
             case $user_group_text[Message::USER_GROUP_PUBLISHER]:
-                $user_ids = User::Publishers()->pluck("id");
+                $users = User::Publishers()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_HERO]:
-                $user_ids = User::IsHero()->pluck("id");
+                $users = User::IsHero()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_NON_HERO]:
-                $user_ids = User::IsNonHero()->pluck("id");
+                $users = User::IsNonHero()->get();
                 break;
             case $user_group_text[Message::USER_GROUP_CUSTOM]:
             default:
-                $user_ids = $request->get("user_ids", []);
+            $users = $request->get("user_ids", []);
         }
 
         $message_users = [];
-        foreach ($user_ids as $user_id)
-            $message_users[$user_id] = ['status' => MessageUser::STATUS_NEW];
+        foreach ($users as $user)
+            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW];
 
         $message->users()->attach($message_users);
+
+        foreach ($users as $user){
+            $user->notify(new NewMessage('publisher',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
@@ -129,6 +142,17 @@ class MessageController extends Controller
 
         $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
 
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewMessage('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
+
         return $message;
     }
 
@@ -151,6 +175,15 @@ class MessageController extends Controller
         ])->first();
 
         $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+
+        $user = User::findOrFail($message_user->user_id);
+
+        $user->notify(new ReplyMessage('publisher',
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ]
+        ));
 
         return $message;
     }
@@ -193,6 +226,17 @@ class MessageController extends Controller
         $message->parent_id = $parent_id;
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new ReplyMessage('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
@@ -289,12 +333,15 @@ class MessageController extends Controller
     }
 
     public function becomeAPublisher(BecomeAPublisherStore $request){
+
+        $user = auth('api')->user();
+
         $message = new Message();
 
         $message->subject = trans("publisher.application_subject");
 
         $message->message = trans('publisher.application_message', [
-            'email' => auth('api')->user()->email,
+            'email' => $user->email,
             'channel_name' => $request->get('channel_name'),
             'youtube_url' => $request->get('youtube_url'),
             'verification_url' => $request->get('verification_url')
@@ -306,9 +353,21 @@ class MessageController extends Controller
 
         $message->department()->associate($department);
 
-        $message->user()->associate(auth('api')->user());
+        $message->user()->associate($user);
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewPublisherRequest('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                    'channel_name' => $request->get('channel_name')
+                ]
+            ));
+        }
 
         return response()->json([
             'email' => $request->input('email'),
@@ -335,6 +394,18 @@ class MessageController extends Controller
         $message->department()->associate($department);
 
         $message->save();
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+            $admin->notify(new NewImportRequest('admin',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                    'youtube_url' => $user->channel->youtube_channel_url
+                ]
+            ));
+        }
 
         return new MessageItem($message);
     }

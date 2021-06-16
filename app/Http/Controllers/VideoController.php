@@ -18,7 +18,10 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Notifications\DeleteVideo;
+use App\Notifications\HideVideo;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -331,19 +334,23 @@ class VideoController extends Controller
      */
     public function destroy(Video $video)
     {
-        if(\request()->is('api/admin/videos/*')){
-            $video->delete();
-            return new VideoSummaryItem($video);
-        }
-
-        if($video->user->id === Auth::guard('api')->id()){
-            $video->delete();
-            return new VideoSummaryItem($video);
-        }else{
+        if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
             return response()->json([
                 'general.not_authorized'
             ], 403);
         }
+
+        $video->delete();
+
+        if (request()->is('api/admin/videos/*')){
+            $video->user->notify(new DeleteVideo('publisher',
+                [
+                    'video' => videoMinimalItem::make($video)
+                ]
+            ));
+        }
+
+        return new VideoSummaryItem($video);
     }
 
     public function bookmarks()
@@ -452,6 +459,12 @@ class VideoController extends Controller
 
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
+
+        $video->user->notify(new HideVideo('publisher',
+            [
+                'video' => videoMinimalItem::make($video)
+            ]
+        ));
 
         return VideoMinimalItem::make($video);
     }
