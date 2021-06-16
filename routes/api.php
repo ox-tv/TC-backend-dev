@@ -40,6 +40,10 @@ Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controlle
 
 // notifications
 Route::middleware('auth:api')->get('notifications', '\App\Http\Controllers\NotificationController@index');
+Route::middleware('auth:api')->get('notifications/{scope}/count', '\App\Http\Controllers\NotificationController@unReadNotificationsCount')
+    ->where('scope', 'admin|publisher|user');
+Route::middleware('auth:api')->put('notifications/{scope}/read', '\App\Http\Controllers\NotificationController@allMarkASRead')
+    ->where('scope', 'admin|publisher|user');
 Route::middleware('auth:api')->put('notifications/{id}/read', '\App\Http\Controllers\NotificationController@markASRead');
 
 

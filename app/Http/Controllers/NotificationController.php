@@ -52,9 +52,25 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $user->notifications()->where('id', $id)->whereNull('read_at')->update(['read_at' => now()]);
+        $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
 
         return response()->json(['message' => 'ok']);
+    }
+
+    public function allMarkASRead($scope)
+    {
+        $user = auth('api')->user();
+
+        $user->unreadNotifications()->where('data->scope', $scope)->update(['read_at' => now()]);
+
+        return response()->json(['message' => 'ok']);
+    }
+
+    public function unReadNotificationsCount($scope)
+    {
+        $user = auth('api')->user();
+
+        return response()->json(['count' => $user->unreadNotifications()->count()]);
     }
 
     public function store(Request $request, $scope)
