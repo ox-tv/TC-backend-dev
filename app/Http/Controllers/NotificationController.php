@@ -66,6 +66,13 @@ class NotificationController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
+    public function unReadNotificationsCount($scope)
+    {
+        $user = auth('api')->user();
+
+        return response()->json(['count' => $user->unreadNotifications()->count()]);
+    }
+
     public function store(Request $request, $scope)
     {
         $user_group_text = Notification::USER_GROUP_TEXT;
