@@ -58,6 +58,9 @@ Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
+// Video chapters
+Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
+
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
 Route::middleware('auth:api')->put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
@@ -167,6 +170,8 @@ Route::group([
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+
+    Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 });
 
 
