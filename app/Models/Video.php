@@ -186,6 +186,10 @@ class Video extends Model
         return $this->hasMany('App\Models\Comment')->whereNull('parent_id')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
     }
 
+    public function chapters(){
+        return $this->hasMany('App\Models\Chapter');
+    }
+
     public function playlists(){
         return $this->belongsToMany('App\Models\Playlist');
     }
