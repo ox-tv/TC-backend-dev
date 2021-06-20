@@ -232,6 +232,7 @@ Route::group([
 
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+    Route::get('notifications/sent-by-admin', '\App\Http\Controllers\NotificationController@index_sent_by_admin')->name('notifications.sent_by_admin');
     Route::post('notifications/{scope}', '\App\Http\Controllers\NotificationController@store')
         ->where('scope', 'publisher|user')->name('notifications.store');
 });
