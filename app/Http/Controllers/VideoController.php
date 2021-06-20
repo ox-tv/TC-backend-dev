@@ -462,7 +462,9 @@ class VideoController extends Controller
 
         $video->user->notify(new HideVideo('publisher',
             [
-                'video' => videoMinimalItem::make($video)
+                'video' => videoMinimalItem::make($video),
+                'reason_key' => $video->reason_key,
+                'reason_value' => $video->reason_text,
             ]
         ));
 
