@@ -70,7 +70,7 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        return response()->json(['count' => $user->unreadNotifications()->count()]);
+        return response()->json(['count' => $user->unreadNotifications()->where('data->scope', $scope)->count()]);
     }
 
     public function store(Request $request, $scope)
