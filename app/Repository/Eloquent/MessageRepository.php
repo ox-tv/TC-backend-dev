@@ -23,7 +23,7 @@ class MessageRepository implements MessageRepositoryInterface
 
         $message->save();
 
-        $message->users()->attach([$related_user => ['status' => MessageUser::STATUS_NEW]]);
+        $message->users()->attach([$related_user => ['status' => MessageUser::STATUS_NEW_BY_USER]]);
 
         return $message;
     }

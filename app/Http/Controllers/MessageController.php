@@ -114,7 +114,7 @@ class MessageController extends Controller
 
         $message_users = [];
         foreach ($users as $user)
-            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW];
+            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW_BY_ADMIN];
 
         $message->users()->attach($message_users);
 
@@ -311,9 +311,9 @@ class MessageController extends Controller
         if ($action == "close"){
             $status = MessageUser::STATUS_CLOSE;
         }elseif ($action == "seen"){
-            if($message_user->status == MessageUser::STATUS_NEW && $message->user_id == $message_user->user_id && $is_admin){
+            if($message_user->status == MessageUser::STATUS_NEW_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
-            }elseif($message_user->status == MessageUser::STATUS_NEW && $message->user_id != $message_user->user_id && !$is_admin){
+            }elseif($message_user->status == MessageUser::STATUS_NEW_BY_ADMIN && !$is_admin){
                 $status = MessageUser::STATUS_SEEN;
             }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
