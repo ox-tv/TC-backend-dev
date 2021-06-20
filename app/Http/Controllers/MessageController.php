@@ -14,10 +14,18 @@ use App\Notifications\NewImportRequest;
 use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
+use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
+    private $messageRepository;
+
+    public function __construct(MessageRepositoryInterface $messageRepository)
+    {
+        $this->messageRepository = $messageRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -123,25 +131,23 @@ class MessageController extends Controller
 
     private function store_user(Request $request)
     {
-        $message = new Message();
-
-        $message->subject = $request->get("subject");
-        $message->message = $request->get("message");
-        $message->image = $request->get("image");
-        $message->user_id = auth("api")->id();
-        $message->can_reply = true;
-
         if($request->get("department_id")){
-            $message->department_id = $request->get("department_id");
+            $department_id = $request->get("department_id");
         }else{
             $department = Department::firstOrCreate(['name' => 'General']);
-            $message->department_id = $department->id;
+            $department_id = $department->id;
         }
 
-        $message->save();
+        $message_data = [
+            'subject' => $request->get("subject"),
+            'message' => $request->get("message"),
+            'image' => $request->get("image"),
+            'user_id' => auth("api")->id(),
+            'can_reply' => true,
+            'department_id' => $department_id,
+        ];
 
-        $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
-
+        $message = $this->messageRepository->storeUser(auth("api")->id(), $message_data);
 
         $admins = User::admins()->get();
 
