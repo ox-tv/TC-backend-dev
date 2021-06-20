@@ -342,26 +342,22 @@ class MessageController extends Controller
 
         $user = auth('api')->user();
 
-        $message = new Message();
-
-        $message->subject = trans("publisher.application_subject");
-
-        $message->message = trans('publisher.application_message', [
-            'email' => $user->email,
-            'channel_name' => $request->get('channel_name'),
-            'youtube_url' => $request->get('youtube_url'),
-            'verification_url' => $request->get('verification_url')
-        ]);
-
-        $message->image = $request->get('image');
-
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
 
-        $message->department()->associate($department);
+        $message_data = [
+            'subject' => trans("publisher.application_subject"),
+            'message' => trans('publisher.application_message', [
+                'email' => $user->email,
+                'channel_name' => $request->get('channel_name'),
+                'youtube_url' => $request->get('youtube_url'),
+                'verification_url' => $request->get('verification_url')
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
 
-        $message->user()->associate($user);
-
-        $message->save();
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
 
 
         $admins = User::admins()->get();
@@ -386,20 +382,20 @@ class MessageController extends Controller
 
         $user = auth('api')->user();
 
-        $message = new Message();
-
-        $message->subject = trans("channel.request_subject");
-
-        $message->message = trans('channel.request_message', [
-            'email' => $user->email,
-            'youtube_url' => $user->channel->youtube_channel_url,
-        ]);
-
         $department = Department::firstOrCreate(['name' => 'Publisher Import Request']);
 
-        $message->department()->associate($department);
+        $message_data = [
+            'subject' => trans("channel.request_subject"),
+            'message' => trans('channel.request_message', [
+                'email' => $user->email,
+                'youtube_url' => $user->channel->youtube_channel_url,
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
 
-        $message->save();
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
 
 
         $admins = User::admins()->get();
