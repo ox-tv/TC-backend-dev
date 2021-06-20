@@ -48,6 +48,13 @@ class NotificationController extends Controller
         return NotificationItem::collection($notifications);
     }
 
+    public function index_sent_by_admin(Request $request)
+    {
+        $notifications = Notification::whereNotNull('data->from')->with(['notifiable'])->paginate();
+
+        return NotificationItem::collection($notifications);
+    }
+
     public function markASRead($id)
     {
         $user = auth('api')->user();
