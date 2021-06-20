@@ -14,10 +14,18 @@ use App\Notifications\NewImportRequest;
 use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
+use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
+    private $messageRepository;
+
+    public function __construct(MessageRepositoryInterface $messageRepository)
+    {
+        $this->messageRepository = $messageRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -106,7 +114,7 @@ class MessageController extends Controller
 
         $message_users = [];
         foreach ($users as $user)
-            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW];
+            $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW_BY_ADMIN];
 
         $message->users()->attach($message_users);
 
@@ -123,25 +131,23 @@ class MessageController extends Controller
 
     private function store_user(Request $request)
     {
-        $message = new Message();
-
-        $message->subject = $request->get("subject");
-        $message->message = $request->get("message");
-        $message->image = $request->get("image");
-        $message->user_id = auth("api")->id();
-        $message->can_reply = true;
-
         if($request->get("department_id")){
-            $message->department_id = $request->get("department_id");
+            $department_id = $request->get("department_id");
         }else{
             $department = Department::firstOrCreate(['name' => 'General']);
-            $message->department_id = $department->id;
+            $department_id = $department->id;
         }
 
-        $message->save();
+        $message_data = [
+            'subject' => $request->get("subject"),
+            'message' => $request->get("message"),
+            'image' => $request->get("image"),
+            'user_id' => auth("api")->id(),
+            'can_reply' => true,
+            'department_id' => $department_id,
+        ];
 
-        $message->users()->attach([auth('api')->id() => ['status' => MessageUser::STATUS_NEW]]);
-
+        $message = $this->messageRepository->storeUser(auth("api")->id(), $message_data);
 
         $admins = User::admins()->get();
 
@@ -305,9 +311,9 @@ class MessageController extends Controller
         if ($action == "close"){
             $status = MessageUser::STATUS_CLOSE;
         }elseif ($action == "seen"){
-            if($message_user->status == MessageUser::STATUS_NEW && $message->user_id == $message_user->user_id && $is_admin){
+            if($message_user->status == MessageUser::STATUS_NEW_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
-            }elseif($message_user->status == MessageUser::STATUS_NEW && $message->user_id != $message_user->user_id && !$is_admin){
+            }elseif($message_user->status == MessageUser::STATUS_NEW_BY_ADMIN && !$is_admin){
                 $status = MessageUser::STATUS_SEEN;
             }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
@@ -336,26 +342,22 @@ class MessageController extends Controller
 
         $user = auth('api')->user();
 
-        $message = new Message();
-
-        $message->subject = trans("publisher.application_subject");
-
-        $message->message = trans('publisher.application_message', [
-            'email' => $user->email,
-            'channel_name' => $request->get('channel_name'),
-            'youtube_url' => $request->get('youtube_url'),
-            'verification_url' => $request->get('verification_url')
-        ]);
-
-        $message->image = $request->get('image');
-
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
 
-        $message->department()->associate($department);
+        $message_data = [
+            'subject' => trans("publisher.application_subject"),
+            'message' => trans('publisher.application_message', [
+                'email' => $user->email,
+                'channel_name' => $request->get('channel_name'),
+                'youtube_url' => $request->get('youtube_url'),
+                'verification_url' => $request->get('verification_url')
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
 
-        $message->user()->associate($user);
-
-        $message->save();
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
 
 
         $admins = User::admins()->get();
@@ -380,20 +382,20 @@ class MessageController extends Controller
 
         $user = auth('api')->user();
 
-        $message = new Message();
-
-        $message->subject = trans("channel.request_subject");
-
-        $message->message = trans('channel.request_message', [
-            'email' => $user->email,
-            'youtube_url' => $user->channel->youtube_channel_url,
-        ]);
-
         $department = Department::firstOrCreate(['name' => 'Publisher Import Request']);
 
-        $message->department()->associate($department);
+        $message_data = [
+            'subject' => trans("channel.request_subject"),
+            'message' => trans('channel.request_message', [
+                'email' => $user->email,
+                'youtube_url' => $user->channel->youtube_channel_url,
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
 
-        $message->save();
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
 
 
         $admins = User::admins()->get();
