@@ -332,7 +332,7 @@ class VideoController extends Controller
      * @return \Illuminate\Http\JsonResponse | VideoSummaryItem
      * @throws \Exception
      */
-    public function destroy(Video $video)
+    public function destroy(Request $request, Video $video)
     {
         if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
             return response()->json([
@@ -340,12 +340,34 @@ class VideoController extends Controller
             ], 403);
         }
 
+        if(request()->is('api/admin/videos/*')){
+            $request->validate([
+                'reason' => 'required'
+            ]);
+
+            $option_key = 'video_delete_reasons';
+            $reasons = json_decode(Option::where("key", $option_key)->first()->value?? abort(404));
+
+
+            if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+                $video->reason_key = $request->get('reason');
+                $video->reason_text = $reasons[$key]->value;
+            }else{
+                $video->reason_key = 'other';
+                $video->reason_text = $request->get('reason');
+            }
+
+            $video->save();
+        }
+
         $video->delete();
 
         if (request()->is('api/admin/videos/*')){
             $video->user->notify(new DeleteVideo('publisher',
                 [
-                    'video' => videoMinimalItem::make($video)
+                    'video' => videoMinimalItem::make($video),
+                    'reason_key' => $video->reason_key,
+                    'reason_value' => $video->reason_text,
                 ]
             ));
         }
