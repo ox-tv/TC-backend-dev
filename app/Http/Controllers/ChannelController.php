@@ -12,10 +12,12 @@ use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
+use App\Models\UserVideo;
 use App\Models\Video;
 use App\Notifications\ImportRequestAccepted;
 use App\Notifications\ImportRequestCompleted;
 use App\Notifications\UpdateChannelStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -43,13 +45,11 @@ class ChannelController extends Controller
         $searchFilter = Arr::get($filters, 'search');
 
         if($searchFilter){
-
             $query->where(function ($query) use ($searchFilter) {
                 $query->SearchByOwner($searchFilter);
             })->orWhere(function ($query) use($searchFilter) {
                 $query->SearchTitle($searchFilter);
             });
-
         }
 
         $sort = $request->get('sort');
@@ -65,6 +65,11 @@ class ChannelController extends Controller
 
         return new ChannelSummaryCollection($channels);
 
+    }
+
+    public function topChannels()
+    {
+        $video_ids = UserVideo::whereDate('created_at', '>', Carbon::now()->subDays(30));
     }
 
     /**
