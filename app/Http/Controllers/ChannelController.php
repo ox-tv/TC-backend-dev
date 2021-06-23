@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CacheManagement\ChannelCacheManager;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
@@ -12,10 +13,12 @@ use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
+use App\Models\UserVideo;
 use App\Models\Video;
 use App\Notifications\ImportRequestAccepted;
 use App\Notifications\ImportRequestCompleted;
 use App\Notifications\UpdateChannelStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -43,13 +46,11 @@ class ChannelController extends Controller
         $searchFilter = Arr::get($filters, 'search');
 
         if($searchFilter){
-
             $query->where(function ($query) use ($searchFilter) {
                 $query->SearchByOwner($searchFilter);
             })->orWhere(function ($query) use($searchFilter) {
                 $query->SearchTitle($searchFilter);
             });
-
         }
 
         $sort = $request->get('sort');
@@ -65,6 +66,29 @@ class ChannelController extends Controller
 
         return new ChannelSummaryCollection($channels);
 
+    }
+
+    public function topChannels()
+    {
+        $channel_likes = cache()->get('channels_month_likes');
+
+        if (!$channel_likes){
+            return [];
+        }
+
+        usort($channel_likes, function ($a, $b){
+            return ($b['total'] > $a['total']) ? 1 : -1;
+        });
+
+        $ids = array_column($channel_likes,'channel_id');
+
+        $ids_ordered = implode(',', $ids);
+
+        $channels = Channel::whereIn('id', $ids)
+            ->orderByRaw("FIELD(id, $ids_ordered)")
+            ->paginate();
+
+        return new ChannelSummaryCollection($channels);
     }
 
     /**

@@ -171,15 +171,15 @@ class Video extends Model
     }
 
     public function likedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::LIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->withTimestamps()->where('relation', UserVideo::LIKED_RELATION);
     }
 
     public function dislikedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::DISLIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->withTimestamps()->where('relation', UserVideo::DISLIKED_RELATION);
     }
 
     public function bookmarkedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', UserVideo::BOOKMARKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->withTimestamps()->where('relation', UserVideo::BOOKMARKED_RELATION);
     }
 
     public function comments(){

@@ -33,6 +33,9 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
 
+Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
+
+
 // reports
 Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
 Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
@@ -143,10 +146,10 @@ Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Contro
 
 // options
 Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.report.video.reasons.show");
-Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.report.comment.reasons.show");
-Route::get('options/video/hide/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.video.hide.reasons.show");
-Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.video.delete.reasons.show");
-Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.comment.delete.reasons.show");
+Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/video/hide/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 
 
 
