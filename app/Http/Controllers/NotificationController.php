@@ -50,7 +50,7 @@ class NotificationController extends Controller
 
     public function index_sent_by_admin(Request $request)
     {
-        $notifications = Notification::whereNotNull('data->from')->with(['notifiable'])->paginate();
+        $notifications = Notification::whereNotNull('data->from')->orderBy('created_at', 'DESC')->with(['notifiable'])->paginate();
 
         return NotificationItem::collection($notifications);
     }
