@@ -26,6 +26,7 @@ class NotificationItem extends JsonResource
             'id' => $this->id,
             'type' => $this->data['type']?? null,
             'payload' => @$this->data['payload']?? null,
+            'scope' => @$this->data['scope']?? null,
             'from' => @$this->data['from']?? null,
             'created_at' => $this->created_at,
             'read_at' => $this->read_at,
