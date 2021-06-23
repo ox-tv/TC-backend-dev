@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CacheManagement\ChannelCacheManager;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
@@ -69,7 +70,25 @@ class ChannelController extends Controller
 
     public function topChannels()
     {
-        $video_ids = UserVideo::whereDate('created_at', '>', Carbon::now()->subDays(30));
+        $channel_likes = cache()->get('channels_month_likes');
+
+        if (!$channel_likes){
+            return [];
+        }
+
+        usort($channel_likes, function ($a, $b){
+            return ($b['total'] > $a['total']) ? 1 : -1;
+        });
+
+        $ids = array_column($channel_likes,'channel_id');
+
+        $ids_ordered = implode(',', $ids);
+
+        $channels = Channel::whereIn('id', $ids)
+            ->orderByRaw("FIELD(id, $ids_ordered)")
+            ->paginate();
+
+        return new ChannelSummaryCollection($channels);
     }
 
     /**
