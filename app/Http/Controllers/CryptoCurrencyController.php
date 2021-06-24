@@ -74,7 +74,7 @@ class CryptoCurrencyController extends Controller
                     "crypto_currency_{$crypto_currency->id}_USD",
                     60 * 5,
                     function () use ($crypto_currency, $res) {
-                        return $res[$crypto_currency->slug]?? abort(404);
+                        return $res[$crypto_currency->slug]??  null;
                     }
                 );
             }

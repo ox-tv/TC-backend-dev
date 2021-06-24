@@ -6,11 +6,16 @@ use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\CommentSummaryItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
+use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
+use App\Models\Option;
 use App\Models\Report;
+use App\Models\User;
 use App\Models\Video;
+use App\Notifications\ReportComment;
+use App\Notifications\ReportVideo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -80,22 +85,33 @@ class ReportController extends Controller
     {
         $report = new Report();
 
-        $report->reason = $request->get("reason");
+        //$report->reason = $request->get("reason");
         $report->user_id = auth('api')->id();
 
+
+
         if ($request->is("api/videos/{$id}/report")){
+            $option_key = 'report_video_reasons';
             $model = Video::findOrFail($id);
             $report->reported_user_id = $model->user_id;
-        }
-
-        if ($request->is("api/channels/{$id}/report")){
-            $model = Channel::findOrFail($id);
-            $report->reported_user_id = $model->user_id;
+            $model_name = 'video';
         }
 
         if ($request->is("api/comments/{$id}/report")){
+            $option_key = 'report_comment_reasons';
             $model = Comment::findOrFail($id);
             $report->reported_user_id = $model->user_id;
+            $model_name = 'comment';
+        }
+
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+            $report->reason_key = $request->get('reason');
+            $report->reason_text = $reasons[$key]->value;
+        }else{
+            $report->reason_key = 'other';
+            $report->reason_text = $request->get('reason');
         }
 
         if($model->reports()->where('user_id', auth('api')->id())->exists()){
@@ -103,6 +119,38 @@ class ReportController extends Controller
         }
 
         $model->reports()->save($report);
+
+
+        $admins = User::admins()->get();
+
+        foreach ($admins as $admin){
+
+            $notification = $admin->notifications()->where("data->payload->{$model_name}->id", $model->id)->first();
+
+            if ($notification){
+                $data = $notification->data;
+                $data['payload']['report_count'] += 1;
+                $notification->data = $data;
+                $notification->save();
+            }else{
+                if($model_name == 'video'){
+                    $admin->notify(new ReportVideo('admin',
+                        [
+                            $model_name => VideoMinimalItem::make($model),
+                            'report_count' => 1
+                        ]
+                    ));
+                }else{
+                    $admin->notify(new ReportComment('admin',
+                        [
+                            $model_name => CommentItem::make($model),
+                            'report_count' => 1
+                        ]
+                    ));
+                }
+
+            }
+        }
 
         return ReportItem::make($report);
     }

@@ -14,10 +14,15 @@ use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Notifications\DeleteVideo;
+use App\Notifications\HideVideo;
+use App\Notifications\NewVideoPublished;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -202,6 +207,9 @@ class VideoController extends Controller
             $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
         }
 
+        $channel = $video->channels()->first();
+        \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', $video));
+
         return new VideoItem($video);
 
     }
@@ -328,21 +336,45 @@ class VideoController extends Controller
      * @return \Illuminate\Http\JsonResponse | VideoSummaryItem
      * @throws \Exception
      */
-    public function destroy(Video $video)
+    public function destroy(Request $request, Video $video)
     {
-        if(\request()->is('api/admin/videos/*')){
-            $video->delete();
-            return new VideoSummaryItem($video);
-        }
-
-        if($video->user->id === Auth::guard('api')->id()){
-            $video->delete();
-            return new VideoSummaryItem($video);
-        }else{
+        if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
             return response()->json([
                 'general.not_authorized'
             ], 403);
         }
+
+        if(request()->is('api/admin/videos/*')){
+            $request->validate([
+                'reason' => 'required'
+            ]);
+
+            $option_key = 'video_delete_reasons';
+            $reasons = json_decode(Option::where("key", $option_key)->first()->value?? abort(404));
+
+
+            if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+                $video->reason_key = $request->get('reason');
+                $video->reason_text = $reasons[$key]->value;
+            }else{
+                $video->reason_key = 'other';
+                $video->reason_text = $request->get('reason');
+            }
+
+            $video->save();
+        }
+
+        $video->delete();
+
+        if (request()->is('api/admin/videos/*')){
+            $video->user->notify(new DeleteVideo('publisher',
+                [
+                    'video' => videoMinimalItem::make($video),
+                ]
+            ));
+        }
+
+        return new VideoSummaryItem($video);
     }
 
     public function bookmarks()
@@ -430,9 +462,42 @@ class VideoController extends Controller
 
     }
 
-    public function hide(Video $video){
+    public function hide(Request $request, Video $video){
+
+        $request->validate([
+            'reason' => 'required'
+        ]);
+
+        $option_key = 'video_hide_reasons';
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+
+        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+            $video->reason_key = $request->get('reason');
+            $video->reason_text = $reasons[$key]->value;
+        }else{
+            $video->reason_key = 'other';
+            $video->reason_text = $request->get('reason');
+        }
+
 
         $video->status = Video::STATUS_HIDDEN;
+        $video->save();
+
+        $video->user->notify(new HideVideo('publisher',
+            [
+                'video' => videoMinimalItem::make($video),
+            ]
+        ));
+
+        return VideoMinimalItem::make($video);
+    }
+
+    public function unHide(Video $video){
+
+        $video->reason_key = null;
+        $video->reason_text = null;
+        $video->status = Video::STATUS_PUBLISHED;
         $video->save();
 
         return VideoMinimalItem::make($video);

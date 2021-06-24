@@ -33,9 +33,21 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
 
+Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
+
+
 // reports
 Route::middleware('auth:api')->post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
 Route::middleware('auth:api')->post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
+
+
+// notifications
+Route::middleware('auth:api')->get('notifications', '\App\Http\Controllers\NotificationController@index');
+Route::middleware('auth:api')->get('notifications/{scope}/count', '\App\Http\Controllers\NotificationController@unReadNotificationsCount')
+    ->where('scope', 'admin|publisher|user');
+Route::middleware('auth:api')->put('notifications/{scope}/read', '\App\Http\Controllers\NotificationController@allMarkASRead')
+    ->where('scope', 'admin|publisher|user');
+Route::middleware('auth:api')->put('notifications/{id}/read', '\App\Http\Controllers\NotificationController@markASRead');
 
 
 // Video API routes
@@ -48,6 +60,9 @@ Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
 Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
+
+// Video chapters
+Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -130,14 +145,19 @@ Route::middleware('auth:api')->put('messages/{message}/close', '\App\Http\Contro
 
 
 // options
-Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_video_reasons_show')->name("options.report.video.reasons.show");
-Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_comment_reasons_show')->name("options.report.comment.reasons.show");
+Route::get('options/report/video/reasons', '\App\Http\Controllers\OptionController@reasons_show')->name("options.report.video.reasons.show");
+Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/video/hide/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 
 
 
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
+// Become A Publisher
+Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
 // Publisher api routes
 Route::group([
@@ -149,9 +169,12 @@ Route::group([
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
-    Route::post('apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.messages');
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
+
+    Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+
+    Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 });
 
 
@@ -183,6 +206,7 @@ Route::group([
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
+    Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
 
     Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
     Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
@@ -205,5 +229,13 @@ Route::group([
 
     Route::post('options/report/video/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.video.reasons.store");
     Route::post('options/report/comment/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.report.comment.reasons.store");
+    Route::post('options/video/hide/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.hide.reasons.store");
+    Route::post('options/video/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.delete.reasons.store");
+    Route::post('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.comment.delete.reasons.store");
 
+
+    Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
+    Route::get('notifications/sent-by-admin', '\App\Http\Controllers\NotificationController@index_sent_by_admin')->name('notifications.sent_by_admin');
+    Route::post('notifications/{scope}', '\App\Http\Controllers\NotificationController@store')
+        ->where('scope', 'publisher|user')->name('notifications.store');
 });

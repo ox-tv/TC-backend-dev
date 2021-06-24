@@ -6,6 +6,7 @@ use App\Http\Requests\CommentReply;
 use App\Http\Resources\CommentCollection;
 use App\Http\Resources\CommentItem;
 use App\Models\Comment;
+use App\Models\Option;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -80,8 +81,25 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Comment $comment)
+    public function destroy(Request $request, Comment $comment)
     {
+        $request->validate([
+            'reason' => 'required'
+        ]);
+
+        $option_key = 'comment_delete_reasons';
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+            $comment->reason_key = $request->get('reason');
+            $comment->reason_text = $reasons[$key]->value;
+        }else{
+            $comment->reason_key = 'other';
+            $comment->reason_text = $request->get('reason');
+        }
+
+        $comment->save();
+
         $comment->delete();
 
         return response()->json(["message" => "ok"]);

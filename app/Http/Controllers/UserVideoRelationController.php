@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CacheManagement\ChannelCacheManager;
 use App\Http\Requests\VideoDislike;
 use App\Http\Requests\VideoLike;
 use App\Http\Requests\VideoStore;
@@ -19,9 +20,10 @@ use Illuminate\Support\Str;
 
 class UserVideoRelationController extends Controller
 {
-    public function like(Video $video){
-
+    public function like(Video $video, ChannelCacheManager $channelCacheManager)
+    {
         $userId = Auth::id();
+        $channel = $video->channels()->first();
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);
@@ -31,16 +33,21 @@ class UserVideoRelationController extends Controller
             $video->dislikedBy()->wherePivot('relation', UserVideo::DISLIKED_RELATION)->detach($userId);
             $video->likedBy()->attach($userId, ['relation' => UserVideo::LIKED_RELATION]);
 
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, -1, false);
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, 1);
+
         }else if($isLiked){
 
             $video->likedBy()->wherePivot('relation', UserVideo::LIKED_RELATION)->detach($userId);
+
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, 1, false);
 
             $userRelation = null;
 
         }else{
 
             $video->likedBy()->attach($userId, ['relation' => UserVideo::LIKED_RELATION]);
-
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, 1);
         }
 
         return response()->json([
@@ -52,9 +59,10 @@ class UserVideoRelationController extends Controller
 
     }
 
-    public function dislike(Video $video){
+    public function dislike(Video $video, ChannelCacheManager $channelCacheManager){
 
         $userId = Auth::id();
+        $channel = $video->channels()->first();
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);
@@ -64,16 +72,20 @@ class UserVideoRelationController extends Controller
             $video->likedBy()->wherePivot('relation', UserVideo::LIKED_RELATION)->detach($userId);
             $video->dislikedBy()->attach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
 
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, 1, false);
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, -1);
+
         }else if($isDisliked){
 
             $video->dislikedBy()->wherePivot('relation', UserVideo::DISLIKED_RELATION)->detach($userId);
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, -1, false);
 
             $userRelation = null;
 
         }else{
 
             $video->dislikedBy()->attach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
-
+            $channelCacheManager->addToChannelsMonthLikes($channel->id, -1);
         }
 
         return response()->json([

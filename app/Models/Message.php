@@ -91,6 +91,6 @@ class Message extends Model
 
         $message_user = MessageUser::where("message_id", $message_id)->first();
 
-        return $message_user->status;
+        return $message_user->status?? null;
     }
 }

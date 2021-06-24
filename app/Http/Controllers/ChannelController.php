@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\CacheManagement\ChannelCacheManager;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
+use App\Models\UserVideo;
 use App\Models\Video;
+use App\Notifications\ImportRequestAccepted;
+use App\Notifications\ImportRequestCompleted;
+use App\Notifications\UpdateChannelStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -39,13 +46,11 @@ class ChannelController extends Controller
         $searchFilter = Arr::get($filters, 'search');
 
         if($searchFilter){
-
             $query->where(function ($query) use ($searchFilter) {
                 $query->SearchByOwner($searchFilter);
             })->orWhere(function ($query) use($searchFilter) {
                 $query->SearchTitle($searchFilter);
             });
-
         }
 
         $sort = $request->get('sort');
@@ -61,6 +66,29 @@ class ChannelController extends Controller
 
         return new ChannelSummaryCollection($channels);
 
+    }
+
+    public function topChannels()
+    {
+        $channel_likes = cache()->get('channels_month_likes');
+
+        if (!$channel_likes){
+            return [];
+        }
+
+        usort($channel_likes, function ($a, $b){
+            return ($b['total'] > $a['total']) ? 1 : -1;
+        });
+
+        $ids = array_column($channel_likes,'channel_id');
+
+        $ids_ordered = implode(',', $ids);
+
+        $channels = Channel::whereIn('id', $ids)
+            ->orderByRaw("FIELD(id, $ids_ordered)")
+            ->paginate();
+
+        return new ChannelSummaryCollection($channels);
     }
 
     /**
@@ -120,7 +148,7 @@ class ChannelController extends Controller
     {
         if($id_or_slug){
 
-            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->first();
+            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->firstOrFail();
 
         }else{
 
@@ -178,6 +206,8 @@ class ChannelController extends Controller
             return new ChannelItem($channel);
         }
 
+        $prev_status = $channel->status;
+
         $channel->name = $request->get('name', $channel->name);
         $channel->description = $request->get('description', $channel->description);
 
@@ -200,14 +230,22 @@ class ChannelController extends Controller
 
         if($request->is('api/admin/channels/*') && $request->get('status')){
             $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
+            $current_status = $channel->status;
         }
 
         if($request->is('api/admin/channels/*') && $request->get('points')){
             $channel->points = $request->get('points');
         }
 
-
         $channel->save();
+
+
+        if($request->is('api/admin/*') && $prev_status != $current_status){
+            $channel->owner->notify(new UpdateChannelStatus('publisher', [
+                'prev_status' => Channel::STATUS_TEXT[$prev_status],
+                'current_status' => Channel::STATUS_TEXT[$current_status],
+            ]));
+        }
 
         return new ChannelItem($channel);
 
@@ -277,6 +315,14 @@ class ChannelController extends Controller
 
         $channel->save();
 
+        $user = $channel->owner;
+
+        $user->notify(new ImportRequestAccepted('publisher',
+            [
+                'channel' => ChannelMinimalItem::make($channel)
+            ]
+        ));
+
         return response()->json([
             'message' => __('channel.messages.import_request_submitted'),
         ]);
@@ -294,6 +340,12 @@ class ChannelController extends Controller
         $channel->save();
 
         $user = $channel->owner;
+
+        $user->notify(new ImportRequestCompleted('publisher',
+            [
+                'channel' => ChannelMinimalItem::make($channel)
+            ]
+        ));
 
         Mail::to($user->email)
             ->queue(new ImportRequestCompletedMail());
