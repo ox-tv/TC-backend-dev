@@ -20,6 +20,7 @@ use App\Models\Tag;
 use App\Models\Video;
 use App\Notifications\DeleteVideo;
 use App\Notifications\HideVideo;
+use App\Notifications\NewVideoPublished;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -205,6 +206,9 @@ class VideoController extends Controller
         if($request->get('playlists')){
             $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
         }
+
+        $channel = $video->channels()->first();
+        \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', $video));
 
         return new VideoItem($video);
 
