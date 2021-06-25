@@ -208,7 +208,9 @@ class VideoController extends Controller
         }
 
         $channel = $video->channels()->first();
-        \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', $video));
+        \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
+            'video' => $video
+        ]));
 
         return new VideoItem($video);
 
