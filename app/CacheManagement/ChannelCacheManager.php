@@ -6,9 +6,11 @@ namespace App\CacheManagement;
 
 class ChannelCacheManager
 {
+    private $channel_month_likes_key = 'channels_month_likes';
+
     public function addToChannelsMonthLikes($channel_id, $relation, $add = true)
     {
-        $channel_likes = cache('channels_month_likes');
+        $channel_likes = cache($this->channel_month_likes_key);
 
         if(empty($channel_likes[$channel_id])){
             $channel_likes[$channel_id] = [
@@ -51,18 +53,15 @@ class ChannelCacheManager
 
         $channel_likes[$channel_id]["{$action}_by_day"] = array_slice($channel_likes[$channel_id]["{$action}_by_day"], -30);
 
-        cache()->forever('channels_month_likes', $channel_likes);
+        cache()->forever($this->channel_month_likes_key, $channel_likes);
 
         return true;
     }
 
-    private function plus($value1, $value2)
+    public function getChannelMonthLikes($channel_id)
     {
-        return $value1 + $value2;
-    }
+        $channel_likes = cache()->get('channels_month_likes');
 
-    private function minus($value1, $value2)
-    {
-        return $value1 - $value2;
+        return $channel_likes[$channel_id]?? null;
     }
 }
