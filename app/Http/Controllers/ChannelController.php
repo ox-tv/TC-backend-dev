@@ -70,6 +70,11 @@ class ChannelController extends Controller
 
     public function topChannels()
     {
+
+        $channel = Channel::find(3);
+
+        return $channel->total_likes;
+
         $channel_likes = cache()->get('channels_month_likes');
 
         if (!$channel_likes){
