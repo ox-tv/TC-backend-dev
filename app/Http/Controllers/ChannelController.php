@@ -68,14 +68,9 @@ class ChannelController extends Controller
 
     }
 
-    public function topChannels()
+    public function topChannels(ChannelCacheManager $channelCacheManager)
     {
-
-        $channel = Channel::find(3);
-
-        return $channel->total_likes;
-
-        $channel_likes = cache()->get('channels_month_likes');
+        $channel_likes = $channelCacheManager->getChannelsMonthLikes();
 
         if (!$channel_likes){
             return [];
@@ -93,7 +88,7 @@ class ChannelController extends Controller
             ->orderByRaw("FIELD(id, $ids_ordered)")
             ->paginate();
 
-        return new ChannelSummaryCollection($channels);
+        return \App\Http\Resources\Channel\ChannelItem::collection($channels);
     }
 
     /**
