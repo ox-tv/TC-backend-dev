@@ -28,15 +28,6 @@ class ChannelItem extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'slug' => $this->slug,
-            'subscribers_count' => $this->subscribers->count(),
-            'uploads_count' => $this->uploads_count,
-            'total_views' => $this->total_views,
-            'total_likes' => $this->total_likes,
-            'total_dislikes' => $this->total_dislikes,
-            'comments_count' => $this->total_comments,
-            'points' => $this->points,
-            'watch_time' => $this->videos()->sum("watch_time"),
-            'hero_subscribers_count' => $this->heroSubscribers->count(),
             'url_hash' => $this->url_hash,
             'cover' => $this->cover,
             'avatar' => $this->avatar,
@@ -47,10 +38,23 @@ class ChannelItem extends JsonResource
             "slogan" => $this->slogan,
             "owner" => $this->when($withOwner, $owner),
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
+            'points' => $this->points,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
-            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
+
+            'uploads_count' => $this->uploads_count,
+            'total_views' => $this->total_views,
+            'watch_time' => $this->watch_time,
+            'is_subscribed' => auth('api')->check() ?
+                ($this->subscribers()->where('user_id', auth('api')->id())->exists() ? true : false) : false,
+            'subscribers_count' => $this->subscribers()->count(),
+            'hero_subscribers_count' => $this->heroSubscribers()->count(),
+            'total_likes' => $this->total_likes,
+            'total_dislikes' => $this->total_dislikes,
+
+
+            'comments_count' => $this->total_comments,
         ];
     }
 }
