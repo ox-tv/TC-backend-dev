@@ -52,8 +52,6 @@ class ChannelItem extends JsonResource
             'hero_subscribers_count' => $this->heroSubscribers()->count(),
             'total_likes' => $this->total_likes,
             'total_dislikes' => $this->total_dislikes,
-
-
             'comments_count' => $this->total_comments,
         ];
     }
