@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\CacheManagement\ChannelCacheManager;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -125,57 +126,41 @@ class Channel extends Model
 
     // Attribute
 
+    public function getWatchTimeAttribute(){
+        return $this->videos()->sum("watch_time");
+    }
+
     public function getUploadsCountAttribute(){
         return $this->videos()->count();
     }
 
-    public function getTotalViewsAttribute(){
-        $totalViews = 0;
-
-        $videos = $this->videos;
-
-        foreach ($videos as $video){
-            $totalViews += $video->view_count;
-        }
-
-        return $totalViews;
+    public function getTotalViewsAttribute()
+    {
+        return $this->videos()->sum("view_count");
     }
 
-    public function getTotalLikesAttribute(){
-        $totalLikes = 0;
+    public function getTotalLikesAttribute()
+    {
+        $channelCacheManager = new ChannelCacheManager();
 
-        $videos = $this->videos;
+        $channel_likes = $channelCacheManager->getChannelMonthLikes($this->id);
 
-        foreach ($videos as $video){
-            $totalLikes += $video->likedBy()->count();
-        }
-
-        return $totalLikes;
+        return $channel_likes['likes']?? 0;
     }
 
-    public function getTotalDislikesAttribute(){
-        $totalDislikes = 0;
+    public function getTotalDislikesAttribute()
+    {
+        $channelCacheManager = new ChannelCacheManager();
 
-        $videos = $this->videos;
+        $channel_likes = $channelCacheManager->getChannelMonthLikes($this->id);
 
-        foreach ($videos as $video){
-            $totalDislikes += $video->dislikedBy()->count();
-        }
-
-        return $totalDislikes;
+        return $channel_likes['dislikes']?? 0;
     }
 
-    public function getTotalCommentsAttribute(){
-        $totalDislikes = 0;
+    public function getTotalCommentsAttribute()
+    {
+        $video_ids = $this->videos()->pluck('id');
 
-        $videos = $this->videos;
-
-        foreach ($videos as $video){
-            $totalDislikes += $video->comments()->count();
-        }
-
-        return $totalDislikes;
+        return Comment::whereIn('video_id', $video_ids)->count();
     }
-
-
 }
