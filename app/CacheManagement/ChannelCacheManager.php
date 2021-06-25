@@ -60,8 +60,15 @@ class ChannelCacheManager
 
     public function getChannelMonthLikes($channel_id)
     {
-        $channel_likes = cache()->get('channels_month_likes');
+        $channel_likes = cache()->get($this->channel_month_likes_key);
 
         return $channel_likes[$channel_id]?? null;
     }
+
+    public function getChannelsMonthLikes()
+    {
+        return cache()->get($this->channel_month_likes_key);
+    }
+
+
 }
