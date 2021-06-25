@@ -134,7 +134,8 @@ class Channel extends Model
         return $this->videos()->count();
     }
 
-    public function getTotalViewsAttribute(){
+    public function getTotalViewsAttribute()
+    {
         return $this->videos()->sum("view_count");
     }
 
@@ -156,22 +157,10 @@ class Channel extends Model
         return $channel_likes['dislikes']?? 0;
     }
 
-    public function getTotalCommentsAttribute(){
-
+    public function getTotalCommentsAttribute()
+    {
         $video_ids = $this->videos()->pluck('id');
-        //return $video_ids;
-        return UserVideo::whereIn('video_id', $video_ids)->where('relation', UserVideo::LIKED_RELATION)->count();
 
-        $totalDislikes = 0;
-
-        $videos = $this->videos;
-
-        foreach ($videos as $video){
-            $totalDislikes += $video->comments()->count();
-        }
-
-        return $totalDislikes;
+        return Comment::whereIn('video_id', $video_ids)->count();
     }
-
-
 }
