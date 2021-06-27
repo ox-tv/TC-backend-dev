@@ -81,7 +81,7 @@ class UserController extends Controller
 
         $users = $query->paginate();
 
-        return UserCollection::make($users);
+        return \App\Http\Resources\User\UserItem::collection($users);
     }
 
     /**
