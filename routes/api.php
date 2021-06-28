@@ -32,8 +32,7 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
 
 // categories
-Route::get('categories', '\App\Http\Controllers\CategoryController@index');
-Route::get('categories/{category}', '\App\Http\Controllers\CategoryController@show');
+Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['index','show']);
 
 // channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
@@ -195,9 +194,7 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-    Route::post('categories', '\App\Http\Controllers\CategoryController@store')->name('categories.store');
-    Route::put('categories/{category}', '\App\Http\Controllers\CategoryController@update')->name('categories.update');
-    Route::delete('categories/{category}', '\App\Http\Controllers\CategoryController@destroy')->name('categories.destroy');
+    Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
 
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
