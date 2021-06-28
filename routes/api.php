@@ -30,7 +30,9 @@ Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginCo
 // Home Page
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
-Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
+
+Route::get('categories', '\App\Http\Controllers\CategoryController@index');
+Route::get('categories/{category}', '\App\Http\Controllers\CategoryController@show');
 
 
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
@@ -159,6 +161,13 @@ Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->n
 // Become A Publisher
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
+// Login user roles
+Route::group(['middleware' => 'auth:api'], function(){
+
+
+});
+
+
 // Publisher api routes
 Route::group([
     'middleware' => 'auth.role',
@@ -185,6 +194,10 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::post('categories', '\App\Http\Controllers\CategoryController@store')->name('categories.store');
+    Route::put('categories/{category}', '\App\Http\Controllers\CategoryController@update')->name('categories.update');
+    Route::delete('categories/{category}', '\App\Http\Controllers\CategoryController@destroy')->name('categories.destroy');
+
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::post('users', '\App\Http\Controllers\UserController@store')->name('users.store');
