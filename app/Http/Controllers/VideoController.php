@@ -6,6 +6,7 @@ use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\CommentItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
@@ -209,7 +210,8 @@ class VideoController extends Controller
 
         $channel = $video->channels()->first();
         \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-            'video' => $video
+            'video' => VideoMinimalItem::make($video),
+            'channel' => ChannelMinimalItem::make($channel),
         ]));
 
         return new VideoItem($video);
