@@ -31,10 +31,11 @@ Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginCo
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
 
+// categories
 Route::get('categories', '\App\Http\Controllers\CategoryController@index');
 Route::get('categories/{category}', '\App\Http\Controllers\CategoryController@show');
 
-
+// channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
 
 
