@@ -44,6 +44,8 @@ class UserController extends Controller
 
         $filters = $request->get('filters', []);
 
+        $searchFilter = Arr::get($filters, 'search');
+
         $usernameFilter = Arr::get($filters, 'username');
 
         $emailFilter = Arr::get($filters, 'email');
@@ -51,6 +53,20 @@ class UserController extends Controller
         $isHeroFilter = Arr::get($filters, 'is_hero');
 
         $isPublisherFilter = Arr::get($filters, 'is_publisher');
+
+        if($searchFilter){
+            $query->where(function ($query) use ($searchFilter){
+                $query->where(function ($query) use ($searchFilter){
+                    $query->SearchUsername($searchFilter);
+                })->orWhere(function ($query) use ($searchFilter){
+                    $query->SearchEmail($searchFilter);
+                })->orWhere(function ($query) use ($searchFilter){
+                    $query->whereHas('channel', function($query) use ($searchFilter){
+                        $query->searchTitle($searchFilter);
+                    });
+                });
+            });
+        }
 
         if($usernameFilter){
             $query->SearchUsername($usernameFilter);
@@ -81,7 +97,7 @@ class UserController extends Controller
 
         $users = $query->paginate();
 
-        return UserCollection::make($users);
+        return \App\Http\Resources\User\UserItem::collection($users);
     }
 
     /**
