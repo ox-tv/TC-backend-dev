@@ -109,7 +109,7 @@ class MessageController extends Controller
                 break;
             case $user_group_text[Message::USER_GROUP_CUSTOM]:
             default:
-            $users = $request->get("user_ids", []);
+            $users = User::whereIn('id', $request->get("user_ids", []))->get();
         }
 
         $message_users = [];
