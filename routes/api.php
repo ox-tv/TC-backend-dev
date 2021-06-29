@@ -32,7 +32,7 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
 
 // categories
-Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['index','show']);
+Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
 
 // channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
