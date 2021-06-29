@@ -164,7 +164,7 @@ class VideoController extends Controller
         if($request->is('api/admin/videos')){
             $video->user_id = $request->get('user_id');
         }else{
-            $video->user_id = auth()->user()->id;
+            $video->user_id = auth('api')->user()->id;
         }
 
         // thumbnail
