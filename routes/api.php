@@ -30,9 +30,11 @@ Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginCo
 // Home Page
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
-Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
+// categories
+Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
 
+// channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
 
 
@@ -55,10 +57,7 @@ Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\Vi
 Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
-Route::middleware('auth:api')->apiResource('videos', \App\Http\Controllers\VideoController::class);
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
-Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
-Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
 // Video chapters
@@ -159,6 +158,13 @@ Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->n
 // Become A Publisher
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
+// Login user roles
+Route::group(['middleware' => 'auth:api'], function(){
+
+
+});
+
+
 // Publisher api routes
 Route::group([
     'middleware' => 'auth.role',
@@ -166,9 +172,13 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
-    Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
 
-    Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('.videos');
+    // videos
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('destroy');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('pinMessage');
+    Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
+
+    Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 
@@ -185,6 +195,8 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
+
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::post('users', '\App\Http\Controllers\UserController@store')->name('users.store');
