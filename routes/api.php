@@ -72,13 +72,8 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 
 
 // Comments API
-Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
-
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
 Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
-
-// Crypto Currencies API
-Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 
 // -- add a comment to a video
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
@@ -91,6 +86,10 @@ Route::middleware('auth:api')->put('comments/{comment}/dislike', '\App\Http\Cont
 Route::middleware('auth:api')->put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
 Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
 
+
+
+// Crypto Currencies API
+Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 
 
 // Playlist API
@@ -195,6 +194,8 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index','destroy']);
+
     Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
 
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
