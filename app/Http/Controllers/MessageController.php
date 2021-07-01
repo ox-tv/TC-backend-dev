@@ -119,7 +119,7 @@ class MessageController extends Controller
         $message->users()->attach($message_users);
 
         foreach ($users as $user){
-            $user->notify(new NewMessage('publisher',
+            $user->notify(new NewMessage('global',
                 [
                     'message' => MessageItem::make($message->load(['user', 'department'])),
                 ]
@@ -185,7 +185,7 @@ class MessageController extends Controller
 
         $user = User::findOrFail($message_user->user_id);
 
-        $user->notify(new ReplyMessage('publisher',
+        $user->notify(new ReplyMessage('global',
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
             ]
