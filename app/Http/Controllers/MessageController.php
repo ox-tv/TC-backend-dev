@@ -15,6 +15,7 @@ use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
 use App\Repository\MessageRepositoryInterface;
+use DB;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -164,7 +165,7 @@ class MessageController extends Controller
 
     private function reply_admin(Request $request, $reply_to)
     {
-        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->first();
+        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->firstOrFail();
 
         $message = new Message();
 
@@ -180,7 +181,8 @@ class MessageController extends Controller
             "message_id" => $parent_message->id
         ])->first();
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
+        $message_user->status = MessageUser::STATUS_REPLIED_BY_ADMIN;
+        $message_user->save();
 
 
         $user = User::findOrFail($message_user->user_id);
@@ -322,7 +324,8 @@ class MessageController extends Controller
             }
         }
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=> $status]);
+        $message_user->status = $status;
+        $message_user->save();
 
         return response()->json(["status" => "ok"]);
     }

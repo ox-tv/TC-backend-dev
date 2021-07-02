@@ -12,9 +12,6 @@ class MessageUser extends Model
     protected $table = 'message_user';
     public $timestamps = false;
 
-    protected $primaryKey = null;
-    public $incrementing = false;
-
     const STATUS_NEW_BY_ADMIN = 1;
     const STATUS_NEW_BY_USER = 6;
     const STATUS_SEEN = 2;
