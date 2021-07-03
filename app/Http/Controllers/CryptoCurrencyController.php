@@ -85,7 +85,15 @@ class CryptoCurrencyController extends Controller
 
     public function favorites()
     {
-        return auth('api')->user()->favoriteCryptoCurrencies()->paginate();
+        $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
+
+        $ratios = $this->GetRatios($data);
+
+        foreach($data as $crypto_currency){
+            $crypto_currency->ratio = $ratios[$crypto_currency->id];
+        }
+
+        return CryptoCurrencyItem::collection($data);
     }
 
     public function addToFavorites($crypto_currency_id)
