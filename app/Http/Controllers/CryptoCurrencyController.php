@@ -83,4 +83,36 @@ class CryptoCurrencyController extends Controller
         return $result;
     }
 
+    public function favorites()
+    {
+        return auth('api')->user()->favoriteCryptoCurrencies()->paginate();
+    }
+
+    public function addToFavorites($crypto_currency_id)
+    {
+        $exists = CryptoCurrency::where([
+            'id' => $crypto_currency_id,
+            'status' => CryptoCurrency::STATUS_LIST
+        ])->exists();
+
+        abort_unless($exists, 404, 'Not Found');
+
+        auth('api')->user()->favoriteCryptoCurrencies()->attach($crypto_currency_id);
+
+        return response()->json(['message' => 'ok']);
+    }
+
+    public function removeFromFavorites($crypto_currency_id)
+    {
+        $exists = CryptoCurrency::where([
+            'id' => $crypto_currency_id,
+            'status' => CryptoCurrency::STATUS_LIST
+        ])->exists();
+
+        abort_unless($exists, 404, 'Not Found');
+
+        auth('api')->user()->favoriteCryptoCurrencies()->detach($crypto_currency_id);
+
+        return response()->json(['message' => 'ok']);
+    }
 }
