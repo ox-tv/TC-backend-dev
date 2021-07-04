@@ -106,20 +106,10 @@ Route::middleware('auth:api')->put('playlist/add', '\App\Http\Controllers\Playli
 Route::middleware('auth:api')->put('playlist/remove', '\App\Http\Controllers\PlaylistController@bulkRemove');
 
 
-
 // Channel API
 Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
-Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);
-Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show');
-Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
-Route::get('channels', '\App\Http\Controllers\ChannelController@index');
+Route::apiResource('channels', \App\Http\Controllers\ChannelController::class)->only(['index']);
 Route::middleware('auth:api')->put('channels/{channel}/subscription', '\App\Http\Controllers\ChannelController@subscription');
-
-
-// -- add video to a channel
-Route::middleware('auth:api')->put('channels/{channel}/add/{video}', '\App\Http\Controllers\ChannelController@add');
-// -- remove video from channels
-Route::middleware('auth:api')->put('channels/{channel}/remove/{video}', '\App\Http\Controllers\ChannelController@remove');
 
 
 // User controller
@@ -171,6 +161,10 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
+
+    // channels
+    Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show');
+    Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
 
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
