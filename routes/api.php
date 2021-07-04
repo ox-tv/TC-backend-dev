@@ -76,7 +76,7 @@ Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show')
 Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
 
 // -- add a comment to a video
-Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
+Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@storeComment');
 // -- reply to a comment
 Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
 // -- like/dislike a comment

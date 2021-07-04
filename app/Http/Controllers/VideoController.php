@@ -391,7 +391,7 @@ class VideoController extends Controller
      * @param Video $video
      * @return void
      */
-    public function comment(VideoComment $request, Video $video){
+    public function storeComment(VideoComment $request, Video $video){
 
         $user = Auth::user();
 
