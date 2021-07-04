@@ -119,8 +119,6 @@ Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserContro
 Route::middleware('auth:api')->get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
 
-// Utils
-
 // -- upload
 Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadController@upload');
 
