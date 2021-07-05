@@ -23,8 +23,15 @@ class MessageItem extends JsonResource
         $withDepartment = $this->relationLoaded('department');
         $withReplies = $this->relationLoaded('replies');
 
+
         $user = ($withFrom)? UserMinimalItem::make($this->user) : null;
-        $users = ($withTo)? UserMinimalItem::collection($this->users) : null;
+
+        if($this->users()->where('id', $this->user->id)->exists()){
+            $users = [];
+        }else{
+            $users = ($withTo)? UserMinimalItem::collection($this->users) : null;
+        }
+
         $department = ($withDepartment)? DepartmentItem::make($this->department) : null;
         $replies = ($withReplies)? MessageItem::collection($this->replies()->with("user")->get()) : [];
 

@@ -15,6 +15,7 @@ use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
 use App\Repository\MessageRepositoryInterface;
+use DB;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -119,7 +120,7 @@ class MessageController extends Controller
         $message->users()->attach($message_users);
 
         foreach ($users as $user){
-            $user->notify(new NewMessage('publisher',
+            $user->notify(new NewMessage('global',
                 [
                     'message' => MessageItem::make($message->load(['user', 'department'])),
                 ]
@@ -164,7 +165,7 @@ class MessageController extends Controller
 
     private function reply_admin(Request $request, $reply_to)
     {
-        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->first();
+        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->firstOrFail();
 
         $message = new Message();
 
@@ -176,20 +177,15 @@ class MessageController extends Controller
 
         $message->save();
 
-        $message_user = MessageUser::where([
-            "message_id" => $parent_message->id
-        ])->first();
+        foreach ($parent_message->users as $user){
+            $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
-
-
-        $user = User::findOrFail($message_user->user_id);
-
-        $user->notify(new ReplyMessage('publisher',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
+            $user->notify(new ReplyMessage('global',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
@@ -322,7 +318,8 @@ class MessageController extends Controller
             }
         }
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=> $status]);
+        $message_user->status = $status;
+        $message_user->save();
 
         return response()->json(["status" => "ok"]);
     }
