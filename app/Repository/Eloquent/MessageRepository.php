@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Repository\MessageRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 class MessageRepository implements MessageRepositoryInterface
@@ -21,9 +22,10 @@ class MessageRepository implements MessageRepositoryInterface
             $message->{$key} = $value;
         }
 
-        $message->save();
-
-        $message->users()->attach([$related_user => ['status' => MessageUser::STATUS_NEW_BY_USER]]);
+        DB::transaction(function () use ($message, $related_user){
+            $message->save();
+            $message->users()->attach([$related_user => ['status' => MessageUser::STATUS_NEW_BY_USER]]);
+        });
 
         return $message;
     }
