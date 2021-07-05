@@ -91,6 +91,7 @@ class CryptoCurrencyController extends Controller
 
         foreach($data as $crypto_currency){
             $crypto_currency->ratio = $ratios[$crypto_currency->id];
+            $crypto_currency->is_favorite = true;
         }
 
         return CryptoCurrencyItem::collection($data);
