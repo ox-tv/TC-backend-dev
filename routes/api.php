@@ -169,8 +169,8 @@ Route::group([
     Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
 
     // videos
-    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('destroy');
-    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('pinMessage');
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
     Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
