@@ -161,12 +161,12 @@ Route::group([
 ], function(){
 
     // channels
-    Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show');
-    Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
+    Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
+    Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
 
     // videos
-    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
-    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin');
     Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
