@@ -75,6 +75,15 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
 Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
 
+
+
+// Crypto Currencies API
+Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
+Route::middleware('auth:api')->get('cryptocurrencies/favorites', '\App\Http\Controllers\CryptoCurrencyController@favorites');
+Route::middleware('auth:api')->put('cryptocurrencies/{cryptocurrency}/add-to-fav', '\App\Http\Controllers\CryptoCurrencyController@addToFavorites');
+Route::middleware('auth:api')->put('cryptocurrencies/{cryptocurrency}/remove-from-fav', '\App\Http\Controllers\CryptoCurrencyController@removeFromFavorites');
+
+
 // -- add a comment to a video
 Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@storeComment');
 // -- reply to a comment
@@ -85,11 +94,6 @@ Route::middleware('auth:api')->put('comments/{comment}/dislike', '\App\Http\Cont
 // -- pin/unpin a comment
 Route::middleware('auth:api')->put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
 Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
-
-
-
-// Crypto Currencies API
-Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 
 
 // Playlist API
@@ -165,8 +169,8 @@ Route::group([
     Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
 
     // videos
-    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy');
-    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage');
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('destroy');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('pinMessage');
     Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");

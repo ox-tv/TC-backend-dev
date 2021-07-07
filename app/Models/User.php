@@ -163,6 +163,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Video', "watch_times")->withTimestamps()->withPivot(["start_time","end_time"]);
     }
 
+    public function favoriteCryptoCurrencies(){
+        return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_user');
+    }
+
 
     // Attributes
     public function getIsHeroAttribute(){

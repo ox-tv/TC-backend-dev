@@ -36,6 +36,14 @@ class CryptoCurrencyItem extends JsonResource
             $image_small = "https://s2.coinmarketcap.com/static/img/coins/64x64/{$this->coinmarketcap_id}.png";
         }
 
+        $is_favorite = false;
+
+        if(is_null($this->is_favorite)
+            && auth('api')->check()
+            && auth('api')->user()->favoriteCryptoCurrencies()->where('crypto_currency_id', $this->id)->exists()){
+                $is_favorite = true;
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -45,7 +53,8 @@ class CryptoCurrencyItem extends JsonResource
             'thumbnails' => [
                 'small' => $image_small
             ],
-            'ratio' => $this->when(!empty($this->ratio), $this->ratio)
+            'ratio' => $this->when(!empty($this->ratio), $this->ratio),
+            'is_favorite' => $this->is_favorite?? $is_favorite
         ];
     }
 }
