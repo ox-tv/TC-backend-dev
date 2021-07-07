@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderByOrderASCScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class CryptoCurrency extends Model
@@ -17,7 +18,9 @@ class CryptoCurrency extends Model
 
     protected static function booted()
     {
-        static::addGlobalScope(new OrderByOrderASCScope());
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('order', 'ASC')->orderBy('id','ASC');
+        });
     }
 
     // Scopes
