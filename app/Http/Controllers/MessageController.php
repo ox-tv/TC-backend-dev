@@ -15,6 +15,7 @@ use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
 use App\Repository\MessageRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -92,11 +93,9 @@ class MessageController extends Controller
             $message->department_id = $department->id;
         }
 
-        $message->save();
-
         switch ($request->get("user_group")){
             case $user_group_text[Message::USER_GROUP_ALL]:
-                $users = User::get();
+                $users = User::all();
                 break;
             case $user_group_text[Message::USER_GROUP_PUBLISHER]:
                 $users = User::Publishers()->get();
@@ -109,17 +108,22 @@ class MessageController extends Controller
                 break;
             case $user_group_text[Message::USER_GROUP_CUSTOM]:
             default:
-            $users = $request->get("user_ids", []);
+                $users = User::whereIn('id', $request->get("user_ids", []))->get();
         }
 
         $message_users = [];
-        foreach ($users as $user)
+        foreach ($users as $user){
             $message_users[$user->id] = ['status' => MessageUser::STATUS_NEW_BY_ADMIN];
+        }
 
-        $message->users()->attach($message_users);
+        DB::transaction(function () use ($message, $message_users){
+            $message->save();
+            $message->users()->attach($message_users);
+        });
+
 
         foreach ($users as $user){
-            $user->notify(new NewMessage('publisher',
+            $user->notify(new NewMessage('global',
                 [
                     'message' => MessageItem::make($message->load(['user', 'department'])),
                 ]
@@ -164,7 +168,7 @@ class MessageController extends Controller
 
     private function reply_admin(Request $request, $reply_to)
     {
-        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->first();
+        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->firstOrFail();
 
         $message = new Message();
 
@@ -176,60 +180,47 @@ class MessageController extends Controller
 
         $message->save();
 
-        $message_user = MessageUser::where([
-            "message_id" => $parent_message->id
-        ])->first();
+        foreach ($parent_message->users as $user){
+            $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=>MessageUser::STATUS_REPLIED_BY_ADMIN]);
-
-
-        $user = User::findOrFail($message_user->user_id);
-
-        $user->notify(new ReplyMessage('publisher',
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ]
-        ));
+            $user->notify(new ReplyMessage('global',
+                [
+                    'message' => MessageItem::make($message->load(['user', 'department'])),
+                ]
+            ));
+        }
 
         return $message;
     }
 
     private function reply_user(Request $request, $reply_to)
     {
-        $parent_message = Message::find($reply_to);
+        $parent_message = Message::where('id', $reply_to)->whereNull('parent_id')->firstOrFail();
+        $user = auth("api")->user();
 
         $message = new Message();
 
         $message->subject = $parent_message->subject;
         $message->message = $request->get("message");
         $message->image = $request->get("image");
-        $message->user_id = auth("api")->id();
+        $message->user_id = $user->id;
 
         if ($parent_message->users()->count() > 1){
 
-            $new_message = $parent_message->replicate();
-            $new_message->save();
+            $old_parent = $parent_message;
+            $parent_message = $parent_message->replicate();
+            $parent_message->save();
 
-            $parent_id = $new_message->id;
+            $message->parent_id = $parent_message->id;
 
-            $message_user = MessageUser::where([
-                "user_id" => auth("api")->id(),
-                "message_id" => $parent_message->id
-            ])->first();
-            $message_user->message_id = $parent_id;
-
-        }else{
-            $parent_id = $parent_message->id;
-
-            $message_user = MessageUser::where([
-                "message_id" => $parent_message->id
-            ])->first();
+            $old_parent->users()->updateExistingPivot($user->id, [
+                "message_id" => $parent_message->id,
+            ]);
         }
 
-        $message_user->status = MessageUser::STATUS_REPLIED_BY_USER;
-        $message_user->save();
-
-        $message->parent_id = $parent_id;
+        $parent_message->users()->updateExistingPivot($user->id, [
+            "status" => MessageUser::STATUS_REPLIED_BY_USER,
+        ]);
 
         $message->save();
 
@@ -322,7 +313,8 @@ class MessageController extends Controller
             }
         }
 
-        $message->users()->updateExistingPivot($message_user->user_id, ["status"=> $status]);
+        $message_user->status = $status;
+        $message_user->save();
 
         return response()->json(["status" => "ok"]);
     }
