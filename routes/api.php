@@ -61,7 +61,8 @@ Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
 // Video chapters
-Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
+//Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
+Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');

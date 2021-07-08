@@ -11,13 +11,16 @@ use Illuminate\Http\Request;
 
 class ChapterController extends Controller
 {
-    public function index(Request $request, $video_id)
+    public function index(Request $request, $id_or_url_hash)
     {
-        $video = Video::whereId($video_id)->where(function ($query){
-            $query->where(function ($query){
-                $query->mine();
-            })->orWhere('status', Video::STATUS_PUBLISHED);
-        })->firstorFail();
+        $video = Video::where(function ($query) use ($id_or_url_hash){
+                $query->whereId($id_or_url_hash)->orWhere('url_hash', $id_or_url_hash);
+            })
+            ->where(function ($query){
+                $query->where(function ($query){
+                    $query->mine();
+                })->orWhere('status', Video::STATUS_PUBLISHED);
+            })->firstorFail();
 
         return ChapterItem::collection($video->chapters);
     }
