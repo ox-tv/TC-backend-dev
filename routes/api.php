@@ -61,7 +61,8 @@ Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
 // Video chapters
-Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
+//Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
+Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -72,10 +73,10 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 
 
 // Comments API
-Route::middleware('auth:api')->apiResource('comments', \App\Http\Controllers\CommentController::class);
-
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
 Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
+
+
 
 // Crypto Currencies API
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
@@ -85,7 +86,7 @@ Route::middleware('auth:api')->put('cryptocurrencies/{cryptocurrency}/remove-fro
 
 
 // -- add a comment to a video
-Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@comment');
+Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@storeComment');
 // -- reply to a comment
 Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
 // -- like/dislike a comment
@@ -94,7 +95,6 @@ Route::middleware('auth:api')->put('comments/{comment}/dislike', '\App\Http\Cont
 // -- pin/unpin a comment
 Route::middleware('auth:api')->put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
 Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
-
 
 
 // Playlist API
@@ -111,20 +111,10 @@ Route::middleware('auth:api')->put('playlist/add', '\App\Http\Controllers\Playli
 Route::middleware('auth:api')->put('playlist/remove', '\App\Http\Controllers\PlaylistController@bulkRemove');
 
 
-
 // Channel API
 Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
-Route::middleware('auth:api')->apiResource('channels', \App\Http\Controllers\ChannelController::class);
-Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show');
-Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update');
-Route::get('channels', '\App\Http\Controllers\ChannelController@index');
+Route::apiResource('channels', \App\Http\Controllers\ChannelController::class)->only(['index']);
 Route::middleware('auth:api')->put('channels/{channel}/subscription', '\App\Http\Controllers\ChannelController@subscription');
-
-
-// -- add video to a channel
-Route::middleware('auth:api')->put('channels/{channel}/add/{video}', '\App\Http\Controllers\ChannelController@add');
-// -- remove video from channels
-Route::middleware('auth:api')->put('channels/{channel}/remove/{video}', '\App\Http\Controllers\ChannelController@remove');
 
 
 // User controller
@@ -133,8 +123,6 @@ Route::middleware('auth:api')->get('profile', '\App\Http\Controllers\UserControl
 Route::middleware('auth:api')->post('profile', '\App\Http\Controllers\UserController@updateProfile');
 Route::middleware('auth:api')->get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
-
-// Utils
 
 // -- upload
 Route::middleware('auth:api')->post('upload', '\App\Http\Controllers\UploadController@upload');
@@ -177,9 +165,13 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    // channels
+    Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
+    Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
+
     // videos
-    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('destroy');
-    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('pinMessage');
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin');
     Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
 
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
@@ -189,6 +181,8 @@ Route::group([
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
+
+    Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 });
 
 
@@ -199,6 +193,8 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index','destroy']);
+
     Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
 
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');

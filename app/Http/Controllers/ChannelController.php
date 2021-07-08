@@ -203,7 +203,7 @@ class ChannelController extends Controller
         }
 
         if(!$request->is('api/admin/channels/*') && $channel->owner->id != auth('api')->id()){
-            return new ChannelItem($channel);
+            abort(403, 'You do not have permission to access');
         }
 
         $prev_status = $channel->status;
@@ -263,8 +263,7 @@ class ChannelController extends Controller
     }
 
     /**
-     * @param Channel $channel
-     * @param Video $video
+     * Removed from system
      */
     public function add(Channel $channel, Video $video){
 
@@ -278,8 +277,7 @@ class ChannelController extends Controller
     }
 
     /**
-     * @param Channel $channel
-     * @param Video $video
+     * Removed from system
      */
     public function remove(Channel $channel, Video $video){
 

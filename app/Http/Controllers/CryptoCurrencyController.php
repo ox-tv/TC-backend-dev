@@ -106,7 +106,7 @@ class CryptoCurrencyController extends Controller
 
         abort_unless($exists, 404, 'Not Found');
 
-        auth('api')->user()->favoriteCryptoCurrencies()->attach($crypto_currency_id);
+        auth('api')->user()->favoriteCryptoCurrencies()->syncWithoutDetaching($crypto_currency_id);
 
         return response()->json(['message' => 'ok']);
     }

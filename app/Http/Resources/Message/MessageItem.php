@@ -45,6 +45,7 @@ class MessageItem extends JsonResource
             'type' => $this->type,
             'status' => $this->status? MessageUser::STATUS_TEXT[$this->status]: null,
             'can_reply' => $this->can_reply,
+            'parent_id' => $this->parent_id,
             'user_group' => Message::USER_GROUP_TEXT[$this->user_group]?? null,
             'department' => $this->when($withDepartment, $department),
             'created_at' => $this->created_at,

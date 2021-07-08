@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageItem;
-use App\Http\Resources\User\UserMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
@@ -40,7 +39,7 @@ class MessageController extends Controller
             $query->mine();
         }
 
-        $messages = $query->with(['user', 'users', 'department'])->paginate();
+        $messages = $query->with(['user', 'user.channel', 'users', 'users.channel', 'department'])->paginate();
 
         return MessageItem::collection($messages);
     }
@@ -211,12 +210,12 @@ class MessageController extends Controller
             $parent_message = $parent_message->replicate();
             $parent_message->save();
 
-            $message->parent_id = $parent_message->id;
-
             $old_parent->users()->updateExistingPivot($user->id, [
                 "message_id" => $parent_message->id,
             ]);
         }
+
+        $message->parent_id = $parent_message->id;
 
         $parent_message->users()->updateExistingPivot($user->id, [
             "status" => MessageUser::STATUS_REPLIED_BY_USER,
