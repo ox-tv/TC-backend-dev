@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,6 +17,9 @@ class UserMinimalItem extends JsonResource
      */
     public function toArray($request)
     {
+        $withChannel = $this->relationLoaded('channel');
+        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
+
         return [
             'id' => $this->id,
             'username' => $this->username,
@@ -30,6 +34,7 @@ class UserMinimalItem extends JsonResource
             'role_id' => $this->role_id,
             'created_at' => $this->created_at,
             'watch_time' => $this->watch_time,
+            'channel' => $this->when($withChannel, $channel),
         ];
     }
 }
