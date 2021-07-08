@@ -7,6 +7,7 @@ use App\Http\Resources\CommentCollection;
 use App\Http\Resources\CommentItem;
 use App\Models\Comment;
 use App\Models\Option;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,15 @@ class CommentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Comment::whereNull('parent_id')->hasVideo();
+        $query = Comment::whereNull('parent_id');
+
+        if($request->is('api/publisher/comments')){
+            $query->whereHas('video', function (Builder $query) {
+                $query->where('user_id', auth('api')->id());
+            });
+        }else{
+            $query->hasVideo();
+        }
 
         $filters = $request->get('filters', []);
 
