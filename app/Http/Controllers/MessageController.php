@@ -211,12 +211,12 @@ class MessageController extends Controller
             $parent_message = $parent_message->replicate();
             $parent_message->save();
 
-            $message->parent_id = $parent_message->id;
-
             $old_parent->users()->updateExistingPivot($user->id, [
                 "message_id" => $parent_message->id,
             ]);
         }
+
+        $message->parent_id = $parent_message->id;
 
         $parent_message->users()->updateExistingPivot($user->id, [
             "status" => MessageUser::STATUS_REPLIED_BY_USER,
