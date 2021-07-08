@@ -180,6 +180,8 @@ Route::group([
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
+
+    Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 });
 
 
