@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Amir\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\User\UserItem;
 use App\Mail\PasswordResetMail;
 use App\Models\PasswordReset;
 use App\Models\User;
@@ -18,22 +20,33 @@ use Illuminate\Support\Facades\Redirect;
 class LoginController extends Controller
 {
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request, $scope = 'user')
     {
-        $attempt = Auth::attempt([
+        $credentials = [
             'email' => $request->get('email'),
             'password' => $request->get('password'),
             'status' => User::STATUS_ACTIVE
-        ]);
+        ];
+
+        if($scope == 'publisher'){
+            $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
+            $credentials['role_id'] = $publisherRoleId;
+        }
+
+        if($scope == 'admin'){
+            $publisherRoleId = Role::firstOrCreate(['name' => User::ADMIN_ROLE])->id;
+            $credentials['role_id'] = $publisherRoleId;
+        }
+
+        $attempt = Auth::attempt($credentials);
 
         if($attempt){
 
             $user = Auth::user();
 
-            $result['profile'] = $user;
+            $result['profile'] = UserItem::make($user->load('role'));
             $result['token'] =  $user->createToken('access_token')->accessToken;
             return response()->json($result, '200');
-
         }
         else{
             return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);

@@ -219,7 +219,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        return response()->json(new UserItem($user));
+        return response()->json(new UserItem($user->load('role')));
 
     }
 
