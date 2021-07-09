@@ -57,7 +57,8 @@ class VideoController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
-        $cryptoCurrencySlug = Arr::get($filters, 'crypto_currency_slug');
+        $cryptoCurrencyId = Arr::get($filters, 'cryptoCurrency_id');
+        $cryptoCurrencySlug = Arr::get($filters, 'cryptoCurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
         $channelId = Arr::get($filters, 'channel');
 
