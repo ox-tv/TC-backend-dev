@@ -89,7 +89,7 @@ class VideoController extends Controller
             $query->filterCategory($categoryId);
         }
 
-        if($cryptoCurrencyId){
+        if(!empty($cryptoCurrencyId)){
             $query->filterCryptoCurrency($cryptoCurrencyId);
         }
 
