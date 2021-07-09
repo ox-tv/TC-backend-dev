@@ -15,6 +15,7 @@ use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\CryptoCurrency;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
@@ -56,12 +57,18 @@ class VideoController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
+        $cryptoCurrencySlug = Arr::get($filters, 'crypto_currency_slug');
         $playlistId = Arr::get($filters, 'playlist');
         $channelId = Arr::get($filters, 'channel');
 
         if($categorySlug){
-            $category = Category::where('slug', $categorySlug)->first();
-            $categoryId = is_null($category) ? null : $category->id;
+            $category = Category::where('slug', $categorySlug)->firstOrFail();
+            $categoryId = $category->id;
+        }
+
+        if($cryptoCurrencySlug){
+            $cryptoCurrency = CryptoCurrency::where('slug', $cryptoCurrencySlug)->firstOrFail();
+            $cryptoCurrencyId = $cryptoCurrency->id;
         }
 
         if($timeFilter == 'week'){
@@ -80,6 +87,10 @@ class VideoController extends Controller
 
         if($categoryId){
             $query->filterCategory($categoryId);
+        }
+
+        if($cryptoCurrencyId){
+            $query->filterCryptoCurrency($cryptoCurrencyId);
         }
 
         if($playlistId){
@@ -123,6 +134,12 @@ class VideoController extends Controller
         if($categorySlug){
             $result->additional([
                 'category' => $categorySlug == "all" ? "All" : $category->name
+            ]);
+        }
+
+        if($cryptoCurrencySlug){
+            $result->additional([
+                'cryptoCurrency' => $cryptoCurrency
             ]);
         }
 
