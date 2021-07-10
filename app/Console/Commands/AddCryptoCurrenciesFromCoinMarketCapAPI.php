@@ -52,23 +52,36 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
                 break;
             }
 
+            $info = [];
+
+            foreach (array_chunk(array_column($response['data'], 'slug'), 100) as $slugs){
+                $infoResponse = $client->GetInfo(implode(',', $slugs));
+
+                if(empty($infoResponse)){
+                    continue;
+                }
+
+                $info = array_merge($info, $infoResponse);
+            }
+
             $data = [];
             foreach ($response['data'] as $order => $value){
                 $data[] = [
+                    'status' => CryptoCurrency::STATUS_LIST,
                     'symbol' => $value['symbol'],
                     'name' => $value['name'],
                     'slug' => $value['slug'],
                     'coinmarketcap_id' => $value['id'],
+                    'metadata' => json_encode($info[$value['slug']]?? null),
                     'order' => $start + $order,
                 ];
 
                 $available_coins[] = $value['id'];
             }
 
-            CryptoCurrency::upsert($data, ['coinmarketcap_id'], ['name', 'symbol', 'slug', 'order']);
+            CryptoCurrency::upsert($data, ['coinmarketcap_id'], ['name', 'symbol', 'slug', 'order', 'metadata', 'status']);
 
             $start += $limit;
-
         } while(1);
 
         CryptoCurrency::whereNotIn('coinmarketcap_id', $available_coins)->update([
