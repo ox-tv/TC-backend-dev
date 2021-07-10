@@ -58,6 +58,45 @@ class CoinMarketCapClient
         return null;
     }
 
+    /*
+     * Can pass multi symbols separated by comma
+     * */
+    public function GetInfo($slugs)
+    {
+        try {
+            $response = Http::withOptions([
+                'verify' => false,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'X-CMC_PRO_API_KEY' => $this->api_key,
+                ]
+            ])->get("{$this->base_url}/v1/cryptocurrency/info",[
+                "slug" => $slugs,
+            ]);
+
+            if(!$response->successful()){
+                throw new Exception($response->status());
+            }
+
+            $body = $response->json();
+
+            $result = [];
+
+            if (!empty($body['data'])){
+                foreach ($body['data'] as $id => $value){
+                    $result[$value['slug']] = $value;
+                }
+            }
+
+            return $result;
+
+        }catch(Exception $e){
+            Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+        }
+
+        return null;
+    }
+
     public function GetCryptoCurrencies($start = 1, $limit = 1000)
     {
         try {
