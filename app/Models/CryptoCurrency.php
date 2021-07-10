@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class CryptoCurrency extends Model
 {
+    protected $casts = [
+        'metadata' => 'array',
+    ];
+
     const STATUS_LIST = 1;
     const STATUS_DELIST = 2;
 

@@ -143,6 +143,13 @@ class Video extends Model
         return $query;
     }
 
+    public function scopeFilterCryptoCurrency($query, $cryptoCurrencyId){
+        $query->whereHas('crypto_currencies', function($q) use ($cryptoCurrencyId){
+            $q->where('crypto_currencies.id', $cryptoCurrencyId);
+        });
+        return $query;
+    }
+
     // playlist scope
     public function scopeInPlaylist($query, $playlistId){
         $query->whereHas('playlists', function($q) use ($playlistId){

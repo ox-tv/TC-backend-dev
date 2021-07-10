@@ -54,7 +54,8 @@ class CryptoCurrencyItem extends JsonResource
                 'small' => $image_small
             ],
             'ratio' => $this->when(!empty($this->ratio), $this->ratio),
-            'is_favorite' => $this->is_favorite?? $is_favorite
+            'is_favorite' => $this->is_favorite?? $is_favorite,
+            'metadata' => $this->metadata,
         ];
     }
 }

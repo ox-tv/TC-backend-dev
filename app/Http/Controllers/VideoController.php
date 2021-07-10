@@ -8,6 +8,7 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\CommentItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoItem;
@@ -15,6 +16,7 @@ use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\CryptoCurrency;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
@@ -56,12 +58,19 @@ class VideoController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
+        $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
+        $cryptoCurrencySlug = Arr::get($filters, 'cryptocurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
         $channelId = Arr::get($filters, 'channel');
 
         if($categorySlug){
-            $category = Category::where('slug', $categorySlug)->first();
-            $categoryId = is_null($category) ? null : $category->id;
+            $category = Category::where('slug', $categorySlug)->firstOrFail();
+            $categoryId = $category->id;
+        }
+
+        if($cryptoCurrencySlug){
+            $cryptoCurrency = CryptoCurrency::where('slug', $cryptoCurrencySlug)->firstOrFail();
+            $cryptoCurrencyId = $cryptoCurrency->id;
         }
 
         if($timeFilter == 'week'){
@@ -80,6 +89,10 @@ class VideoController extends Controller
 
         if($categoryId){
             $query->filterCategory($categoryId);
+        }
+
+        if(!empty($cryptoCurrencyId)){
+            $query->filterCryptoCurrency($cryptoCurrencyId);
         }
 
         if($playlistId){
@@ -123,6 +136,12 @@ class VideoController extends Controller
         if($categorySlug){
             $result->additional([
                 'category' => $categorySlug == "all" ? "All" : $category->name
+            ]);
+        }
+
+        if($cryptoCurrencySlug){
+            $result->additional([
+                'cryptocurrency' => CryptoCurrencyItem::make($cryptoCurrency)
             ]);
         }
 
