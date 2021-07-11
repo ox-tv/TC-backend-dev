@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentMethodPlanTable extends Migration
+class CreatePricingTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,10 @@ class CreatePaymentMethodPlanTable extends Migration
      */
     public function up()
     {
-        Schema::create('payment_method_plan', function (Blueprint $table) {
+        Schema::create('pricing', function (Blueprint $table) {
+
+            $table->id();
+
             $table->unsignedBigInteger('plan_id');
             $table->unsignedBigInteger('payment_method_id');
 
@@ -29,7 +32,7 @@ class CreatePaymentMethodPlanTable extends Migration
             $table->decimal("amount", 16,8);
             $table->string("external_id");
 
-            $table->primary(['plan_id', 'payment_method_id', 'currency']);
+            $table->timestamps();
         });
     }
 

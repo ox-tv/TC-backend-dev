@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PlanStore;
 use App\Http\Requests\PlanUpdate;
 use App\Models\Plan;
+use App\Models\Pricing;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,13 +35,16 @@ class PlanController extends Controller
 
             $plan->save();
 
-            if($request->get('rates')){
-                foreach ($request->get('rates') as $rate){
-                    $plan->paymentMethods()->attach($rate['payment_method_id'], [
-                        'external_id' => $rate['external_id'],
-                        'amount' => $rate['amount'],
-                        'currency' => $rate['currency'],
-                    ]);
+            if($request->get('pricing')){
+                foreach ($request->get('pricing') as $p){
+                    $pricing = new Pricing();
+                    $pricing->plan_id = $plan->id;
+                    $pricing->payment_method_id = $p['payment_method_id'];
+                    $pricing->external_id = $p['external_id'];
+                    $pricing->amount = $p['amount'];
+                    $pricing->currency = $p['currency'];
+
+                    $pricing->save();
                 }
             }
         });
@@ -60,17 +65,33 @@ class PlanController extends Controller
         DB::transaction(function () use ($plan, $request){
 
             $plan->save();
-            $plan->paymentMethods()->detach();
 
-            if($request->get('rates')){
-                foreach ($request->get('rates') as $rate){
-                    $plan->paymentMethods()->attach($rate['payment_method_id'], [
-                        'external_id' => $rate['external_id'],
-                        'amount' => $rate['amount'],
-                        'currency' => $rate['currency'],
-                    ]);
+            if($request->get('pricing')){
+
+                $existingIds = [];
+
+                foreach ($request->get('pricing') as $p){
+
+                    if(!empty($p['id'])){
+                        $pricing = Pricing::find($p['id']);
+                    }else{
+                        $pricing = new Pricing();
+                        $pricing->plan_id = $plan->id;
+                    }
+
+                    $pricing->payment_method_id = $p['payment_method_id'];
+                    $pricing->external_id = $p['external_id'];
+                    $pricing->amount = $p['amount'];
+                    $pricing->currency = $p['currency'];
+
+                    $pricing->save();
+
+                    $existingIds[] = $pricing->id;
                 }
+
+                Pricing::whereNotIn('id', $existingIds)->delete();
             }
+
         });
 
         return response()->json(['message' => 'ok']);
@@ -78,7 +99,7 @@ class PlanController extends Controller
 
     public function destroy(Plan $plan)
     {
-        $plan->paymentMethods()->detach();
+        Pricing::where('plan_id', $plan->id)->delete();
         $plan->delete();
 
         return response()->json(['message' => 'ok']);

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Plan;
+use App\Models\Pricing;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
@@ -33,10 +34,11 @@ class PlanUpdate extends FormRequest
             'status' => ['required', Rule::in(Plan::STATUS_TEXT)],
             'description' => ['nullable'],
             'thumbnail' => ['nullable'],
-            'rates.*.payment_method_id' => ['required', Rule::exists('payment_methods', 'id')],
-            'rates.*.external_id' => ['required'],
-            'rates.*.amount' => ['required', 'numeric', 'gte:0'],
-            'rates.*.currency' => ['required'],
+            'pricing.*.id' => ['nullable', Rule::exists('pricing', 'id')],
+            'pricing.*.payment_method_id' => ['required', Rule::exists('payment_methods', 'id')],
+            'pricing.*.external_id' => ['required'],
+            'pricing.*.amount' => ['required', 'numeric', 'gte:0'],
+            'pricing.*.currency' => ['required'],
         ];
     }
 
@@ -44,14 +46,14 @@ class PlanUpdate extends FormRequest
     {
         $validator->after(function ($validator) {
 
-            if(request()->get('rates')){
+            if(request()->get('pricing')){
 
                 // check incoming values
                 $fetched_values = [];
-                foreach (request()->get('rates') as $rate){
-                    $value = "{$rate['payment_method_id']}_{$rate['currency']}";
+                foreach (request()->get('pricing') as $pricing){
+                    $value = "{$pricing['payment_method_id']}_{$pricing['currency']}";
                     if(in_array($value, $fetched_values)){
-                        $validator->errors()->add('rates', 'rates.validation.duplicate_item');
+                        $validator->errors()->add('pricing', 'pricing.validation.duplicate_item');
                         break;
                     }
 
@@ -61,17 +63,16 @@ class PlanUpdate extends FormRequest
                 // check database
                 $plan = $this->route('plan');
 
-                foreach (request()->get('rates') as $rate){
+                foreach (request()->get('pricing') as $pricing){
 
-                    $exists = DB::table('payment_method_plan')
-                        ->where('plan_id', '!=', $plan->id)
+                    $exists = Pricing::where('plan_id', '!=', $plan->id)
                         ->where([
-                            'payment_method_id' => $rate['payment_method_id'],
-                            'currency' => $rate['currency'],
+                            'payment_method_id' => $pricing['payment_method_id'],
+                            'currency' => $pricing['currency'],
                         ])->exists();
 
                     if($exists){
-                        $validator->errors()->add('rates', 'rates.validation.duplicate_item');
+                        $validator->errors()->add('pricing', 'pricing.validation.duplicate_item');
                         break;
                     }
                 }

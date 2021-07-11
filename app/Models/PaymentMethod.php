@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PaymentMethod extends Model
 {
-    public function plans(){
-        return $this->belongsToMany('App\Models\Plan');
+
+    public function pricing(){
+        return $this->hasMany(Pricing::class);
     }
 }

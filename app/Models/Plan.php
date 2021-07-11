@@ -20,7 +20,7 @@ class Plan extends Model
         return $query;
     }
 
-    public function paymentMethods(){
-        return $this->belongsToMany('App\Models\PaymentMethod');
+    public function pricing(){
+        return $this->hasMany(Pricing::class);
     }
 }

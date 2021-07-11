@@ -32,10 +32,10 @@ class PlanStore extends FormRequest
             'status' => ['required', Rule::in(Plan::STATUS_TEXT)],
             'description' => ['nullable'],
             'thumbnail' => ['nullable'],
-            'rates.*.payment_method_id' => ['required', Rule::exists('payment_methods', 'id')],
-            'rates.*.external_id' => ['required'],
-            'rates.*.amount' => ['required', 'numeric', 'gte:0'],
-            'rates.*.currency' => ['required'],
+            'pricing.*.payment_method_id' => ['required', Rule::exists('payment_methods', 'id')],
+            'pricing.*.external_id' => ['required'],
+            'pricing.*.amount' => ['required', 'numeric', 'gte:0'],
+            'pricing.*.currency' => ['required'],
         ];
     }
 
@@ -43,12 +43,12 @@ class PlanStore extends FormRequest
     {
         $validator->after(function ($validator) {
 
-            if(request()->get('rates')){
+            if(request()->get('pricing')){
                 $fetched_values = [];
-                foreach (request()->get('rates') as $rate){
-                    $value = "{$rate['payment_method_id']}_{$rate['currency']}";
+                foreach (request()->get('pricing') as $pricing){
+                    $value = "{$pricing['payment_method_id']}_{$pricing['currency']}";
                     if(in_array($value, $fetched_values)){
-                        $validator->errors()->add('rates', 'rates.validation.duplicate_item');
+                        $validator->errors()->add('pricing', 'pricing.validation.duplicate_item');
                         break;
                     }
 
