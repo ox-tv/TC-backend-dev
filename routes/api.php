@@ -150,6 +150,10 @@ Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->n
 // Become A Publisher
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
+// hero membership
+Route::apiResource('hero-membership/plans', '\App\Http\Controllers\MembershipController@plans');
+
+
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
 
@@ -250,4 +254,8 @@ Route::group([
     Route::get('notifications/sent-by-admin', '\App\Http\Controllers\NotificationController@index_sent_by_admin')->name('notifications.sent_by_admin');
     Route::post('notifications/{scope}', '\App\Http\Controllers\NotificationController@store')
         ->where('scope', 'publisher|user')->name('notifications.store');
+
+
+    Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
+    Route::apiResource('plans', '\App\Http\Controllers\PlanController');
 });
