@@ -151,12 +151,11 @@ Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->n
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
 // hero membership
-Route::apiResource('hero-membership/plans', '\App\Http\Controllers\MembershipController@plans');
-
+Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['index']);
 
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
-
+    Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
 
 });
 
