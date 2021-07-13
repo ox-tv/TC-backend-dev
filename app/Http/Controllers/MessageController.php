@@ -216,6 +216,10 @@ class MessageController extends Controller
         }
 
         $message->parent_id = $parent_message->id;
+        $message->department_id = $parent_message->department_id;
+        $message->can_reply = $parent_message->can_reply;
+        $message->type = $parent_message->type;
+        $message->user_group = $parent_message->user_group;
 
         $parent_message->users()->updateExistingPivot($user->id, [
             "status" => MessageUser::STATUS_REPLIED_BY_USER,
