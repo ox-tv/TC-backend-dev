@@ -16,4 +16,8 @@ class Pricing extends Model
     {
         return $this->belongsTo(Plan::class);
     }
+
+    public function user(){
+        return $this->belongsToMany('App\Models\User')->withTimestamps();
+    }
 }

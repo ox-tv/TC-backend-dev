@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PlanStore;
 use App\Http\Requests\PlanUpdate;
+use App\Http\Resources\Plan\PlanItem;
 use App\Models\Plan;
 use App\Models\Pricing;
 use Illuminate\Database\Eloquent\Model;
@@ -12,11 +13,17 @@ use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $plans = Plan::all();
+        $query = Plan::with(['pricing','pricing.paymentMethod']);
 
-        return $plans;
+        if($request->is('api/plans')){
+            $query->where('status', Plan::STATUS_ACTIVE);
+        }
+
+        $plans = $query->get();
+
+        return PlanItem::collection($plans);
     }
 
     public function store(PlanStore $request)
