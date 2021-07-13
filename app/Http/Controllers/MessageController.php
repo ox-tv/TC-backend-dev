@@ -176,6 +176,10 @@ class MessageController extends Controller
         $message->image = $request->get("image");
         $message->user_id = auth("api")->id();
         $message->parent_id = $parent_message->id;
+        $message->department_id = $parent_message->department_id;
+        $message->can_reply = $parent_message->can_reply;
+        $message->type = $parent_message->type;
+        $message->user_group = $parent_message->user_group;
 
         $message->save();
 
