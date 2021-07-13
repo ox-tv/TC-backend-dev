@@ -167,6 +167,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_user');
     }
 
+    public function pricing(){
+        return $this->belongsToMany('App\Models\Pricing')->withTimestamps();
+    }
+
 
     // Attributes
     public function getIsHeroAttribute(){
