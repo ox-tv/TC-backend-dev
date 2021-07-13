@@ -137,6 +137,7 @@ class ReportController extends Controller
                     $admin->notify(new ReportVideo('admin',
                         [
                             $model_name => VideoMinimalItem::make($model),
+                            'report' => $report,
                             'report_count' => 1
                         ]
                     ));
@@ -144,6 +145,7 @@ class ReportController extends Controller
                     $admin->notify(new ReportComment('admin',
                         [
                             $model_name => CommentItem::make($model),
+                            'report' => $report,
                             'report_count' => 1
                         ]
                     ));
