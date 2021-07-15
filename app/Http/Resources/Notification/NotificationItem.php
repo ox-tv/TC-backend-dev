@@ -2,10 +2,21 @@
 
 namespace App\Http\Resources\Notification;
 
+use App\Http\Resources\Category\CategoryMinimalItem;
+use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\Department\DepartmentItem;
+use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\User\UserMinimalItem;
+use App\Http\Resources\Video\VideoMinimalItem;
+use App\Models\Category;
+use App\Models\Channel;
+use App\Models\Comment;
 use App\Models\Message;
 use App\Models\MessageUser;
+use App\Models\Report;
+use App\Models\User;
+use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class NotificationItem extends JsonResource
@@ -18,19 +29,40 @@ class NotificationItem extends JsonResource
      */
     public function toArray($request)
     {
-        $withUser = $this->relationLoaded('notifiable');
+        $withEntity = $this->relationLoaded('entity');
+        $withUsers = $this->relationLoaded('users');
+        $withFrom = $this->relationLoaded('from');
 
-        $user = ($withUser)? UserMinimalItem::make($this->notifiable) : null;
+        if ($this->entity_type == User::class){
+            $entity = ($withEntity)? UserMinimalItem::make($this->entity) : null;
+        }elseif ($this->entity_type == Video::class){
+            $entity = ($withEntity)? VideoMinimalItem::make($this->entity) : null;
+        }elseif ($this->entity_type == Channel::class){
+            $entity = ($withEntity)? ChannelMinimalItem::make($this->entity) : null;
+        }elseif ($this->entity_type == Category::class){
+            $entity = ($withEntity)? CategoryMinimalItem::make($this->entity) : null;
+        }elseif ($this->entity_type == Comment::class){
+            $entity = ($withEntity)? CommentItem::make($this->entity) : null;
+        }elseif ($this->entity_type == Report::class){
+            $entity = ($withEntity)? ReportMinimalItem::make($this->entity) : null;
+        }else{
+            $entity = ($withEntity)? $this->entity : null;
+        }
+
+        $users = ($withUsers)? UserMinimalItem::collection($this->users) : null;
+        $from = ($withFrom)? UserMinimalItem::make($this->from) : null;
 
         return [
             'id' => $this->id,
-            'type' => $this->data['type']?? null,
-            'payload' => @$this->data['payload']?? null,
-            'scope' => @$this->data['scope']?? null,
-            'from' => @$this->data['from']?? null,
+            'type' => $this->type,
+            'payload' => $this->payload,
+            'scope' => $this->scope,
+            'from_id' => $this->sender_id,
+            'from' => $this->when($withFrom, $from),
             'created_at' => $this->created_at,
-            'read_at' => $this->read_at,
-            'user' => $this->when($withUser, $user),
+            'read_at' => $this->pivot->read_at,
+            'entity' => $this->when($withEntity, $entity),
+            'users' => $this->when($withUsers, $users),
         ];
     }
 }

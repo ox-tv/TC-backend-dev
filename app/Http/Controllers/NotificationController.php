@@ -23,9 +23,9 @@ class NotificationController extends Controller
         }
 
         $notifications = $user->notifications()->where(function ($query) use ($scope){
-            $query->where('data->scope', $scope)
-                ->orWhere('data->scope', 'global');
-        })->with(['notifiable'])->paginate();
+            $query->where('scope', $scope)
+                ->orWhere('scope', 'global');
+        })->with(['users','entity', 'from'])->paginate();
 
         return NotificationItem::collection($notifications);
     }

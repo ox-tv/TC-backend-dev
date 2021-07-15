@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\DatabaseNotification;
 
-class Notification extends DatabaseNotification
+class Notification extends Model
 {
 
     // user group field values
@@ -22,5 +23,13 @@ class Notification extends DatabaseNotification
 
     public function users(){
         return $this->belongsToMany('App\Models\User')->withPivot(["read_at"]);
+    }
+
+    public function from(){
+        return $this->belongsTo('App\Models\User', 'sender_id');
+    }
+
+    public function entity(){
+        return $this->morphTo();
     }
 }
