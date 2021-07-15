@@ -35,6 +35,8 @@ class ChannelController extends Controller
      */
     public function index(Request $request)
     {
+        $per_page = $request->get('per_page') ?: 15;
+
         if($request->is('api/admin/channels')){
             $query = Channel::query();
         }else{
@@ -62,7 +64,7 @@ class ChannelController extends Controller
             $query->orderBy('points', 'desc');
         }
 
-        $channels = $query->paginate();
+        $channels = $query->paginate($per_page);
 
         return new ChannelSummaryCollection($channels);
 
