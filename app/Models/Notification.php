@@ -19,4 +19,8 @@ class Notification extends DatabaseNotification
         self::USER_GROUP_HERO => 'hero',
         self::USER_GROUP_NON_HERO => 'non-hero',
     ];
+
+    public function users(){
+        return $this->belongsToMany('App\Models\User')->withPivot(["read_at"]);
+    }
 }
