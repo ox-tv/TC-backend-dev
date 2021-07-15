@@ -227,11 +227,13 @@ class VideoController extends Controller
             $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
         }
 
-        $channel = $video->channels()->first();
-        \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-            'video' => VideoMinimalItem::make($video),
-            'channel' => ChannelMinimalItem::make($channel),
-        ]));
+        if ($video->status == Video::STATUS_PUBLISHED){
+            $channel = $video->channels()->first();
+            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
+                'video' => VideoMinimalItem::make($video),
+                'channel' => ChannelMinimalItem::make($channel),
+            ]));
+        }
 
         return new VideoItem($video);
 
@@ -272,6 +274,8 @@ class VideoController extends Controller
      */
     public function update(VideoUpdate $request, Video $video)
     {
+        $oldStatus = $video->status;
+
         // updating title
         if($request->get('title')){
             $video->title = $request->get('title');
@@ -349,6 +353,15 @@ class VideoController extends Controller
             $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
         }
 
+
+        if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
+            $channel = $video->channels()->first();
+            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
+                'video' => VideoMinimalItem::make($video),
+                'channel' => ChannelMinimalItem::make($channel),
+            ]));
+        }
+
         return new VideoItem($video);
     }
 
@@ -402,7 +415,9 @@ class VideoController extends Controller
 
     public function bookmarks()
     {
-        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos);
+        $per_page = request()->get('per_page') ?: 15;
+
+        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($per_page));
     }
 
     /**

@@ -259,7 +259,9 @@ class UserController extends Controller
 
     public function subscribedChannels()
     {
-        return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels);
+        $per_page = request()->get('per_page') ?: 15;
+
+        return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
     }
 
 }

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Repository\Eloquent\MessageRepository;
+use App\Repository\Eloquent\PricingRepository;
 use App\Repository\MessageRepositoryInterface;
+use App\Repository\PricingRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -16,6 +18,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(MessageRepositoryInterface::class, MessageRepository::class);
+        $this->app->bind(PricingRepositoryInterface::class, PricingRepository::class);
     }
 
     /**
