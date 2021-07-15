@@ -415,7 +415,9 @@ class VideoController extends Controller
 
     public function bookmarks()
     {
-        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos);
+        $per_page = request()->get('per_page') ?: 15;
+
+        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($per_page));
     }
 
     /**
