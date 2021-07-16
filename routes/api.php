@@ -152,6 +152,7 @@ Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\Me
 
 // hero membership
 Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['index']);
+Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
 
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
