@@ -30,6 +30,7 @@ class PlanStore extends FormRequest
             'name' => ['required'],
             'interval' => ['required', 'numeric', 'gt:0'],
             'status' => ['required', Rule::in(Plan::STATUS_TEXT)],
+            'is_popular' => ['nullable', 'boolean'],
             'description' => ['nullable'],
             'thumbnail' => ['nullable'],
             'pricing.*.payment_method_id' => ['required', Rule::exists('payment_methods', 'id')],
