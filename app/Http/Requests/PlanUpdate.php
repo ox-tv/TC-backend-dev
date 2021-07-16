@@ -32,6 +32,7 @@ class PlanUpdate extends FormRequest
             'name' => ['required'],
             'interval' => ['required', 'numeric', 'gt:0'],
             'status' => ['required', Rule::in(Plan::STATUS_TEXT)],
+            'is_popular' => ['nullable', 'boolean'],
             'description' => ['nullable'],
             'thumbnail' => ['nullable'],
             'pricing.*.id' => ['nullable', Rule::exists('pricing', 'id')],
@@ -61,7 +62,7 @@ class PlanUpdate extends FormRequest
                 }
 
                 // check database
-                $plan = $this->route('plan');
+                /*$plan = $this->route('plan');
 
                 foreach (request()->get('pricing') as $pricing){
 
@@ -75,7 +76,7 @@ class PlanUpdate extends FormRequest
                         $validator->errors()->add('pricing', 'pricing.validation.duplicate_item');
                         break;
                     }
-                }
+                }*/
             }
         });
     }

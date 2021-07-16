@@ -23,7 +23,7 @@ class PlanController extends Controller
             $query->where('status', Plan::STATUS_ACTIVE);
         }
 
-
+        // filters
         $filters = $request->get('filters', []);
 
         $paymentMethodFilter = Arr::get($filters, 'payment_method_id');
@@ -47,6 +47,7 @@ class PlanController extends Controller
         $plan->description = $request->get('description');
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
+        $plan->is_popular = $request->get('is_popular');
         $plan->thumbnail = $request->get('thumbnail');
 
 
@@ -78,6 +79,7 @@ class PlanController extends Controller
         $plan->description = $request->get('description');
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
+        $plan->is_popular = $request->get('is_popular');
         $plan->thumbnail = $request->get('thumbnail');
 
 
@@ -109,7 +111,7 @@ class PlanController extends Controller
                     $existingIds[] = $pricing->id;
                 }
 
-                Pricing::whereNotIn('id', $existingIds)->delete();
+                Pricing::where('plan_id', $plan->id)->whereNotIn('id', $existingIds)->delete();
             }
 
         });
