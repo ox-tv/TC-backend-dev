@@ -14,25 +14,25 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $scope = 'user';
+        $scope = Notification::SCOPE_USER;
 
         if ($request->is('api/admin/notifications')){
-            $scope = 'admin';
+            $scope = Notification::SCOPE_ADMIN;
         }elseif ($request->is('api/publisher/notifications')){
-            $scope = 'publisher';
+            $scope = Notification::SCOPE_PUBLISHER;
         }
 
         $notifications = $user->notifications()->where(function ($query) use ($scope){
             $query->where('scope', $scope)
-                ->orWhere('scope', 'global');
-        })->with(['users','entity', 'from'])->paginate();
+                ->orWhere('scope', Notification::SCOPE_GLOBAL);
+        })->with(['entity'])->paginate();
 
         return NotificationItem::collection($notifications);
     }
 
     public function index_sent_by_admin(Request $request)
     {
-        $notifications = Notification::whereNotNull('data->from')->orderBy('created_at', 'DESC')->with(['notifiable'])->paginate();
+        $notifications = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with(['from','entity'])->paginate();
 
         return NotificationItem::collection($notifications);
     }
@@ -41,7 +41,11 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+        if ($user->unreadNotifications()->where('id', $id)->exists()){
+            $user->notifications()->updateExistingPivot($id, [
+                "read_at" => now(),
+            ]);
+        }
 
         return response()->json(['message' => 'ok']);
     }
@@ -50,9 +54,13 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
+        if (!in_array($scope, Notification::SCOPE_TEXT)){
+            abort(404);
+        }
+
         $user->unreadNotifications()->where(function ($query) use ($scope){
-            $query->where('data->scope', $scope)
-                ->orWhere('data->scope', 'global');
+            $query->where('scope', $scope)
+                ->orWhere('scope', 'global');
         })->update(['read_at' => now()]);
 
         return response()->json(['message' => 'ok']);
