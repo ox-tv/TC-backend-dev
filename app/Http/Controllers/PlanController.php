@@ -7,8 +7,10 @@ use App\Http\Requests\PlanUpdate;
 use App\Http\Resources\Plan\PlanItem;
 use App\Models\Plan;
 use App\Models\Pricing;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
@@ -19,6 +21,17 @@ class PlanController extends Controller
 
         if($request->is('api/plans')){
             $query->where('status', Plan::STATUS_ACTIVE);
+        }
+
+
+        $filters = $request->get('filters', []);
+
+        $paymentMethodFilter = Arr::get($filters, 'payment_method_id');
+
+        if($paymentMethodFilter){
+            $query->whereHas('pricing', function (Builder $query) use ($paymentMethodFilter){
+                $query->where('payment_method_id', $paymentMethodFilter);
+            });
         }
 
         $plans = $query->get();
