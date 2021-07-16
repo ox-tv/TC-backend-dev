@@ -7,6 +7,9 @@ use Illuminate\Notifications\DatabaseNotification;
 
 class Notification extends Model
 {
+    protected $casts = [
+        'payload' => 'array'
+    ];
 
     // user group field values
     const USER_GROUP_CUSTOM = 1;
@@ -19,6 +22,19 @@ class Notification extends Model
         self::USER_GROUP_ALL => 'all',
         self::USER_GROUP_HERO => 'hero',
         self::USER_GROUP_NON_HERO => 'non-hero',
+    ];
+
+    // Scope field values
+    const SCOPE_GLOBAL = 1;
+    const SCOPE_ADMIN = 2;
+    const SCOPE_PUBLISHER = 3;
+    const SCOPE_USER = 4;
+
+    const SCOPE_TEXT = [
+        self::SCOPE_GLOBAL => 'global',
+        self::SCOPE_ADMIN => 'admin',
+        self::SCOPE_PUBLISHER => 'publisher',
+        self::SCOPE_USER => 'user',
     ];
 
     public function users(){

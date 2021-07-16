@@ -129,6 +129,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
     }
 
+    public function unreadNotifications(){
+        return $this->notifications()->whereNull('read_at');
+    }
+
     public function channel(){
         return $this->hasOne('App\Models\Channel', 'user_id');
     }
