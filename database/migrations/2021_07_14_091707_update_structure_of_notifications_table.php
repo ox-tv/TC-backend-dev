@@ -22,7 +22,7 @@ class UpdateStructureOfNotificationsTable extends Migration
             $table->id()->first();
 
             $table->after('type', function ($table) {
-                $table->string('scope');
+                $table->unsignedTinyInteger('scope');
                 $table->morphs('entity');
 
                 $table->unsignedBigInteger('sender_id')->nullable();
