@@ -14,6 +14,7 @@ use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Message;
 use App\Models\MessageUser;
+use App\Models\Notification;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Video;
@@ -30,7 +31,6 @@ class NotificationItem extends JsonResource
     public function toArray($request)
     {
         $withEntity = $this->relationLoaded('entity');
-        $withUsers = $this->relationLoaded('users');
         $withFrom = $this->relationLoaded('from');
 
         if ($this->entity_type == User::class){
@@ -49,20 +49,18 @@ class NotificationItem extends JsonResource
             $entity = ($withEntity)? $this->entity : null;
         }
 
-        $users = ($withUsers)? UserMinimalItem::collection($this->users) : null;
         $from = ($withFrom)? UserMinimalItem::make($this->from) : null;
 
         return [
             'id' => $this->id,
             'type' => $this->type,
             'payload' => $this->payload,
-            'scope' => $this->scope,
-            'from_id' => $this->sender_id,
+            'scope' => Notification::SCOPE_TEXT[$this->scope],
+            'user_group' => Notification::USER_GROUP_TEXT[$this->user_group]?? null,
             'from' => $this->when($withFrom, $from),
             'created_at' => $this->created_at,
             'read_at' => $this->pivot->read_at,
             'entity' => $this->when($withEntity, $entity),
-            'users' => $this->when($withUsers, $users),
         ];
     }
 }
