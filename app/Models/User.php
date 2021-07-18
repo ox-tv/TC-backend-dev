@@ -130,7 +130,7 @@ class User extends Authenticatable
     }
 
     public function unreadNotifications(){
-        return $this->notifications()->whereNull('read_at');
+        return $this->notifications()->wherePivotNull('read_at');
     }
 
     public function channel(){
