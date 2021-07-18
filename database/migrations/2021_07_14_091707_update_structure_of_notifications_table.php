@@ -21,14 +21,18 @@ class UpdateStructureOfNotificationsTable extends Migration
             // New Columns
             $table->id()->first();
 
+
+
             $table->after('type', function ($table) {
                 $table->unsignedTinyInteger('scope');
-                $table->morphs('entity');
+                $table->nullableMorphs('entity');
 
                 $table->unsignedBigInteger('sender_id')->nullable();
                 $table->foreign('sender_id')
                     ->references('id')
                     ->on('users');
+
+                $table->unsignedTinyInteger('user_group')->nullable();
             });
 
         });
@@ -54,6 +58,7 @@ class UpdateStructureOfNotificationsTable extends Migration
 
             $table->dropForeign(['sender_id']);
             $table->dropColumn('sender_id');
+            $table->dropColumn('user_group');
         });
     }
 }
