@@ -17,6 +17,7 @@ use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
+use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
@@ -24,6 +25,7 @@ use App\Models\Video;
 use App\Notifications\DeleteVideo;
 use App\Notifications\HideVideo;
 use App\Notifications\NewVideoPublished;
+use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -229,10 +231,17 @@ class VideoController extends Controller
 
         if ($video->status == Video::STATUS_PUBLISHED){
             $channel = $video->channels()->first();
-            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-                'video' => VideoMinimalItem::make($video),
-                'channel' => ChannelMinimalItem::make($channel),
-            ]));
+
+            TCNotification::send($channel->subscribers, new NewVideoPublished(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'video' => VideoMinimalItem::make($video),
+                    'channel' => ChannelMinimalItem::make($channel),
+                ],
+                get_class($video),
+                $video->id
+            ));
         }
 
         return new VideoItem($video);
@@ -356,10 +365,17 @@ class VideoController extends Controller
 
         if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
             $channel = $video->channels()->first();
-            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-                'video' => VideoMinimalItem::make($video),
-                'channel' => ChannelMinimalItem::make($channel),
-            ]));
+
+            TCNotification::send($channel->subscribers, new NewVideoPublished(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'video' => VideoMinimalItem::make($video),
+                    'channel' => ChannelMinimalItem::make($channel),
+                ],
+                get_class($video),
+                $video->id
+            ));
         }
 
         return new VideoItem($video);
@@ -403,10 +419,14 @@ class VideoController extends Controller
         $video->delete();
 
         if (request()->is('api/admin/videos/*')){
-            $video->user->notify(new DeleteVideo('publisher',
+            TCNotification::send(collect([$video->user]), new DeleteVideo(
+                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                 [
                     'video' => videoMinimalItem::make($video),
-                ]
+                ],
+                get_class($video),
+                $video->id
             ));
         }
 
@@ -520,10 +540,14 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        $video->user->notify(new HideVideo('publisher',
+        TCNotification::send(collect([$video->user]), new HideVideo(
+            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'video' => videoMinimalItem::make($video),
-            ]
+            ],
+            get_class($video),
+            $video->id
         ));
 
         return VideoMinimalItem::make($video);

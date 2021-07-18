@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\User\UserMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
+use App\Models\Notification;
 use App\Models\User;
 use App\Notifications\NewImportRequest;
 use App\Notifications\NewMessage;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
+use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -121,13 +124,15 @@ class MessageController extends Controller
         });
 
 
-        foreach ($users as $user){
-            $user->notify(new NewMessage('global',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                ]
-            ));
-        }
+        TCNotification::send($users, new NewMessage(
+            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return $message;
     }
@@ -154,13 +159,15 @@ class MessageController extends Controller
 
         $admins = User::admins()->get();
 
-        foreach ($admins as $admin){
-            $admin->notify(new NewMessage('admin',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                ]
-            ));
-        }
+        TCNotification::send($admins, new NewMessage(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return $message;
     }
@@ -185,13 +192,17 @@ class MessageController extends Controller
 
         foreach ($parent_message->users as $user){
             $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
-
-            $user->notify(new ReplyMessage('global',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                ]
-            ));
         }
+
+        TCNotification::send([$parent_message->users], new ReplyMessage(
+            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return $message;
     }
@@ -234,13 +245,15 @@ class MessageController extends Controller
 
         $admins = User::admins()->get();
 
-        foreach ($admins as $admin){
-            $admin->notify(new ReplyMessage('admin',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                ]
-            ));
-        }
+        TCNotification::send([$admins], new ReplyMessage(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return $message;
     }
@@ -361,14 +374,17 @@ class MessageController extends Controller
 
         $admins = User::admins()->get();
 
-        foreach ($admins as $admin){
-            $admin->notify(new NewPublisherRequest('admin',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                    'channel_name' => $request->get('channel_name')
-                ]
-            ));
-        }
+        TCNotification::send($admins, new NewPublisherRequest(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+                'user' => UserMinimalItem::make($user),
+                'channel_name' => $request->get('channel_name')
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return response()->json([
             'email' => $request->input('email'),
@@ -399,14 +415,16 @@ class MessageController extends Controller
 
         $admins = User::admins()->get();
 
-        foreach ($admins as $admin){
-            $admin->notify(new NewImportRequest('admin',
-                [
-                    'message' => MessageItem::make($message->load(['user', 'department'])),
-                    'youtube_url' => $user->channel->youtube_channel_url
-                ]
-            ));
-        }
+        TCNotification::send($admins, new NewImportRequest(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+                'youtube_url' => $user->channel->youtube_channel_url
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return new MessageItem($message);
     }
