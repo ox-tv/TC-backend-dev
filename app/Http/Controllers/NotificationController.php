@@ -6,7 +6,9 @@ use App\Http\Resources\Notification\NotificationItem;
 use App\Models\Notification;
 use App\Models\User;
 use App\Notifications\CustomNotification;
+use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class NotificationController extends Controller
 {
@@ -14,25 +16,30 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $scope = 'user';
+        $scope = Notification::SCOPE_USER;
 
         if ($request->is('api/admin/notifications')){
-            $scope = 'admin';
+            $scope = Notification::SCOPE_ADMIN;
         }elseif ($request->is('api/publisher/notifications')){
-            $scope = 'publisher';
+            $scope = Notification::SCOPE_PUBLISHER;
         }
 
         $notifications = $user->notifications()->where(function ($query) use ($scope){
-            $query->where('data->scope', $scope)
-                ->orWhere('data->scope', 'global');
-        })->with(['notifiable'])->paginate();
+            $query->where('scope', $scope)
+                ->orWhere('scope', Notification::SCOPE_GLOBAL);
+        })->with([
+            'entity' => function($q){ $q->withTrashed(); }
+        ])->paginate();
 
         return NotificationItem::collection($notifications);
     }
 
     public function index_sent_by_admin(Request $request)
     {
-        $notifications = Notification::whereNotNull('data->from')->orderBy('created_at', 'DESC')->with(['notifiable'])->paginate();
+        $notifications = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
+            'from',
+            'entity' => function($q){ $q->withTrashed(); }
+        ])->paginate();
 
         return NotificationItem::collection($notifications);
     }
@@ -41,7 +48,9 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+        $user->unreadNotifications()->updateExistingPivot($id, [
+            "read_at" => now(),
+        ]);
 
         return response()->json(['message' => 'ok']);
     }
@@ -50,9 +59,13 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
+        if (!in_array($scope, Notification::SCOPE_TEXT)){
+            abort(404);
+        }
+
         $user->unreadNotifications()->where(function ($query) use ($scope){
-            $query->where('data->scope', $scope)
-                ->orWhere('data->scope', 'global');
+            $query->where('notifications.scope', array_flip(Notification::SCOPE_TEXT)[$scope])
+                ->orWhere('notifications.scope', Notification::SCOPE_GLOBAL);
         })->update(['read_at' => now()]);
 
         return response()->json(['message' => 'ok']);
@@ -62,43 +75,67 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        return response()->json(['count' => $user->unreadNotifications()->where(function ($query) use ($scope){
-            $query->where('data->scope', $scope)
-                ->orWhere('data->scope', 'global');
-        })->count()]);
+        if (!in_array($scope, Notification::SCOPE_TEXT)){
+            abort(404);
+        }
+
+        $count = $user->unreadNotifications()->where(function ($query) use ($scope){
+            $query->where('notifications.scope', array_flip(Notification::SCOPE_TEXT)[$scope])
+                ->orWhere('notifications.scope', Notification::SCOPE_GLOBAL);
+        })->count();
+
+        return response()->json(['count' => $count]);
     }
 
     public function store(Request $request, $scope)
     {
-        $user_group_text = Notification::USER_GROUP_TEXT;
+        $userGroupText = Notification::USER_GROUP_TEXT;
 
-        $users_query = User::query();
+        $request->validate([
+            'message' => 'required',
+            'user_group' => [
+                'required',
+                Rule::in(Notification::USER_GROUP_TEXT),
+            ],
+            'user_ids' => [
+                Rule::requiredIf(function () use ($request, $userGroupText) {
+                    return $request->get("user_group") == $userGroupText[Notification::USER_GROUP_CUSTOM];
+                }),
+            ],
+            'user_ids.*' => ['exists:users,id']
+        ]);
 
-        switch ($request->get("user_group")){
-            case $user_group_text[Notification::USER_GROUP_ALL]:
+
+        $userGroup = $request->get("user_group");
+
+        $usersQuery = User::query();
+
+        switch ($userGroup){
+            case $userGroupText[Notification::USER_GROUP_ALL]:
                 break;
-            case $user_group_text[Notification::USER_GROUP_HERO]:
-                $users_query = $users_query->isHero();
+            case $userGroupText[Notification::USER_GROUP_HERO]:
+                $usersQuery = $usersQuery->isHero();
                 break;
-            case $user_group_text[Notification::USER_GROUP_NON_HERO]:
-                $users_query = $users_query->isNonHero();
+            case $userGroupText[Notification::USER_GROUP_NON_HERO]:
+                $usersQuery = $usersQuery->isNonHero();
                 break;
-            case $user_group_text[Notification::USER_GROUP_CUSTOM]:
+            case $userGroupText[Notification::USER_GROUP_CUSTOM]:
             default:
-                $users_query = $users_query->whereIn('id', $request->get("user_ids", []));
+            $usersQuery = $usersQuery->whereIn('id', $request->get("user_ids", []));
         }
 
         if($scope == 'publisher'){
-            $users_query = $users_query->publishers();
+            $usersQuery = $usersQuery->publishers();
         }
 
         $scope = $scope == 'user'? 'global' : $scope;
 
-        $users = $users_query->get();
+        $users = $usersQuery->get();
 
         $message = $request->get('message');
 
-        \Illuminate\Support\Facades\Notification::send($users, new CustomNotification($scope, $message));
+        //\Illuminate\Support\Facades\Notification::send($users, new CustomNotification($scope, $message));
+        TCNotification::send($users, new CustomNotification($scope, $userGroup, ['message' => $message]));
 
         return response()->json(['message' => 'ok']);
     }

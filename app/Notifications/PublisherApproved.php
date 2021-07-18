@@ -11,16 +11,28 @@ class PublisherApproved extends Notification
 {
     use Queueable;
 
-    private $scope;
+    public $type;
+    public $scope;
+    public $entityType;
+    public $entityId;
+    public $userGroup;
+    public $payload;
+    public $from;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($scope)
+    public function __construct($scope, $userGroup, $payload, $entityType = null, $entityId = null)
     {
+        $this->type = class_basename(__CLASS__);
         $this->scope = $scope;
+        $this->entityType = $entityType;
+        $this->entityId = $entityId;
+        $this->from = null;
+        $this->userGroup = $userGroup;
+        $this->payload = $payload;
     }
 
     /**
@@ -31,15 +43,7 @@ class PublisherApproved extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return [];
     }
 
-
-    public function toArray($notifiable)
-    {
-        return [
-            'scope' => $this->scope,
-            'type' => 'PublisherApproved',
-        ];
-    }
 }

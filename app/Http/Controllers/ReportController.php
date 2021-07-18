@@ -10,12 +10,14 @@ use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
+use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Video;
 use App\Notifications\ReportComment;
 use App\Notifications\ReportVideo;
+use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -104,7 +106,7 @@ class ReportController extends Controller
             $model_name = 'comment';
         }
 
-        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? abort(404);
 
         if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
             $report->reason_key = $request->get('reason');
@@ -121,38 +123,92 @@ class ReportController extends Controller
         $model->reports()->save($report);
 
 
-        $admins = User::admins()->get();
+        $notification = Notification::where([
+            'entity_type' => get_class($model),
+            'entity_id' => $model->id,
+            'type' => 'ReportVideo',
+            'scope' => Notification::SCOPE_ADMIN,
+        ])->first();
+
+        if ($notification){
+            $payload = [
+                $model_name => VideoMinimalItem::make($model),
+                'report' => $report,
+                'report_count' => $notification->payload['report_count'] + 1
+            ];
+            $notification->payload = $payload;
+            $notification->save();
+        }else{
+            $admins = User::admins()->get();
+            $payload = [
+                $model_name => VideoMinimalItem::make($model),
+                'report' => $report,
+                'report_count' => 1
+            ];
+
+            if($model_name == 'video'){
+                TCNotification::send($admins, new ReportVideo(
+                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                    $payload,
+                    get_class($model),
+                    $model->id
+                ));
+            }else{
+                TCNotification::send($admins, new ReportComment(
+                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                    $payload,
+                    get_class($model),
+                    $model->id
+                ));
+            }
+        }
+
+
+        /*$admins = User::admins()->get();
 
         foreach ($admins as $admin){
 
-            $notification = $admin->notifications()->where("data->payload->{$model_name}->id", $model->id)->first();
+            $notification = $admin->notifications()->where([
+                'entity_type' => get_class($model),
+                'entity_id' => $model->id
+            ])->first();
 
             if ($notification){
-                $data = $notification->data;
-                $data['payload']['report_count'] += 1;
-                $notification->data = $data;
+                $payload = $notification->payload;
+                $payload['report_count'] += 1;
+                $notification->payload = $payload;
                 $notification->save();
             }else{
                 if($model_name == 'video'){
-                    $admin->notify(new ReportVideo('admin',
+                    TCNotification::send(collect([$admin]), new ReportVideo(
+                        Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                        Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                         [
                             $model_name => VideoMinimalItem::make($model),
                             'report' => $report,
                             'report_count' => 1
-                        ]
+                        ],
+                        get_class($model),
+                        $model->id
                     ));
                 }else{
-                    $admin->notify(new ReportComment('admin',
+                    TCNotification::send(collect([$admin]), new ReportComment(
+                        Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                        Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                         [
                             $model_name => CommentItem::make($model),
                             'report' => $report,
                             'report_count' => 1
-                        ]
+                        ],
+                        get_class($model),
+                        $model->id
                     ));
                 }
 
             }
-        }
+        }*/
 
         return ReportItem::make($report);
     }

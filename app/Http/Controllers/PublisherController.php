@@ -14,9 +14,11 @@ use App\Mail\VerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\User;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
+use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -118,15 +120,17 @@ class PublisherController extends Controller
 
         $admins = User::admins()->get();
 
-        foreach ($admins as $admin){
-            $admin->notify(new NewPublisherRequest('admin',
-                [
-                    'message' => MessageItem::make($message),
-                    'user' => UserMinimalItem::make($user),
-                    'channel_name' => $request->get('channel_name')
-                ]
-            ));
-        }
+        TCNotification::send($admins, new NewPublisherRequest(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message),
+                'user' => UserMinimalItem::make($user),
+                'channel_name' => $request->get('channel_name')
+            ],
+            get_class($message),
+            $message->id
+        ));
 
         return response()->json([
             'email' => $request->input('email'),
@@ -151,7 +155,13 @@ class PublisherController extends Controller
             ]
         )->delete();
 
-        $user->notify(new PublisherApproved('user'));
+        TCNotification::send(collect([$user]), new PublisherApproved(
+            Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [],
+            get_class($user),
+            $user->id
+        ));
 
         Mail::to($user->email)
             ->queue(new PublisherApprovedMail());
