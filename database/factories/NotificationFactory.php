@@ -35,8 +35,10 @@ class NotificationFactory extends Factory
 
     public function configure()
     {
-        return $this->afterCreating(function (Notification $notification) {
-            $users = User::inRandomOrder()->take(rand(1,10))->get();
+        $max_count = User::count();
+
+        return $this->afterCreating(function (Notification $notification) use ($max_count) {
+            $users = User::inRandomOrder()->take(rand(1, $max_count))->get();
             $notification->users()->attach($users->pluck('id'));
         });
     }

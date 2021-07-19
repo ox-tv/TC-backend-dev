@@ -221,6 +221,10 @@ class Video extends Model
         return $this->belongsToMany('App\Models\User', "watch_times")->withTimestamps()->withPivot(["start_time","end_time"]);
     }
 
+    public function meta(){
+        return $this->hasMany('App\Models\VideoMeta');
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
