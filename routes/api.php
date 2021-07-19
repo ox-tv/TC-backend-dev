@@ -60,8 +60,10 @@ Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@sho
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
+// Video End Screen Cards
+Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers');
+
 // Video chapters
-//Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
 Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
 
 // Video like/dislike routes
@@ -186,6 +188,8 @@ Route::group([
 
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 
+    Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
+
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 });
 
@@ -220,6 +224,8 @@ Route::group([
     Route::post('videos', '\App\Http\Controllers\VideoController@store')->name("videos.store");
 
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
+
+    Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
