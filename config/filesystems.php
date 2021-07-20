@@ -86,6 +86,11 @@ return [
             'visibility' => 'public',
         ],
 
+        'dumps' => [
+            'driver' => 'local',
+            'root' => storage_path('app/dumps'),
+        ],
+
     ],
 
     /*
