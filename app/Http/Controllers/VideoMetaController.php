@@ -32,7 +32,7 @@ class VideoMetaController extends Controller
     public function setLayers(Request $request, $idOrHash)
     {
         $request->validate([
-            'layers' => ['required'],
+            'layers' => ['nullable'],
         ]);
 
         $video = Video::where(function ($query) use ($idOrHash){
@@ -41,7 +41,7 @@ class VideoMetaController extends Controller
 
         $video->meta()->updateOrCreate(
             ['key' => 'layers'],
-            ['value' => $request->get('layers')]
+            ['value' => json_encode($request->get('layers'))]
         );
 
         return response()->json(['message' => 'ok']);
