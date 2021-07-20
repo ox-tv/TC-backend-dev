@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,7 @@ class DumpNotifications extends Command
      *
      * @var string
      */
-    protected $signature = 'notifications:dump {--period= : 1W,1M,3M,6M}';
+    protected $signature = 'notifications:dump {--keep= : Number of days to keep}';
 
     /**
      * The console command description.
@@ -44,9 +45,9 @@ class DumpNotifications extends Command
     public function handle()
     {
         $validator = Validator::make([
-            'period' => $this->option('period'),
+            'keep' => $this->option('keep'),
         ], [
-            'period' => ['required', Rule::in(['1W', '1M', '3M', '6M'])],
+            'keep' => ['required', 'numeric', 'gte:1', 'lte:365'],
         ]);
 
         if ($validator->fails()) {
@@ -60,11 +61,7 @@ class DumpNotifications extends Command
             return 1;
         }
 
-        $period = $this->option('period');
-        $is_time = $this->{"check".$period}();
-
-        dd($is_time);
-
+        $keep = $this->option('keep');
         $dbInfo = config('database.connections.'.config('database.default'));
         $path = Storage::disk('dumps')->path('notifications-' . date('Y-m-d-H-i-s')) . '.sql';
 
@@ -74,27 +71,14 @@ class DumpNotifications extends Command
             ->setPassword($dbInfo['password'])
             ->includeTables(['notifications', 'notification_user'])
             ->dumpToFile($path);
-    }
 
-    private function check1W()
-    {
-        $now = Carbon::now();
-        return $now->endOfWeek()->format('Y-m-d H:i');
-        return $now->startOfWeek()->format('Y-m-d H:i');
-    }
+        Notification::where('created_at', '<', Carbon::now()->subDays($keep))
+            ->whereExists(function ($query) {
+                $query->from('notification_user')
+                    ->whereColumn('notification_user.notification_id', 'notifications.id')
+                    ->whereNotNull('read_at');
+            })->delete();
 
-    private function check1M()
-    {
-        return true;
-    }
-
-    private function check3M()
-    {
-        return true;
-    }
-
-    private function check6M()
-    {
-        return true;
+        return 0;
     }
 }
