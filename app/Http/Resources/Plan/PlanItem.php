@@ -29,7 +29,7 @@ class PlanItem extends JsonResource
             'interval' => $this->interval,
             'status' => Plan::STATUS_TEXT[$this->status],
             'thumbnail' => $this->thumbnail,
-            'is_popular' => $this->is_popular,
+            'is_popular' => (bool) $this->is_popular,
             'pricing' => $this->when($withPricing, $pricing),
             'created_at' => $this->created_at
         ];
