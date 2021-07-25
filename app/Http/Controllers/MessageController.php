@@ -194,7 +194,7 @@ class MessageController extends Controller
             $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
         }
 
-        TCNotification::send([$parent_message->users], new ReplyMessage(
+        TCNotification::send($parent_message->users, new ReplyMessage(
             Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
@@ -245,7 +245,7 @@ class MessageController extends Controller
 
         $admins = User::admins()->get();
 
-        TCNotification::send([$admins], new ReplyMessage(
+        TCNotification::send($admins, new ReplyMessage(
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
