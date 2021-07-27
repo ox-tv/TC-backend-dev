@@ -11,5 +11,13 @@ return [
 
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
-    ]
+    ],
+
+    'points' => [
+        'per_view' => env('POINTS_PER_VIEW', 0.01),
+        'per_like_hero' => env('POINTS_PER_LIKE_HERO', 150),
+        'per_like_non_hero' => env('POINTS_PER_LIKE_NON_HERO', 50),
+        'per_dislike_hero' => env('POINTS_PER_DISLIKE_HERO', 150),
+        'per_dislike_non_hero' => env('POINTS_PER_DISLIKE_NON_HERO', 50),
+    ],
 ];
