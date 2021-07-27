@@ -124,6 +124,7 @@ class Channel extends Model
             ->whereDate('hero_due_at', '>=', Carbon::now());
     }
 
+
     // Attribute
 
     public function getWatchTimeAttribute(){

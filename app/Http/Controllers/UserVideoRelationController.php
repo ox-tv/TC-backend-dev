@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\CacheManagement\ChannelCacheManager;
+use App\Events\VideoLiked;
+use App\Events\VideoViewed;
 use App\Http\Requests\VideoDislike;
 use App\Http\Requests\VideoLike;
 use App\Http\Requests\VideoStore;
@@ -50,6 +52,8 @@ class UserVideoRelationController extends Controller
             $channelCacheManager->addToChannelsMonthLikes($channel->id, 1);
         }
 
+        event(new VideoLiked($video, auth('api')->user(), $isLiked?-1:1, $isDisliked?-1:0));
+
         return response()->json([
             'is_liked' => $video->is_liked,
             'is_disliked' => $video->is_disliked,
@@ -87,6 +91,8 @@ class UserVideoRelationController extends Controller
             $video->dislikedBy()->attach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
             $channelCacheManager->addToChannelsMonthLikes($channel->id, -1);
         }
+
+        event(new VideoLiked($video, auth('api')->user(), $isLiked?-1:0, $isDisliked?-1:1));
 
         return response()->json([
             'is_liked' => $video->is_liked,

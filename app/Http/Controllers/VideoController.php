@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
@@ -579,6 +580,8 @@ class VideoController extends Controller
     {
         $video->view_count++;
         $video->save();
+
+        event(new VideoViewed($video, auth('api')->user()));
 
         return $video->view_count;
     }
