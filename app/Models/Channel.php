@@ -124,6 +124,11 @@ class Channel extends Model
             ->whereDate('hero_due_at', '>=', Carbon::now());
     }
 
+    public function dailyStatistics(){
+        return $this->hasMany('App\Models\VideoStatisticsDaily');
+    }
+
+
     // Attribute
 
     public function getWatchTimeAttribute(){

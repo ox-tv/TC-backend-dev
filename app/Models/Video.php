@@ -225,6 +225,10 @@ class Video extends Model
         return $this->hasMany('App\Models\VideoMeta');
     }
 
+    public function dailyStatistics(){
+        return $this->hasMany('App\Models\VideoStatisticsDaily');
+    }
+
 
     // Attributes
     public function getRatingAttribute(){
