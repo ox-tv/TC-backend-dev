@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Video;
@@ -15,18 +16,20 @@ class VideoStatisticsController extends Controller
     public function index(Request $request, $idOrHash)
     {
         // Check Video is mine or route is admin
-        $video_query = Video::where(function ($query) use ($idOrHash){
+        $videoQuery = Video::query();
+
+        if (!$request->is('api/admin/*')){
+            $videoQuery->mine();
+        }
+
+        $videoQuery->where(function ($query) use ($idOrHash){
             $query->whereId($idOrHash)->orWhere('url_hash', $idOrHash);
         });
 
-        if (!$request->is('api/admin/*')){
-            $video_query->mine();
-        }
-
-        $video = $video_query->firstOrFail();
+        $video = $videoQuery->firstOrFail();
 
 
-        $statistics_query = VideoStatisticsDaily::where([
+        $statisticsQuery = VideoStatisticsDaily::where([
             'video_id' => $video->id
         ]);
 
@@ -36,13 +39,13 @@ class VideoStatisticsController extends Controller
         $toFilter = Arr::get($filters, 'to');
 
         if($fromFilter){
-            $statistics_query->where('date', '>=', $fromFilter);
+            $statisticsQuery->where('date', '>=', $fromFilter);
         }
 
         if($toFilter){
-            $statistics_query->where('date', '<=', $toFilter);
+            $statisticsQuery->where('date', '<=', $toFilter);
         }
 
-        return $statistics_query->get();
+        return VideoStatisticsDailyItem::collection($statisticsQuery->get());
     }
 }
