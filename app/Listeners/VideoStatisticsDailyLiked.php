@@ -61,6 +61,7 @@ class VideoStatisticsDailyLiked
             $statistics->points += (-1 * $pointsPerDisLikeNonHero * $dislikeAmount);
         }
 
+        $statistics->point_details = $statistics->calcPointDetails();
 
         $statistics->save();
 
