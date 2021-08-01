@@ -10,6 +10,7 @@ use App\Http\Resources\UserItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -262,6 +263,37 @@ class UserController extends Controller
         $per_page = request()->get('per_page') ?: 15;
 
         return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
+    }
+
+    public function userPoints(Request $request, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $channel = $user->channel;
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->firstOfMonth());
+        $to = Arr::get($filters, 'to', Carbon::now());
+
+
+        $points = 0;
+
+        $points += VideoStatisticsDaily::where('channel_id', $channel->id)
+            ->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)->sum('points');
+
+        // Calc points for channel subscribers
+        $pointPerHeroSub = config('general.points.per_subscribe_hero');;
+        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
+
+        $heroSubCounts = $channel->subscribers()->isHero()->count();
+        $nonHeroSubCounts = $channel->subscribers()->isNonHero()->count();
+
+        $points += ($heroSubCounts * $pointPerHeroSub);
+        $points += ($nonHeroSubCounts * $pointPerNonHeroSub);
+
+        return response()->json(['points' => $points]);
     }
 
 }
