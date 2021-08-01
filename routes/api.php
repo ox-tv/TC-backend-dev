@@ -156,10 +156,13 @@ Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\Me
 Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['index']);
 Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
 
+// Points
+Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
+
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
-
+    Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
 });
 
 
@@ -213,9 +216,10 @@ Route::group([
     Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
+    Route::get('users/{user}/points', '\App\Http\Controllers\UserController@userPoints')->name('users.points');
+
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
-    Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::get('admins', '\App\Http\Controllers\UserController@index')->name('admins');
 
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
