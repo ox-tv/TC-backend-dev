@@ -572,7 +572,6 @@ class VideoController extends Controller
 
         abort_if(is_null($video), 404);
 
-
         return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
     }
 

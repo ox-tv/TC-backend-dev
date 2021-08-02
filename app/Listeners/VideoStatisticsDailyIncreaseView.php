@@ -49,6 +49,8 @@ class VideoStatisticsDailyIncreaseView
 
         $statistics->points += $pointsPerView;
 
+        $statistics->point_details = $statistics->calcPointDetails();
+
         $statistics->save();
 
         return $statistics;

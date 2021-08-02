@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\VideoStatisticsDaily;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +16,21 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('testtest',function (\App\Services\PointService $pointService){
+    $filters = [];
+    $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
+    $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
+
+    $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+    foreach ($monthPeriods as $month) {
+        echo $month->format("Y-m-d") . "<br>";
+    }
+    dd($from, $to);
+
+    return $p;
+});
 
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
@@ -163,6 +182,7 @@ Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate'
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
     Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
+    Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
 });
 
 
@@ -217,6 +237,7 @@ Route::group([
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
     Route::get('users/{user}/points', '\App\Http\Controllers\UserController@userPoints')->name('users.points');
+    Route::get('users/{user}/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('users.monthly-points');
 
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');

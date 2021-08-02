@@ -138,7 +138,7 @@ class User extends Authenticatable
     }
 
     public function subscribedChannels(){
-        return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
+        return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id')->withTimestamps();
     }
 
     public function messages(){
