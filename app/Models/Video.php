@@ -299,32 +299,7 @@ class Video extends Model
     }
 
     public function getRelatedVideosAttribute(){
-        $tags = $this->tags()->pluck('id')->toArray();
 
-        $relatedVideos = collect();
-
-        if( count($tags) ){
-            $relatedVideosByTag = Video::published()->whereHas('tags', function($q) use ($tags){
-                $q->whereIn('id', $tags);
-            })->where("id", "!=", $this->id)->inRandomOrder()->take(15)->get();
-
-            $relatedVideos = $relatedVideos->merge($relatedVideosByTag);
-        }
-
-        if( count($relatedVideos) < 15 ){
-            $category = $this->category ? $this->category->id : null;
-
-            $relatedVideosByCategory = Video::published()->whereHas('category', function($q) use ($category){
-                $q->where('id', $category);
-            })
-                ->where("id", "!=", $this->id)
-                ->whereNotIn("id", $relatedVideos->pluck("id")->toArray())
-                ->inRandomOrder()->take(15)->get();
-
-            $relatedVideos = $relatedVideos->merge($relatedVideosByCategory);
-        }
-
-        return $relatedVideos->take(15);
 
     }
 

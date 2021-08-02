@@ -12,7 +12,6 @@ use App\Http\Resources\CommentItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoItem;
 use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
@@ -29,6 +28,7 @@ use App\Notifications\NewVideoPublished;
 use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -155,7 +155,6 @@ class VideoController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return VideoItem
      */
     public function store(VideoStore $request)
     {
@@ -245,7 +244,7 @@ class VideoController extends Controller
             ));
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
 
     }
 
@@ -254,7 +253,6 @@ class VideoController extends Controller
      *
      * @param mixed $id_or_url_hash
      * @param Request $request
-     * @return VideoItem|\Illuminate\Http\JsonResponse
      */
     public function show($id_or_url_hash, Request $request)
     {
@@ -280,7 +278,6 @@ class VideoController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param Video $video
-     * @return VideoItem
      */
     public function update(VideoUpdate $request, Video $video)
     {
@@ -379,7 +376,7 @@ class VideoController extends Controller
             ));
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**
@@ -572,7 +569,32 @@ class VideoController extends Controller
 
         abort_if(is_null($video), 404);
 
-        return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
+
+        $query = Video::published()->where("id", "!=", $video->id);
+
+        $tags = $video->tags()->pluck('id')->toArray();
+        $category = $video->category ? $video->category->id : null;
+
+        if(!$category && !count($tags)){
+            return \App\Http\Resources\Video\VideoItem::collection(new Paginator([],15));
+        }
+
+        $query->where(function ($query) use ($tags, $category){
+
+            if($category){
+                $query->whereHas('category', function($q) use ($category){
+                    $q->where('id', $category);
+                });
+            }
+
+            if( count($tags) ){
+                $query->orWhereHas('tags', function($q) use ($tags){
+                    $q->whereIn('id', $tags);
+                });
+            }
+        });
+
+        return \App\Http\Resources\Video\VideoItem::collection($query->paginate());
     }
 
     public function increase_view(Video $video)
