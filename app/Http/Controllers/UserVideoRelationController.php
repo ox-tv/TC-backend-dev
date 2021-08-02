@@ -4,21 +4,9 @@ namespace App\Http\Controllers;
 
 use App\CacheManagement\ChannelCacheManager;
 use App\Events\VideoLiked;
-use App\Events\VideoViewed;
-use App\Http\Requests\VideoDislike;
-use App\Http\Requests\VideoLike;
-use App\Http\Requests\VideoStore;
-use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoItem;
-use App\Http\Resources\VideoSummaryItem;
-use App\Models\Category;
 use App\Models\Video;
 use App\Models\UserVideo;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class UserVideoRelationController extends Controller
 {

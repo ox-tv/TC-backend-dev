@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Comment\CommentItem;
-use App\Http\Resources\CommentSummaryItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\Video\VideoMinimalItem;
-use App\Http\Resources\VideoItem;
-use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Notification;
 use App\Models\Option;
@@ -18,7 +15,6 @@ use App\Models\Video;
 use App\Notifications\ReportComment;
 use App\Notifications\ReportVideo;
 use App\Notifications\TCNotification\TCNotification;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -164,51 +160,6 @@ class ReportController extends Controller
                 ));
             }
         }
-
-
-        /*$admins = User::admins()->get();
-
-        foreach ($admins as $admin){
-
-            $notification = $admin->notifications()->where([
-                'entity_type' => get_class($model),
-                'entity_id' => $model->id
-            ])->first();
-
-            if ($notification){
-                $payload = $notification->payload;
-                $payload['report_count'] += 1;
-                $notification->payload = $payload;
-                $notification->save();
-            }else{
-                if($model_name == 'video'){
-                    TCNotification::send(collect([$admin]), new ReportVideo(
-                        Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                        Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                        [
-                            $model_name => VideoMinimalItem::make($model),
-                            'report' => $report,
-                            'report_count' => 1
-                        ],
-                        get_class($model),
-                        $model->id
-                    ));
-                }else{
-                    TCNotification::send(collect([$admin]), new ReportComment(
-                        Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                        Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                        [
-                            $model_name => CommentItem::make($model),
-                            'report' => $report,
-                            'report_count' => 1
-                        ],
-                        get_class($model),
-                        $model->id
-                    ));
-                }
-
-            }
-        }*/
 
         return ReportItem::make($report);
     }
