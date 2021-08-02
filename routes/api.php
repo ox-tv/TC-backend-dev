@@ -1,9 +1,5 @@
 <?php
 
-use App\Models\VideoStatisticsDaily;
-use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,21 +12,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::get('testtest',function (\App\Services\PointService $pointService){
-    $filters = [];
-    $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
-    $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
-
-    $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
-
-    foreach ($monthPeriods as $month) {
-        echo $month->format("Y-m-d") . "<br>";
-    }
-    dd($from, $to);
-
-    return $p;
-});
 
 // Auth routes
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
