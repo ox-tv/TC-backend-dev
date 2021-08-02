@@ -116,11 +116,11 @@ class Channel extends Model
     }
 
     public function subscribers(){
-        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id');
+        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id')->withTimestamps();
     }
 
     public function heroSubscribers(){
-        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id')
+        return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id')->withTimestamps()
             ->whereDate('hero_due_at', '>=', Carbon::now());
     }
 
