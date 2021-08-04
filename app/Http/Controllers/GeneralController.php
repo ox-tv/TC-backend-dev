@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Category\CategoryItem;
 use App\Http\Resources\Video\HomeVideoCollection;
+use App\Http\Resources\Video\HomeVideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryCollection;
 use App\Models\Category;
@@ -70,9 +71,9 @@ class GeneralController extends Controller
 
 
         return response()->json([
-            'latest_videos' => HomeVideoCollection::collection($latestVideos),
-            'popular_videos' => HomeVideoCollection::collection($popularVideos),
-            'favorite_coin_videos' => HomeVideoCollection::collection($favoriteCoinVideos),
+            'latest_videos' => HomeVideoItem::collection($latestVideos),
+            'popular_videos' => HomeVideoItem::collection($popularVideos),
+            'favorite_coin_videos' => HomeVideoItem::collection($favoriteCoinVideos),
         ]);
     }
 }
