@@ -70,9 +70,9 @@ class GeneralController extends Controller
 
 
         return response()->json([
-            'latest_videos' => $latestVideos,
-            'popular_videos' => $popularVideos,
-            'favorite_coin_videos' => $favoriteCoinVideos,
+            'latest_videos' => HomeVideoCollection::collection($latestVideos),
+            'popular_videos' => HomeVideoCollection::collection($popularVideos),
+            'favorite_coin_videos' => HomeVideoCollection::collection($favoriteCoinVideos),
         ]);
     }
 }
