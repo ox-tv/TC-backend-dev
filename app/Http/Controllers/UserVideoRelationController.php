@@ -13,7 +13,7 @@ class UserVideoRelationController extends Controller
     public function like(Video $video, ChannelCacheManager $channelCacheManager)
     {
         $userId = Auth::id();
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);
@@ -54,7 +54,7 @@ class UserVideoRelationController extends Controller
     public function dislike(Video $video, ChannelCacheManager $channelCacheManager){
 
         $userId = Auth::id();
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);

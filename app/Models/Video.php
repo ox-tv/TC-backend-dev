@@ -41,19 +41,20 @@ class Video extends Model
                 $model->save();
             }
 
-            if(is_null($model->channels()->first()) && Auth::guard('api')->check()){
+            if(empty($model->channel_id) && auth('api')->check()){
                 // channel
                 $user = User::find($model->user_id);
                 $channel = $user->channel;
 
                 if(is_null($channel)){
                     $channel = Channel::create([
-                        'name' => $user->username ? $user->username : $user->email,
+                        'name' => $user->username ? : $user->email,
                         'user_id' => $user->id
                     ]);
                 }
 
-                $model->channels()->save($channel);
+                $model->channel_id = $channel->id;
+                $model->save();
             }
 
             // duration
@@ -96,18 +97,8 @@ class Video extends Model
     }
 
     public function scopeInChannel($query, $channelId){
-        $channel = Channel::find($channelId);
-
-        if($channel){
-            $query->whereHas('channels', function($q) use ($channel){
-                $q->where('id', $channel->id);
-            });
-        }else{
-            $query->where('user_id', null);
-        }
-
+        $query->where('channel_id', $channelId);
         return $query;
-
     }
 
     // filters by time
@@ -208,6 +199,10 @@ class Video extends Model
 
     public function channels(){
         return $this->belongsToMany('App\Models\Channel');
+    }
+
+    public function channel(){
+        return $this->belongsTo('App\Models\Channel');
     }
 
     public function tags(){

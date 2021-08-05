@@ -230,7 +230,7 @@ class VideoController extends Controller
         }
 
         if ($video->status == Video::STATUS_PUBLISHED){
-            $channel = $video->channels()->first();
+            $channel = $video->channel;
 
             TCNotification::send($channel->subscribers, new NewVideoPublished(
                 Notification::SCOPE_TEXT[Notification::SCOPE_USER],
@@ -362,7 +362,7 @@ class VideoController extends Controller
 
 
         if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
-            $channel = $video->channels()->first();
+            $channel = $video->channel;
 
             TCNotification::send($channel->subscribers, new NewVideoPublished(
                 Notification::SCOPE_TEXT[Notification::SCOPE_USER],

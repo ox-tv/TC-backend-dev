@@ -179,7 +179,7 @@ class ChannelController extends Controller
 
         if(in_array('videos', explode(',', $request->get('include', '')))){
 
-            $videos = Video::published()->whereHas('channels', function ($query) use ($id_or_slug) {
+            $videos = Video::published()->whereHas('channel', function ($query) use ($id_or_slug) {
                 return $query->where('id', $id_or_slug)->orWhere('slug', $id_or_slug);
             })->paginate()->appends($request->all());
 
@@ -281,8 +281,9 @@ class ChannelController extends Controller
             throw new NotFoundHttpException();
         }
 
-        if(is_null($video->channels()->first())){
-            $channel->videos()->attach($video);
+        if (empty($video->channel_id)){
+            $video->channel_id = $channel->id;
+            $video->save();
         }
     }
 
