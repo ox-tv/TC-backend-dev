@@ -10,6 +10,7 @@ use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
+use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
@@ -184,7 +185,7 @@ class ChannelController extends Controller
             })->paginate()->appends($request->all());
 
             $result->additional([
-                'videos' => VideoCollection::make($videos)
+                'videos' => VideoItem::collection($videos)
             ]);
         }
 
