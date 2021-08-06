@@ -26,7 +26,7 @@ class ReportItem extends JsonResource
         $type = "";
 
         if($this->reportable_type == Video::class){
-            $reported_item = VideoItem::make($this->reportable()->with("channels")->first());
+            $reported_item = VideoItem::make($this->reportable()->with("channel")->first());
             $type = "video";
         }
         if($this->reportable_type == Channel::class){

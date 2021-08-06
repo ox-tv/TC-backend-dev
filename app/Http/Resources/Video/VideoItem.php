@@ -33,7 +33,7 @@ class VideoItem extends JsonResource
         $include = explode(',', $request->get('include', ''));
 
         $withUser = in_array('user', $include) || $this->relationLoaded('user');
-        $withChannel = in_array('channel', $include) || $this->relationLoaded('channels');
+        $withChannel = in_array('channel', $include) || $this->relationLoaded('channel');
         $withMainCategory = in_array('category', $include) || $this->relationLoaded('category');
         $withCategories = in_array('categories', $include) || $this->relationLoaded('categories');
         $withCryptoCurrencies = in_array('crypto_currencies', $include) || $this->relationLoaded('crypto_currencies');
@@ -42,7 +42,7 @@ class VideoItem extends JsonResource
         $withReports = in_array('reports', $include) || $this->relationLoaded('reports');
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
-        $channel = ($withChannel)? ChannelMinimalItem::make($this->channels->first()) : [];
+        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
         $category = ($withMainCategory)? CategoryMinimalItem::make($this->category) : [];
         $categories = ($withCategories)? CategoryMinimalItem::collection($this->categories) : [];
         $crypto_currencies = ($withCryptoCurrencies)? CryptoCurrencyItem::collection($this->crypto_currencies) : [];

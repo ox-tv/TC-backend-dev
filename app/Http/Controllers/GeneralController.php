@@ -45,9 +45,7 @@ class GeneralController extends Controller
             $subscribedChannels = $user->subscribedChannels()->pluck('id')->toArray();
 
             if (!empty($subscribedChannels)){
-                $latestVideosQuery->whereHas('channels', function ($query) use ($subscribedChannels){
-                    $query->whereIn('id', $subscribedChannels);
-                });
+                $latestVideosQuery->whereIn('channel_id', $subscribedChannels);
             }
         }
 

@@ -112,7 +112,8 @@ class Channel extends Model
     }
 
     public function videos(){
-        return $this->belongsToMany('App\Models\Video');
+        return $this->belongsTo('App\Models\Video');
+        //return $this->belongsToMany('App\Models\Video');
     }
 
     public function subscribers(){

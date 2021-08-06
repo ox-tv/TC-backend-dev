@@ -29,7 +29,7 @@ class VideoStatisticsDailyLiked
     public function handle(VideoLiked $event)
     {
         $video = $event->video;
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
         $user = $event->user;
         $likeAmount = $event->likeAmount;
         $dislikeAmount = $event->dislikeAmount;

@@ -26,7 +26,7 @@ class ReportController extends Controller
         $is_comment = $request->is("api/admin/reports/comment");
 
         if ($is_video){
-            $query = Video::with(["user", "channels"]);
+            $query = Video::with(["user", "channel"]);
         }
 
         if ($is_comment){

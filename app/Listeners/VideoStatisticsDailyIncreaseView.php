@@ -30,7 +30,7 @@ class VideoStatisticsDailyIncreaseView
     {
         $user = $event->user;
         $video = $event->video;
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
         $pointsPerView = config('general.points.per_view');
 
         $statistics = VideoStatisticsDaily::firstOrNew([
