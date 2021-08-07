@@ -354,7 +354,7 @@ class VideoController extends Controller
 
             $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
         }else{
-            $video->tags()->sync();
+            $video->tags()->sync([]);
         }
 
         // adding playlist
