@@ -197,6 +197,7 @@ Route::group([
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 });
 
 
@@ -236,6 +237,7 @@ Route::group([
     Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
