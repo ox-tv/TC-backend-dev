@@ -20,7 +20,7 @@ class PricingRepository implements PricingRepositoryInterface
         $plan = $pricing->plan()->first();
         $paymentMethod = $pricing->paymentMethod()->first();
 
-        if ($user->hero_due_at){
+        if ($user->hero_due_at && $user->hero_due_at > Carbon::now()){
             $user->hero_due_at = $user->hero_due_at->addDays($plan->interval);
         }else{
             $user->hero_due_at = Carbon::now()->addDays($plan->interval);

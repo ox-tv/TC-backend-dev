@@ -10,7 +10,10 @@ use App\Http\Resources\UserItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\VideoStatisticsDaily;
+use App\Services\PointService;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -264,4 +267,46 @@ class UserController extends Controller
         return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
     }
 
+    public function userPoints(Request $request,PointService $pointService, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->firstOfMonth());
+        $to = Arr::get($filters, 'to', Carbon::now());
+
+
+        $points = $pointService->calcPoint($user,['from' => $from, 'to' => $to]);
+
+        return response()->json(['points' => $points]);
+    }
+
+    public function userMonthlyPoints(Request $request, PointService $pointService, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $points = [];
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
+        $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
+        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+        foreach ($monthPeriods as $month) {
+            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
+            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
+
+            $points[$month->format("Y-m")] = [
+                'hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
+            ];
+        }
+
+        return response()->json(['points' => $points]);
+    }
 }

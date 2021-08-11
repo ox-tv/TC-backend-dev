@@ -7,7 +7,6 @@ use Amir\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
@@ -126,9 +125,12 @@ class User extends Authenticatable
 
     // Relations
 
-    public function notifications()
-    {
-        return $this->morphMany(Notification::class, 'notifiable')->orderBy('created_at', 'desc');
+    public function notifications(){
+        return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
+    }
+
+    public function unreadNotifications(){
+        return $this->notifications()->wherePivotNull('read_at');
     }
 
     public function channel(){
@@ -136,7 +138,7 @@ class User extends Authenticatable
     }
 
     public function subscribedChannels(){
-        return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id');
+        return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id')->withTimestamps();
     }
 
     public function messages(){

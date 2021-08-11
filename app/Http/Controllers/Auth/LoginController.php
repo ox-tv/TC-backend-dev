@@ -73,7 +73,9 @@ class LoginController extends Controller
 
     public function send_password_reset_link(Request $request)
     {
-        $user = User::where("email", $request->get("email"))->firstOrFail();
+        $user = User::where("email", $request->get("email"))->first();
+
+        abort_unless($user, 404, 'The email you entered does not exist.');
 
         $reset_password = new PasswordReset();
 

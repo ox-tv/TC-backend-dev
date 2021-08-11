@@ -11,17 +11,27 @@ class NewVideoPublished extends Notification
 {
     use Queueable;
 
-    private $scope;
-    private $payload;
+    public $type;
+    public $scope;
+    public $entityType;
+    public $entityId;
+    public $userGroup;
+    public $payload;
+    public $from;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($scope, $payload)
+    public function __construct($scope, $userGroup, $payload, $entityType = null, $entityId = null)
     {
+        $this->type = class_basename(__CLASS__);
         $this->scope = $scope;
+        $this->entityType = $entityType;
+        $this->entityId = $entityId;
+        $this->from = null;
+        $this->userGroup = $userGroup;
         $this->payload = $payload;
     }
 
@@ -33,16 +43,7 @@ class NewVideoPublished extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return [];
     }
 
-
-    public function toArray($notifiable)
-    {
-        return [
-            'payload' => $this->payload,
-            'scope' => $this->scope,
-            'type' => 'NewVideoPublished',
-        ];
-    }
 }

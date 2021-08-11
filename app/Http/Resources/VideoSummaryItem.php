@@ -34,7 +34,7 @@ class VideoSummaryItem extends JsonResource
             'duration' => $this->duration,
             'watch_time' => $this->watch_time,
             'status' => $this->status ? Video::STATUS_TEXT[$this->status] : null,
-            'channel' => ChannelSummaryItem::make($this->channels->first()),
+            'channel' => ChannelSummaryItem::make($this->channel),
             'category' => $this->category,
             'categories' => $this->categories,
             'crypto_currencies' => $this->crypto_currencies,

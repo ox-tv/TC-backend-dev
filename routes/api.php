@@ -60,8 +60,10 @@ Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@sho
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
 
+// Video End Screen Cards
+Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers');
+
 // Video chapters
-//Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->only(['index']);
 Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
 
 // Video like/dislike routes
@@ -152,11 +154,16 @@ Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\Me
 
 // hero membership
 Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['index']);
+Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
+
+// Points
+Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
 
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
-
+    Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
+    Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
 });
 
 
@@ -185,7 +192,12 @@ Route::group([
 
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 
+    Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
+
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
+
+    Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 });
 
 
@@ -206,9 +218,11 @@ Route::group([
     Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
+    Route::get('users/{user}/points', '\App\Http\Controllers\UserController@userPoints')->name('users.points');
+    Route::get('users/{user}/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('users.monthly-points');
+
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
-    Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::get('admins', '\App\Http\Controllers\UserController@index')->name('admins');
 
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
@@ -219,6 +233,11 @@ Route::group([
     Route::post('videos', '\App\Http\Controllers\VideoController@store')->name("videos.store");
 
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
+
+    Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
+
+    Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');

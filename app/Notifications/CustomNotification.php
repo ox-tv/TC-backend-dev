@@ -11,18 +11,28 @@ class CustomNotification extends Notification
 {
     use Queueable;
 
-    private $scope;
-    private $message;
+    public $type;
+    public $scope;
+    public $entityType;
+    public $entityId;
+    public $userGroup;
+    public $payload;
+    public $from;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($scope, $message)
+    public function __construct($scope, $userGroup, $payload, $entityType = null, $entityId = null)
     {
+        $this->type = class_basename(__CLASS__);
         $this->scope = $scope;
-        $this->message = $message;
+        $this->entityType = $entityType;
+        $this->entityId = $entityId;
+        $this->from = auth('api')->id();
+        $this->userGroup = $userGroup;
+        $this->payload = $payload;
     }
 
     /**
@@ -33,17 +43,6 @@ class CustomNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
-    }
-
-
-    public function toArray($notifiable)
-    {
-        return [
-            'payload' => ['message' => $this->message],
-            'scope' => $this->scope,
-            'type' => 'CustomNotification',
-            'from' => auth('api')->id(),
-        ];
+        return [];
     }
 }

@@ -3,27 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\CacheManagement\ChannelCacheManager;
-use App\Http\Requests\VideoDislike;
-use App\Http\Requests\VideoLike;
-use App\Http\Requests\VideoStore;
-use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoItem;
-use App\Http\Resources\VideoSummaryItem;
-use App\Models\Category;
+use App\Events\VideoLiked;
 use App\Models\Video;
 use App\Models\UserVideo;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class UserVideoRelationController extends Controller
 {
     public function like(Video $video, ChannelCacheManager $channelCacheManager)
     {
         $userId = Auth::id();
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);
@@ -50,6 +40,8 @@ class UserVideoRelationController extends Controller
             $channelCacheManager->addToChannelsMonthLikes($channel->id, 1);
         }
 
+        event(new VideoLiked($video, auth('api')->user(), $isLiked?-1:1, $isDisliked?-1:0));
+
         return response()->json([
             'is_liked' => $video->is_liked,
             'is_disliked' => $video->is_disliked,
@@ -62,7 +54,7 @@ class UserVideoRelationController extends Controller
     public function dislike(Video $video, ChannelCacheManager $channelCacheManager){
 
         $userId = Auth::id();
-        $channel = $video->channels()->first();
+        $channel = $video->channel;
 
         $isDisliked = $video->dislikedBy()->find($userId);
         $isLiked = $video->likedBy()->find($userId);
@@ -87,6 +79,8 @@ class UserVideoRelationController extends Controller
             $video->dislikedBy()->attach($userId, ['relation' => UserVideo::DISLIKED_RELATION]);
             $channelCacheManager->addToChannelsMonthLikes($channel->id, -1);
         }
+
+        event(new VideoLiked($video, auth('api')->user(), $isLiked?-1:0, $isDisliked?-1:1));
 
         return response()->json([
             'is_liked' => $video->is_liked,

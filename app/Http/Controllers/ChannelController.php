@@ -10,13 +10,16 @@ use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
+use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
+use App\Models\Notification;
 use App\Models\UserVideo;
 use App\Models\Video;
 use App\Notifications\ImportRequestAccepted;
 use App\Notifications\ImportRequestCompleted;
+use App\Notifications\TCNotification\TCNotification;
 use App\Notifications\UpdateChannelStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -177,12 +180,12 @@ class ChannelController extends Controller
 
         if(in_array('videos', explode(',', $request->get('include', '')))){
 
-            $videos = Video::published()->whereHas('channels', function ($query) use ($id_or_slug) {
+            $videos = Video::published()->whereHas('channel', function ($query) use ($id_or_slug) {
                 return $query->where('id', $id_or_slug)->orWhere('slug', $id_or_slug);
             })->paginate()->appends($request->all());
 
             $result->additional([
-                'videos' => VideoCollection::make($videos)
+                'videos' => VideoItem::collection($videos)
             ]);
         }
 
@@ -243,10 +246,16 @@ class ChannelController extends Controller
 
 
         if($request->is('api/admin/*') && $prev_status != $current_status){
-            $channel->owner->notify(new UpdateChannelStatus('publisher', [
-                'prev_status' => Channel::STATUS_TEXT[$prev_status],
-                'current_status' => Channel::STATUS_TEXT[$current_status],
-            ]));
+            TCNotification::send(collect([$channel->owner]), new UpdateChannelStatus(
+                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'prev_status' => Channel::STATUS_TEXT[$prev_status],
+                    'current_status' => Channel::STATUS_TEXT[$current_status],
+                ],
+                get_class($channel),
+                $channel->id
+            ));
         }
 
         return new ChannelItem($channel);
@@ -273,8 +282,9 @@ class ChannelController extends Controller
             throw new NotFoundHttpException();
         }
 
-        if(is_null($video->channels()->first())){
-            $channel->videos()->attach($video);
+        if (empty($video->channel_id)){
+            $video->channel_id = $channel->id;
+            $video->save();
         }
     }
 
@@ -315,12 +325,14 @@ class ChannelController extends Controller
 
         $channel->save();
 
-        $user = $channel->owner;
-
-        $user->notify(new ImportRequestAccepted('publisher',
+        TCNotification::send(collect([$channel->owner]), new ImportRequestAccepted(
+            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
-                'channel' => ChannelMinimalItem::make($channel)
-            ]
+                'channel' => ChannelMinimalItem::make($channel),
+            ],
+            get_class($channel),
+            $channel->id
         ));
 
         return response()->json([
@@ -339,15 +351,17 @@ class ChannelController extends Controller
         $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
-        $user = $channel->owner;
-
-        $user->notify(new ImportRequestCompleted('publisher',
+        TCNotification::send(collect([$channel->owner]), new ImportRequestCompleted(
+            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'channel' => ChannelMinimalItem::make($channel)
-            ]
+            ],
+            get_class($channel),
+            $channel->id
         ));
 
-        Mail::to($user->email)
+        Mail::to($channel->owner->email)
             ->queue(new ImportRequestCompletedMail());
 
         return response()->json([

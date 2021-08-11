@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
@@ -11,12 +12,12 @@ use App\Http\Resources\CommentItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoItem;
 use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
+use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
@@ -24,8 +25,10 @@ use App\Models\Video;
 use App\Notifications\DeleteVideo;
 use App\Notifications\HideVideo;
 use App\Notifications\NewVideoPublished;
+use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -152,7 +155,6 @@ class VideoController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return VideoItem
      */
     public function store(VideoStore $request)
     {
@@ -228,14 +230,21 @@ class VideoController extends Controller
         }
 
         if ($video->status == Video::STATUS_PUBLISHED){
-            $channel = $video->channels()->first();
-            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-                'video' => VideoMinimalItem::make($video),
-                'channel' => ChannelMinimalItem::make($channel),
-            ]));
+            $channel = $video->channel;
+
+            TCNotification::send($channel->subscribers, new NewVideoPublished(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'video' => VideoMinimalItem::make($video),
+                    'channel' => ChannelMinimalItem::make($channel),
+                ],
+                get_class($video),
+                $video->id
+            ));
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
 
     }
 
@@ -244,7 +253,6 @@ class VideoController extends Controller
      *
      * @param mixed $id_or_url_hash
      * @param Request $request
-     * @return VideoItem|\Illuminate\Http\JsonResponse
      */
     public function show($id_or_url_hash, Request $request)
     {
@@ -270,7 +278,6 @@ class VideoController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param Video $video
-     * @return VideoItem
      */
     public function update(VideoUpdate $request, Video $video)
     {
@@ -346,6 +353,8 @@ class VideoController extends Controller
             });
 
             $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+        }else{
+            $video->tags()->sync([]);
         }
 
         // adding playlist
@@ -355,14 +364,21 @@ class VideoController extends Controller
 
 
         if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
-            $channel = $video->channels()->first();
-            \Illuminate\Support\Facades\Notification::send($channel->subscribers, new NewVideoPublished('user', [
-                'video' => VideoMinimalItem::make($video),
-                'channel' => ChannelMinimalItem::make($channel),
-            ]));
+            $channel = $video->channel;
+
+            TCNotification::send($channel->subscribers, new NewVideoPublished(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'video' => VideoMinimalItem::make($video),
+                    'channel' => ChannelMinimalItem::make($channel),
+                ],
+                get_class($video),
+                $video->id
+            ));
         }
 
-        return new VideoItem($video);
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**
@@ -403,10 +419,14 @@ class VideoController extends Controller
         $video->delete();
 
         if (request()->is('api/admin/videos/*')){
-            $video->user->notify(new DeleteVideo('publisher',
+            TCNotification::send(collect([$video->user]), new DeleteVideo(
+                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                 [
                     'video' => videoMinimalItem::make($video),
-                ]
+                ],
+                get_class($video),
+                $video->id
             ));
         }
 
@@ -522,10 +542,14 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        $video->user->notify(new HideVideo('publisher',
+        TCNotification::send(collect([$video->user]), new HideVideo(
+            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'video' => videoMinimalItem::make($video),
-            ]
+            ],
+            get_class($video),
+            $video->id
         ));
 
         return VideoMinimalItem::make($video);
@@ -548,13 +572,39 @@ class VideoController extends Controller
         abort_if(is_null($video), 404);
 
 
-        return \App\Http\Resources\Video\VideoItem::collection($video->related_videos);
+        $query = Video::published()->where("id", "!=", $video->id);
+
+        $tags = $video->tags()->pluck('id')->toArray();
+        $category = $video->category ? $video->category->id : null;
+
+        if(!$category && !count($tags)){
+            return \App\Http\Resources\Video\VideoItem::collection(new Paginator([],15));
+        }
+
+        $query->where(function ($query) use ($tags, $category){
+
+            if($category){
+                $query->whereHas('category', function($q) use ($category){
+                    $q->where('id', $category);
+                });
+            }
+
+            if( count($tags) ){
+                $query->orWhereHas('tags', function($q) use ($tags){
+                    $q->whereIn('id', $tags);
+                });
+            }
+        });
+
+        return \App\Http\Resources\Video\VideoItem::collection($query->paginate());
     }
 
     public function increase_view(Video $video)
     {
         $video->view_count++;
         $video->save();
+
+        event(new VideoViewed($video, auth('api')->user()));
 
         return $video->view_count;
     }
