@@ -23,7 +23,8 @@ class GeneralController extends Controller
         // Get user favorite coin videos else trending coin videos
         if ($user){
             $coin_ids = $user->favoriteCryptoCurrencies()->pluck('id')->toArray();
-        }else{
+        }
+        if (!$user || empty($coin_ids)){
             $coin_ids = DB::table('crypto_currency_user')
                 ->selectRaw('COUNT(*) AS count, `crypto_currency_id`')
                 ->groupBy('crypto_currency_id')
