@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
@@ -244,8 +245,9 @@ class VideoController extends Controller
             ));
         }
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        event(new VideoUploaded($video->channel));
 
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**

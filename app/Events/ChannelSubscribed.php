@@ -2,8 +2,8 @@
 
 namespace App\Events;
 
+use App\Models\Channel;
 use App\Models\Video;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;

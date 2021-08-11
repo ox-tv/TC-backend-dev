@@ -308,15 +308,21 @@ class ChannelController extends Controller
 
         $user = Auth::user();
 
-        if($channel->subscribers()->find($user->id)){
+        $subscribedBefore = $channel->subscribers()->where('id', $user->id)->exists();
+
+        if($subscribedBefore){
             $channel->subscribers()->detach(Auth::user());
-            event(new ChannelSubscribed($channel, auth('api')->user(), -1, 1));
         }else{
             $channel->subscribers()->attach(Auth::user());
-            event(new ChannelSubscribed($channel, auth('api')->user(), 1, 0));
         }
 
-        return new ChannelItem($channel);
+        event(new ChannelSubscribed(
+            $channel,
+            auth('api')->user(),
+            $subscribedBefore?0:1,
+            $subscribedBefore?1:0));
+
+        return new \App\Http\Resources\Channel\ChannelItem($channel);
     }
 
     public function importRequest(ChannelImportRequest $request, Channel $channel){
