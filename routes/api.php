@@ -176,8 +176,11 @@ Route::group([
 ], function(){
 
     // channels
-    Route::middleware('auth:api')->get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
-    Route::middleware('auth:api')->put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
+    Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
+    Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
+    Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
+    Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
+
 
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
@@ -242,10 +245,13 @@ Route::group([
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
 
+
     Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
     Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
     Route::put('channels/{channel}/import-request', '\App\Http\Controllers\ChannelController@importRequest')->name("channels.import_request");
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
+    Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
+    Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
 
