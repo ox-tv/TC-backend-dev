@@ -94,19 +94,17 @@ class ChannelStatisticsController extends Controller
         return response()->json(['statistics' => $statistics]);
     }
 
-    public function overview(Request $request, $idOrSlug)
+    public function overview(Request $request, $idOrSlug = null)
     {
-        $channelQuery = Channel::query();
+        if ($request->is('api/admin/*')){
 
-        if (!$request->is('api/admin/*')){
-            $channelQuery->mine();
+            $channel = Channel::where(function ($query) use ($idOrSlug){
+                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+            })->firstOrFail();
+
+        }else{
+            $channel = auth('api')->user()->channel;
         }
-
-        $channelQuery->where(function ($query) use ($idOrSlug){
-            $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-        });
-
-        $channel = $channelQuery->firstOrFail();
 
 
         $filters = $request->get('filters', []);
