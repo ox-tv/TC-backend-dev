@@ -181,7 +181,7 @@ Route::group([
     Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channel/statistics/overview', '\App\Http\Controllers\ChannelStatisticsController@overview')->name('channel.statistics.overview');
-
+    Route::get('channel/statistics/overview-monthly', '\App\Http\Controllers\ChannelStatisticsController@overviewMonthly')->name('channel.statistics.overview-monthly');
 
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
@@ -254,6 +254,7 @@ Route::group([
     Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channels/{channel}/statistics/overview', '\App\Http\Controllers\ChannelStatisticsController@overview')->name('channel.statistics.overview');
+    Route::get('channels/{channel}/statistics/overview-monthly', '\App\Http\Controllers\ChannelStatisticsController@overviewMonthly')->name('channel.statistics.overview-monthly');
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
 
