@@ -4,6 +4,7 @@ namespace App\Http\Resources\VideoStatisticsDaily;
 
 use App\Http\Resources\PaymentMethod\PaymentMethodItem;
 use App\Http\Resources\Plan\PlanItem;
+use App\Http\Resources\Video\VideoMinimalItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class VideoStatisticsDailyItem extends JsonResource
@@ -18,7 +19,7 @@ class VideoStatisticsDailyItem extends JsonResource
     {
         $withVideo = $this->relationLoaded('video');
 
-        $video = ($withVideo)? PlanItem::make($this->video) : [];
+        $video = ($withVideo)? VideoMinimalItem::make($this->video) : [];
 
         return [
             'id' => $this->id,

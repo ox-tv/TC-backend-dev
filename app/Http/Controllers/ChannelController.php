@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\CacheManagement\ChannelCacheManager;
+use App\Events\ChannelSubscribed;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
@@ -307,14 +308,21 @@ class ChannelController extends Controller
 
         $user = Auth::user();
 
-        if($channel->subscribers()->find($user->id)){
+        $subscribedBefore = $channel->subscribers()->where('id', $user->id)->exists();
+
+        if($subscribedBefore){
             $channel->subscribers()->detach(Auth::user());
         }else{
             $channel->subscribers()->attach(Auth::user());
         }
 
-        return new ChannelItem($channel);
+        event(new ChannelSubscribed(
+            $channel,
+            auth('api')->user(),
+            $subscribedBefore?0:1,
+            $subscribedBefore?1:0));
 
+        return new \App\Http\Resources\Channel\ChannelItem($channel);
     }
 
     public function importRequest(ChannelImportRequest $request, Channel $channel){
