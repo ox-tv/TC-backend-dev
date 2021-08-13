@@ -93,4 +93,70 @@ class ChannelStatisticsController extends Controller
 
         return response()->json(['statistics' => $statistics]);
     }
+
+    public function overview(Request $request, $idOrSlug = null)
+    {
+        if ($request->is('api/admin/*')){
+
+            $channel = Channel::where(function ($query) use ($idOrSlug){
+                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+            })->firstOrFail();
+
+        }else{
+            $channel = auth('api')->user()->channel;
+        }
+
+
+        $filters = $request->get('filters', []);
+        $fromFilter = Arr::get($filters, 'from');
+        $toFilter = Arr::get($filters, 'to');
+
+
+        // Video Statistics by channel
+        $videoStatisticsQuery = VideoStatisticsDaily::where([
+            'channel_id' => $channel->id
+        ]);
+
+        if($fromFilter){
+            $videoStatisticsQuery->where('date', '>=', $fromFilter);
+        }
+
+        if($toFilter){
+            $videoStatisticsQuery->where('date', '<=', $toFilter);
+        }
+
+
+        // channel Statistics
+        $channelStatisticsQuery = channelStatisticsDaily::where([
+            'channel_id' => $channel->id
+        ]);
+
+        if($fromFilter){
+            $channelStatisticsQuery->where('date', '>=', $fromFilter);
+        }
+
+        if($toFilter){
+            $channelStatisticsQuery->where('date', '<=', $toFilter);
+        }
+
+        return response()->json([
+            'points' => $videoStatisticsQuery->sum('points'),
+            'views_hero' => $videoStatisticsQuery->sum('views_hero'),
+            'views_non_hero' => $videoStatisticsQuery->sum('views_non_hero'),
+            'views_total' => $videoStatisticsQuery->sum('views_total'),
+            'likes_hero' => $videoStatisticsQuery->sum('likes_hero'),
+            'likes_non_hero' => $videoStatisticsQuery->sum('likes_non_hero'),
+            'likes_total' => $videoStatisticsQuery->sum('likes_total'),
+            'dislikes_hero' => $videoStatisticsQuery->sum('dislikes_hero'),
+            'dislikes_non_hero' => $videoStatisticsQuery->sum('dislikes_non_hero'),
+            'dislikes_total' => $videoStatisticsQuery->sum('dislikes_total'),
+            'subscribers_hero' => $channelStatisticsQuery->sum('subscribers_hero'),
+            'subscribers_non_hero' => $channelStatisticsQuery->sum('subscribers_non_hero'),
+            'subscribers_total' => $channelStatisticsQuery->sum('subscribers_total'),
+            'unsubscribers_hero' => $channelStatisticsQuery->sum('unsubscribers_hero'),
+            'unsubscribers_non_hero' => $channelStatisticsQuery->sum('unsubscribers_non_hero'),
+            'unsubscribers_total' => $channelStatisticsQuery->sum('unsubscribers_total'),
+            'upload_videos_total' => $channelStatisticsQuery->sum('upload_videos_total'),
+        ]);
+    }
 }
