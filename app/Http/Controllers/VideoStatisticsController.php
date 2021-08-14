@@ -93,6 +93,9 @@ class VideoStatisticsController extends Controller
             'dislikes_hero' => $statisticsQuery->sum('dislikes_hero'),
             'dislikes_non_hero' => $statisticsQuery->sum('dislikes_non_hero'),
             'dislikes_total' => $statisticsQuery->sum('dislikes_total'),
+            'comments_hero' => $statisticsQuery->sum('comments_hero'),
+            'comments_non_hero' => $statisticsQuery->sum('comments_non_hero'),
+            'comments_total' => $statisticsQuery->sum('comments_total'),
         ]);
     }
 }

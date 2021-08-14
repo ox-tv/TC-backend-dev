@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoCommented;
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\CommentCollection;
 use App\Http\Resources\CommentItem;
@@ -127,7 +128,7 @@ class CommentController extends Controller
         $reply->video_id = $comment->video_id;
         $reply->save();
 
-        $comment->parent()->save($reply);
+        $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
 
         return new CommentItem($reply);
     }

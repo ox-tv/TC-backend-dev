@@ -35,6 +35,9 @@ class VideoStatisticsDailyItem extends JsonResource
             'dislikes_hero' => $this->dislikes_hero,
             'dislikes_non_hero' => $this->dislikes_non_hero,
             'dislikes_total' => $this->dislikes_total,
+            'comments_hero' => $this->comments_hero,
+            'comments_non_hero' => $this->comments_non_hero,
+            'comments_total' => $this->comments_total,
             'points' => $this->points,
             'video' => $this->when($withVideo, $video),
         ];
