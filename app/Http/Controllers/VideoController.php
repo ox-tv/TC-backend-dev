@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
@@ -465,6 +466,8 @@ class VideoController extends Controller
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
+
+        event(new VideoCommented($video, auth('api')->user()));
 
         return new \App\Http\Resources\Comment\CommentItem($comment);
     }
