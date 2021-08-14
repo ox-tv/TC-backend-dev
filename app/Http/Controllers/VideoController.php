@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
@@ -65,6 +66,7 @@ class VideoController extends Controller
         $cryptoCurrencySlug = Arr::get($filters, 'cryptocurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
         $channelId = Arr::get($filters, 'channel');
+        $channelSlug = Arr::get($filters, 'channel_slug');
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->firstOrFail();
@@ -130,6 +132,12 @@ class VideoController extends Controller
 
         if($channelId){
             $query->inChannel($channelId);
+        }
+
+        if($channelSlug){
+            $query->whereHas('channel', function($q) use ($channelSlug){
+                return $q->where('slug', $channelSlug);
+            });
         }
 
         $videos = $query->paginate();
@@ -244,8 +252,9 @@ class VideoController extends Controller
             ));
         }
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        event(new VideoUploaded($video->channel));
 
+        return new \App\Http\Resources\Video\VideoItem($video);
     }
 
     /**
@@ -260,7 +269,7 @@ class VideoController extends Controller
 
         if(is_null($video)){
             return response()->json([
-                'message' => _('general.not_found')
+                'message' => __('general.not_found')
             ],404);
         }
 

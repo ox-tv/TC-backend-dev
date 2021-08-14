@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\ChannelSubscribed;
+use App\Events\VideoUploaded;
+use App\Listeners\ChannelStatisticsDailySubscribed;
+use App\Listeners\ChannelStatisticsDailyVideoUploaded;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -27,6 +31,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,
+        ],
+        ChannelSubscribed::class => [
+            ChannelStatisticsDailySubscribed::class,
+        ],
+        VideoUploaded::class => [
+            ChannelStatisticsDailyVideoUploaded::class,
         ],
     ];
 
