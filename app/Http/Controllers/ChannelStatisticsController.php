@@ -139,7 +139,7 @@ class ChannelStatisticsController extends Controller
             ];
         }
 
-        return response()->json(['statistics' => $statistics]);
+        return $statistics;
     }
 
     public function daily(Request $request, $idOrSlug = null)
