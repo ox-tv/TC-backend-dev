@@ -22,11 +22,15 @@ class ChannelStatisticsController extends Controller
 {
     public function total(Request $request, $idOrSlug = null)
     {
+        $channel = null;
+
         if ($request->is('api/admin/*')){
 
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
 
         }else{
             $channel = auth('api')->user()->channel;
@@ -39,42 +43,48 @@ class ChannelStatisticsController extends Controller
 
 
         // Video Statistics by channel
-        $videoStatisticsQuery = VideoStatisticsDaily::where([
-            'channel_id' => $channel->id
-        ]);
+        $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
 
-        if($fromFilter){
-            $videoStatisticsQuery->where('date', '>=', $fromFilter);
-        }
+            return $query->where('channel_id', $channel->id);
 
-        if($toFilter){
-            $videoStatisticsQuery->where('date', '<=', $toFilter);
-        }
+        })->when($fromFilter, function ($query, $fromFilter) {
+
+            return $query->where('date', '>=', $fromFilter);
+
+        })->when($toFilter, function ($query, $toFilter) {
+
+            return $query->where('date', '<=', $toFilter);
+        });
 
 
         // channel Statistics
-        $channelStatisticsQuery = channelStatisticsDaily::where([
-            'channel_id' => $channel->id
-        ]);
+        $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
 
-        if($fromFilter){
-            $channelStatisticsQuery->where('date', '>=', $fromFilter);
-        }
+            return $query->where('channel_id', $channel->id);
 
-        if($toFilter){
-            $channelStatisticsQuery->where('date', '<=', $toFilter);
-        }
+        })->when($fromFilter, function ($query, $fromFilter) {
+
+            return $query->where('date', '>=', $fromFilter);
+
+        })->when($toFilter, function ($query, $toFilter) {
+
+            return $query->where('date', '<=', $toFilter);
+        });
 
         return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery));
     }
 
     public function monthly(Request $request, $idOrSlug = null)
     {
+        $channel = null;
+
         if ($request->is('api/admin/*')){
 
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
 
         }else{
             $channel = auth('api')->user()->channel;
@@ -92,11 +102,15 @@ class ChannelStatisticsController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
+            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', '>=', $from_day)
                 ->whereDate('date', '<=', $to_day)->get();
 
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', '>=', $from_day)
                 ->whereDate('date', '<=', $to_day)->get();
 
@@ -108,11 +122,15 @@ class ChannelStatisticsController extends Controller
 
     public function daily(Request $request, $idOrSlug = null)
     {
+        $channel = null;
+
         if ($request->is('api/admin/*')){
 
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
 
         }else{
             $channel = auth('api')->user()->channel;
@@ -130,10 +148,14 @@ class ChannelStatisticsController extends Controller
 
         foreach ($periods as $day) {
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
+            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', $day->format('Y-m-d'))->get();
 
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', $day->format('Y-m-d'))->get();
 
             $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);

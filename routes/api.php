@@ -212,6 +212,9 @@ Route::group([
     'role' => 'admin'
 ], function(){
     Route::get('dashboard', '\App\Http\Controllers\GeneralController@adminDashboard')->name('dashboard');
+    Route::get('channels/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channels.statistics.daily');
+    Route::get('channels/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channels.statistics.monthly');
+    Route::get('channels/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channels.statistics.total');
 
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index','destroy']);
 
