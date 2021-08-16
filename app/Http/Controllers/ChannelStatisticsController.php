@@ -126,7 +126,7 @@ class ChannelStatisticsController extends Controller
 
 
         $periods = CarbonPeriod::create($from, '1 day', $to);
-        abort_unless(count($periods) <= 31, 400, 'timespan between from and to is more than 30 days');
+        abort_unless(count($periods) <= 31, 400, 'timespan between from and to is more than 1 month');
 
         foreach ($periods as $day) {
 
