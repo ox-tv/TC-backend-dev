@@ -211,6 +211,8 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::get('dashboard', '\App\Http\Controllers\GeneralController@adminDashboard')->name('dashboard');
+
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index','destroy']);
 
     Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);

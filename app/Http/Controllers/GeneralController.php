@@ -8,6 +8,10 @@ use App\Http\Resources\Video\HomeVideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryCollection;
 use App\Models\Category;
+use App\Models\Channel;
+use App\Models\Comment;
+use App\Models\Report;
+use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
@@ -74,5 +78,60 @@ class GeneralController extends Controller
             'popular_videos' => HomeVideoItem::collection($popularVideos),
             'favorite_coin_videos' => HomeVideoItem::collection($favoriteCoinVideos),
         ]);
+    }
+
+    public function adminDashboard(Request $request)
+    {
+        $result = [
+            'total_registered_users' => 0,
+            'new_registered_users_this_month' => 0,
+            'total_channels' => 0,
+            'new_channels_this_month' => 0,
+            'total_videos' => 0,
+            'new_videos_this_month' => 0,
+            'videos_hours_minutes' => 0,
+            'videos_sizes_MB' => 0,
+            'total_hero_members' => 0,
+            'new_hero_members_this_month' => 0,
+            'expired_members_this_month' => 0,
+            'reported_comments' => 0,
+            'reported_videos' => 0,
+        ];
+
+        $now = Carbon::now();
+        $startOfMonth = (Carbon::now())->startOfMonth();
+
+        $result['total_registered_users'] = User::withTrashed()->count();
+        $result['new_registered_users_this_month'] = User::withTrashed()
+            ->whereDate('created_at','>=', $startOfMonth->format('Y-m-d H:i:s'))
+            ->count();
+
+        $result['total_channels'] = Channel::withTrashed()->count();
+        $result['new_channels_this_month'] = Channel::withTrashed()
+            ->whereDate('created_at','>=', $startOfMonth->format('Y-m-d H:i:s'))
+            ->count();
+
+        $result['total_videos'] = Video::withTrashed()->count();
+        $result['new_videos_this_month'] = Video::withTrashed()
+            ->whereDate('created_at','>=', $startOfMonth->format('Y-m-d H:i:s'))
+            ->count();
+
+        $result['videos_hours_minutes'] = round(Video::withTrashed()->sum('duration') / 60);
+        $result['videos_sizes_MB'] = rand(1,99);
+
+        $result['total_hero_members'] = User::withTrashed()->isHero()->count();
+        $result['new_hero_members_this_month'] = User::withTrashed()->isHero()->whereHas('pricing', function ($q) use ($startOfMonth){
+            $q->where('pricing_user.created_at', '>=', $startOfMonth->format('Y-m-d H:i:s'));
+        })->count();
+        $result['expired_members_this_month'] = User::withTrashed()
+            ->whereDate('hero_due_at','>=', $startOfMonth->format('Y-m-d H:i:s'))
+            ->whereDate('hero_due_at','<', $now->format('Y-m-d H:i:s'))
+            ->count();
+
+        $result['reported_comments'] = Report::where('reportable_type', Comment::class)->count();
+        $result['reported_videos'] = Report::where('reportable_type', Video::class)->count();
+
+
+        return $result;
     }
 }
