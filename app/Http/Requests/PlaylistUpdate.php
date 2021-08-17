@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Playlist;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class PlaylistUpdate extends FormRequest
 {
@@ -26,6 +28,7 @@ class PlaylistUpdate extends FormRequest
     {
         return [
             'name' => 'required',
+            'status' => ['nullable', Rule::in([Playlist::STATUS_TEXT])],
         ];
     }
 

@@ -100,7 +100,8 @@ Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Contro
 
 
 // Playlist API
-Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class);
+Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index');
+Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index']);
 
 // -- add video to playlist
 Route::middleware('auth:api')->put('playlists/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');
@@ -182,6 +183,8 @@ Route::group([
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channel/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
 
+    Route::apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->only(['index']);
+
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
     Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin');
@@ -261,6 +264,7 @@ Route::group([
 
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
+    Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index')->name('users.playlists.index');
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except("update");
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");

@@ -6,6 +6,7 @@ use App\Http\Requests\PlaylistStore;
 use App\Http\Requests\PlaylistUpdate;
 use App\Http\Resources\PlaylistCollection;
 use App\Http\Resources\PlaylistItem;
+use App\Models\Channel;
 use App\Models\Playlist;
 use App\Models\User;
 use App\Models\Video;
@@ -21,9 +22,15 @@ class PlaylistController extends Controller
      *
      * @return PlaylistCollection
      */
-    public function index()
+    public function index(Request $request, User $user = null)
     {
-        $query = Playlist::mine();
+        if ($request->is('api/publisher/*')){
+            $query = Playlist::mine();
+        }elseif ($request->is('api/admin/*')){
+            $query = Playlist::where('user_id', $user->id);
+        }else{
+            $query = Playlist::where('user_id', $user->id)->where('status', Playlist::STATUS_PUBLIC);
+        }
 
         $playlists = $query->get();
 
@@ -41,6 +48,7 @@ class PlaylistController extends Controller
         $playlist = new Playlist();
 
         $playlist->name = $request->get('name');
+        $playlist->status = array_flip(Playlist::STATUS_TEXT)[$request->get('status')]?? Playlist::STATUS_PUBLIC;
 
         if($request->is('api/admin/playlists')){
             $playlist->user_id = $request->get('user_id');
@@ -78,6 +86,7 @@ class PlaylistController extends Controller
         }
 
         $playlist->name = $request->get('name');
+        $playlist->status = array_flip(Playlist::STATUS_TEXT)[$request->get('status')]?? Playlist::STATUS_PUBLIC;
 
         $playlist->owner()->associate(Auth::user());
         $playlist->save();
