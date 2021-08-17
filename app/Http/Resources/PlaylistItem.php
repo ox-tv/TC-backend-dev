@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Playlist;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlaylistItem extends JsonResource
@@ -20,6 +21,7 @@ class PlaylistItem extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'url_hash' => $this->url_hash,
+            'status' => Playlist::STATUS_TEXT[$this->status]??'',
             'videos' => $this->when($withVideos, VideoSummaryCollection::make($this->videos)),
         ];
     }
