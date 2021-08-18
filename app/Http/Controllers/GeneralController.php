@@ -93,6 +93,7 @@ class GeneralController extends Controller
             'videos_sizes_MB' => 0,
             'total_hero_members' => 0,
             'new_hero_members_this_month' => 0,
+            'total_expired_members' => 0,
             'expired_members_this_month' => 0,
             'reported_comments' => 0,
             'reported_videos' => 0,
@@ -123,6 +124,10 @@ class GeneralController extends Controller
         $result['new_hero_members_this_month'] = User::withTrashed()->isHero()->whereHas('pricing', function ($q) use ($startOfMonth){
             $q->where('pricing_user.created_at', '>=', $startOfMonth->format('Y-m-d H:i:s'));
         })->count();
+
+
+        $result['total_expired_members'] = User::withTrashed()->whereNotNull('hero_due_at')
+            ->whereDate('hero_due_at','<', $now->format('Y-m-d H:i:s'))->count();
         $result['expired_members_this_month'] = User::withTrashed()
             ->whereDate('hero_due_at','>=', $startOfMonth->format('Y-m-d H:i:s'))
             ->whereDate('hero_due_at','<', $now->format('Y-m-d H:i:s'))
