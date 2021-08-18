@@ -39,7 +39,7 @@ class HeroMembershipController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    public function reportTotal(Request $request, $userId = null)
+    public function earningsTotal(Request $request, $userId = null)
     {
         $filters = $request->get('filters', []);
         $fromFilter = Arr::get($filters, 'from');
@@ -64,7 +64,7 @@ class HeroMembershipController extends Controller
         ];
     }
 
-    public function ReportMonthly(Request $request, $userId = null)
+    public function earningsMonthly(Request $request, $userId = null)
     {
         $result = [];
 
@@ -93,7 +93,7 @@ class HeroMembershipController extends Controller
         return $result;
     }
 
-    public function reportDaily(Request $request, $userId = null)
+    public function earningsDaily(Request $request, $userId = null)
     {
         $statistics = [];
 

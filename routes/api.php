@@ -294,7 +294,7 @@ Route::group([
     Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
     Route::apiResource('plans', '\App\Http\Controllers\PlanController');
 
-    Route::get('membership/statistics/daily', '\App\Http\Controllers\HeroMembershipController@reportDaily')->name('membership.statistics.report-daily');
-    Route::get('membership/statistics/monthly', '\App\Http\Controllers\HeroMembershipController@reportMonthly')->name('membership.statistics.report-monthly');
-    Route::get('membership/statistics/total', '\App\Http\Controllers\HeroMembershipController@reportTotal')->name('membership.statistics.report-total');
+    Route::get('membership/earnings/daily', '\App\Http\Controllers\HeroMembershipController@earningsDaily')->name('membership.earnings.report-daily');
+    Route::get('membership/earnings/monthly', '\App\Http\Controllers\HeroMembershipController@earningsMonthly')->name('membership.earnings.report-monthly');
+    Route::get('membership/earnings/total', '\App\Http\Controllers\HeroMembershipController@earningsTotal')->name('membership.earnings.report-total');
 });
