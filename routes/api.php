@@ -65,6 +65,8 @@ Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaCon
 
 // Video chapters
 Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
+Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles');
+
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -199,6 +201,8 @@ Route::group([
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 
     Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
+    Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store');
+    Route::delete('videos/{id_or_url_hash}/subtitles/{fileName}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy');
 
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
@@ -246,6 +250,8 @@ Route::group([
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
+    Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles')->name('videos.subtitles.index');
+
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
     Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
