@@ -303,4 +303,7 @@ Route::group([
     Route::get('membership/earnings/daily', '\App\Http\Controllers\HeroMembershipController@earningsDaily')->name('membership.earnings.report-daily');
     Route::get('membership/earnings/monthly', '\App\Http\Controllers\HeroMembershipController@earningsMonthly')->name('membership.earnings.report-monthly');
     Route::get('membership/earnings/total', '\App\Http\Controllers\HeroMembershipController@earningsTotal')->name('membership.earnings.report-total');
+
+    Route::apiResource('transactions', '\App\Http\Controllers\TransactionController')->only(['index']);
+
 });
