@@ -24,7 +24,7 @@ class PlaylistController extends Controller
      */
     public function index(Request $request, User $user = null)
     {
-        if ($request->is('api/publisher/*')){
+        if ($request->is('api/my-playlists')){
             $query = Playlist::mine();
         }elseif ($request->is('api/admin/*')){
             $query = Playlist::where('user_id', $user->id);

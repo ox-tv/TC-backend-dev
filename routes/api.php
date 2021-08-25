@@ -103,6 +103,7 @@ Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Contro
 
 // Playlist API
 Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index');
+Route::get('users/my-playlists', '\App\Http\Controllers\PlaylistController@index');
 Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index']);
 
 // -- add video to playlist
@@ -184,8 +185,6 @@ Route::group([
     Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channel/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
-
-    Route::apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->only(['index']);
 
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
