@@ -153,6 +153,10 @@ Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionContro
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
+// Languages
+Route::apiResource('languages', \App\Http\Controllers\LanguageController::class)->only(['index']);
+
+
 // Become A Publisher
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
