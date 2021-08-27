@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Subtitle\SubtitleItem;
+use App\Models\Language;
+use App\Models\Subtitle;
 use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,18 +28,16 @@ class SubtitleController extends Controller
 
         $video = $video_query->firstOrFail();
 
-        $directory = 'subtitles/' . $video->url_hash;
+        $subtitles = Subtitle::where('video_id', $video->id)->get();
 
-        $files = Storage::disk('public')->files($directory);
-
-        return $files;
+        return SubtitleItem::collection($subtitles);
     }
 
     public function store(Request $request, $videoIdOrHash)
     {
         $request->validate([
             'file' => 'required|file|mimes:txt,srt,vtt|max:256',
-            'lang' => 'required',
+            'language_id' => ['required','exists:languages,id'],
         ]);
 
         $video_query = Video::where(function ($query) use ($videoIdOrHash){
@@ -49,9 +50,11 @@ class SubtitleController extends Controller
 
         $video = $video_query->firstOrFail();
 
+        $language = Language::find($request->get('language_id'));
+
         // upload
         $file = $request->file('file');
-        $fileName = $request->get('lang') . '.srt';
+        $fileName = $language->code . '.' . $file->extension();
         $folder = 'subtitles/' . $video->url_hash;
 
         if (!Storage::disk('public')->exists($folder)) {
@@ -64,14 +67,20 @@ class SubtitleController extends Controller
             return response()->json(['message' => 'something wrong!'], 500);
         }
 
-        return Storage::url($path);
+        $subtitle = Subtitle::firstOrCreate([
+                'video_id' => $video->id,
+                'language_id' => $language->id
+            ],[
+                'file_path' => $path
+            ]
+        );
+
+        return SubtitleItem::make($subtitle);
     }
 
-    public function destroy(Request $request, $videoIdOrHash, $fileName)
+    public function destroy(Request $request, Subtitle $subtitle)
     {
-        $video_query = Video::where(function ($query) use ($videoIdOrHash){
-            $query->whereId($videoIdOrHash)->orWhere('url_hash', $videoIdOrHash);
-        });
+        $video_query = Video::where('id', $subtitle->video_id);
 
         if (!$request->is('api/admin/*')){
             $video_query->mine();
@@ -79,12 +88,11 @@ class SubtitleController extends Controller
 
         $video = $video_query->firstOrFail();
 
-        $directory = 'subtitles/' . $video->url_hash;
-        $filePath = $directory . '/' . $fileName;
+        abort_unless(Storage::disk('public')->exists($subtitle->file_path), 404, 'File not found');
 
-        abort_unless(Storage::disk('public')->exists($filePath), 404, 'File not found');
+        Storage::disk('public')->delete($subtitle->file_path);
 
-        Storage::disk('public')->delete($filePath);
+        $subtitle->delete();
 
         return response()->json(['message' => 'ok']);
     }
