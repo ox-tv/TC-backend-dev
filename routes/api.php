@@ -204,8 +204,9 @@ Route::group([
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
 
     Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
+
     Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store');
-    Route::delete('videos/{id_or_url_hash}/subtitles/{fileName}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy');
+    Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy');
 
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
