@@ -25,6 +25,9 @@ jobs:
     
       - name: Migrate
         run: php artisan migrate --force
+    
+      - name: Seeder
+        run: php artisan db:seed
         
       - name: Clear cache
         run: php artisan cache:clear
