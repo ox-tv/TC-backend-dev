@@ -29,7 +29,7 @@ class PlaylistStore extends FormRequest
         return [
             'name' => 'required',
             'user_id' => 'sometimes|exists:users,id',
-            'status' => ['nullable', Rule::in([Playlist::STATUS_TEXT])],
+            'status' => ['nullable', Rule::in(Playlist::STATUS_TEXT)],
         ];
     }
 
