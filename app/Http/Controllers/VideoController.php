@@ -457,7 +457,9 @@ class VideoController extends Controller
      * @param Video $video
      * @return void
      */
-    public function storeComment(VideoComment $request, Video $video){
+    public function storeComment(VideoComment $request, $videoIdOrHash)
+    {
+        $video = Video::published()->where('id', $videoIdOrHash)->orWhere('url_hash', $videoIdOrHash)->firstOrFail();
 
         $user = Auth::user();
 
@@ -474,9 +476,7 @@ class VideoController extends Controller
 
     public function comments($id_or_url_hash)
     {
-        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
-
-        abort_if(is_null($video), 404);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstOrFail();
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }
