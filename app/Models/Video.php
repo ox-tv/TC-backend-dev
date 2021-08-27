@@ -164,6 +164,10 @@ class Video extends Model
         return $this->belongsTo('App\Models\Category');
     }
 
+    public function language(){
+        return $this->belongsTo('App\Models\Language');
+    }
+
     public function reports()
     {
         return $this->morphMany(Report::class, "reportable");

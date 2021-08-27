@@ -63,6 +63,7 @@ class VideoItem extends JsonResource
             'user_id' => $this->user_id,
             'view_count' => $this->view_count,
             'category_id' => $this->category_id,
+            'language' => $this->language,
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
             'is_published' => $this->is_published,

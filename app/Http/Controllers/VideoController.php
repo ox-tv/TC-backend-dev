@@ -210,6 +210,10 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
+        if($request->get('language_id')){
+            $video->language_id = $request->get('language_id');
+        }
+
         $video->save();
 
         // adding categories
@@ -334,6 +338,12 @@ class VideoController extends Controller
         // adding main category
         if($request->get('category')){
             $video->category()->associate($request->get('category'));
+        }
+
+        if($request->get('language_id')){
+            $video->language_id = $request->get('language_id');
+        }else{
+            $video->language_id = null;
         }
 
         $video->save();
