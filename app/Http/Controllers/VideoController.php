@@ -66,12 +66,18 @@ class VideoController extends Controller
         $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
         $cryptoCurrencySlug = Arr::get($filters, 'cryptocurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
+        $playlistHash = Arr::get($filters, 'playlist_hash');
         $channelId = Arr::get($filters, 'channel');
         $channelSlug = Arr::get($filters, 'channel_slug');
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->firstOrFail();
             $categoryId = $category->id;
+        }
+
+        if($playlistHash){
+            $playlist = Playlist::where('url_hash', $playlistHash)->firstOrFail();
+            $playlistId = $playlist->id;
         }
 
         if($cryptoCurrencySlug){
