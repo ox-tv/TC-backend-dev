@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Playlist;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,11 +16,14 @@ class PlaylistItem extends JsonResource
      */
     public function toArray($request)
     {
+        $withChannel = in_array('channel', explode(',', $request->get('include', '')));
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'url_hash' => $this->url_hash,
             'status' => Playlist::STATUS_TEXT[$this->status]??'',
+            'channel' => $this->when($withChannel, ChannelMinimalItem::make($this->owner->channel)),
         ];
     }
 }

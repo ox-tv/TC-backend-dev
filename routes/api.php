@@ -102,7 +102,7 @@ Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Contro
 
 
 // Playlist API
-Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index');
+Route::get('channels/{idOrHash}/playlists', '\App\Http\Controllers\PlaylistController@index');
 Route::get('my-playlists', '\App\Http\Controllers\PlaylistController@index');
 Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index','show']);
 Route::get('playlists/{idOrHash}', '\App\Http\Controllers\PlaylistController@show');
@@ -275,7 +275,7 @@ Route::group([
 
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
-    Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index')->name('users.playlists.index');
+    Route::get('channels/{idOrHash}/playlists', '\App\Http\Controllers\PlaylistController@index')->name('users.playlists.index');
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except("update");
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");

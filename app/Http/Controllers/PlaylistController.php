@@ -22,14 +22,18 @@ class PlaylistController extends Controller
      *
      * @return PlaylistCollection
      */
-    public function index(Request $request, User $user = null)
+    public function index(Request $request, $channelIdOrSlug = null)
     {
-        if ($request->is('api/my-playlists')){
-            $query = Playlist::mine();
-        }elseif ($request->is('api/admin/*')){
-            $query = Playlist::where('user_id', $user->id);
+        if($channelIdOrSlug){
+            $channel = Channel::where('id', $channelIdOrSlug)->orWhere('slug', $channelIdOrSlug)->firstOrFail();
+            $query = Playlist::where('user_id', $channel->owner->id);
+
+            if (!$request->is('api/admin/*')){
+                $query->where('status', Playlist::STATUS_PUBLIC);
+            }
+
         }else{
-            $query = Playlist::where('user_id', $user->id)->where('status', Playlist::STATUS_PUBLIC);
+            $query = Playlist::mine();
         }
 
         $playlists = $query->get();
