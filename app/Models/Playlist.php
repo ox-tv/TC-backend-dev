@@ -39,6 +39,11 @@ class Playlist extends Model
         return $query;
     }
 
+    public function scopePublic($query){
+        $query->where('status', self::STATUS_PUBLIC);
+        return $query;
+    }
+
     // Relations
 
     public function owner(){

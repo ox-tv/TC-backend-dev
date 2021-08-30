@@ -67,8 +67,9 @@ class PlaylistController extends Controller
      * @param Playlist $playlist
      * @return PlaylistItem
      */
-    public function show(Playlist $playlist)
+    public function show($idOrHash)
     {
+        $playlist = Playlist::public()->where('id', $idOrHash)->orWhere('url_hash', $idOrHash)->firstOrFail();
         return new PlaylistItem($playlist);
     }
 

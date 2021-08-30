@@ -104,7 +104,8 @@ Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Contro
 // Playlist API
 Route::get('users/{user}/playlists', '\App\Http\Controllers\PlaylistController@index');
 Route::get('my-playlists', '\App\Http\Controllers\PlaylistController@index');
-Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index']);
+Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index','show']);
+Route::get('playlists/{idOrHash}', '\App\Http\Controllers\PlaylistController@show');
 
 // -- add video to playlist
 Route::middleware('auth:api')->put('playlists/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');

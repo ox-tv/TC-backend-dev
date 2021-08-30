@@ -15,14 +15,11 @@ class PlaylistItem extends JsonResource
      */
     public function toArray($request)
     {
-        $withVideos = in_array('videos', explode(',', $request->get('include', '')));
-
         return [
             'id' => $this->id,
             'name' => $this->name,
             'url_hash' => $this->url_hash,
             'status' => Playlist::STATUS_TEXT[$this->status]??'',
-            'videos' => $this->when($withVideos, VideoSummaryCollection::make($this->videos)),
         ];
     }
 }
