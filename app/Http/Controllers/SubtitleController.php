@@ -7,7 +7,9 @@ use App\Models\Language;
 use App\Models\Subtitle;
 use App\Models\Video;
 use Carbon\Carbon;
+use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class SubtitleController extends Controller
@@ -54,7 +56,8 @@ class SubtitleController extends Controller
 
         // upload
         $file = $request->file('file');
-        $fileName = $language->code . '.' . $file->extension();
+        $extension = $file->getClientOriginalExtension();
+        $fileName = $language->code . '.' . $extension;
         $folder = 'subtitles/' . $video->url_hash;
 
         if (!Storage::disk('public')->exists($folder)) {
@@ -67,7 +70,18 @@ class SubtitleController extends Controller
             return response()->json(['message' => 'something wrong!'], 500);
         }
 
-        $subtitle = Subtitle::firstOrCreate([
+        if(strtolower($extension) != 'vtt'){
+            $oldPath = $path;
+            $path = substr($path, 0, -1 * strlen($file->extension())) . 'vtt';
+
+            Subtitles::convert(
+                Storage::disk('public')->path($oldPath),
+                Storage::disk('public')->path($path)
+            );
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $subtitle = Subtitle::UpdateOrCreate([
                 'video_id' => $video->id,
                 'language_id' => $language->id
             ],[
