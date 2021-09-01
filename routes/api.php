@@ -213,6 +213,8 @@ Route::group([
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
     Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
+
+    Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
 });
 
 
@@ -310,5 +312,9 @@ Route::group([
     Route::get('membership/earnings/total', '\App\Http\Controllers\HeroMembershipController@earningsTotal')->name('membership.earnings.report-total');
 
     Route::apiResource('transactions', '\App\Http\Controllers\TransactionController')->only(['index']);
+
+    Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
+    Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
+    Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
 
 });
