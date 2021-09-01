@@ -20,87 +20,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ChannelStatisticsController extends Controller
 {
-    public function index(Request $request, $idOrSlug = null)
+    public function total(Request $request, $idOrSlug = null)
     {
-        // Check Channel exists
+        $channel = null;
+
         if ($request->is('api/admin/*')){
 
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
-
-        }else{
-            $channel = auth('api')->user()->channel;
-        }
-
-
-        $statisticsQuery = ChannelStatisticsDaily::where([
-            'channel_id' => $channel->id
-        ]);
-
-        $filters = $request->get('filters', []);
-
-        $fromFilter = Arr::get($filters, 'from');
-        $toFilter = Arr::get($filters, 'to');
-
-        if($fromFilter){
-            $statisticsQuery->where('date', '>=', $fromFilter);
-        }
-
-        if($toFilter){
-            $statisticsQuery->where('date', '<=', $toFilter);
-        }
-
-        return ChannelStatisticsDailyItem::collection($statisticsQuery->get());
-    }
-
-    public function monthly(Request $request, $idOrSlug = null)
-    {
-        if ($request->is('api/admin/*')){
-
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
-
-        }else{
-            $channel = auth('api')->user()->channel;
-        }
-
-
-        $filters = $request->get('filters', []);
-        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
-        $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
-        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
-
-        foreach ($monthPeriods as $month) {
-            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
-            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
-
-            $query = ChannelStatisticsDaily::where('channel_id', $channel->id)
-                ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day);
-
-            $statistics[$month->format("Y-m")] = [
-                'subscribers_hero' => $query->sum('subscribers_hero'),
-                'subscribers_non_hero' => $query->sum('subscribers_non_hero'),
-                'subscribers_total' => $query->sum('subscribers_total'),
-                'unsubscribers_hero' => $query->sum('unsubscribers_hero'),
-                'unsubscribers_non_hero' => $query->sum('unsubscribers_non_hero'),
-                'unsubscribers_total' => $query->sum('unsubscribers_total'),
-                'upload_videos_total' => $query->sum('upload_videos_total'),
-            ];
-        }
-
-        return response()->json(['statistics' => $statistics]);
-    }
-
-    public function overview(Request $request, $idOrSlug = null)
-    {
-        if ($request->is('api/admin/*')){
-
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
 
         }else{
             $channel = auth('api')->user()->channel;
@@ -113,60 +43,48 @@ class ChannelStatisticsController extends Controller
 
 
         // Video Statistics by channel
-        $videoStatisticsQuery = VideoStatisticsDaily::where([
-            'channel_id' => $channel->id
-        ]);
+        $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
 
-        if($fromFilter){
-            $videoStatisticsQuery->where('date', '>=', $fromFilter);
-        }
+            return $query->where('channel_id', $channel->id);
 
-        if($toFilter){
-            $videoStatisticsQuery->where('date', '<=', $toFilter);
-        }
+        })->when($fromFilter, function ($query, $fromFilter) {
+
+            return $query->where('date', '>=', $fromFilter);
+
+        })->when($toFilter, function ($query, $toFilter) {
+
+            return $query->where('date', '<=', $toFilter);
+        });
 
 
         // channel Statistics
-        $channelStatisticsQuery = channelStatisticsDaily::where([
-            'channel_id' => $channel->id
-        ]);
+        $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
 
-        if($fromFilter){
-            $channelStatisticsQuery->where('date', '>=', $fromFilter);
-        }
+            return $query->where('channel_id', $channel->id);
 
-        if($toFilter){
-            $channelStatisticsQuery->where('date', '<=', $toFilter);
-        }
+        })->when($fromFilter, function ($query, $fromFilter) {
 
-        return response()->json([
-            'points' => $videoStatisticsQuery->sum('points'),
-            'views_hero' => $videoStatisticsQuery->sum('views_hero'),
-            'views_non_hero' => $videoStatisticsQuery->sum('views_non_hero'),
-            'views_total' => $videoStatisticsQuery->sum('views_total'),
-            'likes_hero' => $videoStatisticsQuery->sum('likes_hero'),
-            'likes_non_hero' => $videoStatisticsQuery->sum('likes_non_hero'),
-            'likes_total' => $videoStatisticsQuery->sum('likes_total'),
-            'dislikes_hero' => $videoStatisticsQuery->sum('dislikes_hero'),
-            'dislikes_non_hero' => $videoStatisticsQuery->sum('dislikes_non_hero'),
-            'dislikes_total' => $videoStatisticsQuery->sum('dislikes_total'),
-            'subscribers_hero' => $channelStatisticsQuery->sum('subscribers_hero'),
-            'subscribers_non_hero' => $channelStatisticsQuery->sum('subscribers_non_hero'),
-            'subscribers_total' => $channelStatisticsQuery->sum('subscribers_total'),
-            'unsubscribers_hero' => $channelStatisticsQuery->sum('unsubscribers_hero'),
-            'unsubscribers_non_hero' => $channelStatisticsQuery->sum('unsubscribers_non_hero'),
-            'unsubscribers_total' => $channelStatisticsQuery->sum('unsubscribers_total'),
-            'upload_videos_total' => $channelStatisticsQuery->sum('upload_videos_total'),
-        ]);
+            return $query->where('date', '>=', $fromFilter);
+
+        })->when($toFilter, function ($query, $toFilter) {
+
+            return $query->where('date', '<=', $toFilter);
+        });
+
+        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery));
     }
 
-    public function overviewMonthly(Request $request, $idOrSlug = null)
+    public function monthly(Request $request, $idOrSlug = null)
     {
+        $channel = null;
+
         if ($request->is('api/admin/*')){
 
-            $channel = Channel::where(function ($query) use ($idOrSlug){
-                $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
-            })->firstOrFail();
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
 
         }else{
             $channel = auth('api')->user()->channel;
@@ -184,35 +102,91 @@ class ChannelStatisticsController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
+            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day);
+                ->whereDate('date', '<=', $to_day)->get();
 
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
                 ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day);
+                ->whereDate('date', '<=', $to_day)->get();
 
-            $statistics[$month->format("Y-m")] = [
-                'points' => $videoStatisticsQuery->sum('points'),
-                'views_hero' => $videoStatisticsQuery->sum('views_hero'),
-                'views_non_hero' => $videoStatisticsQuery->sum('views_non_hero'),
-                'views_total' => $videoStatisticsQuery->sum('views_total'),
-                'likes_hero' => $videoStatisticsQuery->sum('likes_hero'),
-                'likes_non_hero' => $videoStatisticsQuery->sum('likes_non_hero'),
-                'likes_total' => $videoStatisticsQuery->sum('likes_total'),
-                'dislikes_hero' => $videoStatisticsQuery->sum('dislikes_hero'),
-                'dislikes_non_hero' => $videoStatisticsQuery->sum('dislikes_non_hero'),
-                'dislikes_total' => $videoStatisticsQuery->sum('dislikes_total'),
-                'subscribers_hero' => $channelStatisticsQuery->sum('subscribers_hero'),
-                'subscribers_non_hero' => $channelStatisticsQuery->sum('subscribers_non_hero'),
-                'subscribers_total' => $channelStatisticsQuery->sum('subscribers_total'),
-                'unsubscribers_hero' => $channelStatisticsQuery->sum('unsubscribers_hero'),
-                'unsubscribers_non_hero' => $channelStatisticsQuery->sum('unsubscribers_non_hero'),
-                'unsubscribers_total' => $channelStatisticsQuery->sum('unsubscribers_total'),
-                'upload_videos_total' => $channelStatisticsQuery->sum('upload_videos_total'),
-            ];
+            $statistics[$month->format("Y-m")] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
         }
 
-        return response()->json(['statistics' => $statistics]);
+        return $statistics;
+    }
+
+    public function daily(Request $request, $idOrSlug = null)
+    {
+        $channel = null;
+
+        if ($request->is('api/admin/*')){
+
+            if($idOrSlug){
+                $channel = Channel::where(function ($query) use ($idOrSlug){
+                    $query->whereId($idOrSlug)->orWhere('slug', $idOrSlug);
+                })->firstOrFail();
+            }
+
+        }else{
+            $channel = auth('api')->user()->channel;
+        }
+
+        $statistics = [];
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->subDays(30)->format('Y-m-d'));
+        $to = Arr::get($filters, 'to', (Carbon::now())->format('Y-m-d H:i:s'));
+
+
+        $periods = CarbonPeriod::create($from, '1 day', $to);
+        abort_unless(count($periods) <= 31, 400, 'timespan between from and to is more than 1 month');
+
+        foreach ($periods as $day) {
+
+            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
+                ->whereDate('date', $day->format('Y-m-d'))->get();
+
+            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
+                    return $query->where('channel_id', $channel->id);
+                })
+                ->whereDate('date', $day->format('Y-m-d'))->get();
+
+            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
+        }
+
+        return $statistics;
+    }
+
+    private function makeResult($videoStatistics, $channelStatistics)
+    {
+        return [
+            'points' => $videoStatistics->sum('points'),
+            'views_hero' => $videoStatistics->sum('views_hero'),
+            'views_non_hero' => $videoStatistics->sum('views_non_hero'),
+            'views_total' => $videoStatistics->sum('views_total'),
+            'likes_hero' => $videoStatistics->sum('likes_hero'),
+            'likes_non_hero' => $videoStatistics->sum('likes_non_hero'),
+            'likes_total' => $videoStatistics->sum('likes_total'),
+            'dislikes_hero' => $videoStatistics->sum('dislikes_hero'),
+            'dislikes_non_hero' => $videoStatistics->sum('dislikes_non_hero'),
+            'dislikes_total' => $videoStatistics->sum('dislikes_total'),
+            'comments_hero' => $videoStatistics->sum('comments_hero'),
+            'comments_non_hero' => $videoStatistics->sum('comments_non_hero'),
+            'comments_total' => $videoStatistics->sum('comments_total'),
+            'subscribers_hero' => $channelStatistics->sum('subscribers_hero'),
+            'subscribers_non_hero' => $channelStatistics->sum('subscribers_non_hero'),
+            'subscribers_total' => $channelStatistics->sum('subscribers_total'),
+            'unsubscribers_hero' => $channelStatistics->sum('unsubscribers_hero'),
+            'unsubscribers_non_hero' => $channelStatistics->sum('unsubscribers_non_hero'),
+            'unsubscribers_total' => $channelStatistics->sum('unsubscribers_total'),
+            'upload_videos_total' => $channelStatistics->sum('upload_videos_total'),
+        ];
     }
 }

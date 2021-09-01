@@ -31,12 +31,14 @@ class ChannelMinimalItem extends JsonResource
             "user_id" => $this->user_id,
             "status" => Channel::STATUS_TEXT[$this->status]?? null,
             'points' => $this->points,
-            'is_subscribed' => auth('api')->check() ?
-                ($this->subscribers()->where('user_id', auth('api')->id())->exists() ? true : false) : false,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
             'youtube_channel_id' => $this->youtube_channel_id,
             'youtube_channel_url' => $this->youtube_channel_url,
             "created_at" => $this->created_at,
+
+            'is_subscribed' => auth('api')->check() ?
+                ($this->subscribers()->where('user_id', auth('api')->id())->exists() ? true : false) : false,
+            'subscribers_count' => $this->subscribers()->count(),
         ];
     }
 }

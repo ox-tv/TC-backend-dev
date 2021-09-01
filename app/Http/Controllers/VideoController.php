@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
 use App\Http\Requests\VideoComment;
@@ -65,12 +66,18 @@ class VideoController extends Controller
         $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
         $cryptoCurrencySlug = Arr::get($filters, 'cryptocurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
+        $playlistHash = Arr::get($filters, 'playlist_hash');
         $channelId = Arr::get($filters, 'channel');
         $channelSlug = Arr::get($filters, 'channel_slug');
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->firstOrFail();
             $categoryId = $category->id;
+        }
+
+        if($playlistHash){
+            $playlist = Playlist::where('url_hash', $playlistHash)->firstOrFail();
+            $playlistId = $playlist->id;
         }
 
         if($cryptoCurrencySlug){
@@ -209,6 +216,10 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
+        if($request->get('language_id')){
+            $video->language_id = $request->get('language_id');
+        }
+
         $video->save();
 
         // adding categories
@@ -335,6 +346,12 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
+        if($request->get('language_id')){
+            $video->language_id = $request->get('language_id');
+        }else{
+            $video->language_id = null;
+        }
+
         $video->save();
 
         // updating categories
@@ -456,7 +473,9 @@ class VideoController extends Controller
      * @param Video $video
      * @return void
      */
-    public function storeComment(VideoComment $request, Video $video){
+    public function storeComment(VideoComment $request, $videoIdOrHash)
+    {
+        $video = Video::published()->where('id', $videoIdOrHash)->orWhere('url_hash', $videoIdOrHash)->firstOrFail();
 
         $user = Auth::user();
 
@@ -466,14 +485,14 @@ class VideoController extends Controller
         $comment->video()->associate($video);
         $comment->save();
 
+        event(new VideoCommented($video, auth('api')->user()));
+
         return new \App\Http\Resources\Comment\CommentItem($comment);
     }
 
     public function comments($id_or_url_hash)
     {
-        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
-
-        abort_if(is_null($video), 404);
+        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstOrFail();
 
         return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
     }

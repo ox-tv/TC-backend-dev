@@ -38,6 +38,7 @@ class VideoMinimalItem extends JsonResource
             'watch_time' => $this->watch_time,
             'reason_key' => $this->when($this->reason_key, $this->reason_key),
             'reason_text' => $this->when($this->reason_text, $this->reason_text),
+            'language' => $this->language,
         ];
     }
 }

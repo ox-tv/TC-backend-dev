@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\CacheManagement\ChannelCacheManager;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -143,20 +142,12 @@ class Channel extends Model
 
     public function getTotalLikesAttribute()
     {
-        $channelCacheManager = new ChannelCacheManager();
-
-        $channel_likes = $channelCacheManager->getChannelMonthLikes($this->id);
-
-        return $channel_likes['likes']?? 0;
+        return VideoStatisticsDaily::where('channel_id', $this->id)->sum('likes_total');
     }
 
     public function getTotalDislikesAttribute()
     {
-        $channelCacheManager = new ChannelCacheManager();
-
-        $channel_likes = $channelCacheManager->getChannelMonthLikes($this->id);
-
-        return $channel_likes['dislikes']?? 0;
+        return VideoStatisticsDaily::where('channel_id', $this->id)->sum('dislikes_total');
     }
 
     public function getTotalCommentsAttribute()

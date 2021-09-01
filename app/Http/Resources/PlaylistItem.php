@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Models\Playlist;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlaylistItem extends JsonResource
@@ -14,13 +16,14 @@ class PlaylistItem extends JsonResource
      */
     public function toArray($request)
     {
-        $withVideos = in_array('videos', explode(',', $request->get('include', '')));
+        $withChannel = in_array('channel', explode(',', $request->get('include', '')));
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'url_hash' => $this->url_hash,
-            'videos' => $this->when($withVideos, VideoSummaryCollection::make($this->videos)),
+            'status' => Playlist::STATUS_TEXT[$this->status]??'',
+            'channel' => $this->when($withChannel, ChannelMinimalItem::make($this->owner->channel)),
         ];
     }
 }

@@ -10,6 +10,14 @@ class Playlist extends Model
 {
     use HasFactory;
 
+    const STATUS_PUBLIC = 1;
+    const STATUS_PRIVATE = 2;
+
+    const STATUS_TEXT = [
+        self::STATUS_PUBLIC => 'public',
+        self::STATUS_PRIVATE => 'private',
+    ];
+
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
@@ -25,9 +33,14 @@ class Playlist extends Model
     // Scopes
 
     public function scopeMine($query){
-        if(auth()->check()){
-            $query->where('user_id', auth()->user()->id);
+        if(auth('api')->check()){
+            $query->where('user_id', auth('api')->user()->id);
         }
+        return $query;
+    }
+
+    public function scopePublic($query){
+        $query->where('status', self::STATUS_PUBLIC);
         return $query;
     }
 

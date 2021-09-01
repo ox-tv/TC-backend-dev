@@ -6,6 +6,7 @@ use App\Http\Requests\PlaylistStore;
 use App\Http\Requests\PlaylistUpdate;
 use App\Http\Resources\PlaylistCollection;
 use App\Http\Resources\PlaylistItem;
+use App\Models\Channel;
 use App\Models\Playlist;
 use App\Models\User;
 use App\Models\Video;
@@ -21,9 +22,19 @@ class PlaylistController extends Controller
      *
      * @return PlaylistCollection
      */
-    public function index()
+    public function index(Request $request, $channelIdOrSlug = null)
     {
-        $query = Playlist::mine();
+        if($channelIdOrSlug){
+            $channel = Channel::where('id', $channelIdOrSlug)->orWhere('slug', $channelIdOrSlug)->firstOrFail();
+            $query = Playlist::where('user_id', $channel->owner->id);
+
+            if (!$request->is('api/admin/*')){
+                $query->where('status', Playlist::STATUS_PUBLIC);
+            }
+
+        }else{
+            $query = Playlist::mine();
+        }
 
         $playlists = $query->get();
 
@@ -41,6 +52,7 @@ class PlaylistController extends Controller
         $playlist = new Playlist();
 
         $playlist->name = $request->get('name');
+        $playlist->status = array_flip(Playlist::STATUS_TEXT)[$request->get('status')]?? Playlist::STATUS_PUBLIC;
 
         if($request->is('api/admin/playlists')){
             $playlist->user_id = $request->get('user_id');
@@ -59,8 +71,9 @@ class PlaylistController extends Controller
      * @param Playlist $playlist
      * @return PlaylistItem
      */
-    public function show(Playlist $playlist)
+    public function show($idOrHash)
     {
+        $playlist = Playlist::public()->where('id', $idOrHash)->orWhere('url_hash', $idOrHash)->firstOrFail();
         return new PlaylistItem($playlist);
     }
 
@@ -78,6 +91,7 @@ class PlaylistController extends Controller
         }
 
         $playlist->name = $request->get('name');
+        $playlist->status = array_flip(Playlist::STATUS_TEXT)[$request->get('status')]?? Playlist::STATUS_PUBLIC;
 
         $playlist->owner()->associate(Auth::user());
         $playlist->save();

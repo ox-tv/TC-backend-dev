@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\CacheManagement\ChannelCacheManager;
 use App\Events\ChannelSubscribed;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
@@ -15,9 +14,11 @@ use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
+use App\Models\ChannelStatisticsDaily;
 use App\Models\Notification;
 use App\Models\UserVideo;
 use App\Models\Video;
+use App\Models\VideoStatisticsDaily;
 use App\Notifications\ImportRequestAccepted;
 use App\Notifications\ImportRequestCompleted;
 use App\Notifications\TCNotification\TCNotification;
@@ -74,24 +75,20 @@ class ChannelController extends Controller
 
     }
 
-    public function topChannels(ChannelCacheManager $channelCacheManager)
+    public function topChannels()
     {
-        $channel_likes = $channelCacheManager->getChannelsMonthLikes();
+        $datetime = (Carbon::now())->subDays(30);
+        $channelIds = VideoStatisticsDaily::selectRaw('SUM(points) as points, channel_id')
+            ->whereDate('date', '>=', $datetime->format('Y-m-d'))
+            ->groupBy('channel_id')
+            ->orderBy('points', 'DESC')
+            ->withoutGlobalScope('orderByDate')
+            ->pluck('channel_id')->toArray();
 
-        if (!$channel_likes){
-            return [];
-        }
+        $orderByIds = implode(',', array_reverse($channelIds));
 
-        usort($channel_likes, function ($a, $b){
-            return ($b['total'] > $a['total']) ? 1 : -1;
-        });
-
-        $ids = array_column($channel_likes,'channel_id');
-
-        $ids_ordered = implode(',', $ids);
-
-        $channels = Channel::whereIn('id', $ids)
-            ->orderByRaw("FIELD(id, $ids_ordered)")
+        $channels = Channel::where('status', Channel::STATUS_PUBLISHED)
+            ->orderByRaw(($orderByIds?"FIELD(id, $orderByIds) DESC, ":"") . "Created_at DESC")
             ->paginate();
 
         return \App\Http\Resources\Channel\ChannelItem::collection($channels);

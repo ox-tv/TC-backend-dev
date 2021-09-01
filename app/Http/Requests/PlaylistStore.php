@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Playlist;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class PlaylistStore extends FormRequest
 {
@@ -26,7 +28,8 @@ class PlaylistStore extends FormRequest
     {
         return [
             'name' => 'required',
-            'user_id' => 'sometimes|exists:users,id'
+            'user_id' => 'sometimes|exists:users,id',
+            'status' => ['nullable', Rule::in(Playlist::STATUS_TEXT)],
         ];
     }
 

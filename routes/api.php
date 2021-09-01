@@ -65,6 +65,8 @@ Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaCon
 
 // Video chapters
 Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
+Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles');
+
 
 // Video like/dislike routes
 Route::middleware('auth:api')->put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
@@ -76,7 +78,7 @@ Route::middleware('auth:api')->put('videos/{video}/bookmark', '\App\Http\Control
 
 // Comments API
 Route::get('comments/{comment}', '\App\Http\Controllers\CommentController@show');
-Route::get('videos/{video}/comments', '\App\Http\Controllers\VideoController@comments');
+Route::get('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@comments');
 
 
 
@@ -88,7 +90,7 @@ Route::middleware('auth:api')->put('cryptocurrencies/{cryptocurrency}/remove-fro
 
 
 // -- add a comment to a video
-Route::middleware('auth:api')->post('videos/{video}/comments', '\App\Http\Controllers\VideoController@storeComment');
+Route::middleware('auth:api')->post('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@storeComment');
 // -- reply to a comment
 Route::middleware('auth:api')->post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
 // -- like/dislike a comment
@@ -100,7 +102,10 @@ Route::middleware('auth:api')->put('comments/{comment}/unpin', '\App\Http\Contro
 
 
 // Playlist API
-Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class);
+Route::get('channels/{idOrHash}/playlists', '\App\Http\Controllers\PlaylistController@index');
+Route::get('my-playlists', '\App\Http\Controllers\PlaylistController@index');
+Route::middleware('auth:api')->apiResource('playlists', \App\Http\Controllers\PlaylistController::class)->except(['index','show']);
+Route::get('playlists/{idOrHash}', '\App\Http\Controllers\PlaylistController@show');
 
 // -- add video to playlist
 Route::middleware('auth:api')->put('playlists/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');
@@ -149,6 +154,10 @@ Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionContro
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
+// Languages
+Route::apiResource('languages', \App\Http\Controllers\LanguageController::class)->only(['index']);
+
+
 // Become A Publisher
 Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
 
@@ -178,10 +187,9 @@ Route::group([
     // channels
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
     Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
-    Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
+    Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
-    Route::get('channel/statistics/overview', '\App\Http\Controllers\ChannelStatisticsController@overview')->name('channel.statistics.overview');
-    Route::get('channel/statistics/overview-monthly', '\App\Http\Controllers\ChannelStatisticsController@overviewMonthly')->name('channel.statistics.overview-monthly');
+    Route::get('channel/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
 
     // videos
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
@@ -198,10 +206,15 @@ Route::group([
 
     Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
 
+    Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store');
+    Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy');
+
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
-    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@overview')->name('video.statistics.overview');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
+
+    Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
 });
 
 
@@ -212,6 +225,11 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::get('dashboard', '\App\Http\Controllers\GeneralController@adminDashboard')->name('dashboard');
+    Route::get('channels/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channels.statistics.daily');
+    Route::get('channels/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channels.statistics.monthly');
+    Route::get('channels/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channels.statistics.total');
+
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index','destroy']);
 
     Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
@@ -239,9 +257,11 @@ Route::group([
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
+    Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles')->name('videos.subtitles.index');
+
 
     Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
-    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@overview')->name('video.statistics.overview');
+    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
@@ -251,12 +271,13 @@ Route::group([
     Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
     Route::put('channels/{channel}/import-request', '\App\Http\Controllers\ChannelController@importRequest')->name("channels.import_request");
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
-    Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
+    Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
-    Route::get('channels/{channel}/statistics/overview', '\App\Http\Controllers\ChannelStatisticsController@overview')->name('channel.statistics.overview');
-    Route::get('channels/{channel}/statistics/overview-monthly', '\App\Http\Controllers\ChannelStatisticsController@overviewMonthly')->name('channel.statistics.overview-monthly');
+    Route::get('channels/{channel}/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
+
 
     Route::post('playlists', '\App\Http\Controllers\PlaylistController@store')->name("playlists.store");
+    Route::get('channels/{idOrHash}/playlists', '\App\Http\Controllers\PlaylistController@index')->name('users.playlists.index');
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except("update");
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
@@ -285,4 +306,15 @@ Route::group([
 
     Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
     Route::apiResource('plans', '\App\Http\Controllers\PlanController');
+
+    Route::get('membership/earnings/daily', '\App\Http\Controllers\HeroMembershipController@earningsDaily')->name('membership.earnings.report-daily');
+    Route::get('membership/earnings/monthly', '\App\Http\Controllers\HeroMembershipController@earningsMonthly')->name('membership.earnings.report-monthly');
+    Route::get('membership/earnings/total', '\App\Http\Controllers\HeroMembershipController@earningsTotal')->name('membership.earnings.report-total');
+
+    Route::apiResource('transactions', '\App\Http\Controllers\TransactionController')->only(['index']);
+
+    Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
+    Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
+    Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+
 });
