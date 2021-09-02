@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Pricing;
 use App\Models\PricingUser;
 use App\Models\User;
+use App\Models\VideoStatisticsDaily;
 use App\Repository\PricingRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -31,7 +32,7 @@ class EarningController extends Controller
 
         if ($channelIdFilter){
             $channel = Channel::findOrFail($channelIdFilter);
-            $userIdFilter = $channel->owner->id;
+            $userIdFilter = $channel->owner()->withTrashed()->firstOrFail()->id;
         }
 
         if ($request->is('/api/publisher/*')){
@@ -73,7 +74,7 @@ class EarningController extends Controller
 
         if ($channelIdFilter){
             $channel = Channel::findOrFail($channelIdFilter);
-            $userIdFilter = $channel->owner->id;
+            $userIdFilter = $channel->owner()->withTrashed()->firstOrFail()->id;
         }
 
         $earningsQuery = Earning::when($fromFilter, function ($query, $fromFilter) {
@@ -103,7 +104,7 @@ class EarningController extends Controller
 
         if ($channelIdFilter){
             $channel = Channel::findOrFail($channelIdFilter);
-            $userIdFilter = $channel->owner->id;
+            $userIdFilter = $channel->owner()->withTrashed()->firstOrFail()->id;
         }
 
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
@@ -124,5 +125,32 @@ class EarningController extends Controller
         }
 
         return response()->json($statistics);
+    }
+
+    public function calcEarnings(Request $request)
+    {
+        $publishers = User::whereHas('channel')->get();
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
+        $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
+        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+        foreach ($monthPeriods as $month) {
+            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
+            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
+
+            foreach ($publishers as $publisher){
+
+                $points = VideoStatisticsDaily::where('channel_id', $publisher->channel->id)
+                    ->where('date', '>=', $from_day)
+                    ->where('date', '<=', $to_day)
+                    ->sum('points');
+
+                echo "User: {$publisher->id}\n{$from_day} --> {$to_day}\n{$points}\n\n";
+            }
+        }
+
+        return $publishers;
     }
 }
