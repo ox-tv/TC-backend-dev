@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Earning\EarningItem;
+use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\Plan;
 use App\Models\Pricing;
@@ -20,16 +21,22 @@ class EarningController extends Controller
     {
         $earningQuery = Earning::query();
 
-        if ($request->is('/api/publisher/*')){
-            $earningQuery->where('user_id', auth()->id());
-        }
-
         $filters = $request->get('filters', []);
         $userIdFilter = Arr::get($filters, 'user_id');
+        $channelIdFilter = Arr::get($filters, 'channel_id');
         $statusFilter = Arr::get($filters, 'status');
         $fromFilter = Arr::get($filters, 'from');
         $toFilter = Arr::get($filters, 'to');
         $currencyFilter = Arr::get($filters, 'currency');
+
+        if ($channelIdFilter){
+            $channel = Channel::findOrFail($channelIdFilter);
+            $userIdFilter = $channel->owner->id;
+        }
+
+        if ($request->is('/api/publisher/*')){
+            $userIdFilter = auth()->id();
+        }
 
         if ($userIdFilter){
             $earningQuery->where('user_id', $userIdFilter);
@@ -59,8 +66,15 @@ class EarningController extends Controller
     public function total(Request $request)
     {
         $filters = $request->get('filters', []);
+        $userIdFilter = Arr::get($filters, 'user_id');
+        $channelIdFilter = Arr::get($filters, 'channel_id');
         $fromFilter = Arr::get($filters, 'from');
         $toFilter = Arr::get($filters, 'to');
+
+        if ($channelIdFilter){
+            $channel = Channel::findOrFail($channelIdFilter);
+            $userIdFilter = $channel->owner->id;
+        }
 
         $earningsQuery = Earning::when($fromFilter, function ($query, $fromFilter) {
 
@@ -69,6 +83,9 @@ class EarningController extends Controller
         })->when($toFilter, function ($query, $toFilter) {
 
             return $query->where('created_at', '<=', $toFilter);
+        })->when($userIdFilter, function ($query, $userIdFilter) {
+
+            return $query->where('user_id', $userIdFilter);
         });
 
         return response()->json([
@@ -81,6 +98,14 @@ class EarningController extends Controller
         $filters = $request->get('filters', []);
         $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
         $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
+        $userIdFilter = Arr::get($filters, 'user_id');
+        $channelIdFilter = Arr::get($filters, 'channel_id');
+
+        if ($channelIdFilter){
+            $channel = Channel::findOrFail($channelIdFilter);
+            $userIdFilter = $channel->owner->id;
+        }
+
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
         foreach ($monthPeriods as $month) {
@@ -88,7 +113,10 @@ class EarningController extends Controller
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
             $earningsQuery = Earning::whereDate('created_at', '>=', $from_day)
-                ->whereDate('created_at', '<=', $to_day)->get();
+                ->whereDate('created_at', '<=', $to_day)
+                ->when($userIdFilter, function ($query, $userIdFilter) {
+                    return $query->where('user_id', $userIdFilter);
+                })->get();
 
             $statistics[$month->format("Y-m")] = [
                 'amount' => $earningsQuery->sum('amount'),
