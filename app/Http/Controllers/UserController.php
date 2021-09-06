@@ -8,6 +8,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
 use App\Models\Department;
+use App\Models\Earning;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\VideoStatisticsDaily;
@@ -300,10 +301,15 @@ class UserController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
+            $earning = Earning::where('user_id', $user->id)
+                ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
+                ->first();
+
             $points[$month->format("Y-m")] = [
                 'hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'earning' => $earning? $earning->amount : 0,
             ];
         }
 

@@ -215,6 +215,9 @@ Route::group([
     Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
+    Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
+    Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+
 });
 
 
@@ -316,5 +319,7 @@ Route::group([
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
     Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+    Route::post('earnings/calc', '\App\Http\Controllers\EarningController@calcEarnings')->name('earnings.calc');
+    Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
 
 });
