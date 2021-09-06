@@ -185,6 +185,10 @@ class EarningController extends Controller
                         return $e;
                     });
 
+                if($earning->status != Earning::STATUS_PENDING){
+                    continue;
+                }
+
                 $earning->status = ($earningAmount > 0)? Earning::STATUS_PENDING: Earning::STATUS_NA;
                 $earning->amount = $earningAmount;
 
