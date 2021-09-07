@@ -146,21 +146,30 @@ class EarningController extends Controller
 
     public function calcEarnings(Request $request)
     {
+        $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date',
+            'month' => 'nullable|date',
+            'value_per_share' => 'required|numeric|gt:0',
+        ]);
+
         $publishers = User::whereHas('channel')->get();
 
-        $filters = $request->get('filters', []);
-        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(1)->startOfMonth());
-        $to = Arr::get($filters, 'to', (Carbon::now())->subMonths(1)->endOfMonth());
+        $from = $request->get('from', (Carbon::now())->subMonths(1)->startOfMonth());
+        $to = $request->get('to', (Carbon::now())->subMonths(1)->endOfMonth());
 
         if($to >= (Carbon::now())->startOfMonth()->format('Y-m-d H:i:s')){
             abort(400, 'filter to must be less than first of this month');
         }
 
+        if($request->get('month')){
+            $from = $request->get('month');
+            $to = $request->get('month');
+        }
+
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
-        $rate = config('general.points.to_usd_rate');
-
-        abort_unless(is_numeric($rate), 'point to usd rate not found');
+        $rate = $request->get('value_per_share');
 
         foreach ($monthPeriods as $month) {
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
@@ -169,8 +178,8 @@ class EarningController extends Controller
             foreach ($publishers as $publisher){
 
                 $points = VideoStatisticsDaily::where('channel_id', $publisher->channel->id)
-                    ->where('date', '>=', $from_day)
-                    ->where('date', '<=', $to_day)
+                    ->whereDate('date', '>=', $from_day)
+                    ->whereDate('date', '<=', $to_day)
                     ->sum('points');
 
                 $earningAmount = $points * $rate;
@@ -185,7 +194,7 @@ class EarningController extends Controller
                         return $e;
                     });
 
-                if($earning->status != Earning::STATUS_PENDING){
+                if(!is_null($earning->status) && $earning->status != Earning::STATUS_PENDING){
                     continue;
                 }
 
