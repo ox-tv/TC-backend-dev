@@ -33,6 +33,7 @@ class EarningItem extends JsonResource
             'currency' => $this->currency,
             'status' => Earning::STATUS_TEXT[$this->status]?? null,
             'created_at' => $this->created_at,
+            'date' => $this->date,
             'transaction' => $this->when($withTransaction, $transaction),
             'user' => $this->when($withUser, $user),
         ];
