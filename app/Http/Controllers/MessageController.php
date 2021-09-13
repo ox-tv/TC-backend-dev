@@ -102,6 +102,9 @@ class MessageController extends Controller
             case $user_group_text[Message::USER_GROUP_PUBLISHER]:
                 $users = User::Publishers()->get();
                 break;
+            case $user_group_text[Message::USER_GROUP_NON_PUBLISHER]:
+                $users = User::notPublishers()->get();
+                break;
             case $user_group_text[Message::USER_GROUP_HERO]:
                 $users = User::IsHero()->get();
                 break;
