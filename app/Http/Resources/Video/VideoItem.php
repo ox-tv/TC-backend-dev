@@ -12,6 +12,7 @@ use App\Http\Resources\Playlist\PlaylistMinimalCollection;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
+use App\Http\Resources\Subtitle\SubtitleItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\VideoCommentCollection;
 use App\Http\Resources\VideoSummaryCollection;
@@ -50,7 +51,7 @@ class VideoItem extends JsonResource
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
-        $subtitles = ($withSubtitles)? ReportMinimalItem::collection($this->subtitles) : [];
+        $subtitles = ($withSubtitles)? SubtitleItem::collection($this->subtitles) : [];
 
         return [
             'id' => $this->id,
