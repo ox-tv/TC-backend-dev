@@ -5,6 +5,7 @@ namespace App\Http\Resources\Subtitle;
 use App\Http\Resources\PaymentMethod\PaymentMethodItem;
 use App\Models\Transaction;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class SubtitleItem extends JsonResource
 {
@@ -18,7 +19,7 @@ class SubtitleItem extends JsonResource
     {
         return [
             'id' => $this->id,
-            'file_path' => $this->file_path,
+            'url' => Storage::disk('public')->url($this->file_path),
             'language' => $this->language,
             'video_id' => $this->video_id,
         ];
