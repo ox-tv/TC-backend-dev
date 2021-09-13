@@ -59,7 +59,7 @@ class NotificationItem extends JsonResource
             'user_group' => Notification::USER_GROUP_TEXT[$this->user_group]?? null,
             'from' => $this->when($withFrom, $from),
             'created_at' => $this->created_at,
-            'read_at' => $this->pivot->read_at,
+            'read_at' => $this->read_at,
             'entity' => $this->when($withEntity, $entity),
         ];
     }
