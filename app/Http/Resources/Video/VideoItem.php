@@ -40,6 +40,7 @@ class VideoItem extends JsonResource
         $withTags = in_array('tags', $include) || $this->relationLoaded('tags');
         $withPlaylists = in_array('playlists', $include) || $this->relationLoaded('playlists');
         $withReports = in_array('reports', $include) || $this->relationLoaded('reports');
+        $withSubtitles = in_array('subtitles', $include) || $this->relationLoaded('subtitles');
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
@@ -49,6 +50,7 @@ class VideoItem extends JsonResource
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
+        $subtitles = ($withSubtitles)? ReportMinimalItem::collection($this->subtitles) : [];
 
         return [
             'id' => $this->id,
@@ -86,6 +88,7 @@ class VideoItem extends JsonResource
             'tags' => $this->when($withTags, $tags),
             'playlists' => $this->when($withPlaylists, $playlists),
             'reports' => $this->when($withReports, $reports),
+            'subtitles' => $this->when($withSubtitles, $subtitles),
         ];
     }
 }
