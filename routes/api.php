@@ -171,6 +171,7 @@ Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate'
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
+    Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
     Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
     Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\CoinBaseClient;
 use App\Models\Plan;
 use App\Models\Pricing;
 use App\Models\PricingUser;
@@ -38,6 +39,65 @@ class HeroMembershipController extends Controller
 
         return response()->json(['message' => 'ok']);
     }
+
+
+    public function processPayment(Request $request, Pricing $pricing)
+    {
+        if (!$pricing->paymentMethod){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment method not found',
+            ], 404);
+        }
+
+        if (strtolower($pricing->paymentMethod->name) == 'coinbase'){
+            return $this->processPaymentCoinBase($request, $pricing);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Payment method not supported',
+        ], 404);
+    }
+
+    public function processPaymentCoinBase(Request $request, Pricing $pricing)
+    {
+        $user = auth()->user();
+        $plan = $pricing->plan;
+
+        $name = $plan->name;
+        $description = "Payment by " . $user->email;
+
+        $name = mb_substr( $name, 0, 100 );
+        $description = mb_substr( $description, 0, 200 );
+
+        $metadata = [
+            'pricing_id'  => $pricing->id,
+            'user_id' => $user->id,
+            'source' => 'hero_membership'
+        ];
+
+        $redirectUrl = "";
+        $cancelUrl = "";
+
+        $client = new CoinBaseClient();
+
+        $result = $client->createCharge(
+            $name, $description, $pricing->amount, $pricing->currency, $metadata, $redirectUrl, $cancelUrl);
+
+        if ($result['success']){
+            return response()->json([
+                'status' => 'ok',
+                'redirect_to' => $result['data']['hosted_url']
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => $result['message'],
+        ], 400);
+    }
+
 
     public function earningsTotal(Request $request, $userId = null)
     {
@@ -121,4 +181,5 @@ class HeroMembershipController extends Controller
 
         return $statistics;
     }
+
 }
