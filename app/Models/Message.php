@@ -24,11 +24,13 @@ class Message extends Model
     const USER_GROUP_PUBLISHER = 3;
     const USER_GROUP_HERO = 4;
     const USER_GROUP_NON_HERO = 5;
+    const USER_GROUP_NON_PUBLISHER = 6;
 
     const USER_GROUP_TEXT = [
         self::USER_GROUP_CUSTOM => 'custom',
         self::USER_GROUP_ALL => 'all',
         self::USER_GROUP_PUBLISHER => 'publisher',
+        self::USER_GROUP_NON_PUBLISHER => 'non-publisher',
         self::USER_GROUP_HERO => 'hero',
         self::USER_GROUP_NON_HERO => 'non-hero',
     ];
