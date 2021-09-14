@@ -4,6 +4,7 @@
 namespace App\Libraries;
 
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -14,11 +15,13 @@ class CoinBaseClient
     private $webhook_secret;
     private $api_version = '2018-03-22';
     private $base_url = 'https://api.commerce.coinbase.com';
+    public $timeout;
 
     public function __construct()
     {
         $this->api_key = config("general.coinbase.api_key");
         $this->webhook_secret = config("general.coinbase.webhook_secret");
+        $this->timeout = Carbon::now()->subDays(3);
     }
 
     /*
