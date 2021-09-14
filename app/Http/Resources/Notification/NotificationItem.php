@@ -32,6 +32,7 @@ class NotificationItem extends JsonResource
     {
         $withEntity = $this->relationLoaded('entity');
         $withFrom = $this->relationLoaded('from');
+        $withTo = $this->user_group == Notification::USER_GROUP_CUSTOM;
 
         if ($this->entity_type == User::class){
             $entity = ($withEntity)? UserMinimalItem::make($this->entity) : null;
@@ -58,6 +59,7 @@ class NotificationItem extends JsonResource
             'scope' => Notification::SCOPE_TEXT[$this->scope],
             'user_group' => Notification::USER_GROUP_TEXT[$this->user_group]?? null,
             'from' => $this->when($withFrom, $from),
+            'to' => $this->when($withTo, $this->users),
             'created_at' => $this->created_at,
             'read_at' => $this->read_at,
             'entity' => $this->when($withEntity, $entity),
