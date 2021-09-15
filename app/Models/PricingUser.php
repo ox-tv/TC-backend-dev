@@ -9,6 +9,10 @@ class PricingUser extends Model
 {
     protected $table = 'pricing_user';
 
+    protected $casts = [
+        'metadata' => 'array'
+    ];
+
     const STATUS_PENDING = 1;
     const STATUS_PENDING_BLOCKCHAIN = 2;
     const STATUS_COMPLETED = 3;

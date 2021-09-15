@@ -14,7 +14,7 @@ class AddStatusToPricingUserTable extends Migration
     public function up()
     {
         Schema::table('pricing_user', function (Blueprint $table) {
-            //
+            $table->tinyInteger('status');
         });
     }
 
@@ -26,7 +26,7 @@ class AddStatusToPricingUserTable extends Migration
     public function down()
     {
         Schema::table('pricing_user', function (Blueprint $table) {
-            //
+            $table->dropColumn('status');
         });
     }
 }
