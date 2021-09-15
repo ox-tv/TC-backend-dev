@@ -9,10 +9,13 @@ use App\Models\Category;
 use App\Models\CryptoCurrency;
 use App\Models\Plan;
 use App\Models\Pricing;
+use App\Models\PricingUser;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repository\Eloquent\PricingRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use function Illuminate\Support\Facades\Log;
 
@@ -31,7 +34,7 @@ class CoinBaseController extends Controller
         $data       = json_decode( $payload, true );
         $event_data = $data['event']['data'];
 
-        Log::info( 'Webhook received event: ' . print_r( $data, true ) );
+        Log::info( 'Webhook received event: ', ['data' => $data] );
 
         if ( ! isset( $event_data['metadata']['source'] ) ) {
             // Probably a charge not created by us.
@@ -50,65 +53,70 @@ class CoinBaseController extends Controller
 
     public function heroMembershipWebHookHandler($client, $event_data)
     {
-        if ( !isset( $event_data['metadata']['pricing_id'] ) || !isset( $event_data['metadata']['user_id'] ) ) {
+        if ( !isset( $event_data['metadata']['pricing_user_id'] ) ) {
             // Probably a charge not created by us.
             exit;
         }
 
-        $pricing = Pricing::find($event_data['metadata']['pricing_id']);
-        $user = User::find($event_data['metadata']['user_id']);
+        $pricingUser = PricingUser::find($event_data['metadata']['pricing_user_id']);
+        $transaction = $pricingUser->transaction;
+        $metadata = $pricingUser->metadata;
+        $prev_status = $metadata['coinbase_status']?? 'NEW';
 
         $timeline = $event_data['timeline'];
         $last_update = end( $timeline );
         $last_status = $last_update['status'];
 
+        if ( $last_status !== $prev_status ) {
+            $metadata['coinbase_status'] = $last_status;
+            $pricingUser->metadata = $metadata;
 
+            $transactionChangeFlag = false;
 
-
-
-        $pricingRepository = new PricingRepository();
-        $pricingRepository->addPricingToUser($user, $pricing);
-
-        return response()->json(['message' => 'ok']);
-    }
-
-
-    public function _update_order_status( $order, $timeline ) {
-        $prev_status = $order->get_meta( '_coinbase_status' );
-
-        $last_update = end( $timeline );
-        $status      = $last_update['status'];
-        if ( $status !== $prev_status ) {
-            $order->update_meta_data( '_coinbase_status', $status );
-
-            if ( 'EXPIRED' === $status && 'pending' == $order->get_status() ) {
-                $order->update_status( 'cancelled', __( 'Coinbase payment expired.', 'coinbase' ) );
-            } elseif ( 'CANCELED' === $status ) {
-                $order->update_status( 'cancelled', __( 'Coinbase payment cancelled.', 'coinbase' ) );
-            } elseif ( 'UNRESOLVED' === $status ) {
+            if ( 'EXPIRED' === $last_status && $pricingUser->status == PricingUser::STATUS_PENDING ) {
+                $transaction->status = Transaction::STATUS_FAILED;
+                $pricingUser->status = PricingUser::STATUS_CANCELED;
+                $transactionChangeFlag = true;
+            } elseif ( 'CANCELED' === $last_status ) {
+                $transaction->status = Transaction::STATUS_FAILED;
+                $pricingUser->status = PricingUser::STATUS_CANCELED;
+                $transactionChangeFlag = true;
+            } elseif ( 'UNRESOLVED' === $last_status ) {
                 if ($last_update['context'] === 'OVERPAID') {
-                    $order->update_status( 'processing', __( 'Coinbase payment was successfully processed.', 'coinbase' ) );
-                    $order->payment_complete();
+                    $transaction->status = Transaction::STATUS_COMPLETED;
+                    $pricingUser->status = PricingUser::STATUS_COMPLETED;
+                    $transactionChangeFlag = true;
                 } else {
                     // translators: Coinbase error status for "unresolved" payment. Includes error status.
-                    $order->update_status( 'failed', sprintf( __( 'Coinbase payment unresolved, reason: %s.', 'coinbase' ), $last_update['context'] ) );
+                    $transaction->status = Transaction::STATUS_FAILED;
+                    $pricingUser->status = PricingUser::STATUS_FAILED;
+                    $transactionChangeFlag = true;
                 }
-            } elseif ( 'PENDING' === $status ) {
-                $order->update_status( 'blockchainpending', __( 'Coinbase payment detected, but awaiting blockchain confirmation.', 'coinbase' ) );
-            } elseif ( 'RESOLVED' === $status ) {
+            } elseif ( 'PENDING' === $last_status ) {
+                $pricingUser->status = PricingUser::STATUS_PENDING_BLOCKCHAIN;
+            } elseif ( 'RESOLVED' === $last_status ) {
                 // We don't know the resolution, so don't change order status.
-                $order->add_order_note( __( 'Coinbase payment marked as resolved.', 'coinbase' ) );
-            } elseif ( 'COMPLETED' === $status ) {
-                $order->update_status( 'processing', __( 'Coinbase payment was successfully processed.', 'coinbase' ) );
-                $order->payment_complete();
+            } elseif ( 'COMPLETED' === $last_status ) {
+                $transaction->status = Transaction::STATUS_COMPLETED;
+                $pricingUser->status = PricingUser::STATUS_COMPLETED;
+                $transactionChangeFlag = true;
             }
+
+            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag){
+                $pricingUser->save();
+
+                if ($transactionChangeFlag){
+                    $transaction->save();
+                }
+            });
         }
 
         // Archive if in a resolved state and idle more than timeout.
-        if ( in_array( $status, array( 'EXPIRED', 'COMPLETED', 'RESOLVED' ), true ) &&
+        /*if ( in_array( $last_status, array( 'EXPIRED', 'COMPLETED', 'RESOLVED' ), true ) &&
             $order->get_date_modified() < $this->timeout ) {
             self::log( 'Archiving order: ' . $order->get_order_number() );
             $order->update_meta_data( '_coinbase_archived', true );
-        }
+        }*/
     }
+
 }
