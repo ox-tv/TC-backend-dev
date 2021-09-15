@@ -13,6 +13,7 @@ use App\Models\PricingUser;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Repository\Eloquent\PricingRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,8 @@ class CoinBaseController extends Controller
         $metadata = $pricingUser->metadata;
         $prev_status = $metadata['coinbase_status']?? 'NEW';
 
+        $user = User::find($pricingUser->user_id);
+
         $timeline = $event_data['timeline'];
         $last_update = end( $timeline );
         $last_status = $last_update['status'];
@@ -102,11 +105,20 @@ class CoinBaseController extends Controller
                 $transactionChangeFlag = true;
             }
 
-            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag){
+            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user, $plan){
                 $pricingUser->save();
 
                 if ($transactionChangeFlag){
                     $transaction->save();
+                }
+
+                if ($pricingUser->status = PricingUser::STATUS_COMPLETED){
+                    if ($user->hero_due_at && $user->hero_due_at > Carbon::now()){
+                        $user->hero_due_at = $user->hero_due_at->addDays($plan->interval);
+                    }else{
+                        $user->hero_due_at = Carbon::now()->addDays($plan->interval);
+                    }
+                    $user->save();
                 }
             });
         }
