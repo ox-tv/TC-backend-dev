@@ -122,13 +122,6 @@ class CoinBaseController extends Controller
                 }
             });
         }
-
-        // Archive if in a resolved state and idle more than timeout.
-        /*if ( in_array( $lastStatus, array( 'EXPIRED', 'COMPLETED', 'RESOLVED' ), true ) &&
-            $order->get_date_modified() < $this->timeout ) {
-            self::log( 'Archiving order: ' . $order->get_order_number() );
-            $order->update_meta_data( '_coinbase_archived', true );
-        }*/
     }
 
 }
