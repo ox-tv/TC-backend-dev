@@ -11,16 +11,18 @@ use Illuminate\Support\Facades\Log;
 
 class CoinBaseClient
 {
-    private $api_key;
-    private $webhook_secret;
-    private $api_version = '2018-03-22';
-    private $base_url = 'https://api.commerce.coinbase.com';
+    private $apiKey;
+    private $webhookSecret;
+    private $apiVersion = '2018-03-22';
+    private $baseUrl = 'https://api.commerce.coinbase.com';
     public $timeout;
 
     public function __construct()
     {
-        $this->api_key = config("general.coinbase.api_key");
-        $this->webhook_secret = config("general.coinbase.webhook_secret");
+        $this->apiKey = config("general.coinbase.api_key");
+        $this->webhookSecret = config("general.coinbase.webhook_secret");
+        $this->apiVersion = config("general.coinbase.api_version");
+        $this->baseUrl = config("general.coinbase.base_url");
         $this->timeout = Carbon::now()->subDays(3);
     }
 
@@ -69,11 +71,11 @@ class CoinBaseClient
             $response = Http::withOptions([
                 'verify' => false,
                 'headers' => [
-                    'X-CC-Api-Key' => $this->api_key,
-                    'X-CC-Version' => $this->api_version,
+                    'X-CC-Api-Key' => $this->apiKey,
+                    'X-CC-Version' => $this->apiVersion,
                     'Content-Type' => 'application/json',
                 ]
-            ])->post("{$this->base_url}/charges", $args);
+            ])->post("{$this->baseUrl}/charges", $args);
 
             $body = $response->json();
 
@@ -104,16 +106,16 @@ class CoinBaseClient
 
     public function validateWebhook($payload)
     {
-        $secret = $this->webhook_secret;
-        $sig = request()->header('X-X-CC-Webhook-Signature-Name');
+        $secret = $this->webhookSecret;
+        $signature = request()->header('X-X-CC-Webhook-Signature-Name');
 
-        if ( !$sig ) {
+        if ( !$signature ) {
             return false;
         }
 
-        $sig2 = hash_hmac( 'sha256', $payload, $secret );
+        $signature2 = hash_hmac( 'sha256', $payload, $secret );
 
-        if ( $sig === $sig2 ) {
+        if ( $signature === $signature2 ) {
             return true;
         }
 

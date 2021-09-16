@@ -33,18 +33,18 @@ class CoinBaseController extends Controller
         }
 
         $data       = json_decode( $payload, true );
-        $event_data = $data['event']['data'];
+        $eventData = $data['event']['data'];
 
         Log::info( 'Webhook received event: ', ['data' => $data] );
 
-        if ( ! isset( $event_data['metadata']['source'] ) ) {
+        if ( ! isset( $eventData['metadata']['source'] ) ) {
             // Probably a charge not created by us.
             exit;
         }
 
-        switch ($event_data['metadata']['source']){
+        switch ($eventData['metadata']['source']){
             case 'hero_membership':
-                $this->heroMembershipWebHookHandler($client, $event_data);
+                $this->heroMembershipWebHookHandler($client, $eventData);
                 break;
             default:
         }
@@ -52,40 +52,40 @@ class CoinBaseController extends Controller
         exit;  // 200 response for acknowledgement.
     }
 
-    public function heroMembershipWebHookHandler($client, $event_data)
+    public function heroMembershipWebHookHandler($client, $eventData)
     {
-        if ( !isset( $event_data['metadata']['pricing_user_id'] ) ) {
+        if ( !isset( $eventData['metadata']['pricing_user_id'] ) ) {
             // Probably a charge not created by us.
             exit;
         }
 
-        $pricingUser = PricingUser::find($event_data['metadata']['pricing_user_id']);
+        $pricingUser = PricingUser::find($eventData['metadata']['pricing_user_id']);
         $transaction = $pricingUser->transaction;
         $metadata = $pricingUser->metadata;
-        $prev_status = $metadata['coinbase_status']?? 'NEW';
+        $prevStatus = $metadata['coinbase_status']?? 'NEW';
 
         $user = User::find($pricingUser->user_id);
 
-        $timeline = $event_data['timeline'];
-        $last_update = end( $timeline );
-        $last_status = $last_update['status'];
+        $timeline = $eventData['timeline'];
+        $lastUpdate = end( $timeline );
+        $lastStatus = $lastUpdate['status'];
 
-        if ( $last_status !== $prev_status ) {
-            $metadata['coinbase_status'] = $last_status;
+        if ( $lastStatus !== $prevStatus ) {
+            $metadata['coinbase_status'] = $lastStatus;
             $pricingUser->metadata = $metadata;
 
             $transactionChangeFlag = false;
 
-            if ( 'EXPIRED' === $last_status && $pricingUser->status == PricingUser::STATUS_PENDING ) {
+            if ( 'EXPIRED' === $lastStatus && $pricingUser->status == PricingUser::STATUS_PENDING ) {
                 $transaction->status = Transaction::STATUS_FAILED;
                 $pricingUser->status = PricingUser::STATUS_CANCELED;
                 $transactionChangeFlag = true;
-            } elseif ( 'CANCELED' === $last_status ) {
+            } elseif ( 'CANCELED' === $lastStatus ) {
                 $transaction->status = Transaction::STATUS_FAILED;
                 $pricingUser->status = PricingUser::STATUS_CANCELED;
                 $transactionChangeFlag = true;
-            } elseif ( 'UNRESOLVED' === $last_status ) {
-                if ($last_update['context'] === 'OVERPAID') {
+            } elseif ( 'UNRESOLVED' === $lastStatus ) {
+                if ($lastUpdate['context'] === 'OVERPAID') {
                     $transaction->status = Transaction::STATUS_COMPLETED;
                     $pricingUser->status = PricingUser::STATUS_COMPLETED;
                     $transactionChangeFlag = true;
@@ -95,11 +95,11 @@ class CoinBaseController extends Controller
                     $pricingUser->status = PricingUser::STATUS_FAILED;
                     $transactionChangeFlag = true;
                 }
-            } elseif ( 'PENDING' === $last_status ) {
+            } elseif ( 'PENDING' === $lastStatus ) {
                 $pricingUser->status = PricingUser::STATUS_PENDING_BLOCKCHAIN;
-            } elseif ( 'RESOLVED' === $last_status ) {
+            } elseif ( 'RESOLVED' === $lastStatus ) {
                 // We don't know the resolution, so don't change order status.
-            } elseif ( 'COMPLETED' === $last_status ) {
+            } elseif ( 'COMPLETED' === $lastStatus ) {
                 $transaction->status = Transaction::STATUS_COMPLETED;
                 $pricingUser->status = PricingUser::STATUS_COMPLETED;
                 $transactionChangeFlag = true;
@@ -124,7 +124,7 @@ class CoinBaseController extends Controller
         }
 
         // Archive if in a resolved state and idle more than timeout.
-        /*if ( in_array( $last_status, array( 'EXPIRED', 'COMPLETED', 'RESOLVED' ), true ) &&
+        /*if ( in_array( $lastStatus, array( 'EXPIRED', 'COMPLETED', 'RESOLVED' ), true ) &&
             $order->get_date_modified() < $this->timeout ) {
             self::log( 'Archiving order: ' . $order->get_order_number() );
             $order->update_meta_data( '_coinbase_archived', true );
