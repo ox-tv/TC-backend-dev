@@ -21,7 +21,9 @@ class PlaylistItem extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'created_at' => $this->created_at,
             'url_hash' => $this->url_hash,
+            'videos_count' => $this->videos()->count(),
             'status' => Playlist::STATUS_TEXT[$this->status]??'',
             'channel' => $this->when($withChannel, ChannelMinimalItem::make($this->owner->channel)),
         ];
