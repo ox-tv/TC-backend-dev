@@ -46,6 +46,7 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
+        $per_page = $request->get('per_page') ?: 15;
         $publisherVideos = $request->is('api/publisher/videos');
         $adminVideos = $request->is('api/admin/videos');
 
@@ -147,7 +148,7 @@ class VideoController extends Controller
             });
         }
 
-        $videos = $query->paginate();
+        $videos = $query->paginate($per_page);
 
         $result = \App\Http\Resources\Video\VideoItem::collection($videos);
 
