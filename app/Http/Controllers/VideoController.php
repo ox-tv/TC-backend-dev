@@ -46,7 +46,7 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-        $per_page = $request->get('per_page') ?: 15;
+        $perPage = $request->get('per_page') ?: 15;
         $publisherVideos = $request->is('api/publisher/videos');
         $adminVideos = $request->is('api/admin/videos');
 
@@ -148,7 +148,7 @@ class VideoController extends Controller
             });
         }
 
-        $videos = $query->paginate($per_page);
+        $videos = $query->paginate($perPage);
 
         $result = \App\Http\Resources\Video\VideoItem::collection($videos);
 
@@ -462,9 +462,9 @@ class VideoController extends Controller
 
     public function bookmarks()
     {
-        $per_page = request()->get('per_page') ?: 15;
+        $perPage = request()->get('per_page') ?: 15;
 
-        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($per_page));
+        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($perPage));
     }
 
     /**
