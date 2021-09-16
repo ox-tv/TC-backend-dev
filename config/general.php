@@ -23,4 +23,6 @@ return [
         'per_subscribe_hero' => env('POINTS_PER_SUBSCRIBE_HERO', 3),
         'per_subscribe_non_hero' => env('POINTS_PER_SUBSCRIBE_NON_HERO', 1),
     ],
+
+
 ];

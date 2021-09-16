@@ -32,7 +32,7 @@ class PricingRepository implements PricingRepositoryInterface
         // Add transaction
         $transaction = new Transaction();
         $transaction->type = Transaction::TYPE_DEPOSIT;
-        $transaction->status = Transaction::STATUS_COMPLETED;
+        $transaction->status = Transaction::STATUS_PENDING;
         $transaction->payment_method_id = $paymentMethod->id;
         $transaction->amount = $pricing->amount;
         $transaction->reference = Str::random(20);
