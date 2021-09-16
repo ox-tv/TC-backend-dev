@@ -19,10 +19,10 @@ class CoinBaseClient
 
     public function __construct()
     {
-        $this->apiKey = config("general.coinbase.api_key");
-        $this->webhookSecret = config("general.coinbase.webhook_secret");
-        $this->apiVersion = config("general.coinbase.api_version");
-        $this->baseUrl = config("general.coinbase.base_url");
+        $this->apiKey = config("payment.coinbase.api_key");
+        $this->webhookSecret = config("payment.coinbase.webhook_secret");
+        $this->apiVersion = config("payment.coinbase.api_version");
+        $this->baseUrl = config("payment.coinbase.base_url");
         $this->timeout = Carbon::now()->subDays(3);
     }
 
@@ -107,15 +107,15 @@ class CoinBaseClient
     public function validateWebhook($payload)
     {
         $secret = $this->webhookSecret;
-        $signature = request()->header('X-X-CC-Webhook-Signature-Name');
+        $receivedSignature = request()->header('X-X-CC-Webhook-Signature-Name');
 
-        if ( !$signature ) {
+        if ( !$receivedSignature ) {
             return false;
         }
 
-        $signature2 = hash_hmac( 'sha256', $payload, $secret );
+        $calculatedSignature = hash_hmac( 'sha256', $payload, $secret );
 
-        if ( $signature === $signature2 ) {
+        if ( $receivedSignature === $calculatedSignature ) {
             return true;
         }
 
