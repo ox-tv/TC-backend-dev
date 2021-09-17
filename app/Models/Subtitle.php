@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subtitle extends Model
 {
-    protected $fillable = ['file_path', 'video_id', 'language_id'];
+    protected $fillable = ['file_path', 'original_path', 'video_id', 'language_id'];
 
     // Relations
     public function video(){
