@@ -35,4 +35,10 @@ class Earning extends Model
     public function transaction(){
         return $this->belongsTo('App\Models\Transaction');
     }
+
+    // attributes
+    public function getAmountAttribute($value)
+    {
+        return $value + 0;
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
@@ -20,6 +21,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -314,5 +316,35 @@ class UserController extends Controller
         }
 
         return response()->json(['points' => $points]);
+    }
+
+    public function exportPublishersEarnings(Request $request)
+    {
+        $filters = $request->get('filters', []);
+        $monthFilter = Arr::get($filters, 'month');
+
+        $month = null;
+        if ($monthFilter){
+            $month = Carbon::parse($monthFilter);
+        }
+
+        $users = User::whereHas('channel')->get();
+
+        foreach ($users as $user){
+
+            $user->channelName = $user->channel->name?? '';
+
+            $earning = Earning::where('user_id', $user->id)
+                ->when(!empty($month), function ($query) use ($month) {
+                    return $query->whereYear('created_at', $month->year)
+                        ->whereMonth('created_at', $month->month);
+                })->first();
+            $user->earningStatus = $earning?Earning::STATUS_TEXT[$earning->status]:'N/A';
+            $user->earningAmount = $earning->amount?? 0;
+        }
+
+        $fileName = 'publishers-earnings'.((!empty($month))?'-'.$month->format('Y-m'):'').'.xlsx';
+
+        return Excel::download(new PublisherEarningsExport($users), $fileName);
     }
 }
