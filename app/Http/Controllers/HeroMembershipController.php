@@ -83,8 +83,8 @@ class HeroMembershipController extends Controller
         $name = mb_substr( $name, 0, 100 );
         $description = mb_substr( $description, 0, 200 );
 
-        $redirectUrl = "";
-        $cancelUrl = "";
+        $redirectUrl = config('payment.coinbase.redirect_url');
+        $cancelUrl = config('payment.coinbase.cancel_url');
 
         DB::beginTransaction();
 
