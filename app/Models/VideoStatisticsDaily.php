@@ -59,4 +59,10 @@ class VideoStatisticsDaily extends Model
     public function channel(){
         return $this->belongsTo('App\Models\Channel');
     }
+
+    // attributes
+    public function getPointsAttribute($value)
+    {
+        return floatval($value);
+    }
 }
