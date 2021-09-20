@@ -18,9 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use function Illuminate\Support\Facades\Log;
 
-class CoinBaseController extends Controller
+class CoinbaseController extends Controller
 {
     public function webHookHandler(Request $request)
     {
