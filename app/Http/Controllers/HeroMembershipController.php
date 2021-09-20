@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PaymentMethod\PaymentMethodItem;
 use App\Http\Resources\Plan\PlanItem;
 use App\Http\Resources\Pricing\PricingItem;
+use App\Http\Resources\PricingUser\PricingUserItem;
 use App\Libraries\CoinBaseClient;
 use App\Models\Plan;
 use App\Models\Pricing;
@@ -30,6 +31,14 @@ class HeroMembershipController extends Controller
         $this->pricingRepository = $pricingRepository;
     }
 
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+
+        $pricingUser = PricingUser::where('user_id', $user->id)->paginate();
+
+        return PricingUserItem::collection($pricingUser);
+    }
 
     public function store(Request $request, Pricing $pricing)
     {
@@ -51,14 +60,15 @@ class HeroMembershipController extends Controller
 
     public function processPayment(Request $request, Pricing $pricing)
     {
-        if (!$pricing->paymentMethod){
+        $paymentMethod = $pricing->paymentMethod()->first();
+        if (!$paymentMethod){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Payment method not found',
             ], 404);
         }
 
-        if (strtolower($pricing->paymentMethod->name) == 'coinbase'){
+        if (strtolower($paymentMethod->name) == 'coinbase'){
             return $this->processPaymentCoinBase($request, $pricing);
         }
 
@@ -100,12 +110,12 @@ class HeroMembershipController extends Controller
             $pricingUser->user_id = $user->id;
             $pricingUser->pricing_id = $pricing->id;
             $pricingUser->status = PricingUser::STATUS_PENDING;
-            $pricingUser->metadata = json_encode([
+            $pricingUser->metadata = [
                 'coinbase_status' => 'NEW',
                 'pricing' => PricingItem::make($pricing),
                 'plan' => PlanItem::make($plan),
                 'payment_method' => PaymentMethodItem::make($paymentMethod),
-            ]);
+            ];
             $pricingUser->transaction_id = $transaction->id;
             $pricingUser->save();
 
