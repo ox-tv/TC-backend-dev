@@ -168,6 +168,9 @@ Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodContro
 // Points
 Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
 
+// CoinBase
+Route::get('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
+
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
