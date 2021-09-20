@@ -35,7 +35,7 @@ class HeroMembershipController extends Controller
     {
         $user = auth()->user();
 
-        $pricingUser = PricingUser::where('user_id', $user->id)->paginate();
+        $pricingUser = PricingUser::where('user_id', $user->id)->orderBy('created_at','desc')->paginate();
 
         return PricingUserItem::collection($pricingUser);
     }
