@@ -39,6 +39,6 @@ class Earning extends Model
     // attributes
     public function getAmountAttribute($value)
     {
-        return $value + 0;
+        return floatval($value);
     }
 }

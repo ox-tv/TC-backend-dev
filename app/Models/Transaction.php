@@ -43,4 +43,10 @@ class Transaction extends Model
     public function payment_method(){
         return $this->belongsTo('App\Models\PaymentMethod');
     }
+
+    // attributes
+    public function getAmountAttribute($value)
+    {
+        return floatval($value);
+    }
 }
