@@ -327,7 +327,6 @@ Route::group([
     Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
 
     // Exports
-    //Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
+    Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
 });
 
-Route::get('admin/users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
