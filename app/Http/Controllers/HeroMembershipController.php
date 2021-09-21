@@ -7,6 +7,7 @@ use App\Http\Resources\Plan\PlanItem;
 use App\Http\Resources\Pricing\PricingItem;
 use App\Http\Resources\PricingUser\PricingUserItem;
 use App\Libraries\CoinBaseClient;
+use App\Models\Earning;
 use App\Models\Plan;
 use App\Models\Pricing;
 use App\Models\PricingUser;
@@ -33,11 +34,25 @@ class HeroMembershipController extends Controller
 
     public function index(Request $request)
     {
-        $user = auth()->user();
+        $filters = $request->get('filters', []);
+        $userIdFilter = Arr::get($filters, 'user_id');
+        $statusFilter = Arr::get($filters, 'status');
 
-        $pricingUser = PricingUser::where('user_id', $user->id)->orderBy('created_at','desc')->paginate();
+        if(!$request->is('api/admin/*')){
+            $userIdFilter = auth('api')->id();
+        }
 
-        return PricingUserItem::collection($pricingUser);
+        $pricingUserQuery = PricingUser::orderBy('created_at','desc');
+
+        if ($userIdFilter){
+            $pricingUserQuery->where('user_id', $userIdFilter);
+        }
+
+        if ($statusFilter && !is_null(array_flip(Earning::STATUS_TEXT)[$statusFilter])){
+            $pricingUserQuery->where('status', array_flip(Earning::STATUS_TEXT)[$statusFilter]);
+        }
+
+        return PricingUserItem::collection($pricingUserQuery->paginate());
     }
 
     public function store(Request $request, Pricing $pricing)
