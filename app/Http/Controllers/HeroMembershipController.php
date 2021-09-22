@@ -48,8 +48,9 @@ class HeroMembershipController extends Controller
             $pricingUserQuery->where('user_id', $userIdFilter);
         }
 
-        if ($statusFilter && !is_null(array_flip(Earning::STATUS_TEXT)[$statusFilter])){
-            $pricingUserQuery->where('status', array_flip(Earning::STATUS_TEXT)[$statusFilter]);
+        $statuses = array_flip(PricingUser::STATUS_TEXT);
+        if ($statusFilter && array_key_exists($statusFilter, $statuses)){
+            $pricingUserQuery->where('status', $statuses[$statusFilter]);
         }
 
         return PricingUserItem::collection($pricingUserQuery->paginate());
