@@ -243,7 +243,7 @@ class ChannelController extends Controller
         $channel->save();
 
 
-        if($request->is('api/admin/*') && $prev_status != $current_status){
+        if($request->is('api/admin/*') && !empty($current_status) && $prev_status != $current_status){
             TCNotification::send(collect([$channel->owner]), new UpdateChannelStatus(
                 Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
                 Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
