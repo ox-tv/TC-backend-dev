@@ -71,21 +71,21 @@ class SubtitleController extends Controller
         }
 
         if(strtolower($extension) != 'vtt'){
-            $oldPath = $path;
+            $originalPath = $path;
             $path = substr($path, 0, -1 * strlen($file->extension())) . 'vtt';
 
             Subtitles::convert(
-                Storage::disk('public')->path($oldPath),
+                Storage::disk('public')->path($originalPath),
                 Storage::disk('public')->path($path)
             );
-            Storage::disk('public')->delete($oldPath);
         }
 
         $subtitle = Subtitle::UpdateOrCreate([
                 'video_id' => $video->id,
                 'language_id' => $language->id
             ],[
-                'file_path' => $path
+                'file_path' => $path,
+                'original_path' => $originalPath?? null
             ]
         );
 

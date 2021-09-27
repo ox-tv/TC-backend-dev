@@ -31,6 +31,10 @@ class NotificationController extends Controller
             'entity' => function($q){ $q->withTrashed(); }
         ])->paginate();
 
+        foreach ($notifications as $notification){
+            $notification->read_at = $notification->pivot->read_at;
+        }
+
         return NotificationItem::collection($notifications);
     }
 

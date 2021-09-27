@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PaymentMethod\PaymentMethodItem;
+use App\Http\Resources\Plan\PlanItem;
+use App\Http\Resources\Pricing\PricingItem;
+use App\Http\Resources\PricingUser\PricingUserItem;
+use App\Libraries\CoinBaseClient;
+use App\Models\Earning;
 use App\Models\Plan;
 use App\Models\Pricing;
 use App\Models\PricingUser;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repository\PricingRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class HeroMembershipController extends Controller
 {
@@ -21,6 +32,29 @@ class HeroMembershipController extends Controller
         $this->pricingRepository = $pricingRepository;
     }
 
+    public function index(Request $request)
+    {
+        $filters = $request->get('filters', []);
+        $userIdFilter = Arr::get($filters, 'user_id');
+        $statusFilter = Arr::get($filters, 'status');
+
+        if(!$request->is('api/admin/*')){
+            $userIdFilter = auth('api')->id();
+        }
+
+        $pricingUserQuery = PricingUser::orderBy('created_at','desc');
+
+        if ($userIdFilter){
+            $pricingUserQuery->where('user_id', $userIdFilter);
+        }
+
+        $statuses = array_flip(PricingUser::STATUS_TEXT);
+        if ($statusFilter && array_key_exists($statusFilter, $statuses)){
+            $pricingUserQuery->where('status', $statuses[$statusFilter]);
+        }
+
+        return PricingUserItem::collection($pricingUserQuery->paginate());
+    }
 
     public function store(Request $request, Pricing $pricing)
     {
@@ -38,6 +72,99 @@ class HeroMembershipController extends Controller
 
         return response()->json(['message' => 'ok']);
     }
+
+
+    public function processPayment(Request $request, Pricing $pricing)
+    {
+        $paymentMethod = $pricing->paymentMethod()->first();
+        if (!$paymentMethod){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment method not found',
+            ], 404);
+        }
+
+        if (strtolower($paymentMethod->name) == 'coinbase'){
+            return $this->processPaymentCoinBase($request, $pricing);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Payment method not supported',
+        ], 404);
+    }
+
+    public function processPaymentCoinBase(Request $request, Pricing $pricing)
+    {
+        $exists = $pricing->plan()->where('status', Plan::STATUS_ACTIVE)->exists();
+        abort_unless($exists, 404);
+
+        $user = auth()->user();
+        $plan = $pricing->plan()->first();
+        $paymentMethod = $pricing->paymentMethod()->first();
+
+        $name = $plan->name;
+        $description = "Payment by " . $user->email;
+
+        $name = mb_substr( $name, 0, 100 );
+        $description = mb_substr( $description, 0, 200 );
+
+        $redirectUrl = config('payment.coinbase.redirect_url');
+        $cancelUrl = config('payment.coinbase.cancel_url');
+
+        DB::beginTransaction();
+
+        try {
+            $transaction = new Transaction();
+            $transaction->type = Transaction::TYPE_DEPOSIT;
+            $transaction->status = Transaction::STATUS_PENDING;
+            $transaction->payment_method_id = $paymentMethod->id;
+            $transaction->amount = $pricing->amount;
+            $transaction->save();
+
+            $pricingUser = new PricingUser();
+            $pricingUser->user_id = $user->id;
+            $pricingUser->pricing_id = $pricing->id;
+            $pricingUser->status = PricingUser::STATUS_PENDING;
+            $pricingUser->metadata = [
+                'coinbase_status' => 'NEW',
+                'pricing' => PricingItem::make($pricing),
+                'plan' => PlanItem::make($plan),
+                'payment_method' => PaymentMethodItem::make($paymentMethod),
+            ];
+            $pricingUser->transaction_id = $transaction->id;
+            $pricingUser->save();
+
+            $metadata = [
+                'pricing_user_id'  => $pricingUser->id,
+                'source' => 'hero_membership'
+            ];
+
+            $client = new CoinBaseClient();
+
+            $result = $client->createCharge(
+                $name, $description, $pricing->amount, $pricing->currency, $metadata, $redirectUrl, $cancelUrl);
+
+            if (!$result['success']){
+                throw new Exception($result['message']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'ok',
+                'redirect_to' => $result['data']['hosted_url']
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
 
     public function earningsTotal(Request $request, $userId = null)
     {
@@ -121,4 +248,5 @@ class HeroMembershipController extends Controller
 
         return $statistics;
     }
+
 }

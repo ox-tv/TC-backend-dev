@@ -23,4 +23,10 @@ class Pricing extends Model
     public function user(){
         return $this->belongsToMany('App\Models\User')->withTimestamps();
     }
+
+    // attributes
+    public function getAmountAttribute($value)
+    {
+        return floatval($value);
+    }
 }

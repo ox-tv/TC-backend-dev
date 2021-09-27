@@ -173,6 +173,11 @@ class Video extends Model
         return $this->morphMany(Report::class, "reportable");
     }
 
+    public function subtitles()
+    {
+        return $this->hasMany(Subtitle::class);
+    }
+
     public function likedBy(){
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->withTimestamps()->where('relation', UserVideo::LIKED_RELATION);
     }

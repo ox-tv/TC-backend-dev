@@ -12,11 +12,13 @@ class Earning extends Model
     const STATUS_PENDING = 1;
     const STATUS_PAID = 2;
     const STATUS_FAILED = 3;
+    const STATUS_NA = 4;
 
     const STATUS_TEXT = [
         self::STATUS_PENDING => 'pending',
         self::STATUS_PAID => 'paid',
         self::STATUS_FAILED => 'failed',
+        self::STATUS_NA => 'N/A',
     ];
 
     protected $attributes = [
@@ -32,5 +34,11 @@ class Earning extends Model
 
     public function transaction(){
         return $this->belongsTo('App\Models\Transaction');
+    }
+
+    // attributes
+    public function getAmountAttribute($value)
+    {
+        return floatval($value);
     }
 }

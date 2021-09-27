@@ -168,11 +168,16 @@ Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodContro
 // Points
 Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
 
+// CoinBase
+Route::get('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
+
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
+    Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
     Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
     Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
+    Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
 });
 
 
@@ -215,6 +220,9 @@ Route::group([
     Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
 
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
+    Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
+    Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+
 });
 
 
@@ -307,6 +315,7 @@ Route::group([
     Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
     Route::apiResource('plans', '\App\Http\Controllers\PlanController');
 
+    Route::get('memberships', '\App\Http\Controllers\HeroMembershipController@index')->name('memberships.index');
     Route::get('membership/earnings/daily', '\App\Http\Controllers\HeroMembershipController@earningsDaily')->name('membership.earnings.report-daily');
     Route::get('membership/earnings/monthly', '\App\Http\Controllers\HeroMembershipController@earningsMonthly')->name('membership.earnings.report-monthly');
     Route::get('membership/earnings/total', '\App\Http\Controllers\HeroMembershipController@earningsTotal')->name('membership.earnings.report-total');
@@ -316,5 +325,10 @@ Route::group([
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
     Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+    Route::post('earnings/calc', '\App\Http\Controllers\EarningController@calcEarnings')->name('earnings.calc');
+    Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
 
+    // Exports
+    Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
 });
+

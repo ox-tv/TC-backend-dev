@@ -12,6 +12,7 @@ use App\Http\Resources\Playlist\PlaylistMinimalCollection;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
+use App\Http\Resources\Subtitle\SubtitleItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\VideoCommentCollection;
 use App\Http\Resources\VideoSummaryCollection;
@@ -40,6 +41,7 @@ class VideoItem extends JsonResource
         $withTags = in_array('tags', $include) || $this->relationLoaded('tags');
         $withPlaylists = in_array('playlists', $include) || $this->relationLoaded('playlists');
         $withReports = in_array('reports', $include) || $this->relationLoaded('reports');
+        $withSubtitles = in_array('subtitles', $include) || $this->relationLoaded('subtitles');
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
@@ -49,6 +51,7 @@ class VideoItem extends JsonResource
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
+        $subtitles = ($withSubtitles)? SubtitleItem::collection($this->subtitles) : [];
 
         return [
             'id' => $this->id,
@@ -86,6 +89,7 @@ class VideoItem extends JsonResource
             'tags' => $this->when($withTags, $tags),
             'playlists' => $this->when($withPlaylists, $playlists),
             'reports' => $this->when($withReports, $reports),
+            'subtitles' => $this->when($withSubtitles, $subtitles),
         ];
     }
 }
