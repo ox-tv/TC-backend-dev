@@ -104,7 +104,9 @@ class CoinbaseController extends Controller
                 $transactionChangeFlag = true;
             }
 
-            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user, $plan){
+            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user){
+                $plan = $pricingUser->pricing->plan;
+
                 $pricingUser->save();
 
                 if ($transactionChangeFlag){
