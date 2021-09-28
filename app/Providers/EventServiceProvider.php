@@ -7,6 +7,7 @@ use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoUploaded;
+use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\VideoStatisticsDailyCommented;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -16,6 +17,7 @@ use App\Events\VideoViewed;
 use App\Listeners\VideoStatisticsDailyIncreaseView;
 use App\Events\VideoLiked;
 use App\Listeners\VideoStatisticsDailyLiked;
+use Laravel\Cashier\Events\WebhookReceived;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -42,6 +44,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoCommented::class => [
             VideoStatisticsDailyCommented::class,
+        ],
+        WebhookReceived::class => [
+            StripeWebhookHandledListener::class,
         ],
     ];
 
