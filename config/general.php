@@ -8,6 +8,7 @@ return [
     'PUBLISHER_PANEL_URL' => env('PUBLISHER_PANEL_URL', ''),
     'IMPORT_REQUEST_URL' => env('IMPORT_REQUEST_URL', ''),
     'PASSWORD_RESET_URL' => env('PASSWORD_RESET_URL', ''),
+    'ETH_ADDRESS_CONFIRMATION_URL' => env('ETH_ADDRESS_CONFIRMATION_URL', ''),
 
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
