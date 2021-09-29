@@ -126,6 +126,10 @@ class User extends Authenticatable
 
     // Relations
 
+    public function meta(){
+        return $this->hasMany('App\Models\UserMeta');
+    }
+
     public function notifications(){
         return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
     }
