@@ -31,12 +31,14 @@ class UserItem extends JsonResource
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
+        $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
+
         return [
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
             'avatar' => $this->avatar,
-            'eth_address' => $this->eth_address,
+            'eth_address' => $this->when($isEthAddressVisible, $this->eth_address),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
