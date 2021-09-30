@@ -8,10 +8,12 @@ use App\Http\Resources\Channel\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
+use App\Mail\ETHAddressConfirmationMail;
 use App\Models\Department;
 use App\Models\Earning;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Models\VideoStatisticsDaily;
 use App\Services\PointService;
 use Carbon\Carbon;
@@ -20,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -174,8 +177,6 @@ class UserController extends Controller
             $user->password = Hash::make($request->get('new_password'));
         }
 
-        $user->eth_address = $request->get('eth_address', $request->eth_address);
-
         // For Admin permissions
         if ($request->is('api/admin/users/'.$user->id)){
             // Is mute
@@ -193,6 +194,28 @@ class UserController extends Controller
             if (!$user->hero_member_at && $user->is_hero){
                 $user->hero_member_at = Carbon::now();
             }
+        }
+
+        if ($request->is('api/admin/*')){
+
+            $user->eth_address = $request->get('eth_address', $request->eth_address);
+
+        }elseif($request->get('eth_address') && $user->eth_address != $request->get('eth_address')){
+            // Add new value to user meta and send confirmation email
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
+                ['value' => $request->get('eth_address'),]
+            );
+
+            $token = sha1($user->id . time());
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
+                ['value' => $token]
+            );
+
+            $link = config('general.ETH_ADDRESS_CONFIRMATION_URL') . $token;
+            Mail::to($user->email)
+                ->queue(new ETHAddressConfirmationMail($link));
         }
 
         $user->save();
@@ -245,7 +268,7 @@ class UserController extends Controller
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
         ]);
 
-        $user = Auth::user();
+        $user = auth('api')->user();
 
         $user->username = $request->get('username', $user->username);
 
@@ -255,12 +278,47 @@ class UserController extends Controller
             $user->password = Hash::make($request->get('new_password'));
         }
 
-        $user->eth_address = $request->get('eth_address', $request->eth_address);
+        if($request->get('eth_address') && $user->eth_address != $request->get('eth_address')){
+            // Add new value to user meta and send confirmation email
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
+                ['value' => $request->get('eth_address')]
+            );
+
+            $token = sha1($user->id . time());
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
+                ['value' => $token]
+            );
+
+            $link = config('general.ETH_ADDRESS_CONFIRMATION_URL') . $token;
+            Mail::to($user->email)
+                ->queue(new ETHAddressConfirmationMail($link));
+        }
 
         $user->save();
 
         return response()->json(new UserItem($user));
 
+    }
+
+    public function changeETHAddressConfirmation($token)
+    {
+        $meta = UserMeta::where([
+            'key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY,
+            'value' => $token,
+        ])->firstOrFail();
+
+        $user = $meta->user;
+        $newETHAddress = $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->firstOrFail();
+
+        $user->eth_address = $newETHAddress->value;
+        $user->save();
+
+        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->delete();
+        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY)->delete();
+
+        return response()->json(['message' => __('users.messages.eth_address_confirmed')], 200);
     }
 
     public function subscribedChannels()

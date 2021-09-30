@@ -178,6 +178,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
     Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
     Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
+    Route::get('profile/confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('profile.confirm-eth-address');
 });
 
 
