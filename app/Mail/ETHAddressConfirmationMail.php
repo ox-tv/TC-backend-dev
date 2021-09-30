@@ -11,7 +11,7 @@ class ETHAddressConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $confirmation_link;
+    public $confirmationLink;
 
     /**
      * Create a new message instance.
@@ -20,7 +20,7 @@ class ETHAddressConfirmationMail extends Mailable
      */
     public function __construct($link)
     {
-        $this->confirmation_link = $link;
+        $this->confirmationLink = $link;
     }
 
     /**

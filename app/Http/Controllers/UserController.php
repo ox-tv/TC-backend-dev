@@ -310,9 +310,9 @@ class UserController extends Controller
         ])->firstOrFail();
 
         $user = $meta->user;
-        $new_eth_address = $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->firstOrFail();
+        $newETHAddress = $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->firstOrFail();
 
-        $user->eth_address = $new_eth_address->value;
+        $user->eth_address = $newETHAddress->value;
         $user->save();
 
         $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->delete();

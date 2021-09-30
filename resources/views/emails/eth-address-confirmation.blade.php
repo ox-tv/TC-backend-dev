@@ -558,7 +558,7 @@
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 15px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $confirmation_link }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify Email</a>
+                                                    <a class="mcnButton " title="Verify Email" href="{{ $confirmationLink }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify Email</a>
                                                 </td>
                                             </tr>
                                             </tbody>
