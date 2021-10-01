@@ -318,7 +318,7 @@ class UserController extends Controller
         $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->delete();
         $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY)->delete();
 
-        return response()->json(['message' => __('users.messages.eth_address_confirmed')], 200);
+        return response()->json(['status' => 'ok']);
     }
 
     public function subscribedChannels()
