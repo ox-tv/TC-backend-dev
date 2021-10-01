@@ -30,6 +30,8 @@ Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginCo
 // Home Page
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
+// search
+Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
 // categories
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
