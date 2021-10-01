@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>*|MC:SUBJECT|*</title>
 
-    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=Dz3NTmwno2R1m5aAFBBPXrYsMYTNNWFE7ihomBvxpnqIcwAQtHNJpgM4lfoAwiCrAdAfPoVPgmzOq4hyorUYJmq9OtT_5po-xbOs0DCOWveF5fjXE75-k0LruwHqj5QmtuOAncNRHrcIQqkoOi_0HeHqyG3Gu63ST6DkM05mDKfDISjz1b4BlI8MSt_CA7z-Hf4QdUYw4NYGyle5dNaOSA" charset="UTF-8"></script><style type="text/css">
+    <style type="text/css">
         p{
             margin:10px 0;
             padding:0;
@@ -103,19 +103,15 @@
         .mcnDividerBlock{
             table-layout:fixed !important;
         }
-
         body,#bodyTable{
             /*@editable*/background-color:#FAFAFA;
         }
-
         #bodyCell{
             /*@editable*/border-top:0;
         }
-
         .templateContainer{
             /*@editable*/border:0;
         }
-
         h1{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -126,7 +122,6 @@
             /*@editable*/letter-spacing:normal;
             /*@editable*/text-align:left;
         }
-
         h2{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -137,7 +132,6 @@
             /*@editable*/letter-spacing:normal;
             /*@editable*/text-align:left;
         }
-
         h3{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -148,7 +142,6 @@
             /*@editable*/letter-spacing:normal;
             /*@editable*/text-align:left;
         }
-
         h4{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -159,7 +152,6 @@
             /*@editable*/letter-spacing:normal;
             /*@editable*/text-align:left;
         }
-
         #templatePreheader{
             /*@editable*/background-color:#FAFAFA;
             /*@editable*/background-image:none;
@@ -171,7 +163,6 @@
             /*@editable*/padding-top:9px;
             /*@editable*/padding-bottom:9px;
         }
-
         #templatePreheader .mcnTextContent,#templatePreheader .mcnTextContent p{
             /*@editable*/color:#656565;
             /*@editable*/font-family:Helvetica;
@@ -179,13 +170,11 @@
             /*@editable*/line-height:150%;
             /*@editable*/text-align:left;
         }
-
         #templatePreheader .mcnTextContent a,#templatePreheader .mcnTextContent p a{
             /*@editable*/color:#656565;
             /*@editable*/font-weight:normal;
             /*@editable*/text-decoration:underline;
         }
-
         #templateHeader{
             /*@editable*/background-color:#FFFFFF;
             /*@editable*/background-image:none;
@@ -197,7 +186,6 @@
             /*@editable*/padding-top:9px;
             /*@editable*/padding-bottom:0;
         }
-
         #templateHeader .mcnTextContent,#templateHeader .mcnTextContent p{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -205,13 +193,11 @@
             /*@editable*/line-height:150%;
             /*@editable*/text-align:left;
         }
-
         #templateHeader .mcnTextContent a,#templateHeader .mcnTextContent p a{
             /*@editable*/color:#007C89;
             /*@editable*/font-weight:normal;
             /*@editable*/text-decoration:underline;
         }
-
         #templateBody{
             /*@editable*/background-color:#FFFFFF;
             /*@editable*/background-image:none;
@@ -223,7 +209,6 @@
             /*@editable*/padding-top:0;
             /*@editable*/padding-bottom:9px;
         }
-
         #templateBody .mcnTextContent,#templateBody .mcnTextContent p{
             /*@editable*/color:#202020;
             /*@editable*/font-family:Helvetica;
@@ -231,13 +216,11 @@
             /*@editable*/line-height:150%;
             /*@editable*/text-align:left;
         }
-
         #templateBody .mcnTextContent a,#templateBody .mcnTextContent p a{
             /*@editable*/color:#007C89;
             /*@editable*/font-weight:normal;
             /*@editable*/text-decoration:underline;
         }
-
         #templateFooter{
             /*@editable*/background-color:#FAFAFA;
             /*@editable*/background-image:none;
@@ -249,7 +232,6 @@
             /*@editable*/padding-top:9px;
             /*@editable*/padding-bottom:9px;
         }
-
         #templateFooter .mcnTextContent,#templateFooter .mcnTextContent p{
             /*@editable*/color:#656565;
             /*@editable*/font-family:Helvetica;
@@ -257,7 +239,6 @@
             /*@editable*/line-height:150%;
             /*@editable*/text-align:center;
         }
-
         #templateFooter .mcnTextContent a,#templateFooter .mcnTextContent p a{
             /*@editable*/color:#656565;
             /*@editable*/font-weight:normal;
@@ -352,69 +333,59 @@
             }
 
         }	@media only screen and (max-width: 480px){
-
             h1{
                 /*@editable*/font-size:22px !important;
                 /*@editable*/line-height:125% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             h2{
                 /*@editable*/font-size:20px !important;
                 /*@editable*/line-height:125% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             h3{
                 /*@editable*/font-size:18px !important;
                 /*@editable*/line-height:125% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             h4{
                 /*@editable*/font-size:16px !important;
                 /*@editable*/line-height:150% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             .mcnBoxedTextContentContainer .mcnTextContent,.mcnBoxedTextContentContainer .mcnTextContent p{
                 /*@editable*/font-size:14px !important;
                 /*@editable*/line-height:150% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             #templatePreheader{
                 /*@editable*/display:block !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             #templatePreheader .mcnTextContent,#templatePreheader .mcnTextContent p{
                 /*@editable*/font-size:14px !important;
                 /*@editable*/line-height:150% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             #templateHeader .mcnTextContent,#templateHeader .mcnTextContent p{
                 /*@editable*/font-size:16px !important;
                 /*@editable*/line-height:150% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             #templateBody .mcnTextContent,#templateBody .mcnTextContent p{
                 /*@editable*/font-size:16px !important;
                 /*@editable*/line-height:150% !important;
             }
 
         }	@media only screen and (max-width: 480px){
-
             #templateFooter .mcnTextContent,#templateFooter .mcnTextContent p{
                 /*@editable*/font-size:14px !important;
                 /*@editable*/line-height:150% !important;
@@ -466,8 +437,8 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank">
-                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/bf7f7810-e539-45aa-b122-55991f7391fd.png" width="214.32" style="max-width:1001px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank">
+                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/bf7f7810-e539-45aa-b122-55991f7391fd.png" width="157.92000000000002" style="max-width:1001px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -514,9 +485,9 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><strong><span style="font-size:18px">Welcome!</span></strong><br>
+                                                    <div style="text-align: center;"><strong><span style="font-size:18px">You have requested to update your ETH address.</span></strong><br>
                                                         <br>
-                                                        <span style="font-size:14px">We are happy to have you onboard&nbsp;and we hope you will gain lots of valuable insights into the crypto market. Click the button below to verify your email. Once you have done this, you are all set!</span></div>
+                                                        <span style="font-size:14px">Click the button below to verify your new ETH address.</span></div>
 
                                                 </td>
                                             </tr>
@@ -550,7 +521,10 @@
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock" style="min-width:100%;">
+                            </table></td>
+                    </tr>
+                    <tr>
+                        <td valign="top" id="templateFooter"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock" style="min-width:100%;">
                                 <tbody class="mcnButtonBlockOuter">
                                 <tr>
                                     <td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;" valign="top" align="center" class="mcnButtonBlockInner">
@@ -558,7 +532,7 @@
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 15px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $confirmationLink }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify Email</a>
+                                                    <a class="mcnButton " title="Verify new address" href="{{ $confirmationLink }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify new address</a>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -567,9 +541,6 @@
                                 </tr>
                                 </tbody>
                             </table></td>
-                    </tr>
-                    <tr>
-                        <td valign="top" id="templateFooter"></td>
                     </tr>
                 </table>
                 <!--[if (gte mso 9)|(IE)]>
@@ -584,3 +555,4 @@
 </center>
 </body>
 </html>
+
