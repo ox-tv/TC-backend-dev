@@ -67,6 +67,8 @@ class ChannelController extends Controller
             $query->withCount('subscribers')->orderBy('subscribers_count', 'desc');
         }elseif ($sort === 'most_points'){
             $query->orderBy('points', 'desc');
+        }elseif ($sort === 'most_comments'){
+            $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
 
         $channels = $query->paginate($per_page);
