@@ -173,6 +173,9 @@ Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate'
 // CoinBase
 Route::get('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
 
+// New ETH Address Confirmation
+Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
+
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
@@ -180,7 +183,6 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
     Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
     Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
-    Route::get('profile/confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('profile.confirm-eth-address');
 });
 
 
