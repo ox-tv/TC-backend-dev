@@ -335,5 +335,8 @@ Route::group([
 
     // Exports
     Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
+
+    // Lottery
+    Route::post('lotteries', '\App\Http\Controllers\LotteryController@lottery')->name('lotteries.lottery');
 });
 
