@@ -123,6 +123,8 @@ class CoinbaseController extends Controller
                 }
             });
         }
+
+        return false;
     }
 
 }
