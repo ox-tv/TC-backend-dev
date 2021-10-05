@@ -171,7 +171,7 @@ Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodContro
 Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
 
 // CoinBase
-Route::get('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
+Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
 
 // New ETH Address Confirmation
 Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
