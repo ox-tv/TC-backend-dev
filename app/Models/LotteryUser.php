@@ -10,6 +10,8 @@ class LotteryUser extends Model
 {
     protected $table = 'lottery_user';
 
+    public $timestamps = false;
+
     // Status
     const STATUS_PENDING = 1;
     const STATUS_PAID = 2;
