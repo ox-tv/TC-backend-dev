@@ -22,8 +22,11 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request, $scope = 'user')
     {
+        $login = $request->get('email')?:$request->get('login');
+        $login_type = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+
         $credentials = [
-            'email' => $request->get('email'),
+            $login_type => $login,
             'password' => $request->get('password'),
             'status' => User::STATUS_ACTIVE
         ];
@@ -41,16 +44,13 @@ class LoginController extends Controller
         $attempt = Auth::attempt($credentials);
 
         if($attempt){
-
             $user = Auth::user();
-
             $result['profile'] = UserItem::make($user->load('role'));
             $result['token'] =  $user->createToken('access_token')->accessToken;
             return response()->json($result, '200');
         }
-        else{
-            return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
-        }
+
+        return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
     }
 
     /**
