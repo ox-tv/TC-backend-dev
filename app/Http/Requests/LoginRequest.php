@@ -26,7 +26,8 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|string|email',
+            'email' => 'required_without:login|string|email',
+            'login' => 'required_without:email|string',
             'password' => ['required', 'string'],
         ];
     }
@@ -35,11 +36,13 @@ class LoginRequest extends FormRequest
     {
         $validator->after(function ($validator) {
 
-            if(Auth::validate(['email' => request('email'), 'password' => $this->request->get('password')])){
+            $login = $this->request->get('email')?:$this->request->get('login');
+            $login_type = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+
+            if(Auth::validate([$login_type => $login, 'password' => $this->request->get('password')])){
                 $user = Auth::getLastAttempted();
                 if($user->status == User::STATUS_INACTIVE) {
                     $validator->errors()->add('credentials', 'auth.inactive_account');
-
                 }
             }
 
