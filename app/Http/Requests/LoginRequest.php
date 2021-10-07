@@ -37,9 +37,9 @@ class LoginRequest extends FormRequest
         $validator->after(function ($validator) {
 
             $login = $this->request->get('email')?:$this->request->get('login');
-            $login_type = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+            $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
 
-            if(Auth::validate([$login_type => $login, 'password' => $this->request->get('password')])){
+            if(Auth::validate([$loginType => $login, 'password' => $this->request->get('password')])){
                 $user = Auth::getLastAttempted();
                 if($user->status == User::STATUS_INACTIVE) {
                     $validator->errors()->add('credentials', 'auth.inactive_account');

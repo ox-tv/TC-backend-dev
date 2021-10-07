@@ -23,10 +23,10 @@ class LoginController extends Controller
     public function login(LoginRequest $request, $scope = 'user')
     {
         $login = $request->get('email')?:$request->get('login');
-        $login_type = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
 
         $credentials = [
-            $login_type => $login,
+            $loginType => $login,
             'password' => $request->get('password'),
             'status' => User::STATUS_ACTIVE
         ];
