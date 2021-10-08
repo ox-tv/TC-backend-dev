@@ -266,6 +266,7 @@ class UserController extends Controller
             'avatar' => 'nullable|string',
             'current_password' => 'nullable|string|password|required_with:new_password',
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
+            'scope' => 'required_if:eth_address',
         ]);
 
         $user = auth('api')->user();
@@ -291,7 +292,11 @@ class UserController extends Controller
                 ['value' => $token]
             );
 
-            $link = config('general.ETH_ADDRESS_CONFIRMATION_URL') . $token;
+            $link = (
+                $request->get('scope') == 'publisher'?
+                    config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
+                    : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
+            ) . $token;
             Mail::to($user->email)
                 ->queue(new ETHAddressConfirmationMail($link));
         }

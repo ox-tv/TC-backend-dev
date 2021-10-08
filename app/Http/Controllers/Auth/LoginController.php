@@ -85,7 +85,11 @@ class LoginController extends Controller
         $reset_password->token = $token;
         $reset_password->save();
 
-        $link = config('general.PASSWORD_RESET_URL') . $token;
+        $link = (
+            $request->get('scope') == 'publisher'?
+                config('general.PUBLISHER_PASSWORD_RESET_URL')
+                : config('general.MWA_PASSWORD_RESET_URL')
+            ) . $token;
         Mail::to($user->email)
             ->queue(new PasswordResetMail($link));
 
