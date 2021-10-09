@@ -21,7 +21,7 @@ class LotteryController extends Controller
     {
         $lotteries = Lottery::with(['lottery_users' => function ($query) {
             $query->with('user', 'transaction');
-        }])->orderBy('date', 'DESC');
+        }])->orderBy('date', 'DESC')->get();
 
         return LotteryItem::collection($lotteries);
     }
