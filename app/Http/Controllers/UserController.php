@@ -266,7 +266,7 @@ class UserController extends Controller
             'avatar' => 'nullable|string',
             'current_password' => 'nullable|string|password|required_with:new_password',
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
-            'scope' => 'required_if:eth_address',
+            'scope' => 'required_with:eth_address',
         ]);
 
         $user = auth('api')->user();
