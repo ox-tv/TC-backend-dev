@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
+use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;

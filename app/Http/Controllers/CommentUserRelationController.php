@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentLiked;
 use App\Http\Requests\CommentDislike;
 use App\Http\Requests\CommentLike;
 use App\Models\Comment;
@@ -33,6 +34,8 @@ class CommentUserRelationController extends Controller
             $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
 
         }
+
+        event(new CommentLiked($comment, auth('api')->user(), $isLiked?-1:1, $isDisliked?-1:0));
 
         return response()->json([
             'is_liked' => $comment->is_liked,

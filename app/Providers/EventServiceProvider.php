@@ -3,12 +3,18 @@
 namespace App\Providers;
 
 use App\Events\ChannelSubscribed;
+use App\Events\CommentLiked;
 use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
+use App\Events\VideoWatched;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoUploaded;
+use App\Listeners\CommentLikedDataForUserStatisticsDaily;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
+use App\Listeners\VideoViewedDataForUserStatisticsDaily;
+use App\Listeners\VideoWatchedDataForUserStatisticsDaily;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -32,9 +38,14 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoViewed::class => [
             VideoStatisticsDailyIncreaseView::class,
+            VideoViewedDataForUserStatisticsDaily::class,
         ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,
+            VideoLikedDataForUserStatisticsDaily::class,
+        ],
+        CommentLiked::class => [
+            CommentLikedDataForUserStatisticsDaily::class,
         ],
         ChannelSubscribed::class => [
             ChannelStatisticsDailySubscribed::class,
