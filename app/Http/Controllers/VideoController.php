@@ -34,6 +34,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -643,13 +644,64 @@ class VideoController extends Controller
     {
         $video = Video::findOrFail($id);
         $user = auth("api")->user();
+        $originalStart = $start = $request->get("start_time");
+        $originalEnd = $end = $request->get("end_time");
+        $duration = 0;
 
-        $video->watch_times()->attach($user->id, [
-            "start_time" => $request->get("start_time"),
-            "end_time" => $request->get("end_time")
-        ]);
+        $watchTimes = DB::table('watch_times')
+            ->where('user_id', $user->id)
+            ->where('video_id', $video->id)
+            ->where(function($query) use ($originalStart, $originalEnd) {
+                $query->whereBetween('start_time', [$originalStart, $originalEnd])
+                    ->orWhereBetween('end_time', [$originalStart, $originalEnd])
+                    ->orWhere(function($query) use ($originalStart, $originalEnd) {
+                        $query->where('start_time', '<=', $originalStart)
+                            ->where('end_time', '>=', $originalEnd);
+                    });
+            })
+            ->orderBy('start_time')
+            ->get();
 
-        $duration = $request->get("end_time") - $request->get("start_time");
+
+        // Calc new rows
+        $newRows = [];
+        foreach ($watchTimes as $watchTime){
+
+            $end = $watchTime->start_time;
+
+            if ($end <= $start){
+                $start = $watchTime->end_time;
+                continue;
+            }
+
+            $newRows[] = [
+                "start_time" => $start,
+                "end_time" => $end
+            ];
+
+            $duration += ($end - $start);
+
+            $start = $watchTime->end_time;
+        }
+
+        if ($originalEnd - $start > 0){
+            $newRows[] = [
+                "start_time" => $start,
+                "end_time" => $originalEnd
+            ];
+
+            $duration += ($originalEnd - $start);
+        }
+
+        // Add to Database
+        DB::transaction(function () use ($video, $user, $newRows) {
+            foreach ($newRows as $row){
+                $video->watch_times()->attach($user->id, [
+                    "start_time" => $row['start_time'],
+                    "end_time" => $row['end_time']
+                ]);
+            }
+        });
 
         $video->watch_time += $duration;
         $video->save();
