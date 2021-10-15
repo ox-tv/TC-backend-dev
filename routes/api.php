@@ -174,6 +174,7 @@ Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate'
 Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
 
 // New ETH Address Confirmation
+Route::middleware('auth:api')->post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
 Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
 
 // Login user roles
