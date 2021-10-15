@@ -279,32 +279,47 @@ class UserController extends Controller
             $user->password = Hash::make($request->get('new_password'));
         }
 
-        if($request->get('eth_address') && $user->eth_address != $request->get('eth_address')){
-            // Add new value to user meta and send confirmation email
-            $user->meta()->updateOrCreate(
-                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
-                ['value' => $request->get('eth_address')]
-            );
-
-            $token = sha1($user->id . time());
-            $user->meta()->updateOrCreate(
-                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
-                ['value' => $token]
-            );
-
-            $link = (
-                $request->get('scope') == 'publisher'?
-                    config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
-                    : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
-            ) . $token;
-            Mail::to($user->email)
-                ->queue(new ETHAddressConfirmationMail($link));
-        }
-
         $user->save();
 
         return response()->json(new UserItem($user));
 
+    }
+
+    public function changeETHAddress(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string|password',
+            'eth_address' => 'required',
+            'scope' => 'required',
+        ]);
+
+        $user = auth('api')->user();
+
+        if (!Hash::check($request->get('current_password'), $user->password)){
+            return response()->json(['status' => 'error', 'message' => 'password is incorrect'], 403);
+        }
+
+        // Add new value to user meta and send confirmation email
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
+            ['value' => $request->get('eth_address')]
+        );
+
+        $token = sha1($user->id . time());
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
+            ['value' => $token]
+        );
+
+        $link = (
+            $request->get('scope') == 'publisher'?
+                config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
+                : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
+            ) . $token;
+        Mail::to($user->email)
+            ->queue(new ETHAddressConfirmationMail($link));
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function changeETHAddressConfirmation($token)
