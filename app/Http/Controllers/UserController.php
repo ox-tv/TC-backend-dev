@@ -288,7 +288,7 @@ class UserController extends Controller
     public function changeETHAddress(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|string|current_password:api',
+            'current_password' => 'required|string|password',
             'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
             'scope' => 'required',
         ]);
