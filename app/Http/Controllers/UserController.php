@@ -288,16 +288,12 @@ class UserController extends Controller
     public function changeETHAddress(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|string|password',
-            'eth_address' => 'required',
+            'current_password' => 'required|string|current_password:api',
+            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
             'scope' => 'required',
         ]);
 
         $user = auth('api')->user();
-
-        if (!Hash::check($request->get('current_password'), $user->password)){
-            return response()->json(['status' => 'error', 'message' => 'password is incorrect'], 403);
-        }
 
         // Add new value to user meta and send confirmation email
         $user->meta()->updateOrCreate(
