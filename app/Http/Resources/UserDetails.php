@@ -37,6 +37,7 @@ class UserDetails extends JsonResource
             'subscription_count' => $this->subscribedChannels()->count(),
             'comments_count' => $this->comments()->count(),
             'role' => $this->role_name,
+            'referral_code' => $this->referral_code,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
