@@ -127,6 +127,14 @@ class User extends Authenticatable
 
     // Relations
 
+    public function referrer(){
+        return $this->belongsTo('App\Models\User', 'referrer_id');
+    }
+
+    public function referrals(){
+        return $this->hasMany('App\Models\User', 'referrer_id');
+    }
+
     public function meta(){
         return $this->hasMany('App\Models\UserMeta');
     }
