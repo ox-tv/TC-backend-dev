@@ -709,6 +709,10 @@ class VideoController extends Controller
         $user->watch_time += $duration;
         $user->save();
 
+        foreach ($newRows as $row){
+            event(new VideoWatched($video, $user, $row['start_time'], $row['end_time']));
+        }
+
         return response()->json(["message" => "ok"]);
     }
 
