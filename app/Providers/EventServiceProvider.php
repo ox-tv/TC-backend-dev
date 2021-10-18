@@ -40,6 +40,9 @@ class EventServiceProvider extends ServiceProvider
             VideoStatisticsDailyIncreaseView::class,
             VideoViewedDataForUserStatisticsDaily::class,
         ],
+        VideoWatched::class => [
+            VideoWatchedDataForUserStatisticsDaily::class,
+        ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,
             VideoLikedDataForUserStatisticsDaily::class,
