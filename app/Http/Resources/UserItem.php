@@ -39,6 +39,7 @@ class UserItem extends JsonResource
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
             'watch_time' => $this->watch_time,
             'role' => $this->role_name,
+            'referral_code' => $this->referral_code,
             'request_details' => $this->when(
                 $withPublisherRequest,
                 Message::where([
