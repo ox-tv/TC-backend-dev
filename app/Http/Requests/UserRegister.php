@@ -21,7 +21,7 @@ class UserRegister extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'ref' => strtoupper($this->request->get('ref')),
+            'referral_code' => strtoupper($this->request->get('referral_code')),
         ]);
     }
 
@@ -44,7 +44,7 @@ class UserRegister extends FormRequest
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'string', 'min:8'],
-            'ref' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
         ];
     }
 }
