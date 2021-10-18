@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -26,8 +27,19 @@ class RegisterController extends Controller
             $user->status = User::STATUS_ACTIVE;
         }
 
+        do{
+            $referral_code = strtoupper(Str::random(6));
+        }while(User::where('referral_code', $referral_code)->exists());
+
+        $user->referral_code = $referral_code;
         $user->email = $request->get('email');
         $user->password = Hash::make($request->get('password'));
+
+        if($request->get('ref')){
+            $referrer = User::where('referral_code', $request->get('ref'))->first();
+            $user->referrer_id = $referrer->id;
+        }
+
         $user->save();
 
         // Create verification token and send to user email
