@@ -26,7 +26,7 @@ class ChannelUpdate extends FormRequest
     public function rules()
     {
 
-        $thisChannelId = request()->route('channel') ?? Auth::user()->channel->id;
+        $thisChannelId = request()->route('channel') ?? auth('api')->user()->channel->id;
         
         return [
             'name' => ['nullable', Rule::unique('channels')->ignore($thisChannelId)],
