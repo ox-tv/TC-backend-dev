@@ -204,7 +204,7 @@ class ChannelController extends Controller
     public function update(ChannelUpdate $request, Channel $channel)
     {
         if(is_null($request->route('channel'))){
-            $channel = Auth::user()->channel;
+            $channel = auth('api')->user()->channel;
         }
 
         if(!$request->is('api/admin/channels/*') && $channel->owner->id != auth('api')->id()){
