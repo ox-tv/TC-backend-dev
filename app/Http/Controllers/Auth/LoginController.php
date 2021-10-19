@@ -87,7 +87,7 @@ class LoginController extends Controller
 
         if ($request->get('scope') == 'publisher'){
             $link = config('general.PUBLISHER_PASSWORD_RESET_URL') . $token;
-        }elseif ($request->get('scope') == 'publisher'){
+        }elseif ($request->get('scope') == 'admin'){
             $link = config('general.ADMIN_PASSWORD_RESET_URL') . $token;
         }else{
             $link = config('general.MWA_PASSWORD_RESET_URL') . $token;
