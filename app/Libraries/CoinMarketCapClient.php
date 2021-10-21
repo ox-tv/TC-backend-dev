@@ -15,7 +15,7 @@ class CoinMarketCapClient
 
     public function __construct()
     {
-        $this->api_key = '006c9e55-9015-4f2a-8186-7b20d4314f9f';//config("general.COIN_MARKET_CAP_API_KEY");
+        $this->api_key = config("coinmarketcap.COINMARKETCAP_API_KEY");
     }
 
     /*
