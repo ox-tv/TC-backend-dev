@@ -152,6 +152,9 @@ Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionControll
 Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 
 
+// lotteries
+Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');
+
 
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
