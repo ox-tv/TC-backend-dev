@@ -56,7 +56,7 @@ Route::middleware('auth:api')->put('notifications/{id}/read', '\App\Http\Control
 
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
-Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
+Route::middleware('auth:api')->post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
