@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\AddCryptoCurrenciesFromCoinMarketCapAPI;
 use App\Console\Commands\DumpNotifications;
+use App\Console\Commands\UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         AddCryptoCurrenciesFromCoinMarketCapAPI::class,
+        UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI::class,
         DumpNotifications::class
     ];
 
@@ -27,7 +29,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('crypto_currencies:add')->runInBackground()->hourly();
+        $schedule->command('crypto_currencies:add')->runInBackground()->daily();
+        $schedule->command('crypto_currencies:update')->runInBackground()->everyMinute();
 
         $keep = config('general.notifications.keep');
         $schedule->command("notifications:dump --keep={$keep}")->runInBackground()->monthly();
