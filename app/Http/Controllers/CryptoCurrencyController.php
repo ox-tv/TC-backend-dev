@@ -47,7 +47,9 @@ class CryptoCurrencyController extends Controller
                 $need_to_get_ratio[] = $crypto_currency;
             }
         }
-        $this->GetRatios($need_to_get_ratio);
+        if (!empty($need_to_get_ratio)){
+            $this->GetRatios($need_to_get_ratio);
+        }
 
         return CryptoCurrencyItem::collection($data);
     }
