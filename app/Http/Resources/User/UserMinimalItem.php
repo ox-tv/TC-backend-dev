@@ -38,6 +38,8 @@ class UserMinimalItem extends JsonResource
             'watch_time' => $this->watch_time,
             'channel' => $this->when($withChannel, $channel),
             'referral_code' => $this->referral_code,
+
+            'loyalty_points' => 0,
         ];
     }
 }

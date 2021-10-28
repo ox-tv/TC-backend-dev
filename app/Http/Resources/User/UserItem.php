@@ -50,6 +50,8 @@ class UserItem extends JsonResource
             'updated_at' => $this->updated_at,
             'watch_time' => $this->watch_time,
 
+            'loyalty_points' => 0,
+
             'role' => $this->when($withRole, $role),
             'channel' => $this->when($withChannel, $channel),
             'bookmark_videos' => $this->when($withBookmarkVideos, $bookmarkVideos),
