@@ -40,6 +40,8 @@ class UserDetails extends JsonResource
             'referral_code' => $this->referral_code,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+
+            'loyalty_points' => 0,
         ];
     }
 }
