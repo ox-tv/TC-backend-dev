@@ -48,6 +48,8 @@ class CommentLikedDataForUserStatisticsDaily
             $statistics->comment_likes_count_as_non_hero += $likeAmount;
         }
 
+        $statistics->calcPoints();
+
         $statistics->save();
 
 
@@ -64,6 +66,8 @@ class CommentLikedDataForUserStatisticsDaily
         }else{
             $statistics->comment_liked_count_as_non_hero += $likeAmount;
         }
+
+        $statistics->calcPoints();
 
         $statistics->save();
 

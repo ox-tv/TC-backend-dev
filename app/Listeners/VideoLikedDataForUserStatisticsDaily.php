@@ -50,6 +50,8 @@ class VideoLikedDataForUserStatisticsDaily
             $statistics->video_likes_count_as_non_hero += $likeAmount;
         }
 
+        $statistics->calcPoints();
+
         $statistics->save();
 
         return $statistics;
