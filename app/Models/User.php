@@ -187,6 +187,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Pricing')->withTimestamps();
     }
 
+    public function statistics(){
+        return $this->hasMany('App\Models\UserStatisticsDaily');
+    }
+
 
     // Attributes
     public function getIsHeroAttribute(){
