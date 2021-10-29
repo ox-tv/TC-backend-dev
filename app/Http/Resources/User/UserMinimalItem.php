@@ -39,7 +39,7 @@ class UserMinimalItem extends JsonResource
             'channel' => $this->when($withChannel, $channel),
             'referral_code' => $this->referral_code,
 
-            'loyalty_points' => $this->statistics()->sum('points'),
+            'loyalty_points' => floatval($this->statistics()->sum('points')),
         ];
     }
 }
