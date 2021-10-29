@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\ChannelSubscribed;
 use App\Events\CommentLiked;
+use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Events\VideoWatched;
@@ -11,6 +12,7 @@ use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoUploaded;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
@@ -35,6 +37,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        UserVerified::class => [
+            UserVerifiedDataForUserStatisticsDaily::class,
         ],
         VideoViewed::class => [
             VideoStatisticsDailyIncreaseView::class,

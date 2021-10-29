@@ -64,6 +64,8 @@ class VideoWatchedDataForUserStatisticsDaily
             $statistics->video_watch_count_as_non_hero += 1;
         }
 
+        $statistics->calcPoints();
+
         $statistics->save();
 
         return $statistics;

@@ -41,7 +41,7 @@ class UserDetails extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
-            'loyalty_points' => 0,
+            'loyalty_points' => $this->statistics()->sum('points'),
         ];
     }
 }

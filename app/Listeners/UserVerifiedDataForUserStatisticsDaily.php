@@ -2,14 +2,17 @@
 
 namespace App\Listeners;
 
+use App\Events\UserVerified;
 use App\Events\VideoViewed;
+use App\Events\VideoWatched;
 use App\Models\UserStatisticsDaily;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\DB;
 
-class VideoViewedDataForUserStatisticsDaily
+class UserVerifiedDataForUserStatisticsDaily
 {
     /**
      * Create the event listener.
@@ -27,25 +30,27 @@ class VideoViewedDataForUserStatisticsDaily
      * @param  VideoViewed  $event
      * @return void
      */
-    public function handle(VideoViewed $event)
+    public function handle(UserVerified $event)
     {
         $user = $event->user;
+        $referrer = $user->referrer;
 
-        if (!$user) {
+        if (!$referrer){
             return;
         }
 
+        // Add +1 to user statistics
         $statistics = UserStatisticsDaily::firstOrNew([
-            'user_id' => $user->id,
+            'user_id' => $referrer->id,
             'date' => date('Y-m-d'),
         ]);
 
-        $statistics->video_views_count_total += 1;
+        $statistics->referral_count_total += 1;
 
-        if($user->is_hero){
-            $statistics->video_views_count_as_hero += 1;
+        if($referrer->is_hero){
+            $statistics->referral_count_as_hero += 1;
         }else{
-            $statistics->video_views_count_as_non_hero += 1;
+            $statistics->referral_count_as_non_hero += 1;
         }
 
         $statistics->calcPoints();

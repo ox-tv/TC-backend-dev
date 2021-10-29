@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
 use App\Http\Requests\UserResendVerification;
@@ -55,7 +56,6 @@ class RegisterController extends Controller
             'email' => $request->input('email'),
             'message' => __('users.messages.verification_link_sent'),
         ]);
-
     }
 
     public function verify($token)
@@ -65,6 +65,8 @@ class RegisterController extends Controller
         $user->email_verified_at = now();
 
         $user->save();
+
+        event(new UserVerified($user));
 
         return response()->json(['message' => __('users.messages.verified')], 200);
     }
