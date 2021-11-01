@@ -173,7 +173,7 @@ class HeroMembershipController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error creating subscription. ' . $e->getMessage()
-            ],$e->getCode());
+            ],400);
         }
     }
 
