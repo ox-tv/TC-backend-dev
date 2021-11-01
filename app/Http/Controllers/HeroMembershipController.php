@@ -74,7 +74,7 @@ class HeroMembershipController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    public function setupStripe()
+    public function setupIntent()
     {
         $data = [
             'intent' => auth()->user()->createSetupIntent(),
