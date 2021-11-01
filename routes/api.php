@@ -176,6 +176,11 @@ Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate'
 // CoinBase
 Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
 
+
+// Stripe
+Route::middleware('auth:api')->get('stripe/setup-intent', '\App\Http\Controllers\HeroMembershipController@setupIntent');
+
+
 // New ETH Address Confirmation
 Route::middleware('auth:api')->post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
 Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
