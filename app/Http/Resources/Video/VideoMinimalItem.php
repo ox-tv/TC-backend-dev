@@ -19,13 +19,20 @@ class VideoMinimalItem extends JsonResource
      */
     public function toArray($request)
     {
+        $url = '';
+        if ($this->file_path){
+            $url = Storage::disk('videos')->url($this->file_path);
+        }elseif ($this->s3_url){
+            $url = $this->s3_url;
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'url_hash' => $this->url_hash,
             'description' => $this->description,
-            'url' => Storage::disk('videos')->url($this->file_path),
+            'url' => $url,
             'thumbnail' => $this->thumbnail,
             'status' => Video::STATUS_TEXT[$this->status]?? null,
             'duration' => $this->duration,
