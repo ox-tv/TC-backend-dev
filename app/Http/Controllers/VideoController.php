@@ -176,7 +176,6 @@ class VideoController extends Controller
      */
     public function store(VideoStore $request)
     {
-
         $video = new Video();
 
         $video->title = $request->get('title');
@@ -193,10 +192,14 @@ class VideoController extends Controller
             $video->youtube_link = $request->get('youtube_link');
             $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
 
-        }else if($request->file('video')){ // adding file to video
+        }elseif($request->file('video')){ // adding file to video
 
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
             $video->file_path = $videoFile;
+
+        }elseif($request->get('s3_url')){ // adding file to video
+
+            $video->s3_url = $request->get('s3_url');
         }
 
         // adding user to video
@@ -334,6 +337,10 @@ class VideoController extends Controller
             $video->file_path = $videoFile;
 
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
+
+        }elseif($request->get('s3_url')){ // adding file to video
+
+            $video->s3_url = $request->get('s3_url');
         }
 
         // thumbnail

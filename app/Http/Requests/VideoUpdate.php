@@ -32,7 +32,8 @@ class VideoUpdate extends FormRequest
             'crypto_currencies.*' => 'exists:crypto_currencies,id',
             'category' => 'exists:categories,id',
             'language_id' => ['nullable','exists:languages,id'],
-            'video' => 'file',
+            'video' => 'nullable|file',
+            's3_url' => 'nullable|url',
             'youtube_link' => 'url',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
         ];
