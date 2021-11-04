@@ -18,5 +18,6 @@ class OrderDescScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         $builder->orderByDesc('created_at');
+
     }
 }
