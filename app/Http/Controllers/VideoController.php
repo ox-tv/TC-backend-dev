@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\VideoCommented;
 use App\Events\VideoUploaded;
 use App\Events\VideoViewed;
+use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
@@ -33,6 +34,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -116,7 +118,7 @@ class VideoController extends Controller
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }elseif ($sort === 'most_viewed'){
-            $query->orderBy('views_count', 'desc');
+            $query->orderBy('view_count', 'desc');
         }elseif ($sort === 'most_commented'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
@@ -174,7 +176,6 @@ class VideoController extends Controller
      */
     public function store(VideoStore $request)
     {
-
         $video = new Video();
 
         $video->title = $request->get('title');
@@ -191,10 +192,14 @@ class VideoController extends Controller
             $video->youtube_link = $request->get('youtube_link');
             $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
 
-        }else if($request->file('video')){ // adding file to video
+        }elseif($request->file('video')){ // adding file to video
 
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
             $video->file_path = $videoFile;
+
+        }elseif($request->get('s3_url')){ // adding file to video
+
+            $video->s3_url = $request->get('s3_url');
         }
 
         // adding user to video
@@ -332,6 +337,10 @@ class VideoController extends Controller
             $video->file_path = $videoFile;
 
             $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
+
+        }elseif($request->get('s3_url')){ // adding file to video
+
+            $video->s3_url = $request->get('s3_url');
         }
 
         // thumbnail
@@ -638,23 +647,78 @@ class VideoController extends Controller
         return $video->view_count;
     }
 
-    public function watch_time_store(WatchTimeStore $request, $id)
+    public function watch_time_store(WatchTimeStore $request, $idOrUrlHash)
     {
-        $video = Video::findOrFail($id);
+        $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
         $user = auth("api")->user();
+        $originalStart = $start = $request->get("start_time");
+        $originalEnd = $end = $request->get("end_time");
+        $duration = 0;
 
-        $video->watch_times()->attach($user->id, [
-            "start_time" => $request->get("start_time"),
-            "end_time" => $request->get("end_time")
-        ]);
+        $watchTimes = DB::table('watch_times')
+            ->where('user_id', $user->id)
+            ->where('video_id', $video->id)
+            ->where(function($query) use ($originalStart, $originalEnd) {
+                $query->whereBetween('start_time', [$originalStart, $originalEnd])
+                    ->orWhereBetween('end_time', [$originalStart, $originalEnd])
+                    ->orWhere(function($query) use ($originalStart, $originalEnd) {
+                        $query->where('start_time', '<=', $originalStart)
+                            ->where('end_time', '>=', $originalEnd);
+                    });
+            })
+            ->orderBy('start_time')
+            ->get();
 
-        $duration = $request->get("end_time") - $request->get("start_time");
+
+        // Calc new rows
+        $newRows = [];
+        foreach ($watchTimes as $watchTime){
+
+            $end = $watchTime->start_time;
+
+            if ($end <= $start){
+                $start = $watchTime->end_time;
+                continue;
+            }
+
+            $newRows[] = [
+                "start_time" => $start,
+                "end_time" => $end
+            ];
+
+            $duration += ($end - $start);
+
+            $start = $watchTime->end_time;
+        }
+
+        if ($originalEnd - $start > 0){
+            $newRows[] = [
+                "start_time" => $start,
+                "end_time" => $originalEnd
+            ];
+
+            $duration += ($originalEnd - $start);
+        }
+
+        // Add to Database
+        DB::transaction(function () use ($video, $user, $newRows) {
+            foreach ($newRows as $row){
+                $video->watch_times()->attach($user->id, [
+                    "start_time" => $row['start_time'],
+                    "end_time" => $row['end_time']
+                ]);
+            }
+        });
 
         $video->watch_time += $duration;
         $video->save();
 
         $user->watch_time += $duration;
         $user->save();
+
+        foreach ($newRows as $row){
+            event(new VideoWatched($video, $user, $row['start_time'], $row['end_time']));
+        }
 
         return response()->json(["message" => "ok"]);
     }

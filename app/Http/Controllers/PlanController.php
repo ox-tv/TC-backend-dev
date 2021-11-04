@@ -88,9 +88,8 @@ class PlanController extends Controller
 
             $plan->save();
 
+            $existingPricingIds = [];
             if($request->get('pricing')){
-
-                $existingIds = [];
 
                 foreach ($request->get('pricing') as $p){
 
@@ -108,11 +107,10 @@ class PlanController extends Controller
 
                     $pricing->save();
 
-                    $existingIds[] = $pricing->id;
+                    $existingPricingIds[] = $pricing->id;
                 }
-
-                Pricing::where('plan_id', $plan->id)->whereNotIn('id', $existingIds)->delete();
             }
+            Pricing::where('plan_id', $plan->id)->whereNotIn('id', $existingPricingIds)->delete();
 
         });
 

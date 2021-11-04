@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Exceptions\IncompletePayment;
 
 class HeroMembershipController extends Controller
 {
@@ -73,9 +74,29 @@ class HeroMembershipController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
+    public function setupIntent()
+    {
+        $data = [
+            'intent' => auth()->user()->createSetupIntent(),
+            'payment_methods' => auth()->user()->paymentMethods(),
+        ];
+
+        return response()->json($data);
+    }
 
     public function processPayment(Request $request, Pricing $pricing)
     {
+        $exists = $pricing->plan()->where('status', Plan::STATUS_ACTIVE)->exists();
+        abort_unless($exists, 404);
+
+        $plan = $pricing->plan()->first();
+        if (!$plan){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Plan not found',
+            ], 404);
+        }
+
         $paymentMethod = $pricing->paymentMethod()->first();
         if (!$paymentMethod){
             return response()->json([
@@ -85,7 +106,11 @@ class HeroMembershipController extends Controller
         }
 
         if (strtolower($paymentMethod->name) == 'coinbase'){
-            return $this->processPaymentCoinBase($request, $pricing);
+            return $this->processPaymentCoinBase($request, $pricing, $plan, $paymentMethod);
+        }
+
+        if (strtolower($paymentMethod->name) == 'stripe'){
+            return $this->processPaymentStripe($request, $pricing, $plan, $paymentMethod);
         }
 
         return response()->json([
@@ -94,14 +119,67 @@ class HeroMembershipController extends Controller
         ], 404);
     }
 
-    public function processPaymentCoinBase(Request $request, Pricing $pricing)
+    public function processPaymentStripe(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
-        $exists = $pricing->plan()->where('status', Plan::STATUS_ACTIVE)->exists();
-        abort_unless($exists, 404);
+        $this->validate($request, [
+            'payment_method' => 'required'
+        ]);
 
-        $user = auth()->user();
-        $plan = $pricing->plan()->first();
-        $paymentMethod = $pricing->paymentMethod()->first();
+        $user = auth('api')->user();
+        $stripePaymentMethod = $request->input('payment_method');
+
+        DB::beginTransaction();
+
+        try {
+            $user->createOrGetStripeCustomer();
+
+            $transaction = new Transaction();
+            $transaction->type = Transaction::TYPE_DEPOSIT;
+            $transaction->status = Transaction::STATUS_PENDING;
+            $transaction->payment_method_id = $paymentMethod->id;
+            $transaction->amount = $pricing->amount;
+            $transaction->save();
+
+            $pricingUser = new PricingUser();
+            $pricingUser->user_id = $user->id;
+            $pricingUser->pricing_id = $pricing->id;
+            $pricingUser->status = PricingUser::STATUS_PENDING;
+            $pricingUser->metadata = [
+                'coinbase_status' => 'NEW',
+                'pricing' => PricingItem::make($pricing),
+                'plan' => PlanItem::make($plan),
+                'payment_method' => PaymentMethodItem::make($paymentMethod),
+            ];
+            $pricingUser->transaction_id = $transaction->id;
+            $pricingUser->save();
+
+            $user->newSubscription('default', $pricing->external_id)->create($stripePaymentMethod, [
+                'email' => $user->email
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'ok',
+            ]);
+
+        } catch (IncompletePayment $exception) {
+            return response()->json([
+                'status' => 'N/A',
+                'id' => $exception->payment->id
+            ]);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error creating subscription. ' . $e->getMessage()
+            ],400);
+        }
+    }
+
+    public function processPaymentCoinBase(Request $request, Pricing $pricing, $plan, $paymentMethod)
+    {
+        $user = auth('api')->user();
 
         $name = $plan->name;
         $description = "Payment by " . $user->email;

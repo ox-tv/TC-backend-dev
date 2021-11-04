@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles, Billable;
 
 
     const STATUS_INACTIVE = 1;
@@ -60,6 +61,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'eth_address',
     ];
 
     /**
@@ -125,6 +127,18 @@ class User extends Authenticatable
 
     // Relations
 
+    public function referrer(){
+        return $this->belongsTo('App\Models\User', 'referrer_id');
+    }
+
+    public function referrals(){
+        return $this->hasMany('App\Models\User', 'referrer_id');
+    }
+
+    public function meta(){
+        return $this->hasMany('App\Models\UserMeta');
+    }
+
     public function notifications(){
         return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
     }
@@ -171,6 +185,10 @@ class User extends Authenticatable
 
     public function pricing(){
         return $this->belongsToMany('App\Models\Pricing')->withTimestamps();
+    }
+
+    public function statistics(){
+        return $this->hasMany('App\Models\UserStatisticsDaily');
     }
 
 

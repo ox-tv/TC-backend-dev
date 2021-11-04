@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Repository\Eloquent\PricingRepository;
 use Carbon\Carbon;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class CoinbaseController extends Controller
 
         if ( ! isset( $eventData['metadata']['source'] ) ) {
             // Probably a charge not created by us.
-            exit;
+            return response()->json(['status' => 'ok']);
         }
 
         switch ($eventData['metadata']['source']){
@@ -48,14 +49,14 @@ class CoinbaseController extends Controller
             default:
         }
 
-        exit;  // 200 response for acknowledgement.
+        return response()->json(['status' => 'ok']);  // 200 response for acknowledgement.
     }
 
     public function heroMembershipWebHookHandler($client, $eventData)
     {
         if ( !isset( $eventData['metadata']['pricing_user_id'] ) ) {
             // Probably a charge not created by us.
-            exit;
+            return response()->json(['status' => 'ok']);
         }
 
         $pricingUser = PricingUser::find($eventData['metadata']['pricing_user_id']);
@@ -104,7 +105,9 @@ class CoinbaseController extends Controller
                 $transactionChangeFlag = true;
             }
 
-            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user, $plan){
+            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user){
+                $plan = $pricingUser->pricing->plan;
+
                 $pricingUser->save();
 
                 if ($transactionChangeFlag){
@@ -121,6 +124,8 @@ class CoinbaseController extends Controller
                 }
             });
         }
+
+        return true;
     }
 
 }

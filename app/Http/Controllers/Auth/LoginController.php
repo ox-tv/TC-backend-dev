@@ -22,8 +22,11 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request, $scope = 'user')
     {
+        $login = $request->get('email')?:$request->get('login');
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+
         $credentials = [
-            'email' => $request->get('email'),
+            $loginType => $login,
             'password' => $request->get('password'),
             'status' => User::STATUS_ACTIVE
         ];
@@ -41,16 +44,13 @@ class LoginController extends Controller
         $attempt = Auth::attempt($credentials);
 
         if($attempt){
-
             $user = Auth::user();
-
             $result['profile'] = UserItem::make($user->load('role'));
             $result['token'] =  $user->createToken('access_token')->accessToken;
             return response()->json($result, '200');
         }
-        else{
-            return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
-        }
+
+        return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
     }
 
     /**
@@ -85,7 +85,14 @@ class LoginController extends Controller
         $reset_password->token = $token;
         $reset_password->save();
 
-        $link = config('general.PASSWORD_RESET_URL') . $token;
+        if ($request->get('scope') == 'publisher'){
+            $link = config('general.PUBLISHER_PASSWORD_RESET_URL') . $token;
+        }elseif ($request->get('scope') == 'admin'){
+            $link = config('general.ADMIN_PASSWORD_RESET_URL') . $token;
+        }else{
+            $link = config('general.MWA_PASSWORD_RESET_URL') . $token;
+        }
+
         Mail::to($user->email)
             ->queue(new PasswordResetMail($link));
 

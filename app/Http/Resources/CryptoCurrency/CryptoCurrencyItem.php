@@ -53,7 +53,7 @@ class CryptoCurrencyItem extends JsonResource
             'thumbnails' => [
                 'small' => $image_small
             ],
-            'ratio' => $this->when(!empty($this->ratio), $this->ratio),
+            'ratio' => $this->when(!empty($this->prices), $this->prices),
             'is_favorite' => $this->is_favorite?? $is_favorite,
             'metadata' => $this->metadata,
         ];

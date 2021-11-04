@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Libraries\CoinMarketCapClient;
 use App\Models\CryptoCurrency;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
 {
@@ -79,12 +80,16 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
                 $available_coins[] = $value['id'];
             }
 
-            CryptoCurrency::upsert($data, ['coinmarketcap_id'], ['name', 'symbol', 'slug', 'order', 'metadata', 'status']);
+            DB::table('crypto_currencies')->upsert(
+                $data,
+                ['coinmarketcap_id'],
+                ['name', 'symbol', 'slug', 'order', 'metadata', 'status']
+            );
 
             $start += $limit;
         } while(1);
 
-        CryptoCurrency::whereNotIn('coinmarketcap_id', $available_coins)->update([
+        DB::table('crypto_currencies')->whereNotIn('coinmarketcap_id', $available_coins)->update([
             'order' => 100000,
             'status' => CryptoCurrency::STATUS_DELIST,
         ]);

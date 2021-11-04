@@ -30,6 +30,8 @@ Route::middleware('auth:api')->get('logout', '\App\Http\Controllers\Auth\LoginCo
 // Home Page
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
 
+// search
+Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
 // categories
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
@@ -54,7 +56,7 @@ Route::middleware('auth:api')->put('notifications/{id}/read', '\App\Http\Control
 
 // Video API routes
 Route::middleware('auth:api')->get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
-Route::middleware('auth:api')->post('videos/{video}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
+Route::middleware('auth:api')->post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
@@ -150,6 +152,9 @@ Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionControll
 Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 
 
+// lotteries
+Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');
+
 
 // Departments
 Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
@@ -169,7 +174,16 @@ Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodContro
 Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
 
 // CoinBase
-Route::get('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
+Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
+
+
+// Stripe
+Route::middleware('auth:api')->get('stripe/setup-intent', '\App\Http\Controllers\HeroMembershipController@setupIntent');
+
+
+// New ETH Address Confirmation
+Route::middleware('auth:api')->post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
+Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
 
 // Login user roles
 Route::group(['middleware' => 'auth:api'], function(){
@@ -330,5 +344,10 @@ Route::group([
 
     // Exports
     Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
+
+    // Lottery
+    Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');
+    Route::post('lotteries', '\App\Http\Controllers\LotteryController@lottery')->name('lotteries.lottery');
+    Route::put('lotteries/{lottery_user_id}/paid', '\App\Http\Controllers\LotteryController@setToPaid')->name('lotteries.paid');
 });
 

@@ -10,6 +10,7 @@ class CryptoCurrency extends Model
 {
     protected $casts = [
         'metadata' => 'array',
+        'prices' => 'array',
     ];
 
     const STATUS_LIST = 1;

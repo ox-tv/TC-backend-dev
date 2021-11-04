@@ -20,12 +20,19 @@ class VideoSummaryItem extends JsonResource
     {
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
 
+        $url = '';
+        if ($this->file_path){
+            $url = Storage::disk('videos')->url($this->file_path);
+        }elseif ($this->s3_url){
+            $url = $this->s3_url;
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'slug' => $this->slug,
-            'url' => $this->upload_method == Video::UPLOAD_METHOD_DIRECT ? Storage::disk('videos')->url($this->file_path) : $this->youtube_link,
+            'url' => $url,
             'url_hash' => $this->url_hash,
             'thumbnail' => $this->thumbnail,
             'rating' => $this->rating,

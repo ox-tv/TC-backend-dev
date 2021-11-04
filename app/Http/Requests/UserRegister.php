@@ -18,6 +18,13 @@ class UserRegister extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'referral_code' => strtoupper($this->request->get('referral_code')),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -37,7 +44,7 @@ class UserRegister extends FormRequest
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'string', 'min:8'],
+            'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
         ];
     }
-
 }

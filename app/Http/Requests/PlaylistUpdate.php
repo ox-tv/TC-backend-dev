@@ -28,7 +28,7 @@ class PlaylistUpdate extends FormRequest
     {
         return [
             'name' => 'required',
-            'status' => ['nullable', Rule::in([Playlist::STATUS_TEXT])],
+            'status' => ['nullable', Rule::in(Playlist::STATUS_TEXT)],
         ];
     }
 

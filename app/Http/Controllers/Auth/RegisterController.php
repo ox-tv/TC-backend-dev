@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
 use App\Http\Requests\UserResendVerification;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -26,8 +28,19 @@ class RegisterController extends Controller
             $user->status = User::STATUS_ACTIVE;
         }
 
+        do{
+            $referral_code = strtoupper(Str::random(6));
+        }while(User::where('referral_code', $referral_code)->exists());
+
+        $user->referral_code = $referral_code;
         $user->email = $request->get('email');
         $user->password = Hash::make($request->get('password'));
+
+        if($request->get('referral_code')){
+            $referrer = User::where('referral_code', $request->get('referral_code'))->first();
+            $user->referrer_id = $referrer->id;
+        }
+
         $user->save();
 
         // Create verification token and send to user email
@@ -43,7 +56,6 @@ class RegisterController extends Controller
             'email' => $request->input('email'),
             'message' => __('users.messages.verification_link_sent'),
         ]);
-
     }
 
     public function verify($token)
@@ -53,6 +65,8 @@ class RegisterController extends Controller
         $user->email_verified_at = now();
 
         $user->save();
+
+        event(new UserVerified($user));
 
         return response()->json(['message' => __('users.messages.verified')], 200);
     }

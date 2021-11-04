@@ -67,6 +67,8 @@ class ChannelController extends Controller
             $query->withCount('subscribers')->orderBy('subscribers_count', 'desc');
         }elseif ($sort === 'most_points'){
             $query->orderBy('points', 'desc');
+        }elseif ($sort === 'most_comments'){
+            $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
 
         $channels = $query->paginate($per_page);
@@ -202,7 +204,7 @@ class ChannelController extends Controller
     public function update(ChannelUpdate $request, Channel $channel)
     {
         if(is_null($request->route('channel'))){
-            $channel = Auth::user()->channel;
+            $channel = auth('api')->user()->channel;
         }
 
         if(!$request->is('api/admin/channels/*') && $channel->owner->id != auth('api')->id()){

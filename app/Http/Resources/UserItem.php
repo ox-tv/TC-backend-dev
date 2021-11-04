@@ -20,12 +20,14 @@ class UserItem extends JsonResource
 
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
+        $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
+
         return [
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
             'avatar' => $this->avatar,
-            'eth_address' => $this->eth_address,
+            'eth_address' => $this->when($isEthAddressVisible, $this->eth_address),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'is_hero' => $this->is_hero,
@@ -37,6 +39,7 @@ class UserItem extends JsonResource
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
             'watch_time' => $this->watch_time,
             'role' => $this->role_name,
+            'referral_code' => $this->referral_code,
             'request_details' => $this->when(
                 $withPublisherRequest,
                 Message::where([
@@ -47,6 +50,8 @@ class UserItem extends JsonResource
             ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+
+            'loyalty_points' => floatval($this->statistics()->sum('points')),
         ];
     }
 }

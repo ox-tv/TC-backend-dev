@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Video;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -30,5 +32,34 @@ class WatchTimeStore extends FormRequest
             'start_time' => ['required', "numeric", "lt:end_time"],
             'end_time' => ['required', "numeric"],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $user = auth('api')->user();
+            $idOrUrlHash = $this->route('idOrUrlHash');
+            $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
+            $duration = $this->get('end_time') - $this->get('start_time');
+
+            if ($duration > 32){
+                $validator->errors()->add('duration', 'Watch time duration is too long.');
+            }
+
+            $watchTimes = DB::table('watch_times')
+                ->where('user_id', $user->id)
+                ->where('video_id', $video->id)
+                ->orderByDesc('created_at')
+                ->first();
+
+            if(!$watchTimes){
+                return;
+            }
+
+            if ($watchTimes->created_at >= Carbon::now()->subSeconds($duration)->format('Y-m-d H:i:s')) {
+                $validator->errors()->add('watch_time', 'Your watch time duration is bigger than datetime of last submitted watch time record.');
+            }
+        });
     }
 }

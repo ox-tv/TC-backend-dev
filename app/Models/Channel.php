@@ -87,7 +87,7 @@ class Channel extends Model
         return $query;
     }
 
-    // search scopes
+    //  scopes
 
     public function scopeSearchTitle($query, $keyword){
         $query->where('name', 'LIKE', '%'.$keyword.'%');
@@ -121,6 +121,11 @@ class Channel extends Model
     public function heroSubscribers(){
         return $this->belongsToMany('App\Models\User', 'channel_user', 'channel_id')->withTimestamps()
             ->whereDate('hero_due_at', '>=', Carbon::now());
+    }
+
+    public function comments()
+    {
+        return $this->hasManyThrough(Comment::class, Video::class);
     }
 
 
