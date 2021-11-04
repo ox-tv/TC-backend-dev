@@ -35,7 +35,7 @@ class StripeWebhookHandledListener
     {
         $payload = $event->payload;
         $method = 'handle'.Str::studly(str_replace('.', '_', $payload['type']));
-
+        Log::info(print_r($payload, true));
         if (method_exists($this, $method)) {
             $this->{$method}($payload);
             return true;
@@ -46,7 +46,7 @@ class StripeWebhookHandledListener
 
     protected function handleCustomerSubscriptionCreated(array $payload)
     {
-        Log::info(print_r($payload, true));
+
         if (empty($payload['data']['object']['customer'])){
             return false;
         }
