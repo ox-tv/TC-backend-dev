@@ -74,10 +74,17 @@ class CryptoCurrencyController extends Controller
     {
         $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
 
-        $ratios = $this->GetRatios($data);
+        $need_to_get_ratio = [];
+        foreach($data as $crypto_currency){
+            if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
+                $need_to_get_ratio[] = $crypto_currency;
+            }
+        }
+        if (!empty($need_to_get_ratio)){
+            $this->GetRatios($need_to_get_ratio);
+        }
 
         foreach($data as $crypto_currency){
-            $crypto_currency->ratio = $ratios[$crypto_currency->id];
             $crypto_currency->is_favorite = true;
         }
 

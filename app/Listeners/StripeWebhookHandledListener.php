@@ -46,6 +46,7 @@ class StripeWebhookHandledListener
 
     protected function handleCustomerSubscriptionCreated(array $payload)
     {
+        Log::info(print_r($payload, true));
         if (empty($payload['data']['object']['customer'])){
             return false;
         }
