@@ -235,7 +235,7 @@ class VideoController extends Controller
 
         // adding crypto currencies
         if($request->get('crypto_currencies')){
-            $video->crypto_currencies()->saveMany($request->get('crypto_currencies'));
+            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
         }
 
         // adding tags
