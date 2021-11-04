@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
-class OrderDescScope implements Scope
+class OrderByFromASCScope implements Scope
 {
     /**
      * Apply the scope to a given Eloquent query builder.
@@ -17,7 +17,6 @@ class OrderDescScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->orderByDesc('created_at');
-
+        $builder->orderBy('from', 'ASC');
     }
 }
