@@ -178,7 +178,7 @@ Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseControlle
 
 
 // Stripe
-Route::middleware('auth:api')->get('stripe/setup-intent', '\App\Http\Controllers\HeroMembershipController@setupIntent');
+Route::middleware('auth:api')->get('stripe/setup-intent', '\App\Http\Controllers\StripeController@setupIntent');
 
 
 // New ETH Address Confirmation
