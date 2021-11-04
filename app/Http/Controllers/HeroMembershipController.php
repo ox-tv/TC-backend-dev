@@ -74,16 +74,6 @@ class HeroMembershipController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    public function setupIntent()
-    {
-        $data = [
-            'intent' => auth()->user()->createSetupIntent(),
-            'payment_methods' => auth()->user()->paymentMethods(),
-        ];
-
-        return response()->json($data);
-    }
-
     public function processPayment(Request $request, Pricing $pricing)
     {
         $exists = $pricing->plan()->where('status', Plan::STATUS_ACTIVE)->exists();
@@ -155,6 +145,8 @@ class HeroMembershipController extends Controller
 
             $user->newSubscription('default', $pricing->external_id)->create($stripePaymentMethod, [
                 'email' => $user->email
+            ],[
+                'metadata' => ['pricing_user_id' => $pricingUser->id],
             ]);
 
             DB::commit();
