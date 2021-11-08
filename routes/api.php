@@ -203,6 +203,8 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')->name('videos.s3.upload.pre_signed_url');
+
     // channels
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
     Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
