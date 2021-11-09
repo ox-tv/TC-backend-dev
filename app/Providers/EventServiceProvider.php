@@ -17,6 +17,7 @@ use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
 use App\Listeners\VideoWatchedDataForUserStatisticsDaily;
+use App\Listeners\VideoWatchedDataForVideoStatisticsDaily;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -47,6 +48,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoWatched::class => [
             VideoWatchedDataForUserStatisticsDaily::class,
+            VideoWatchedDataForVideoStatisticsDaily::class,
         ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,
