@@ -23,11 +23,13 @@ class UserItem extends JsonResource
         $withRole = in_array('role', $include) || $this->relationLoaded('role');
         $withBookmarkVideos = in_array('bookmarkVideos', $include) || $this->relationLoaded('bookmarkVideos');
         $withReferrer = in_array('referrer', $include) || $this->relationLoaded('referrer');
+        $withFavoriteTags = in_array('favorite_tags', $include) || $this->relationLoaded('favoriteTags');
 
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
         $role = ($withRole)? $this->role : [];
         $bookmarkVideos = ($withBookmarkVideos)? ChannelMinimalItem::make($this->role) : [];
         $referrer = ($withReferrer)? UserMinimalItem::make($this->referrer) : [];
+        $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
@@ -58,6 +60,8 @@ class UserItem extends JsonResource
 
             'referral_code' => $this->referral_code,
             'referrer' => $this->when($withReferrer, $referrer),
+
+            'favorite_tags' => $this->when($withFavoriteTags, $favoriteTags),
 
             'liked_videos_count' => $this->likedVideos()->count(),
             'disliked_videos_count' => $this->dislikedVideos()->count(),
