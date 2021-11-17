@@ -36,6 +36,9 @@ Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 // categories
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
 
+// tags
+Route::apiResource('tags', \App\Http\Controllers\TagController::class)->only(['index']);
+
 // channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
 
@@ -351,5 +354,8 @@ Route::group([
     Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');
     Route::post('lotteries', '\App\Http\Controllers\LotteryController@lottery')->name('lotteries.lottery');
     Route::put('lotteries/{lottery_user_id}/paid', '\App\Http\Controllers\LotteryController@setToPaid')->name('lotteries.paid');
+
+    // tags
+    Route::apiResource('tags', \App\Http\Controllers\TagController::class)->only(['index']);
 });
 
