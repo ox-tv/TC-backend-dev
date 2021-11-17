@@ -25,13 +25,19 @@ class Tag extends Model
     ];
 
     // Status field values
-    const STATUS_PUBLISH = 1;
-    const STATUS_DELIST = 2;
+    const STATUS_PUBLISHED = 1;
+    const STATUS_DELISTED = 2;
 
     const STATUS_TEXT = [
-        self::STATUS_PUBLISH => 'publish',
-        self::STATUS_DELIST => 'delist',
+        self::STATUS_PUBLISHED => 'published',
+        self::STATUS_DELISTED => 'delisted',
     ];
+
+
+    public function scopePublished($query){
+        $query->where('status', self::STATUS_PUBLISHED);
+        return $query;
+    }
 
     public function scopeHasVideo($query){
         $query->whereHas('videos');
@@ -41,6 +47,11 @@ class Tag extends Model
     public function scopeFeatured($query){
         $query->active();
         $query->where('featured', 1);
+        return $query;
+    }
+
+    public function scopeSearchName($query, $keyword){
+        $query->where('name', 'LIKE', $keyword.'%');
         return $query;
     }
 

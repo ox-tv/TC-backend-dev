@@ -286,7 +286,7 @@ class UserController extends Controller
             foreach ($request->get('tag_names') as $tagName){
                 $tag = Tag::firstOrCreate(
                     ['name' => $tagName],
-                    ['status' => Tag::STATUS_PUBLISH, 'creation_scope' => Tag::CREATION_SCOPE_USER]
+                    ['status' => Tag::STATUS_PUBLISHED, 'creation_scope' => Tag::CREATION_SCOPE_USER]
                 );
 
                 $tagIds[] = $tag->id;
