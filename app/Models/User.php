@@ -183,6 +183,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_user');
     }
 
+    public function favoriteTags(){
+        return $this->belongsToMany('App\Models\Tag');
+    }
+
     public function pricing(){
         return $this->belongsToMany('App\Models\Pricing')->withTimestamps();
     }

@@ -128,7 +128,7 @@ class ReportController extends Controller
 
         if ($notification){
             $payload = [
-                $model_name => VideoMinimalItem::make($model),
+                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
                 'report' => $report,
                 'report_count' => $notification->payload['report_count'] + 1
             ];
@@ -137,7 +137,7 @@ class ReportController extends Controller
         }else{
             $admins = User::admins()->get();
             $payload = [
-                $model_name => VideoMinimalItem::make($model),
+                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
                 'report' => $report,
                 'report_count' => 1
             ];

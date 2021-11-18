@@ -16,7 +16,12 @@ class UserItem extends JsonResource
      */
     public function toArray($request)
     {
+        $include = explode(',', $request->get('include', ''));
+
+        $withFavoriteTags = in_array('favorite_tags', $include) || $this->relationLoaded('favoriteTags');
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
+
+        $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
@@ -52,6 +57,8 @@ class UserItem extends JsonResource
             'updated_at' => $this->updated_at,
 
             'loyalty_points' => floatval($this->statistics()->sum('points')),
+
+            'favorite_tags' => $this->when($withFavoriteTags, $favoriteTags),
         ];
     }
 }

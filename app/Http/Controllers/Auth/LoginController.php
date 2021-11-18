@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
@@ -121,6 +122,11 @@ class LoginController extends Controller
         $user->password = Hash::make($request->get('password'));
 
         $user->save();
+
+        DB::table('password_resets')->where([
+            'email' => $password_reset->email,
+            'token' => $password_reset->token,
+        ])->delete();
 
         return response()->json(['message' => 'ok']);
     }

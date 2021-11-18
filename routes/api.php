@@ -36,6 +36,9 @@ Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 // categories
 Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['index','show']);
 
+// tags
+Route::apiResource('tags', \App\Http\Controllers\TagController::class)->only(['index']);
+
 // channels
 Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
 
@@ -203,6 +206,8 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')->name('videos.s3.upload.pre_signed_url');
+
     // channels
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
     Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
@@ -349,5 +354,8 @@ Route::group([
     Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');
     Route::post('lotteries', '\App\Http\Controllers\LotteryController@lottery')->name('lotteries.lottery');
     Route::put('lotteries/{lottery_user_id}/paid', '\App\Http\Controllers\LotteryController@setToPaid')->name('lotteries.paid');
+
+    // tags
+    Route::apiResource('tags', \App\Http\Controllers\TagController::class)->only(['index', 'store', 'update', 'destroy']);
 });
 

@@ -137,9 +137,9 @@ class CommentController extends Controller
      * @param Comment $comment
      * @return CommentItem
      */
-    public function pin(Comment $comment){
-
-        Comment::where('video_id', $comment->vidoe_id)->update([
+    public function pin(Comment $comment)
+    {
+        Comment::where('video_id', $comment->video_id)->update([
             'is_pinned' => 0
         ]);
 

@@ -96,6 +96,9 @@ class VideoStatisticsController extends Controller
             'comments_hero' => $statisticsQuery->sum('comments_hero'),
             'comments_non_hero' => $statisticsQuery->sum('comments_non_hero'),
             'comments_total' => $statisticsQuery->sum('comments_total'),
+            'watch_time_hero' => $statisticsQuery->sum('watch_time_hero'),
+            'watch_time_non_hero' => $statisticsQuery->sum('watch_time_non_hero'),
+            'watch_time_total' => $statisticsQuery->sum('watch_time_total'),
         ]);
     }
 }

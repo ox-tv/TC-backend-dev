@@ -347,7 +347,7 @@ class VideoController extends Controller
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        if($request->get('status')){
+        if($request->get('status') && $oldStatus != Video::STATUS_HIDDEN){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 

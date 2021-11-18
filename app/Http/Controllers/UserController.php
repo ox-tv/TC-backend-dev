@@ -12,6 +12,7 @@ use App\Mail\ETHAddressConfirmationMail;
 use App\Models\Department;
 use App\Models\Earning;
 use App\Models\Message;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\VideoStatisticsDaily;
@@ -267,6 +268,7 @@ class UserController extends Controller
             'current_password' => 'nullable|string|password|required_with:new_password',
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
             'scope' => 'required_with:eth_address',
+            'tag_names' => 'nullable|array',
         ]);
 
         $user = auth('api')->user();
@@ -277,6 +279,19 @@ class UserController extends Controller
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
+        }
+
+        if(is_array($request->input('tag_names'))){
+            $tagIds = [];
+            foreach ($request->get('tag_names') as $tagName){
+                $tag = Tag::firstOrCreate(
+                    ['name' => $tagName],
+                    ['status' => Tag::STATUS_PUBLISHED, 'creation_scope' => Tag::CREATION_SCOPE_USER]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $user->favoriteTags()->sync($tagIds);
         }
 
         $user->save();
