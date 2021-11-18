@@ -61,7 +61,7 @@ class Tag extends Model
         return $this->belongsToMany('App\Models\Video');
     }
 
-    public function likedByUsers(){
+    public function favoritedByUsers(){
         return $this->belongsToMany('App\Models\User');
     }
 }
