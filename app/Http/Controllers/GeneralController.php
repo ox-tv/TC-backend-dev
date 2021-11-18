@@ -43,6 +43,28 @@ class GeneralController extends Controller
             })->take(15)->get();
 
 
+        // Get user favorite tags videos else trending tags videos
+        if ($user && !empty($tag_ids = $user->favoriteTags()->pluck('id')->toArray())){
+            $favoriteTagVideos = Video::published()
+                ->whereHas('tags', function ($query) use ($tag_ids){
+                    $query->whereIn('id', $tag_ids);
+                })->take(15)->get();
+        }
+        if (!$user || empty($tag_ids) || (!empty($favoriteTagVideos) && $favoriteTagVideos->isEmpty())){
+            $tag_ids = DB::table('tag_user')
+                ->selectRaw('COUNT(*) AS count, `tag_id`')
+                ->groupBy('tag_id')
+                ->orderBy('count','DESC')
+                ->take(20)
+                ->pluck('tag_id')->toArray();
+
+            $favoriteTagVideos = Video::published()
+                ->whereHas('tags', function ($query) use ($tag_ids){
+                    $query->whereIn('id', $tag_ids);
+                })->take(15)->get();
+        }
+
+
         // Get user subscribe channel videos else latest videos
         $latestVideosQuery = Video::published();
 
@@ -77,6 +99,7 @@ class GeneralController extends Controller
             'latest_videos' => HomeVideoItem::collection($latestVideos),
             'popular_videos' => HomeVideoItem::collection($popularVideos),
             'favorite_coin_videos' => HomeVideoItem::collection($favoriteCoinVideos),
+            'favorite_tag_videos' => HomeVideoItem::collection($favoriteTagVideos),
         ]);
     }
 
