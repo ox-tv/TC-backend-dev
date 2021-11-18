@@ -51,7 +51,7 @@ class GeneralController extends Controller
                 })->take(15)->get();
         }
         if (!$user || empty($tag_ids) || (!empty($favoriteTagVideos) && $favoriteTagVideos->isEmpty())){
-            $tag_ids = DB::table('tag_user')
+            $tag_ids = DB::table('tag_video')
                 ->selectRaw('COUNT(*) AS count, `tag_id`')
                 ->groupBy('tag_id')
                 ->orderBy('count','DESC')
