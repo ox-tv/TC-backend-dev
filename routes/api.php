@@ -274,7 +274,9 @@ Route::group([
 
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
+
     Route::get('admins', '\App\Http\Controllers\UserController@index')->name('admins');
+    Route::post('admins', '\App\Http\Controllers\UserController@store')->name('admins.store');
 
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
     Route::put('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('publisher_requests.confirm');
