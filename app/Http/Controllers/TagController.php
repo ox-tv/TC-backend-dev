@@ -27,6 +27,14 @@ class TagController extends Controller
             $query->searchName($searchFilter);
         }
 
+        // Add Sorting
+        $sort = $request->get('sort');
+        if($sort === 'most_video'){
+            $query->withCount('videos')->orderBy('videos_count', 'desc');
+        }elseif ($sort === 'most_favorited'){
+            $query->withCount('favoritedByUsers')->orderBy('favorited_by_users_count', 'desc');
+        }
+
         return TagItem::collection($query->paginate());
     }
 
