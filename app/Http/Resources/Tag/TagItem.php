@@ -15,11 +15,23 @@ class TagItem extends JsonResource
      */
     public function toArray($request)
     {
+        $isAdmin = $request->is('api/admin/*')? true : false;
+
+        $include = explode(',', $request->get('include', ''));
+
+        $withFavoritedCount = in_array('favorited_count', $include);
+        $withVideosCount = in_array('videos_count', $include);
+
+        $favoritedCount = ($isAdmin && $withFavoritedCount)? $this->favoritedByUsers()->count():0;
+        $videosCount = ($isAdmin && $withVideosCount)? $this->videos()->count():0;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'status' => Tag::STATUS_TEXT[$this->status]?? null,
-            'creation_scope' => Tag::CREATION_SCOPE_TEXT[$this->creation_scope]?? null,
+            'status' => $this->when($isAdmin, Tag::STATUS_TEXT[$this->status]?? null),
+            'creation_scope' => $this->when($isAdmin, Tag::CREATION_SCOPE_TEXT[$this->creation_scope]?? null),
+            'favorited_count' => $this->when($isAdmin && $withFavoritedCount, $favoritedCount),
+            'videos_count' => $this->when($isAdmin && $withVideosCount, $videosCount),
         ];
     }
 }
