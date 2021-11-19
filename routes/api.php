@@ -261,6 +261,8 @@ Route::group([
 
     Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
 
+    Route::apiResource('roles', \App\Http\Controllers\RoleController::class)->only(['index']);
+
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::post('users', '\App\Http\Controllers\UserController@store')->name('users.store');
