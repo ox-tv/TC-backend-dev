@@ -46,7 +46,11 @@ class VideoStatisticsController extends Controller
             $statisticsQuery->where('date', '<=', $toFilter);
         }
 
-        return VideoStatisticsDailyItem::collection($statisticsQuery->get());
+        foreach ($statisticsQuery->get() as $row){
+            $statistics[$row->date] = VideoStatisticsDailyItem::make($row);
+        }
+
+        return $statistics;
     }
 
     public function videoStatisticsOverview(Request $request, $idOrHash)
