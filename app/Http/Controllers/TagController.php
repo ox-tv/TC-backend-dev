@@ -22,9 +22,14 @@ class TagController extends Controller
 
         $filters = $request->get('filters', []);
         $searchFilter = Arr::get($filters, 'search');
+        $statusFilter = Arr::get($filters, 'status');
 
         if($searchFilter){
             $query->searchName($searchFilter);
+        }
+
+        if($statusFilter && !empty(array_flip(Tag::STATUS_TEXT)[$statusFilter])){
+            $query->where('status', array_flip(Tag::STATUS_TEXT)[$statusFilter]);
         }
 
         // Add Sorting
