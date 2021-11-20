@@ -29,6 +29,7 @@ class TagItem extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'status' => $this->when($isAdmin, Tag::STATUS_TEXT[$this->status]?? null),
+            'created_at' => $this->created_at,
             'creation_scope' => $this->when($isAdmin, Tag::CREATION_SCOPE_TEXT[$this->creation_scope]?? null),
             'favorited_count' => $this->when($isAdmin && $withFavoritedCount, $favoritedCount),
             'videos_count' => $this->when($isAdmin && $withVideosCount, $videosCount),
