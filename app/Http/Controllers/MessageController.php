@@ -353,6 +353,7 @@ class MessageController extends Controller
         //
     }
 
+
     public function becomeAPublisher(BecomeAPublisherStore $request){
 
         $user = auth('api')->user();
@@ -390,12 +391,11 @@ class MessageController extends Controller
         ));
 
         return response()->json([
-            'email' => $request->input('email'),
+            'email' => $request->input('email')?? $user->email,
             'message' => __('publisher.messages.wait_for_verification'),
         ]);
 
     }
-
     public function channelImportRequest(){
 
         $user = auth('api')->user();
