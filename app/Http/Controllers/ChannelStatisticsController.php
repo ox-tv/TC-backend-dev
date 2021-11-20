@@ -71,7 +71,7 @@ class ChannelStatisticsController extends Controller
             return $query->where('date', '<=', $toFilter);
         });
 
-        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery));
+        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, ''));
     }
 
     public function monthly(Request $request, $idOrSlug = null)
@@ -114,7 +114,7 @@ class ChannelStatisticsController extends Controller
                 ->whereDate('date', '>=', $from_day)
                 ->whereDate('date', '<=', $to_day)->get();
 
-            $statistics[$month->format("Y-m")] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
+            $statistics[$month->format("Y-m-1")] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $month->format("Y-m-1"));
         }
 
         return $statistics;
@@ -158,15 +158,16 @@ class ChannelStatisticsController extends Controller
                 })
                 ->whereDate('date', $day->format('Y-m-d'))->get();
 
-            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
+            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $day->format('Y-m-d'));
         }
 
         return $statistics;
     }
 
-    private function makeResult($videoStatistics, $channelStatistics)
+    private function makeResult($videoStatistics, $channelStatistics, $date)
     {
         return [
+            'date' => $date,
             'points' => $videoStatistics->sum('points'),
             'views_hero' => $videoStatistics->sum('views_hero'),
             'views_non_hero' => $videoStatistics->sum('views_non_hero'),
