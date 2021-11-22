@@ -362,6 +362,6 @@ Route::group([
     Route::put('lotteries/{lottery_user_id}/paid', '\App\Http\Controllers\LotteryController@setToPaid')->name('lotteries.paid');
 
     // tags
-    Route::apiResource('tags', \App\Http\Controllers\TagController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::apiResource('tags', \App\Http\Controllers\TagController::class);
 });
 

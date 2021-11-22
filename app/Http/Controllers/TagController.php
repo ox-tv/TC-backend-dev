@@ -43,6 +43,13 @@ class TagController extends Controller
         return TagItem::collection($query->paginate());
     }
 
+    public function show($tag_id)
+    {
+        $tag = Tag::findorFail($tag_id);
+
+        return new TagItem($tag);
+    }
+
     public function store(TagStore $request)
     {
         $tag = new Tag();
