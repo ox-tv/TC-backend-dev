@@ -14,6 +14,7 @@ use App\Mail\PasswordResetMail;
 use App\Models\Department;
 use App\Models\Earning;
 use App\Models\Message;
+use App\Models\MessageUser;
 use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
@@ -47,9 +48,11 @@ class UserController extends Controller
             $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
             $publisherRequestUserId = Message::where([
-                    'department_id' => $publisherApplicationDepartmentId
+                    'department_id' => $publisherApplicationDepartmentId,
                 ]
-            )->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
+            )->whereHas('users', function ($q){
+                $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
+            })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
             $query = User::whereIn('id', $publisherRequestUserId);
         }else{
             $query = User::query();
