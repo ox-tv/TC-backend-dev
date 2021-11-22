@@ -37,8 +37,8 @@ class PublisherRegister extends FormRequest
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'string', 'min:8'],
-            'youtube_url' => 'required',
-            'verification_url' => 'required'
+            'youtube_url' => 'nullable',
+            'verification_url' => 'nullable'
         ];
     }
 
