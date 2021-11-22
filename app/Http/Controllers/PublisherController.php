@@ -200,7 +200,7 @@ class PublisherController extends Controller
         $message->user_group = $parent_message->user_group;
         $message->save();
 
-        $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+        $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_CLOSE]);
 
         TCNotification::send(collect([$user]), new PublisherRejected(
             Notification::SCOPE_TEXT[Notification::SCOPE_USER],
