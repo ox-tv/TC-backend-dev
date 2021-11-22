@@ -128,7 +128,7 @@ class PublisherController extends Controller
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
-                'message' => MessageItem::make($message),
+                'message' => MessageItem::make($message->load(['user', 'department'])),
                 'user' => UserMinimalItem::make($user),
                 'channel_name' => $request->get('channel_name')
             ],
@@ -137,7 +137,7 @@ class PublisherController extends Controller
         ));
 
         return response()->json([
-            'email' => $request->input('email'),
+            'email' => $request->input('email')?? $user->email,
             'message' => __('publisher.messages.wait_for_verification'),
         ]);
 
