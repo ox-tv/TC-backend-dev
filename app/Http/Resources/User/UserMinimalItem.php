@@ -20,7 +20,7 @@ class UserMinimalItem extends JsonResource
         $withChannel = $this->relationLoaded('channel');
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
 
-        $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
+        $isEthAddressVisible = $request->is('api/admin/*') || $this->id == auth('api')->id();
 
         return [
             'id' => $this->id,
