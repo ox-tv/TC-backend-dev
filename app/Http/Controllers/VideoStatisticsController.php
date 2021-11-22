@@ -48,6 +48,8 @@ class VideoStatisticsController extends Controller
             $statisticsQuery->where('date', '<=', $toFilter);
         }
 
+        $statistics = [];
+
         foreach ($statisticsQuery->get() as $row){
             $statistics[$row->date] = VideoStatisticsDailyItem::make($row);
         }
