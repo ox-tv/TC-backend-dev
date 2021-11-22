@@ -34,6 +34,10 @@ class OptionController extends Controller
             $key = 'comment_delete_reasons';
         }
 
+        if($request->is('api/admin/options/publisher-request/reject/reasons')){
+            $key = 'publisher_request_reject_reasons';
+        }
+
         $option = Option::where("key", $key)->first();
 
         if(!$option){
@@ -70,6 +74,10 @@ class OptionController extends Controller
 
         if($request->is('api/options/comment/delete/reasons')){
             $key = 'comment_delete_reasons';
+        }
+
+        if($request->is('api/options/publisher-request/reject/reasons')){
+            $key = 'publisher_request_reject_reasons';
         }
 
         return Option::where("key", $key)->first()->value ?? null;
