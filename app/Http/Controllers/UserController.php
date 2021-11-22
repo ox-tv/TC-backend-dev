@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Amir\Permission\Models\Role;
 use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelSubscriberCollection;
@@ -9,9 +10,11 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
 use App\Mail\ETHAddressConfirmationMail;
+use App\Mail\PasswordResetMail;
 use App\Models\Department;
 use App\Models\Earning;
 use App\Models\Message;
+use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -124,14 +127,33 @@ class UserController extends Controller
         $user->username = $request->get("username");
         $user->status = User::STATUS_ACTIVE;
         $user->email_verified_at = now();
-        $user->role_id = $request->get("role_id");
         $user->avatar = $request->get('avatar');
         $user->eth_address = $request->get('eth_address');
-
         $user->password = Hash::make(rand(100000,1000000000));
-        // TODO: send reset password link here
+
+        if ($request->is('api/admin/admins')){
+            $adminRole = Role::firstOrCreate(['name' => 'admin']);
+            $user->role_id = $adminRole->id;
+        }
 
         $user->save();
+
+        // send reset password link here
+        $token = sha1($user->id . time());
+
+        $reset_password = new PasswordReset();
+        $reset_password->email = $user->email;
+        $reset_password->token = $token;
+        $reset_password->save();
+
+        if ($request->is('api/admin/admins')){
+            $link = config('general.ADMIN_PASSWORD_RESET_URL') . $token;
+        }else{
+            $link = config('general.MWA_PASSWORD_RESET_URL') . $token;
+        }
+
+        Mail::to($user->email)
+            ->queue(new PasswordResetMail($link));
 
         return response()->json(new UserItem($user));
     }

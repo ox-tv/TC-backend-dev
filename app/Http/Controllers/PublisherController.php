@@ -10,20 +10,24 @@ use App\Http\Resources\Message\MessageItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\UserItem;
 use App\Mail\PublisherApprovedMail;
+use App\Mail\PublisherRejectedMail;
 use App\Mail\VerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\MessageUser;
 use App\Models\Notification;
 use App\Models\User;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
+use App\Notifications\PublisherRejected;
 use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class PublisherController extends Controller
 {
@@ -169,12 +173,49 @@ class PublisherController extends Controller
         return UserItem::make($user);
     }
 
-    public function reject(Request $request, User $user){
-        $reason = $request->get('reason');
+    public function reject(Request $request, User $user)
+    {
+        $request->validate([
+            'reason' => 'required',
+            'message_id' => [
+                'required',
+                Rule::exists('messages','id')->where(function ($query) use ($user) {
+                    return $query->whereNull('parent_id')->where('user_id', $user->id);
+                }),
+            ]
+        ]);
 
-        //TODO:: save reason as a message
+        $reason = $request->get('reason');
+        $message_id = $request->get('message_id');
+        $parent_message = Message::find($message_id);
+
+        $message = new Message();
+        $message->subject = $parent_message->subject;
+        $message->message = $reason;
+        $message->user_id = auth("api")->id();
+        $message->parent_id = $parent_message->id;
+        $message->department_id = $parent_message->department_id;
+        $message->can_reply = $parent_message->can_reply;
+        $message->type = $parent_message->type;
+        $message->user_group = $parent_message->user_group;
+        $message->save();
+
+        $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+        TCNotification::send(collect([$user]), new PublisherRejected(
+            Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message_id' => $message_id,
+                'reason' => $reason,
+            ],
+            get_class($user),
+            $user->id
+        ));
+
+        Mail::to($user->email)
+            ->queue(new PublisherRejectedMail($reason));
 
         return UserItem::make($user);
-
     }
 }

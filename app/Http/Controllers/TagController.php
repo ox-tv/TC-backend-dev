@@ -22,12 +22,32 @@ class TagController extends Controller
 
         $filters = $request->get('filters', []);
         $searchFilter = Arr::get($filters, 'search');
+        $statusFilter = Arr::get($filters, 'status');
 
         if($searchFilter){
             $query->searchName($searchFilter);
         }
 
+        if($statusFilter && !empty(array_flip(Tag::STATUS_TEXT)[$statusFilter])){
+            $query->where('status', array_flip(Tag::STATUS_TEXT)[$statusFilter]);
+        }
+
+        // Add Sorting
+        $sort = $request->get('sort');
+        if($sort === 'most_video'){
+            $query->withCount('videos')->orderBy('videos_count', 'desc');
+        }elseif ($sort === 'most_favorited'){
+            $query->withCount('favoritedByUsers')->orderBy('favorited_by_users_count', 'desc');
+        }
+
         return TagItem::collection($query->paginate());
+    }
+
+    public function show($tag_id)
+    {
+        $tag = Tag::findorFail($tag_id);
+
+        return new TagItem($tag);
     }
 
     public function store(TagStore $request)

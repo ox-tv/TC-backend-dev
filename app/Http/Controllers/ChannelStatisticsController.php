@@ -71,7 +71,7 @@ class ChannelStatisticsController extends Controller
             return $query->where('date', '<=', $toFilter);
         });
 
-        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery));
+        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, ''));
     }
 
     public function monthly(Request $request, $idOrSlug = null)
@@ -99,6 +99,7 @@ class ChannelStatisticsController extends Controller
 
 
         foreach ($monthPeriods as $month) {
+            $monthString = $month->startOfMonth()->format("Y-m-d");
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
@@ -114,7 +115,7 @@ class ChannelStatisticsController extends Controller
                 ->whereDate('date', '>=', $from_day)
                 ->whereDate('date', '<=', $to_day)->get();
 
-            $statistics[$month->format("Y-m")] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
+            $statistics[$monthString] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $monthString);
         }
 
         return $statistics;
@@ -158,34 +159,35 @@ class ChannelStatisticsController extends Controller
                 })
                 ->whereDate('date', $day->format('Y-m-d'))->get();
 
-            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery);
+            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $day->format('Y-m-d'));
         }
 
         return $statistics;
     }
 
-    private function makeResult($videoStatistics, $channelStatistics)
+    private function makeResult($videoStatistics, $channelStatistics, $date)
     {
         return [
+            'date' => $date,
             'points' => $videoStatistics->sum('points'),
             'views_hero' => $videoStatistics->sum('views_hero'),
             'views_non_hero' => $videoStatistics->sum('views_non_hero'),
             'views_total' => $videoStatistics->sum('views_total'),
-            'likes_hero' => $videoStatistics->sum('likes_hero'),
-            'likes_non_hero' => $videoStatistics->sum('likes_non_hero'),
-            'likes_total' => $videoStatistics->sum('likes_total'),
-            'dislikes_hero' => $videoStatistics->sum('dislikes_hero'),
-            'dislikes_non_hero' => $videoStatistics->sum('dislikes_non_hero'),
-            'dislikes_total' => $videoStatistics->sum('dislikes_total'),
+            'likes_hero' => ($temp = $videoStatistics->sum('likes_hero')) > 0? $temp : 0,
+            'likes_non_hero' => ($temp = $videoStatistics->sum('likes_non_hero')) > 0? $temp : 0,
+            'likes_total' => ($temp = $videoStatistics->sum('likes_total')) > 0? $temp : 0,
+            'dislikes_hero' => ($temp = $videoStatistics->sum('dislikes_hero')) > 0? $temp : 0,
+            'dislikes_non_hero' => ($temp = $videoStatistics->sum('dislikes_non_hero')) > 0? $temp : 0,
+            'dislikes_total' => ($temp = $videoStatistics->sum('dislikes_total')) > 0? $temp : 0,
             'comments_hero' => $videoStatistics->sum('comments_hero'),
             'comments_non_hero' => $videoStatistics->sum('comments_non_hero'),
             'comments_total' => $videoStatistics->sum('comments_total'),
-            'subscribers_hero' => $channelStatistics->sum('subscribers_hero'),
-            'subscribers_non_hero' => $channelStatistics->sum('subscribers_non_hero'),
-            'subscribers_total' => $channelStatistics->sum('subscribers_total'),
-            'unsubscribers_hero' => $channelStatistics->sum('unsubscribers_hero'),
-            'unsubscribers_non_hero' => $channelStatistics->sum('unsubscribers_non_hero'),
-            'unsubscribers_total' => $channelStatistics->sum('unsubscribers_total'),
+            'subscribers_hero' => ($temp = $channelStatistics->sum('subscribers_hero')) > 0? $temp : 0,
+            'subscribers_non_hero' => ($temp = $channelStatistics->sum('subscribers_non_hero')) > 0? $temp : 0,
+            'subscribers_total' => ($temp = $channelStatistics->sum('subscribers_total')) > 0? $temp : 0,
+            'unsubscribers_hero' => ($temp = $channelStatistics->sum('unsubscribers_hero')) > 0? $temp : 0,
+            'unsubscribers_non_hero' => ($temp = $channelStatistics->sum('unsubscribers_non_hero')) > 0? $temp : 0,
+            'unsubscribers_total' => ($temp = $channelStatistics->sum('unsubscribers_total')) > 0? $temp : 0,
             'upload_videos_total' => $channelStatistics->sum('upload_videos_total'),
         ];
     }
