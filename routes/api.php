@@ -235,8 +235,9 @@ Route::group([
 
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
-    Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
-    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
+    Route::get('videos/{id_or_url_hash}/statistics/daily', '\App\Http\Controllers\VideoStatisticsController@daily')->name('video.statistics.daily');
+    Route::get('videos/{id_or_url_hash}/statistics/monthly', '\App\Http\Controllers\VideoStatisticsController@monthly')->name('video.statistics.monthly');
+    Route::get('videos/{id_or_url_hash}/statistics/total', '\App\Http\Controllers\VideoStatisticsController@total')->name('video.statistics.overview');
 
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
@@ -291,8 +292,9 @@ Route::group([
     Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles')->name('videos.subtitles.index');
 
 
-    Route::get('videos/{id_or_url_hash}/statistics', '\App\Http\Controllers\VideoStatisticsController@index')->name('video.statistics.index');
-    Route::get('videos/{id_or_url_hash}/statistics-overview', '\App\Http\Controllers\VideoStatisticsController@videoStatisticsOverview')->name('video.statistics.overview');
+    Route::get('videos/{id_or_url_hash}/statistics/daily', '\App\Http\Controllers\VideoStatisticsController@daily')->name('video.statistics.daily');
+    Route::get('videos/{id_or_url_hash}/statistics/monthly', '\App\Http\Controllers\VideoStatisticsController@monthly')->name('video.statistics.monthly');
+    Route::get('videos/{id_or_url_hash}/statistics/total', '\App\Http\Controllers\VideoStatisticsController@total')->name('video.statistics.overview');
 
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
