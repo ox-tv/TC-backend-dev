@@ -99,6 +99,7 @@ class ChannelStatisticsController extends Controller
 
 
         foreach ($monthPeriods as $month) {
+            $monthString = $month->startOfMonth()->format("Y-m-d");
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
@@ -114,7 +115,7 @@ class ChannelStatisticsController extends Controller
                 ->whereDate('date', '>=', $from_day)
                 ->whereDate('date', '<=', $to_day)->get();
 
-            $statistics[$month->format("Y-m-1")] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $month->format("Y-m-1"));
+            $statistics[$monthString] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $monthString);
         }
 
         return $statistics;
