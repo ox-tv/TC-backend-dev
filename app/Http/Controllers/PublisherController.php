@@ -17,10 +17,12 @@ use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\Notification;
+use App\Models\Option;
 use App\Models\User;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
 use App\Notifications\PublisherRejected;
+use App\Notifications\ReplyMessage;
 use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
@@ -104,6 +106,7 @@ class PublisherController extends Controller
             ->queue(new VerificationMail($link));
 
 
+        // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
 
         $message_data = [
@@ -111,8 +114,7 @@ class PublisherController extends Controller
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),
-                'youtube_url' => $request->get('youtube_url'),
-                'verification_url' => $request->get('verification_url')
+                'platform' => $request->get('platform')
             ]),
             'user_id' => $user->id,
             'can_reply' => true,
@@ -121,6 +123,32 @@ class PublisherController extends Controller
 
         $message = $this->messageRepository->storeUser($user->id, $message_data);
 
+        // Check if platform is YouTube then send a message to user and ask about him/her YouTube information
+        if (strtolower($request->get('platform')) == 'youtube'){
+            $admin = User::admins()->first();
+
+            $replyMessage = new Message();
+            $replyMessage->subject = $message->subject;
+            $replyMessage->message = trans('publisher.application_reply_for_youtube_platform_users');
+            $replyMessage->user_id = $admin->id;
+            $replyMessage->parent_id = $message->id;
+            $replyMessage->department_id = $message->department_id;
+            $replyMessage->can_reply = $message->can_reply;
+            $replyMessage->type = $message->type;
+            $replyMessage->save();
+
+            $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+            TCNotification::send(collect([$user]), new ReplyMessage(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
+                ],
+                get_class($replyMessage),
+                $replyMessage->id
+            ));
+        }
 
         $admins = User::admins()->get();
 
@@ -128,7 +156,7 @@ class PublisherController extends Controller
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
-                'message' => MessageItem::make($message),
+                'message' => MessageItem::make($message->load(['user', 'department'])),
                 'user' => UserMinimalItem::make($user),
                 'channel_name' => $request->get('channel_name')
             ],
@@ -137,10 +165,9 @@ class PublisherController extends Controller
         ));
 
         return response()->json([
-            'email' => $request->input('email'),
+            'email' => $request->input('email')?? $user->email,
             'message' => __('publisher.messages.wait_for_verification'),
         ]);
-
     }
 
     public function confirm(Request $request, User $user){
@@ -188,6 +215,12 @@ class PublisherController extends Controller
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
+        $option_key = 'report_video_reasons';
+
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? [];
+        if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
+            $reason = $reasons[$key]->value;
+        }
 
         $message = new Message();
         $message->subject = $parent_message->subject;
@@ -200,7 +233,7 @@ class PublisherController extends Controller
         $message->user_group = $parent_message->user_group;
         $message->save();
 
-        $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+        $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_CLOSE]);
 
         TCNotification::send(collect([$user]), new PublisherRejected(
             Notification::SCOPE_TEXT[Notification::SCOPE_USER],

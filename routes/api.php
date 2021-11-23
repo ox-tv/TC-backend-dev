@@ -153,6 +153,7 @@ Route::get('options/report/comment/reasons', '\App\Http\Controllers\OptionContro
 Route::get('options/video/hide/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 Route::get('options/video/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 Route::get('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@reasons_show');
+Route::get('options/publisher-request/reject/reasons', '\App\Http\Controllers\OptionController@reasons_show');
 
 
 // lotteries
@@ -329,6 +330,7 @@ Route::group([
     Route::post('options/video/hide/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.hide.reasons.store");
     Route::post('options/video/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.video.delete.reasons.store");
     Route::post('options/comment/delete/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.comment.delete.reasons.store");
+    Route::post('options/publisher-request/reject/reasons', '\App\Http\Controllers\OptionController@report_reasons_store')->name("options.publisher-request.reject.reasons.store");
 
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');

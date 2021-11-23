@@ -46,7 +46,7 @@ class VideoWatchedDataForUserStatisticsDaily
         $beforePercent = ($watchTimeDuration - ($endTime - $startTime)) * 100 / $videoDuration;
         $afterPercent = $watchTimeDuration * 100 / $videoDuration;
 
-        if (!($beforePercent < 70 && $afterPercent >= 70)){
+        if (!($beforePercent < 50 && $afterPercent >= 50)){
             return;
         }
 
