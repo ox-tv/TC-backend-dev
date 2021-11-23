@@ -104,6 +104,7 @@ class PublisherController extends Controller
             ->queue(new VerificationMail($link));
 
 
+        // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
 
         $message_data = [
@@ -111,8 +112,7 @@ class PublisherController extends Controller
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),
-                'youtube_url' => $request->get('youtube_url'),
-                'verification_url' => $request->get('verification_url')
+                'platform' => $request->get('platform')
             ]),
             'user_id' => $user->id,
             'can_reply' => true,
@@ -121,6 +121,23 @@ class PublisherController extends Controller
 
         $message = $this->messageRepository->storeUser($user->id, $message_data);
 
+        // Check if platform is YouTube then send a message to user and ask about him/her YouTube information
+        if (strtolower($request->get('platform')) == 'youtube'){
+            $admin = User::admins()->first();
+
+            $replyMessage = new Message();
+            $replyMessage->subject = $message->subject;
+            $replyMessage->message = view('messages.publisher-request-youtube-information')->render();
+            $replyMessage->user_id = $admin->id;
+            $replyMessage->parent_id = $message->id;
+            $replyMessage->department_id = $message->department_id;
+            $replyMessage->can_reply = $message->can_reply;
+            $replyMessage->type = $message->type;
+            $replyMessage->user_group = $message->user_group;
+            $replyMessage->save();
+
+            $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+        }
 
         $admins = User::admins()->get();
 
@@ -140,7 +157,6 @@ class PublisherController extends Controller
             'email' => $request->input('email')?? $user->email,
             'message' => __('publisher.messages.wait_for_verification'),
         ]);
-
     }
 
     public function confirm(Request $request, User $user){
