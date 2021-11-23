@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
 use App\Notifications\PublisherRejected;
+use App\Notifications\ReplyMessage;
 use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
 use Illuminate\Http\Request;
@@ -127,7 +128,7 @@ class PublisherController extends Controller
 
             $replyMessage = new Message();
             $replyMessage->subject = $message->subject;
-            $replyMessage->message = view('messages.publisher-request-youtube-information')->render();
+            $replyMessage->message = trans('publisher.application_reply_for_youtube_platform_users');
             $replyMessage->user_id = $admin->id;
             $replyMessage->parent_id = $message->id;
             $replyMessage->department_id = $message->department_id;
@@ -136,6 +137,16 @@ class PublisherController extends Controller
             $replyMessage->save();
 
             $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+            TCNotification::send(collect([$user]), new ReplyMessage(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
+                ],
+                get_class($replyMessage),
+                $replyMessage->id
+            ));
         }
 
         $admins = User::admins()->get();
