@@ -133,7 +133,6 @@ class PublisherController extends Controller
             $replyMessage->department_id = $message->department_id;
             $replyMessage->can_reply = $message->can_reply;
             $replyMessage->type = $message->type;
-            $replyMessage->user_group = $message->user_group;
             $replyMessage->save();
 
             $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
