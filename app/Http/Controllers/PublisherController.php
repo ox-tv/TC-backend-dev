@@ -17,6 +17,7 @@ use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\Notification;
+use App\Models\Option;
 use App\Models\User;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
@@ -214,6 +215,12 @@ class PublisherController extends Controller
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
+        $option_key = 'report_video_reasons';
+
+        $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? [];
+        if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
+            $reason = $reasons[$key]->value;
+        }
 
         $message = new Message();
         $message->subject = $parent_message->subject;
