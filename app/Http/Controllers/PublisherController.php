@@ -224,7 +224,7 @@ class PublisherController extends Controller
 
         $message = new Message();
         $message->subject = $parent_message->subject;
-        $message->message = $reason;
+        $message->message = "Your publisher request rejected \n Reason: {$reason}";
         $message->user_id = auth("api")->id();
         $message->parent_id = $parent_message->id;
         $message->department_id = $parent_message->department_id;
