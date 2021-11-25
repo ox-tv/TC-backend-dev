@@ -109,6 +109,10 @@ class UserController extends Controller
             $query->withCount(['likedVideos', 'dislikedVideos'])->orderByRaw('(liked_videos_count - disliked_videos_count) DESC');
         }elseif ($sort === 'most_comment'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }elseif ($sort === 'email'){
+            $query->orderBy('email');
+        }elseif ($sort === 'username'){
+            $query->orderBy('username');
         }
 
         $users = $query->paginate();
