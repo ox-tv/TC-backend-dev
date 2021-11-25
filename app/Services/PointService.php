@@ -36,8 +36,12 @@ class PointService
         $pointPerHeroSub = config('general.points.per_subscribe_hero');
         $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
 
-        $heroSubCounts = $channel->subscribers()->wherePivot('created_at', '<=', $to)->isHero()->count();
-        $nonHeroSubCounts = $channel->subscribers()->wherePivot('created_at', '<=', $to)->isNonHero()->count();
+        $heroSubCounts = $channel->subscribers()->when($to, function ($q, $to){
+            $q->where('channel_user.created_at', '<=', $to);
+        })->isHero()->count();
+        $nonHeroSubCounts = $channel->subscribers()->when($to, function ($q, $to){
+            $q->where('channel_user.created_at', '<=', $to);
+        })->isNonHero()->count();
 
         $points += ($heroSubCounts * $pointPerHeroSub);
         $points += ($nonHeroSubCounts * $pointPerNonHeroSub);
@@ -68,7 +72,9 @@ class PointService
 
         // Calc channel hero subscribers points
         $pointPerHeroSub = config('general.points.per_subscribe_hero');
-        $heroSubCounts = $channel->subscribers()->wherePivot('created_at', '<=', $to)->isHero()->count();
+        $heroSubCounts = $channel->subscribers()->when($to, function ($q, $to){
+            $q->where('channel_user.created_at', '<=', $to);
+        })->isHero()->count();
         $points += ($heroSubCounts * $pointPerHeroSub);
 
         return $points;
@@ -97,7 +103,9 @@ class PointService
 
         // Calc channel non hero subscribers points
         $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
-        $nonHeroSubCounts = $channel->subscribers()->wherePivot('created_at', '<=', $to)->isNonHero()->count();
+        $nonHeroSubCounts = $channel->subscribers()->when($to, function ($q, $to){
+            $q->where('channel_user.created_at', '<=', $to);
+        })->isNonHero()->count();
         $points += ($nonHeroSubCounts * $pointPerNonHeroSub);
 
         return $points;
