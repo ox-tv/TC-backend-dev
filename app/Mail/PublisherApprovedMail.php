@@ -30,6 +30,6 @@ class PublisherApprovedMail extends Mailable
     {
         $app_name = config("general.SITE_NAME");
 
-        return $this->subject( "{$app_name} - Publisher request approved")->view('emails.publisher-approved');
+        return $this->subject( "{$app_name} - Publisher request approved")->view('emails.publisher-approved-dark');
     }
 }
