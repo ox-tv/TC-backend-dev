@@ -32,6 +32,6 @@ class PublisherRejectedMail extends Mailable
     {
         $app_name = config("general.SITE_NAME");
 
-        return $this->subject( "{$app_name} - Publisher request rejected")->view('emails.publisher-rejected');
+        return $this->subject( "{$app_name} - Publisher request rejected")->view('emails.publisher-rejected-dark');
     }
 }
