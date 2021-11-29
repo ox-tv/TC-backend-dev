@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Channel;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ChannelStore extends FormRequest
 {
@@ -24,7 +26,12 @@ class ChannelStore extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|unique:channels',
+            'name' => [
+                'required',
+                Rule::unique('channels')->where(function ($query) {
+                    return $query->whereIn('status', [Channel::STATUS_PUBLISHED, Channel::STATUS_FREEZE]);
+                })
+            ],
             'website' => 'sometimes|nullable|url',
             'user_id' => 'sometimes|exists:users,id'
         ];
