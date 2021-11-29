@@ -32,6 +32,6 @@ class ETHAddressConfirmationMail extends Mailable
     {
         $app_name = config("general.SITE_NAME");
 
-        return $this->subject( "{$app_name} - Change ETH Address Confirmation")->view('emails.eth-address-confirmation');
+        return $this->subject( "{$app_name} - Change ETH Address Confirmation")->view('emails.eth-address-confirmation-dark');
     }
 }
