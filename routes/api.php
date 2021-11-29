@@ -195,8 +195,8 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
     Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
 
-    Route::get('channel/performance', '\App\Http\Controllers\ChannelController@performance')->name('channel.performance');
-    Route::get('channel/monthly-performance', '\App\Http\Controllers\ChannelController@monthlyPerformance')->name('channel.monthly-performance');
+    Route::get('channel/performance/total', '\App\Http\Controllers\ChannelController@performanceTotal')->name('channel.performance');
+    Route::get('channel/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channel.monthly-performance');
 });
 
 
@@ -272,8 +272,8 @@ Route::group([
     Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
-    Route::get('users/{user}/performance', '\App\Http\Controllers\ChannelController@performance')->name('channels.performance');
-    Route::get('users/{user}/monthly-performance', '\App\Http\Controllers\ChannelController@monthlyPerformance')->name('channels.monthly-performance');
+    Route::get('users/{user}/performance/total', '\App\Http\Controllers\ChannelController@performanceTotal')->name('channels.performance');
+    Route::get('users/{user}/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channels.monthly-performance');
 
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');

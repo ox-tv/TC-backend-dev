@@ -382,7 +382,7 @@ class ChannelController extends Controller
         ]);
     }
 
-    public function performance(Request $request,PointService $pointService, User $user = null)
+    public function performanceTotal(Request $request,PointService $pointService, User $user = null)
     {
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
@@ -392,23 +392,23 @@ class ChannelController extends Controller
         $from = Arr::get($filters, 'from');
         $to = Arr::get($filters, 'to');
 
-        $earning = Earning::where('user_id', $user->id)->when($from, function ($q, $from){
+        $earningAmount = Earning::where('user_id', $user->id)->when($from, function ($q, $from){
                 $q->where('date', '>=', $from);
             })->when($to, function ($q, $to){
                 $q->where('date', '<=', $to);
-            })->first();
+            })->sum('amount');
 
         $points = [
             'hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
             'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
             'total' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
-            'earning' => $earning? $earning->amount : 0,
+            'earning' => floatval($earningAmount),
         ];
 
         return response()->json(['points' => $points]);
     }
 
-    public function monthlyPerformance(Request $request, PointService $pointService, User $user = null)
+    public function performanceMonthly(Request $request, PointService $pointService, User $user = null)
     {
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
@@ -425,15 +425,15 @@ class ChannelController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $earning = Earning::where('user_id', $user->id)
+            $earningAmount = Earning::where('user_id', $user->id)
                 ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
-                ->first();
+                ->sum('amount');
 
             $points[$month->format("Y-m")] = [
                 'hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'earning' => $earning? $earning->amount : 0,
+                'earning' => floatval($earningAmount),
             ];
         }
 
