@@ -430,6 +430,7 @@ class ChannelController extends Controller
                 ->sum('amount');
 
             $result[$month->format("Y-m")] = [
+                'date' => $month->format("Y-m"),
                 'points_hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'points_total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
