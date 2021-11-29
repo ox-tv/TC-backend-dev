@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PublisherController extends Controller
@@ -105,6 +106,14 @@ class PublisherController extends Controller
         Mail::to($user->email)
             ->queue(new VerificationMail($link));
 
+        // Create channel for user
+        $channel = new Channel();
+        $channel->name = $request->get('channel_name');
+        $channel->slug = Str::slug($request->get('channel_name'));
+        $channel->user_id = $user->id;
+        $channel->status = Channel::STATUS_DRAFT;
+        $channel->save();
+
 
         // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
@@ -177,6 +186,21 @@ class PublisherController extends Controller
 
         $user->role_id = Role::firstOrCreate(['name' => 'publisher'])->id;
         $user->save();
+
+        // Check if channel name is unique then publish it
+        $channel = $user->channel;
+
+        $alreadyTaken = Channel::where('id', '!=', $channel->id)
+            ->where('name', $channel->name)
+            ->whereIn('status', [Channel::STATUS_FREEZE, Channel::STATUS_PUBLISHED])->exists();
+        if ($alreadyTaken){
+            $channel->name = $user->email;
+            // TODO:: Can notify to user too
+        }
+
+        $channel->status = Channel::STATUS_PUBLISHED;
+        $channel->save();
+
 
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
