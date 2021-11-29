@@ -398,14 +398,14 @@ class ChannelController extends Controller
                 $q->where('date', '<=', $to);
             })->sum('amount');
 
-        $points = [
-            'hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
-            'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
-            'total' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
+        $result = [
+            'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
+            'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
+            'points_total' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
             'earning' => floatval($earningAmount),
         ];
 
-        return response()->json(['points' => $points]);
+        return response()->json($result);
     }
 
     public function performanceMonthly(Request $request, PointService $pointService, User $user = null)
@@ -414,7 +414,7 @@ class ChannelController extends Controller
             $user = auth('api')->user();
         }
 
-        $points = [];
+        $result = [];
 
         $filters = $request->get('filters', []);
         $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth()->format('Y-m-d'));
@@ -429,15 +429,15 @@ class ChannelController extends Controller
                 ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
                 ->sum('amount');
 
-            $points[$month->format("Y-m")] = [
-                'hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
+            $result[$month->format("Y-m")] = [
+                'points_hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'points_total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
                 'earning' => floatval($earningAmount),
             ];
         }
 
-        return response()->json(['points' => $points]);
+        return response()->json($result);
     }
 
     public function exportPublishersEarnings(Request $request)
