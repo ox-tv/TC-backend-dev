@@ -169,7 +169,7 @@ class ChannelStatisticsController extends Controller
     {
         return [
             'date' => $date,
-            //'points' => floatval($videoStatistics->sum('points')),
+            'points' => floatval($videoStatistics->sum('points')),
             'views_hero' => floatval($videoStatistics->sum('views_hero')),
             'views_non_hero' => floatval($videoStatistics->sum('views_non_hero')),
             'views_total' => floatval($videoStatistics->sum('views_total')),
