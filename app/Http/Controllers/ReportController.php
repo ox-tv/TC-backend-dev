@@ -114,9 +114,9 @@ class ReportController extends Controller
 
         $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? abort(404);
 
-        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+        if(($key = array_search($request->get('reason'), array_keys($reasons))) !== false ){
             $report->reason_key = $request->get('reason');
-            $report->reason_text = $reasons[$key]->value;
+            $report->reason_text = $reasons[$request->get('reason')];
         }else{
             $report->reason_key = 'other';
             $report->reason_text = $request->get('reason');
