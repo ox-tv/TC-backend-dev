@@ -33,7 +33,17 @@ class ReportController extends Controller
             $query = Comment::with(["user", "video"]);
         }
 
-        $query->whereHas("reports");
+        // filters
+        $filters = $request->get('filters', []);
+        $reasonFilter = Arr::get($filters, 'reason');
+
+        if($reasonFilter){
+            $query->whereHas("reports", function ($q) use ($reasonFilter){
+                return $q->where('reason_key', $reasonFilter);
+            });
+        }else{
+            $query->whereHas("reports");
+        }
 
         $query->withCount('reports')->orderBy('reports_count', 'desc');
 
