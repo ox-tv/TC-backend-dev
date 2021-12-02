@@ -83,7 +83,7 @@ class ReportController extends Controller
         }
 
         if(!empty($reasonFilter)){
-            $query->whereIn("reason", (array) $reasonFilter);
+            $query->whereIn("reason_key", (array) $reasonFilter);
         }
 
         return ReportMinimalItem::collection($query->paginate());
