@@ -116,7 +116,7 @@ class ReportController extends Controller
 
         if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
             $report->reason_key = $request->get('reason');
-            $report->reason_text = $reasons[$key]->value;
+            $report->reason_text = $reasons[$key]['value'];
         }else{
             $report->reason_key = 'other';
             $report->reason_text = $request->get('reason');
