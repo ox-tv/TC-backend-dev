@@ -33,7 +33,17 @@ class ReportController extends Controller
             $query = Comment::with(["user", "video"]);
         }
 
-        $query->whereHas("reports");
+        // filters
+        $filters = $request->get('filters', []);
+        $reasonFilter = Arr::get($filters, 'reason');
+
+        if($reasonFilter){
+            $query->whereHas("reports", function ($q) use ($reasonFilter){
+                return $q->where('reason_key', $reasonFilter);
+            });
+        }else{
+            $query->whereHas("reports");
+        }
 
         $query->withCount('reports')->orderBy('reports_count', 'desc');
 
@@ -73,7 +83,7 @@ class ReportController extends Controller
         }
 
         if(!empty($reasonFilter)){
-            $query->whereIn("reason", (array) $reasonFilter);
+            $query->whereIn("reason_key", (array) $reasonFilter);
         }
 
         return ReportMinimalItem::collection($query->paginate());
@@ -106,7 +116,7 @@ class ReportController extends Controller
 
         if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
             $report->reason_key = $request->get('reason');
-            $report->reason_text = $reasons[$key]->value;
+            $report->reason_text = $reasons[$key]['value'];
         }else{
             $report->reason_key = 'other';
             $report->reason_text = $request->get('reason');

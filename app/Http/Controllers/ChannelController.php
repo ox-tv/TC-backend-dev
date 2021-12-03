@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ChannelSubscribed;
+use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
@@ -15,7 +16,9 @@ use App\Http\Resources\VideoCollection;
 use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
 use App\Models\ChannelStatisticsDaily;
+use App\Models\Earning;
 use App\Models\Notification;
+use App\Models\User;
 use App\Models\UserVideo;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
@@ -23,12 +26,15 @@ use App\Notifications\ImportRequestAccepted;
 use App\Notifications\ImportRequestCompleted;
 use App\Notifications\TCNotification\TCNotification;
 use App\Notifications\UpdateChannelStatus;
+use App\Services\PointService;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ChannelController extends Controller
@@ -376,5 +382,93 @@ class ChannelController extends Controller
         ]);
     }
 
+    public function performanceTotal(Request $request,PointService $pointService, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from');
+        $to = Arr::get($filters, 'to');
+
+        $earningAmount = Earning::where('user_id', $user->id)->when($from, function ($q, $from){
+                $q->where('date', '>=', $from);
+            })->when($to, function ($q, $to){
+                $q->where('date', '<=', $to);
+            })->sum('amount');
+
+        $result = [
+            'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
+            'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
+            'points_total' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
+            'earning' => floatval($earningAmount),
+        ];
+
+        return response()->json($result);
+    }
+
+    public function performanceMonthly(Request $request, PointService $pointService, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $result = [];
+
+        $filters = $request->get('filters', []);
+        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth()->format('Y-m-d'));
+        $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth()->format('Y-m-d'));
+        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+        foreach ($monthPeriods as $month) {
+            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
+            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
+
+            $earningAmount = Earning::where('user_id', $user->id)
+                ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
+                ->sum('amount');
+
+            $result[$month->format("Y-m")] = [
+                'date' => $month->format("Y-m"),
+                'points_hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'points_total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'earning' => floatval($earningAmount),
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+    public function exportPublishersEarnings(Request $request)
+    {
+        $filters = $request->get('filters', []);
+        $monthFilter = Arr::get($filters, 'month');
+
+        $month = null;
+        if ($monthFilter){
+            $month = Carbon::parse($monthFilter);
+        }
+
+        $users = User::whereHas('channel')->get();
+
+        foreach ($users as $user){
+
+            $user->channelName = $user->channel->name?? '';
+
+            $earning = Earning::where('user_id', $user->id)
+                ->when(!empty($month), function ($query) use ($month) {
+                    return $query->whereYear('created_at', $month->year)
+                        ->whereMonth('created_at', $month->month);
+                })->first();
+            $user->earningStatus = $earning?Earning::STATUS_TEXT[$earning->status]:'N/A';
+            $user->earningAmount = $earning->amount?? 0;
+        }
+
+        $fileName = 'publishers-earnings'.((!empty($month))?'-'.$month->format('Y-m'):'').'.xlsx';
+
+        return Excel::download(new PublisherEarningsExport($users), $fileName);
+    }
 
 }

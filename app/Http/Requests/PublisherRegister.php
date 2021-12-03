@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -37,6 +38,12 @@ class PublisherRegister extends FormRequest
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'string', 'min:8'],
+            'channel_name' => [
+                'required',
+                Rule::unique('channels')->where(function ($query) {
+                    return $query->whereIn('status', [Channel::STATUS_PUBLISHED, Channel::STATUS_FREEZE]);
+                })
+            ],
             'platform' => 'required',
         ];
     }

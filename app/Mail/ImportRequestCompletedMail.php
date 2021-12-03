@@ -30,6 +30,6 @@ class ImportRequestCompletedMail extends Mailable
     {
         $app_name = config("general.SITE_NAME");
 
-        return $this->subject( "{$app_name} - Import request completed")->view('emails.import-completed');
+        return $this->subject( "{$app_name} - Import request completed")->view('emails.import-completed-dark');
     }
 }

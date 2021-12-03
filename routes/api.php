@@ -193,9 +193,10 @@ Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
     Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
-    Route::get('profile/points', '\App\Http\Controllers\UserController@userPoints')->name('profile.points');
-    Route::get('profile/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('profile.monthly-points');
     Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
+
+    Route::get('channel/performance/total', '\App\Http\Controllers\ChannelController@performanceTotal')->name('channel.performance');
+    Route::get('channel/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channel.monthly-performance');
 });
 
 
@@ -271,8 +272,8 @@ Route::group([
     Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 
-    Route::get('users/{user}/points', '\App\Http\Controllers\UserController@userPoints')->name('users.points');
-    Route::get('users/{user}/monthly-points', '\App\Http\Controllers\UserController@userMonthlyPoints')->name('users.monthly-points');
+    Route::get('users/{user}/performance/total', '\App\Http\Controllers\ChannelController@performanceTotal')->name('channels.performance');
+    Route::get('users/{user}/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channels.monthly-performance');
 
     Route::get('publishers', '\App\Http\Controllers\UserController@index')->name('publishers');
     Route::get('publishers/{user}', '\App\Http\Controllers\UserController@show')->name('publishers.show');
@@ -356,7 +357,7 @@ Route::group([
     Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
 
     // Exports
-    Route::get('users/publishers-earnings/export', '\App\Http\Controllers\UserController@exportPublishersEarnings')->name('users.publishers-earnings.export');
+    Route::get('users/publishers-earnings/export', '\App\Http\Controllers\ChannelController@exportPublishersEarnings')->name('users.publishers-earnings.export');
 
     // Lottery
     Route::get('lotteries', '\App\Http\Controllers\LotteryController@index')->name('lotteries.index');

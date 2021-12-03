@@ -32,6 +32,6 @@ class PasswordResetMail extends Mailable
     {
         $app_name = config("general.SITE_NAME");
 
-        return $this->subject( "{$app_name} - Password Reset")->view('emails.password-reset');
+        return $this->subject( "{$app_name} - Password Reset")->view('emails.password-reset-dark');
     }
 }

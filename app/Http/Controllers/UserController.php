@@ -109,6 +109,10 @@ class UserController extends Controller
             $query->withCount(['likedVideos', 'dislikedVideos'])->orderByRaw('(liked_videos_count - disliked_videos_count) DESC');
         }elseif ($sort === 'most_comment'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }elseif ($sort === 'email'){
+            $query->orderBy('email');
+        }elseif ($sort === 'username'){
+            $query->orderBy('username');
         }
 
         $users = $query->paginate();
@@ -382,83 +386,5 @@ class UserController extends Controller
         $per_page = request()->get('per_page') ?: 15;
 
         return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
-    }
-
-    public function userPoints(Request $request,PointService $pointService, User $user = null)
-    {
-        if (!$request->is('api/admin/*')){
-            $user = auth('api')->user();
-        }
-
-        $filters = $request->get('filters', []);
-        $from = Arr::get($filters, 'from', (Carbon::now())->firstOfMonth());
-        $to = Arr::get($filters, 'to', Carbon::now());
-
-
-        $points = $pointService->calcPoint($user,['from' => $from, 'to' => $to]);
-
-        return response()->json(['points' => $points]);
-    }
-
-    public function userMonthlyPoints(Request $request, PointService $pointService, User $user = null)
-    {
-        if (!$request->is('api/admin/*')){
-            $user = auth('api')->user();
-        }
-
-        $points = [];
-
-        $filters = $request->get('filters', []);
-        $from = Arr::get($filters, 'from', (Carbon::now())->subMonths(12)->firstOfMonth());
-        $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
-        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
-
-        foreach ($monthPeriods as $month) {
-            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
-            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
-
-            $earning = Earning::where('user_id', $user->id)
-                ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
-                ->first();
-
-            $points[$month->format("Y-m")] = [
-                'hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'earning' => $earning? $earning->amount : 0,
-            ];
-        }
-
-        return response()->json(['points' => $points]);
-    }
-
-    public function exportPublishersEarnings(Request $request)
-    {
-        $filters = $request->get('filters', []);
-        $monthFilter = Arr::get($filters, 'month');
-
-        $month = null;
-        if ($monthFilter){
-            $month = Carbon::parse($monthFilter);
-        }
-
-        $users = User::whereHas('channel')->get();
-
-        foreach ($users as $user){
-
-            $user->channelName = $user->channel->name?? '';
-
-            $earning = Earning::where('user_id', $user->id)
-                ->when(!empty($month), function ($query) use ($month) {
-                    return $query->whereYear('created_at', $month->year)
-                        ->whereMonth('created_at', $month->month);
-                })->first();
-            $user->earningStatus = $earning?Earning::STATUS_TEXT[$earning->status]:'N/A';
-            $user->earningAmount = $earning->amount?? 0;
-        }
-
-        $fileName = 'publishers-earnings'.((!empty($month))?'-'.$month->format('Y-m'):'').'.xlsx';
-
-        return Excel::download(new PublisherEarningsExport($users), $fileName);
     }
 }
