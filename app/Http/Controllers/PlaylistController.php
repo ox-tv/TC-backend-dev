@@ -26,7 +26,8 @@ class PlaylistController extends Controller
     {
         if($channelIdOrSlug){
             $channel = Channel::where('id', $channelIdOrSlug)->orWhere('slug', $channelIdOrSlug)->firstOrFail();
-            $query = Playlist::where('user_id', $channel->owner->id);
+            $owner = $channel->owner()->firstOrFail();
+            $query = Playlist::where('user_id', $owner->id);
 
             if (!$request->is('api/admin/*')){
                 $query->where('status', Playlist::STATUS_PUBLIC);
