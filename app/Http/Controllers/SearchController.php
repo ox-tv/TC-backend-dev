@@ -56,9 +56,9 @@ class SearchController extends Controller
 
             $orderByPopular = implode(',', array_reverse($popularVideoIds));
 
-            $additionalData['suggested_videos'] = Video::published()
+            $additionalData['suggested_videos'] = VideoItem::collection(Video::published()
                 ->orderByRaw("FIELD(id,$orderByPopular) DESC, Created_at DESC")
-                ->take(15)->get();
+                ->take(15)->get());
         }
 
         return VideoItem::collection($videoQuery->paginate())
