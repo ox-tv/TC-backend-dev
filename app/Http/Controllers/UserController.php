@@ -262,6 +262,13 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // remove user relations
+        $channel = $user->channel()->first();
+        if ($channel){
+            $channel->videos()->delete();
+            $channel->delete();
+        }
+
         $user->delete();
 
         return response()->json([
