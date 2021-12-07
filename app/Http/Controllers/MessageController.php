@@ -284,7 +284,7 @@ class MessageController extends Controller
         $message = $query->with([
             'user' => function($q){ $q->withTrashed(); },
             'users' => function($q){ $q->withTrashed(); },
-            'department' => function($q){ $q->withTrashed(); },
+            'department',
             'replies' => function($q){ $q->withTrashed(); }
         ])->firstOrFail();
 
