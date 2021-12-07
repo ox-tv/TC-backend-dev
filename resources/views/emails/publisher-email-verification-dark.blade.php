@@ -391,8 +391,7 @@
                 /*@editable*/line-height:150% !important;
             }
 
-        }</style>
-</head>
+        }</style></head>
 <body>
 <center>
     <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
@@ -503,7 +502,11 @@
 
                                                     <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
 <br>
-<span style="font-size:14px">We are happy to have you aboard, and we hope you will gain lots of valuable insights into the crypto market. Click the button below to verify your email. Once you have done this, you are all set!</span></span></div>
+<span style="font-size:14px">We are happy to have you aboard.&nbsp;We review all applications manually to avoid fraudsters and cloned channels. We may need additional information to verify that you own the content uploaded to Today's Crypto. So sit back, and we will get back to you soon!<br>
+<br>
+While you wait, feel free to click around in the publisher panel. All communication from us will, from now on, take place via the publisher panel, and you can easily create a support ticket if you have any questions.<br>
+<br>
+Click the button below to verify your email.</span></span></div>
 
                                                 </td>
                                             </tr>

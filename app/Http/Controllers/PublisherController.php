@@ -11,6 +11,7 @@ use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\UserItem;
 use App\Mail\PublisherApprovedMail;
 use App\Mail\PublisherRejectedMail;
+use App\Mail\PublisherVerificationMail;
 use App\Mail\VerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
@@ -104,7 +105,7 @@ class PublisherController extends Controller
 
         $link = config('general.EMAIL_VERIFICATION_URL').$token;
         Mail::to($user->email)
-            ->queue(new VerificationMail($link));
+            ->queue(new PublisherVerificationMail($link));
 
         // Create channel for user
         $channel = new Channel();
