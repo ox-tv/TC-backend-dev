@@ -42,7 +42,13 @@ class MessageController extends Controller
             $query->mine();
         }
 
-        $messages = $query->with(['user', 'user.channel', 'users', 'users.channel', 'department'])->paginate();
+        $messages = $query->with([
+            'user' => function($q){ $q->withTrashed(); },
+            'user.channel',
+            'users' => function($q){ $q->withTrashed(); },
+            'users.channel',
+            'department'
+        ])->paginate();
 
         return MessageItem::collection($messages);
     }
@@ -275,7 +281,12 @@ class MessageController extends Controller
             $query->mine();
         }
 
-        $message = $query->with(['user', 'users', 'department', 'replies'])->firstOrFail();
+        $message = $query->with([
+            'user' => function($q){ $q->withTrashed(); },
+            'users' => function($q){ $q->withTrashed(); },
+            'department' => function($q){ $q->withTrashed(); },
+            'replies' => function($q){ $q->withTrashed(); }
+        ])->firstOrFail();
 
         return MessageItem::make($message);
     }
