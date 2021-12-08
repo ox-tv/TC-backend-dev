@@ -9,107 +9,30 @@ use Illuminate\Support\Facades\Auth;
 
 class OptionController extends Controller
 {
-    // Get Reasons
-    public function reportVideoReasonsGet()
+    public function setReasonsOption(Request $request, $key)
     {
-        return $this->getSingleMode(Option::KEY_REPORT_VIDEO_REASONS);
-    }
-
-    public function reportCommentReasonsGet()
-    {
-        return $this->getSingleMode(Option::KEY_REPORT_COMMENT_REASONS);
-    }
-
-    public function hideVideoReasonsGet()
-    {
-        return $this->getSingleMode(Option::KEY_HIDE_VIDEO_REASONS);
-    }
-
-    public function deleteVideoReasonsGet()
-    {
-        return $this->getSingleMode(Option::KEY_DELETE_VIDEO_REASONS);
-    }
-
-    public function deleteCommentReasonsGet()
-    {
-        return $this->getSingleMode(Option::KEY_DELETE_COMMENT_REASONS);
-    }
-
-    public function rejectPublisherRequestReasonsGet()
-    {
-        return $this->getSingleMode(Option::KEY_REJECT_PUBLISHER_REQUEST_REASONS);
-    }
-
-
-    // Store Reasons
-    public function reportVideoReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_REPORT_VIDEO_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-    public function reportCommentReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_REPORT_COMMENT_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-    public function hideVideoReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_HIDE_VIDEO_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-    public function deleteVideoReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_DELETE_VIDEO_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-    public function deleteCommentReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_DELETE_COMMENT_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-    public function rejectPublisherRequestReasonsStore(Request $request)
-    {
-        return $this->storeSingleMode(
-            Option::KEY_REJECT_PUBLISHER_REQUEST_REASONS,
-            json_encode($request->get('reasons'))
-        );
-    }
-
-
-    // Core Methods
-    private function storeSingleMode($key, $value)
-    {
-        $option = Option::where("key", $key)->first();
-
-        if(!$option){
-            $option = new Option();
-            $option->key = $key;
+        if (!in_array($key, Option::REASONS)){
+            abort(404);
         }
 
-        $option->value = $value;
+        $request->validate([
+            'reasons' => 'nullable|array',
+            'reasons.*.key' => 'required|string',
+            'reasons.*.value' => 'required|string',
+        ]);
 
-        $option->save();
+        Option::set($key, json_encode($request->get('reasons')));
 
         return response()->json(["message" => "ok"]);
     }
 
-    private function getSingleMode($key)
+    public function getReasonsOption($key)
     {
-        return Option::where("key", $key)->first()->value ?? null;
+        if (!in_array($key, Option::REASONS)){
+            abort(404);
+        }
+
+        return Option::get($key);
     }
+
 }
