@@ -93,14 +93,7 @@ class PublisherController extends Controller
 
         // Create verification token and send to user email
         $token = sha1($user->id . time());
-
-        if (config('app.env') == 'local') {
-            $token = 111111;
-            $user->status = User::STATUS_ACTIVE;
-        }
-
         $user->verification_code = $token;
-
         $user->save();
 
         $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL').$token;
