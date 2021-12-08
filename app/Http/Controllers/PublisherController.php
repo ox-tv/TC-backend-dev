@@ -103,7 +103,7 @@ class PublisherController extends Controller
 
         $user->save();
 
-        $link = config('general.EMAIL_VERIFICATION_URL').$token;
+        $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL').$token;
         Mail::to($user->email)
             ->queue(new PublisherVerificationMail($link));
 
