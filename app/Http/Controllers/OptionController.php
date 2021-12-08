@@ -9,35 +9,91 @@ use Illuminate\Support\Facades\Auth;
 
 class OptionController extends Controller
 {
-
-    public function report_reasons_store(Request $request)
+    // Get Reasons
+    public function reportVideoReasonsGet()
     {
-        $key = '';
+        return $this->getSingleMode(Option::KEY_REPORT_VIDEO_REASONS);
+    }
 
-        if($request->is('api/admin/options/report/video/reasons')){
-            $key = 'report_video_reasons';
-        }
+    public function reportCommentReasonsGet()
+    {
+        return $this->getSingleMode(Option::KEY_REPORT_COMMENT_REASONS);
+    }
 
-        if($request->is('api/admin/options/report/comment/reasons')){
-            $key = 'report_comment_reasons';
-        }
+    public function hideVideoReasonsGet()
+    {
+        return $this->getSingleMode(Option::KEY_HIDE_VIDEO_REASONS);
+    }
 
-        if($request->is('api/admin/options/video/hide/reasons')){
-            $key = 'video_hide_reasons';
-        }
+    public function deleteVideoReasonsGet()
+    {
+        return $this->getSingleMode(Option::KEY_DELETE_VIDEO_REASONS);
+    }
 
-        if($request->is('api/admin/options/video/delete/reasons')){
-            $key = 'video_delete_reasons';
-        }
+    public function deleteCommentReasonsGet()
+    {
+        return $this->getSingleMode(Option::KEY_DELETE_COMMENT_REASONS);
+    }
 
-        if($request->is('api/admin/options/comment/delete/reasons')){
-            $key = 'comment_delete_reasons';
-        }
+    public function rejectPublisherRequestReasonsGet()
+    {
+        return $this->getSingleMode(Option::KEY_REJECT_PUBLISHER_REQUEST_REASONS);
+    }
 
-        if($request->is('api/admin/options/publisher-request/reject/reasons')){
-            $key = 'publisher_request_reject_reasons';
-        }
 
+    // Store Reasons
+    public function reportVideoReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_REPORT_VIDEO_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+    public function reportCommentReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_REPORT_COMMENT_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+    public function hideVideoReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_HIDE_VIDEO_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+    public function deleteVideoReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_DELETE_VIDEO_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+    public function deleteCommentReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_DELETE_COMMENT_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+    public function rejectPublisherRequestReasonsStore(Request $request)
+    {
+        return $this->storeSingleMode(
+            Option::KEY_REJECT_PUBLISHER_REQUEST_REASONS,
+            json_encode($request->get('reasons'))
+        );
+    }
+
+
+    // Core Methods
+    private function storeSingleMode($key, $value)
+    {
         $option = Option::where("key", $key)->first();
 
         if(!$option){
@@ -45,42 +101,15 @@ class OptionController extends Controller
             $option->key = $key;
         }
 
-        $option->value = json_encode($request->get('reasons'));
+        $option->value = $value;
 
         $option->save();
 
         return response()->json(["message" => "ok"]);
     }
 
-    public function reasons_show(Request $request)
+    private function getSingleMode($key)
     {
-        $key = '';
-
-        if($request->is('api/options/report/video/reasons')){
-            $key = 'report_video_reasons';
-        }
-
-        if($request->is('api/options/report/comment/reasons')){
-            $key = 'report_comment_reasons';
-        }
-
-        if($request->is('api/options/video/hide/reasons')){
-            $key = 'video_hide_reasons';
-        }
-
-        if($request->is('api/options/video/delete/reasons')){
-            $key = 'video_delete_reasons';
-        }
-
-        if($request->is('api/options/comment/delete/reasons')){
-            $key = 'comment_delete_reasons';
-        }
-
-        if($request->is('api/options/publisher-request/reject/reasons')){
-            $key = 'publisher_request_reject_reasons';
-        }
-
         return Option::where("key", $key)->first()->value ?? null;
     }
-
 }
