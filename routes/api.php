@@ -282,7 +282,7 @@ Route::group([
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('videos');
     Route::post('videos', '\App\Http\Controllers\VideoController@store')->name("videos.store");
 
-    Route::get('videos/{video}', '\App\Http\Controllers\VideoController@show')->name('videos.delete');
+    Route::get('videos/{video}', '\App\Http\Controllers\VideoController@show')->name('videos.show');
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
