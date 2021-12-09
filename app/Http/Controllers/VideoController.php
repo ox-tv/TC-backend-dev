@@ -282,21 +282,17 @@ class VideoController extends Controller
      */
     public function show($id_or_url_hash, Request $request)
     {
-        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstorFail();
 
-        if(is_null($video)){
-            return response()->json([
-                'message' => __('general.not_found')
-            ],404);
+        $isAdmin = $request->is('api/admin/*');
+
+        if($isAdmin || $video->isPublished || $video->isMine){
+            return new \App\Http\Resources\Video\VideoItem($video);
         }
 
-        if(!($video->isPublished || $video->isMine)){
-            return response()->json([
-                'message' => 'You can\'t access this video'
-            ], 422);
-        }
-
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return response()->json([
+            'message' => 'You can\'t access this video'
+        ], 422);
     }
 
     /**
