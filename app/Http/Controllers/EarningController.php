@@ -8,6 +8,7 @@ use App\Http\Resources\Plan\PlanItem;
 use App\Http\Resources\Pricing\PricingItem;
 use App\Models\Channel;
 use App\Models\Earning;
+use App\Models\Option;
 use App\Models\PaymentMethod;
 use App\Models\Plan;
 use App\Models\Pricing;
@@ -144,16 +145,73 @@ class EarningController extends Controller
         return response()->json($statistics);
     }
 
+    public function setTotalDistributedMoney(Request $request)
+    {
+        $request->validate([
+            'total_distributed_money' => 'required|numeric|gt:0',
+            'month' => 'required|date',
+        ]);
+
+        $money = $request->get('total_distributed_money');
+        $month = Carbon::parse($request->get('month'));
+        $totalValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
+
+        if ($totalValues){
+            $totalValues = json_decode($totalValues->value, true);
+        }else{
+            $totalValues = [];
+        }
+
+        $totalValues[$month->format('Y-m')] = $money;
+
+        ksort($totalValues);
+
+        Option::set(Option::TOTAL_DISTRIBUTED_MONEY, json_encode($totalValues));
+
+        return response()->json(["message" => "ok"]);
+    }
+
+    public function getTotalDistributedMoney(Request $request)
+    {
+        $request->validate([
+            'month' => 'nullable|date',
+        ]);
+
+        $totalValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
+
+        if ($totalValues){
+            $totalValues = json_decode($totalValues->value, true);
+        }else{
+            $totalValues = [];
+        }
+
+        if ($request->get('month')){
+            $month = Carbon::parse($request->get('month'));
+            $value = $totalValues[$month->format('Y-m')]?? 0;
+        }else{
+            $value = $totalValues;
+        }
+
+        return $value;
+    }
+
     public function calcEarnings(Request $request)
     {
         $request->validate([
             'from' => 'nullable|date',
             'to' => 'nullable|date',
             'month' => 'nullable|date',
-            'value_per_share' => 'required|numeric|gt:0',
         ]);
 
         $publishers = User::whereHas('channel')->get();
+
+        $totalDistributedValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
+
+        if (!$totalDistributedValues){
+            abort(403, 'total distributed money is not exists.');
+        }
+
+        $totalDistributedValues = json_decode($totalDistributedValues->value, true);
 
         $from = $request->get('from', (Carbon::now())->subMonths(1)->startOfMonth());
         $to = $request->get('to', (Carbon::now())->subMonths(1)->endOfMonth());
@@ -169,11 +227,17 @@ class EarningController extends Controller
 
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
-        $rate = $request->get('value_per_share');
-
         foreach ($monthPeriods as $month) {
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
+
+            $totalMonthPoints = VideoStatisticsDaily::whereDate('date', '>=', $from_day)
+                ->whereDate('date', '<=', $to_day)
+                ->sum('points');
+
+            $totalAmount = $totalDistributedValues[$month->format('Y-m')]?? abort(403, "total distributed money is not exists for {$month->format('Y-m')}");
+
+            $monthRate = $totalMonthPoints > 0 ? $totalAmount / $totalMonthPoints : 0;
 
             foreach ($publishers as $publisher){
 
@@ -182,7 +246,7 @@ class EarningController extends Controller
                     ->whereDate('date', '<=', $to_day)
                     ->sum('points');
 
-                $earningAmount = $points * $rate;
+                $earningAmount = $points * $monthRate;
                 $earningAmount = ($earningAmount > 0)? $earningAmount: 0;
 
                 $earning = Earning::where('user_id', $publisher->id)

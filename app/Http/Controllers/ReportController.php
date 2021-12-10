@@ -99,14 +99,14 @@ class ReportController extends Controller
 
 
         if ($request->is("api/videos/{$id}/report")){
-            $option_key = 'report_video_reasons';
+            $option_key = Option::VIDEO_REPORT_REASONS;
             $model = Video::findOrFail($id);
             $report->reported_user_id = $model->user_id;
             $model_name = 'video';
         }
 
         if ($request->is("api/comments/{$id}/report")){
-            $option_key = 'report_comment_reasons';
+            $option_key = Option::COMMENT_REPORT_REASONS;
             $model = Comment::findOrFail($id);
             $report->reported_user_id = $model->user_id;
             $model_name = 'comment';

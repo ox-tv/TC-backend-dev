@@ -32,7 +32,7 @@ class OptionController extends Controller
             abort(404);
         }
 
-        return Option::get($key);
+        return Option::get($key)->value ?? null;
     }
 
 }

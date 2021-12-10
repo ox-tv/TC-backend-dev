@@ -233,7 +233,7 @@ class PublisherController extends Controller
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
-        $option_key = 'report_video_reasons';
+        $option_key = Option::VIDEO_REPORT_REASONS;
 
         $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? [];
         if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
