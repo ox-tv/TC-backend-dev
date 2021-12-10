@@ -169,7 +169,7 @@ Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['inde
 Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
 
 // Points
-Route::get('points/rate', '\App\Http\Controllers\PointController@pointToUsdRate');
+Route::get('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@getTotalDistributedMoney')->name('earnings.total_distributed_money');
 
 // CoinBase
 Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
@@ -342,6 +342,8 @@ Route::group([
     Route::apiResource('earnings', '\App\Http\Controllers\EarningController')->only(['index']);
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
     Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
+
+    Route::put('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@setTotalDistributedMoney')->name('earnings.store_total_distributed_money');
     Route::post('earnings/calc', '\App\Http\Controllers\EarningController@calcEarnings')->name('earnings.calc');
     Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
 
