@@ -433,7 +433,7 @@ class VideoController extends Controller
                 'reason' => 'required'
             ]);
 
-            $option_key = 'video_delete_reasons';
+            $option_key = Option::VIDEO_DELETE_REASONS;
             $reasons = json_decode(Option::where("key", $option_key)->first()->value?? abort(404));
 
 
@@ -560,7 +560,7 @@ class VideoController extends Controller
             'reason' => 'required'
         ]);
 
-        $option_key = 'video_hide_reasons';
+        $option_key = Option::VIDEO_HIDE_REASONS;
         $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
 

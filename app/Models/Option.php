@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use function JmesPath\search;
 
 class Option extends Model
 {
@@ -13,20 +12,21 @@ class Option extends Model
     protected $fillable = ['key', 'value'];
 
     // Define Keys
-    const REPORT_VIDEO_REASONS = 'report_video_reasons';
-    const REPORT_COMMENT_REASONS = 'report_comment_reasons';
-    const HIDE_VIDEO_REASONS = 'video_hide_reasons';
-    const DELETE_VIDEO_REASONS = 'video_delete_reasons';
-    const DELETE_COMMENT_REASONS = 'comment_delete_reasons';
-    const REJECT_PUBLISHER_REQUEST_REASONS = 'publisher_request_reject_reasons';
+    const VIDEO_REPORT_REASONS = 'video_report_reasons';
+    const COMMENT_REPORT_REASONS = 'comment_report_reasons';
+    const VIDEO_HIDE_REASONS = 'video_hide_reasons';
+    const VIDEO_DELETE_REASONS = 'video_delete_reasons';
+    const COMMENT_DELETE_REASONS = 'comment_delete_reasons';
+    const PUBLISHER_REQUEST_REJECT_REASONS = 'publisher_request_reject_reasons';
+    const TOTAL_DISTRIBUTED_MONEY = 'total_distributed_money';
 
     const REASONS = [
-        self::REPORT_VIDEO_REASONS,
-        self::REPORT_COMMENT_REASONS,
-        self::HIDE_VIDEO_REASONS,
-        self::DELETE_VIDEO_REASONS,
-        self::DELETE_COMMENT_REASONS,
-        self::REJECT_PUBLISHER_REQUEST_REASONS,
+        self::VIDEO_REPORT_REASONS,
+        self::COMMENT_REPORT_REASONS,
+        self::VIDEO_HIDE_REASONS,
+        self::VIDEO_DELETE_REASONS,
+        self::COMMENT_DELETE_REASONS,
+        self::PUBLISHER_REQUEST_REJECT_REASONS,
     ];
 
     public static function set($key, $value)
@@ -39,7 +39,7 @@ class Option extends Model
 
     public static function get($key)
     {
-        return self::where("key", $key)->first()->value ?? null;
+        return self::where("key", $key)->first();
     }
-    
+
 }
