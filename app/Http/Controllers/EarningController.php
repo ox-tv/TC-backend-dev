@@ -205,6 +205,10 @@ class EarningController extends Controller
 
         $publishers = User::whereHas('channel')->get();
 
+        $pointPerHeroSub = config('general.points.per_subscribe_hero');
+        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
+
+        // Get Total Distributed Value
         $totalDistributedValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
 
         if (!$totalDistributedValues){
@@ -235,16 +239,39 @@ class EarningController extends Controller
                 ->whereDate('date', '<=', $to_day)
                 ->sum('points');
 
+            $heroSubCounts = User::whereHas('subscribedChannels', function ($q) use ($to_day){
+                $q->where('channel_user.created_at', '<=', $to_day);
+            })->isHero()->count();
+
+            $nonHeroSubCounts = User::whereHas('subscribedChannels', function ($q) use ($to_day){
+                $q->where('channel_user.created_at', '<=', $to_day);
+            })->isNonHero()->count();
+
+            $totalMonthPoints += ($heroSubCounts * $pointPerHeroSub);
+            $totalMonthPoints += ($nonHeroSubCounts * $pointPerNonHeroSub);
+
             $totalAmount = $totalDistributedValues[$month->format('Y-m')]?? abort(403, "total distributed money is not exists for {$month->format('Y-m')}");
 
             $monthRate = $totalMonthPoints > 0 ? $totalAmount / $totalMonthPoints : 0;
 
             foreach ($publishers as $publisher){
 
-                $points = VideoStatisticsDaily::where('channel_id', $publisher->channel->id)
+                $channel = $publisher->channel;
+
+                $points = VideoStatisticsDaily::where('channel_id', $channel->id)
                     ->whereDate('date', '>=', $from_day)
                     ->whereDate('date', '<=', $to_day)
                     ->sum('points');
+
+                $heroSubCounts = $channel->subscribers()->where(function ($q) use ($to_day){
+                    $q->where('channel_user.created_at', '<=', $to_day);
+                })->isHero()->count();
+                $nonHeroSubCounts = $channel->subscribers()->where(function ($q) use ($to_day){
+                    $q->where('channel_user.created_at', '<=', $to_day);
+                })->isNonHero()->count();
+
+                $points += ($heroSubCounts * $pointPerHeroSub);
+                $points += ($nonHeroSubCounts * $pointPerNonHeroSub);
 
                 $earningAmount = $points * $monthRate;
                 $earningAmount = ($earningAmount > 0)? $earningAmount: 0;
