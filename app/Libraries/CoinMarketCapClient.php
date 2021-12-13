@@ -11,18 +11,26 @@ use Illuminate\Support\Facades\Log;
 class CoinMarketCapClient
 {
     private $api_key;
+    private $status;
     private $base_url = 'https://pro-api.coinmarketcap.com';
 
     public function __construct()
     {
         $this->api_key = config("coinmarketcap.api_key");
+        $this->status = config("coinmarketcap.status");
     }
 
     /*
      * Can pass multi symbols separated by comma
      * */
-    public function GetPriceRatio($slugs)
+    public function GetPrices($slugs): array
     {
+        $result = [];
+
+        if (strtolower($this->status) != 'on'){
+            return $result;
+        }
+
         try {
             $response = Http::withOptions([
                 'verify' => false,
@@ -35,13 +43,11 @@ class CoinMarketCapClient
                 "aux" => 'date_added',
             ]);
 
-            if(!$response->successful()){
-                throw new Exception($response->status());
-            }
-
             $body = $response->json();
 
-            $result = [];
+            if(!$response->successful()){
+                throw new Exception($body['status']['error_message'], $response->status());
+            }
 
             if (!empty($body['data'])){
                 foreach ($body['data'] as $id => $value){
@@ -49,13 +55,12 @@ class CoinMarketCapClient
                 }
             }
 
-            return $result;
-
         }catch(Exception $e){
             Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+            // TODO: send mail to admin
         }
 
-        return null;
+        return $result;
     }
 
     /*
@@ -63,6 +68,12 @@ class CoinMarketCapClient
      * */
     public function GetInfo($slugs)
     {
+        $result = [];
+
+        if (strtolower($this->status) != 'on'){
+            return $result;
+        }
+
         try {
             $response = Http::withOptions([
                 'verify' => false,
@@ -74,13 +85,11 @@ class CoinMarketCapClient
                 "slug" => $slugs,
             ]);
 
-            if(!$response->successful()){
-                throw new Exception($response->status());
-            }
-
             $body = $response->json();
 
-            $result = [];
+            if(!$response->successful()){
+                throw new Exception($body['status']['error_message'], $response->status());
+            }
 
             if (!empty($body['data'])){
                 foreach ($body['data'] as $id => $value){
@@ -88,17 +97,22 @@ class CoinMarketCapClient
                 }
             }
 
-            return $result;
-
         }catch(Exception $e){
             Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+            // TODO: send mail to admin
         }
 
-        return null;
+        return $result;
     }
 
     public function GetCryptoCurrencies($start = 1, $limit = 1000)
     {
+        $result = [];
+
+        if (strtolower($this->status) != 'on'){
+            return $result;
+        }
+
         try {
             $response = Http::withOptions([
                     'verify' => false,
@@ -116,10 +130,15 @@ class CoinMarketCapClient
                 return $response->json();
             }
 
-            throw new Exception($response->status());
+            $body = $response->json();
+
+            if(!$response->successful()){
+                throw new Exception($body['status']['error_message'], $response->status());
+            }
 
         }catch(Exception $e){
             Log::error("CoinMarketCap GetCryptoCurrencies Api Error: {$e->getMessage()}");
+            // TODO: send mail to admin
         }
 
         return [];
