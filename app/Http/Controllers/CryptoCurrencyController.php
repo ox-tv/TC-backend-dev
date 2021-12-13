@@ -41,47 +41,56 @@ class CryptoCurrencyController extends Controller
             $data = $query->paginate();
         }
 
-        $need_to_get_ratio = [];
-        foreach($data as $crypto_currency){
-            if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
-                $need_to_get_ratio[] = $crypto_currency;
+        // check need prices
+        $include = explode(',', $request->get('include', ''));
+        $withPrices = in_array('prices', $include);
+
+        if ($withPrices){
+            $needToGetPrices = [];
+            foreach($data as $crypto_currency){
+                if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
+                    $needToGetPrices[] = $crypto_currency;
+                }
             }
-        }
-        if (!empty($need_to_get_ratio)){
-            $this->GetRatios($need_to_get_ratio);
+            if (!empty($needToGetPrices)){
+                $this->GetPrices($needToGetPrices);
+            }
         }
 
         return CryptoCurrencyItem::collection($data);
     }
 
-    private function GetRatios($crypto_currencies)
+    private function GetPrices($crypto_currencies): void
     {
         $client = new CoinMarketCapClient();
 
         $slugs = array_column($crypto_currencies, 'slug');
 
-        $res = $client->GetPriceRatio(implode(',', $slugs))?? abort(404);
+        $res = $client->GetPrices(implode(',', $slugs));
 
         foreach($crypto_currencies as $crypto_currency){
             $crypto_currency->prices = $res[$crypto_currency->slug]??  null;
             $crypto_currency->save();
         }
-
-        return true;
     }
 
-    public function favorites()
+    public function favorites(Request $request)
     {
         $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
 
-        $need_to_get_ratio = [];
-        foreach($data as $crypto_currency){
-            if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
-                $need_to_get_ratio[] = $crypto_currency;
+        $include = explode(',', $request->get('include', ''));
+        $withPrices = in_array('prices', $include);
+
+        if ($withPrices){
+            $needToGetPrices = [];
+            foreach($data as $crypto_currency){
+                if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
+                    $needToGetPrices[] = $crypto_currency;
+                }
             }
-        }
-        if (!empty($need_to_get_ratio)){
-            $this->GetRatios($need_to_get_ratio);
+            if (!empty($needToGetPrices)){
+                $this->GetPrices($needToGetPrices);
+            }
         }
 
         foreach($data as $crypto_currency){
