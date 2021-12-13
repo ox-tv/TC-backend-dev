@@ -88,6 +88,7 @@ Route::get('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@
 
 
 // Crypto Currencies API
+Route::get('market/cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::middleware('auth:api')->get('cryptocurrencies/favorites', '\App\Http\Controllers\CryptoCurrencyController@favorites');
 Route::middleware('auth:api')->put('cryptocurrencies/{cryptocurrency}/add-to-fav', '\App\Http\Controllers\CryptoCurrencyController@addToFavorites');

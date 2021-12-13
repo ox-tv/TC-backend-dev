@@ -42,10 +42,9 @@ class CryptoCurrencyController extends Controller
         }
 
         // check need prices
-        $include = explode(',', $request->get('include', ''));
-        $withPrices = in_array('prices', $include);
+        $isMarket = $request->is('api/market/cryptocurrencies');
 
-        if ($withPrices){
+        if ($isMarket){
             $needToGetPrices = [];
             foreach($data as $crypto_currency){
                 if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
@@ -78,19 +77,14 @@ class CryptoCurrencyController extends Controller
     {
         $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
 
-        $include = explode(',', $request->get('include', ''));
-        $withPrices = in_array('prices', $include);
-
-        if ($withPrices){
-            $needToGetPrices = [];
-            foreach($data as $crypto_currency){
-                if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
-                    $needToGetPrices[] = $crypto_currency;
-                }
+        $needToGetPrices = [];
+        foreach($data as $crypto_currency){
+            if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
+                $needToGetPrices[] = $crypto_currency;
             }
-            if (!empty($needToGetPrices)){
-                $this->GetPrices($needToGetPrices);
-            }
+        }
+        if (!empty($needToGetPrices)){
+            $this->GetPrices($needToGetPrices);
         }
 
         foreach($data as $crypto_currency){

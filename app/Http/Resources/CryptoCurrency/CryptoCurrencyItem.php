@@ -30,12 +30,7 @@ class CryptoCurrencyItem extends JsonResource
      */
     public function toArray($request)
     {
-        $include = explode(',', $request->get('include', ''));
-
-        $withPrices = in_array('prices', $include);
-
-        $prices = ($withPrices && !empty($this->prices))? $this->prices : [];
-
+        $prices = (!empty($this->prices))? $this->prices : [];
 
         $image_small = '';
 
@@ -60,7 +55,7 @@ class CryptoCurrencyItem extends JsonResource
             'thumbnails' => [
                 'small' => $image_small
             ],
-            'prices' => $this->when($withPrices, $prices),
+            'ratio' => $prices,
             'is_favorite' => $this->is_favorite?? $is_favorite,
             'metadata' => $this->metadata,
         ];
