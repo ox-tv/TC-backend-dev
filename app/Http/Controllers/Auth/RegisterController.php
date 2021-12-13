@@ -24,10 +24,6 @@ class RegisterController extends Controller
             $user = new User();
         }
 
-        if (config('app.env') == 'local') {
-            $user->status = User::STATUS_ACTIVE;
-        }
-
         do{
             $referral_code = strtoupper(Str::random(6));
         }while(User::where('referral_code', $referral_code)->exists());
@@ -63,6 +59,7 @@ class RegisterController extends Controller
         $user = User::where("verification_code", $token)->firstOrFail();
 
         $user->email_verified_at = now();
+        $user->status = User::STATUS_ACTIVE;
 
         $user->save();
 
