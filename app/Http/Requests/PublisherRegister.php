@@ -40,9 +40,7 @@ class PublisherRegister extends FormRequest
             'password' => ['required', 'string', 'min:8'],
             'channel_name' => [
                 'required',
-                Rule::unique('channels', 'name')->where(function ($query) {
-                    return $query->whereIn('status', [Channel::STATUS_PUBLISHED, Channel::STATUS_FREEZE]);
-                })
+                Rule::unique('channels', 'name')
             ],
             'platform' => 'required',
         ];
