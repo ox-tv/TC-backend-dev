@@ -16,8 +16,7 @@ if(!function_exists('get_duration')){
             ]);
 
             return $ffprobe
-                ->format(Storage::disk('videos')->path($filePath)
-                )->get('duration');
+                ->format($filePath)->get('duration');
         }catch (\Exception $e){
             return null;
         }
