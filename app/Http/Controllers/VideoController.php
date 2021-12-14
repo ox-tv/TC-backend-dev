@@ -217,6 +217,11 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        // duration
+        if($request->get('duration')){
+            $video->duration = $request->get('duration');
+        }
+
         // adding main category
         if($request->get('category')){
             $video->category()->associate($request->get('category'));
@@ -320,24 +325,6 @@ class VideoController extends Controller
         }
 
         $video->description = $request->get('description');
-
-
-        if($request->get('youtube_link')){
-            $video->youtube_link = $request->get('youtube_link');
-
-            $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
-
-        }else if($request->file('video')){ // updating video file
-            $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
-
-            $video->file_path = $videoFile;
-
-            $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
-
-        }elseif($request->get('s3_url')){ // adding file to video
-
-            $video->s3_url = $request->get('s3_url');
-        }
 
         // thumbnail
         $video->thumbnail = $request->get('thumbnail');
