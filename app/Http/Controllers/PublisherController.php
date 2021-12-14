@@ -20,6 +20,7 @@ use App\Models\MessageUser;
 use App\Models\Notification;
 use App\Models\Option;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
 use App\Notifications\PublisherRejected;
@@ -100,14 +101,11 @@ class PublisherController extends Controller
         Mail::to($user->email)
             ->queue(new PublisherVerificationMail($link));
 
-        // Create channel for user
-        $channel = new Channel();
-        $channel->name = $request->get('channel_name');
-        $channel->slug = Str::slug($request->get('channel_name'));
-        $channel->user_id = $user->id;
-        $channel->status = Channel::STATUS_DRAFT;
-        $channel->save();
-
+        // save requested channel name on user meta
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::REQUESTED_CHANNEL_NAME],
+            ['value' => $request->get('channel_name'),]
+        );
 
         // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
@@ -181,21 +179,30 @@ class PublisherController extends Controller
         $user->role_id = Role::firstOrCreate(['name' => 'publisher'])->id;
         $user->save();
 
-        // Check if channel name is unique then publish it
-        $channel = $user->channel;
+        // Create channel for user
+        $channelNameMeta = $user->meta()
+            ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first();
 
-        $alreadyTaken = Channel::where('id', '!=', $channel->id)
-            ->where('name', $channel->name)
-            ->whereIn('status', [Channel::STATUS_FREEZE, Channel::STATUS_PUBLISHED])->exists();
-        if ($alreadyTaken){
-            $channel->name = $user->email;
-            // TODO:: Can notify to user too
+        if ($channelNameMeta){
+            $channelName = $channelNameMeta->value;
+            $alreadyTaken = Channel::where('name', $channelName)->exists();
         }
 
+        if (!$channelNameMeta || $alreadyTaken){
+            $channelName = $user->email;
+        }
+
+        $channel = new Channel();
+        $channel->name = $channelName;
+        $channel->slug = Str::slug($channelName);
+        $channel->user_id = $user->id;
         $channel->status = Channel::STATUS_PUBLISHED;
         $channel->save();
 
+        $channelNameMeta = $user->meta()
+            ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->delete();
 
+        // Remove publisher request message
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
         Message::where([
