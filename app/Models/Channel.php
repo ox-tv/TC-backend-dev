@@ -18,15 +18,11 @@ class Channel extends Model
 
     const STATUS_DRAFT = 1;
     const STATUS_PUBLISHED = 2;
-    const STATUS_ARCHIVED = 3;
-    const STATUS_SUSPENDED = 4;
     const STATUS_FREEZE= 5;
 
     const STATUS_TEXT = [
         self::STATUS_DRAFT => 'draft',
         self::STATUS_PUBLISHED => 'published',
-        self::STATUS_ARCHIVED => 'archived',
-        self::STATUS_SUSPENDED => 'suspended',
         self::STATUS_FREEZE => 'freeze',
     ];
 
@@ -44,6 +40,26 @@ class Channel extends Model
         'updated_at' => 'datetime',
     ];
 
+
+    protected static function booted()
+    {
+        self::saved(function($model){
+
+            // change owner mute by channel status
+            $owner = $model->owner()->withTrashed()->first();
+            $owner->muted_until = null;
+
+            if($model->status == self::STATUS_FREEZE){
+                $owner->is_mute = true;
+            }else{
+                $owner->is_mute = false;
+            }
+            $owner->save();
+
+        });
+    }
+
+
     // Scopes
 
     public function scopeDraft($query){
@@ -54,12 +70,8 @@ class Channel extends Model
         return $query->where('status', self::STATUS_PUBLISHED);
     }
 
-    public function scopeArchived($query){
-        return $query->where('status', self::STATUS_ARCHIVED);
-    }
-
-    public function scopeSuspended($query){
-        return $query->where('status', self::STATUS_SUSPENDED);
+    public function scopeFreeze($query){
+        return $query->where('status', self::STATUS_FREEZE);
     }
 
     public function scopeMine($query){

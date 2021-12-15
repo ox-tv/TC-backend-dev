@@ -30,9 +30,7 @@ class ChannelFactory extends Factory
             'user_id' => User::count()>0 ? User::all()->random(1)->first()->id : User::factory()->create()->id,
             'status' => $this->faker->randomElement([
                 Channel::STATUS_DRAFT,
-                Channel::STATUS_PUBLISHED,
-                Channel::STATUS_ARCHIVED,
-                Channel::STATUS_SUSPENDED])
+                Channel::STATUS_PUBLISHED])
         ];
     }
 }
