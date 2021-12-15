@@ -24,7 +24,7 @@ class UserItem extends JsonResource
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
 
 
-        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
+        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : null;
 
         $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
