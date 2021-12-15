@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,8 +19,12 @@ class UserItem extends JsonResource
     {
         $include = explode(',', $request->get('include', ''));
 
+        $withChannel = in_array('channel', $include) || $this->relationLoaded('channel');
         $withFavoriteTags = in_array('favorite_tags', $include) || $this->relationLoaded('favoriteTags');
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
+
+
+        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
 
         $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
@@ -59,6 +64,7 @@ class UserItem extends JsonResource
             'loyalty_points' => floatval($this->statistics()->sum('points')),
 
             'favorite_tags' => $this->when($withFavoriteTags, $favoriteTags),
+            'channel' => $this->when($withChannel, $channel),
         ];
     }
 }
