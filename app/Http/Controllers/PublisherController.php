@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use Amir\Permission\Models\Role;
+use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Message\MessageItem;
@@ -237,6 +238,11 @@ class PublisherController extends Controller
             ]
         ]);
 
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'rejected',]
+        );
+
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
@@ -275,5 +281,85 @@ class PublisherController extends Controller
             ->queue(new PublisherRejectedMail($reason));
 
         return UserItem::make($user);
+    }
+
+
+    public function becomeAPublisher(BecomeAPublisherStore $request){
+
+        $user = auth('api')->user();
+
+        // save requested channel name on user meta
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'pending',]
+        );
+
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::REQUESTED_CHANNEL_NAME],
+            ['value' => $request->get('channel_name'),]
+        );
+
+        // Send publisher request message to admin
+        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+
+        $message_data = [
+            'subject' => trans("publisher.application_subject"),
+            'message' => trans('publisher.application_message', [
+                'email' => $user->email,
+                'channel_name' => $request->get('channel_name'),
+                'platform' => $request->get('platform')
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
+
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
+
+        // Check if platform is YouTube then send a message to user and ask about him/her YouTube information
+        if (strtolower($request->get('platform')) == 'youtube'){
+            $admin = User::admins()->first();
+
+            $replyMessage = new Message();
+            $replyMessage->subject = $message->subject;
+            $replyMessage->message = trans('publisher.application_reply_for_youtube_platform_users');
+            $replyMessage->user_id = $admin->id;
+            $replyMessage->parent_id = $message->id;
+            $replyMessage->department_id = $message->department_id;
+            $replyMessage->can_reply = $message->can_reply;
+            $replyMessage->type = $message->type;
+            $replyMessage->save();
+
+            $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+            TCNotification::send(collect([$user]), new ReplyMessage(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
+                ],
+                get_class($replyMessage),
+                $replyMessage->id
+            ));
+        }
+
+        $admins = User::admins()->get();
+
+        TCNotification::send($admins, new NewPublisherRequest(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+                'user' => UserMinimalItem::make($user),
+                'channel_name' => $request->get('channel_name')
+            ],
+            get_class($message),
+            $message->id
+        ));
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => __('publisher.messages.wait_for_verification'),
+        ]);
     }
 }

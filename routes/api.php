@@ -163,7 +163,7 @@ Route::apiResource('languages', \App\Http\Controllers\LanguageController::class)
 
 
 // Become A Publisher
-Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\MessageController@becomeAPublisher')->name('.publisher.apply');
+Route::middleware('auth:api')->post('publisher/apply', '\App\Http\Controllers\PublisherController@becomeAPublisher')->name('publisher.apply');
 
 // hero membership
 Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['index']);

@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserMeta;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserItem extends JsonResource
@@ -32,6 +33,13 @@ class UserItem extends JsonResource
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
+        $publisher_request = null;
+        if (!$this->role_id){
+            $publisher_request['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $publisher_request['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+        }
+
+
         return [
             'id' => $this->id,
             'username' => $this->username,
@@ -50,6 +58,7 @@ class UserItem extends JsonResource
             'watch_time' => $this->watch_time,
             'role' => $this->role_name,
             'referral_code' => $this->referral_code,
+            'publisher_request' => $publisher_request,
             'request_details' => $this->when(
                 $withPublisherRequest,
                 Message::where([
