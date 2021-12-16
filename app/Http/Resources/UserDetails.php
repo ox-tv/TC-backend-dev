@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserMeta;
 use App\Models\UserVideo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,8 +18,13 @@ class UserDetails extends JsonResource
      */
     public function toArray($request)
     {
-
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
+
+        $publisher_request = null;
+        if (!$this->role_id){
+            $publisher_request['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $publisher_request['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+        }
 
         return [
             'id' => $this->id,
@@ -40,6 +46,7 @@ class UserDetails extends JsonResource
             'referral_code' => $this->referral_code,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'publisher_request' => $publisher_request,
 
             'loyalty_points' => floatval($this->statistics()->sum('points')),
         ];
