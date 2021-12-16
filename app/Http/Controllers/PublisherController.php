@@ -238,6 +238,11 @@ class PublisherController extends Controller
             ]
         ]);
 
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'rejected',]
+        );
+
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
@@ -284,6 +289,11 @@ class PublisherController extends Controller
         $user = auth('api')->user();
 
         // save requested channel name on user meta
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'pending',]
+        );
+
         $user->meta()->updateOrCreate(
             ['key' => UserMeta::REQUESTED_CHANNEL_NAME],
             ['value' => $request->get('channel_name'),]
