@@ -364,49 +364,6 @@ class MessageController extends Controller
         //
     }
 
-
-    public function becomeAPublisher(BecomeAPublisherStore $request){
-
-        $user = auth('api')->user();
-
-        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
-
-        $message_data = [
-            'subject' => trans("publisher.application_subject"),
-            'message' => trans('publisher.application_message', [
-                'email' => $user->email,
-                'channel_name' => $request->get('channel_name'),
-                'youtube_url' => $request->get('youtube_url'),
-                'verification_url' => $request->get('verification_url')
-            ]),
-            'user_id' => $user->id,
-            'can_reply' => true,
-            'department_id' => $department->id,
-        ];
-
-        $message = $this->messageRepository->storeUser($user->id, $message_data);
-
-
-        $admins = User::admins()->get();
-
-        TCNotification::send($admins, new NewPublisherRequest(
-            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-                'user' => UserMinimalItem::make($user),
-                'channel_name' => $request->get('channel_name')
-            ],
-            get_class($message),
-            $message->id
-        ));
-
-        return response()->json([
-            'email' => $request->input('email')?? $user->email,
-            'message' => __('publisher.messages.wait_for_verification'),
-        ]);
-
-    }
     public function channelImportRequest(){
 
         $user = auth('api')->user();
