@@ -34,7 +34,7 @@ class UserItem extends JsonResource
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
         $publisher_request = null;
-        if (!$this->role_id){
+        if (!$this->role_id && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
             $publisher_request['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
             $publisher_request['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
         }
