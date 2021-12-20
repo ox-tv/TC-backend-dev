@@ -23,8 +23,20 @@ Route::group([
 
     Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')->name('videos.s3.upload.pre_signed_url');
 
+    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 });
 
+
+// Admin api routes
+Route::group([
+    'middleware' => 'auth.role',
+    'as' => 'admin.',
+    'prefix' => 'admin',
+    'role' => 'admin'
+], function(){
+    Route::get('dashboard', '\App\Http\Controllers\GeneralController@adminDashboard')->name('dashboard');
+
+});
 
 
 
@@ -205,8 +217,6 @@ Route::group([
 
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
 
-    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
-
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index')->name('notifications');
 
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
@@ -236,7 +246,6 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-    Route::get('dashboard', '\App\Http\Controllers\GeneralController@adminDashboard')->name('dashboard');
     Route::get('channels/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channels.statistics.daily');
     Route::get('channels/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channels.statistics.monthly');
     Route::get('channels/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channels.statistics.total');
