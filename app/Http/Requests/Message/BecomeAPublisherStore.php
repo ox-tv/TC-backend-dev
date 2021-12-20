@@ -25,7 +25,7 @@ class BecomeAPublisherStore extends FormRequest
     public function rules()
     {
         return [
-            'current_password' => 'required|password:api',
+            //'current_password' => 'required|password:api',
             'channel_name' => [
                 'required',
                 Rule::unique('channels', 'name')
