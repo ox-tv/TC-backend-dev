@@ -14,6 +14,10 @@ Route::put('password/reset', '\App\Http\Controllers\Auth\LoginController@reset_p
 Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
 Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
+
+// For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
+
     Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
+
 });
