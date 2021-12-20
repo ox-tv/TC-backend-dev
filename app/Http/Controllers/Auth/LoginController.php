@@ -26,7 +26,7 @@ class LoginController extends Controller
         $login = $request->get('email')?:$request->get('login');
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
 
-        if(Auth::validate([$loginType => $login, 'password' => $this->request->get('password')])){
+        if(Auth::validate([$loginType => $login, 'password' => $request->get('password')])){
             $user = Auth::getLastAttempted();
             if($user->status == User::STATUS_INACTIVE) {
                 return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
