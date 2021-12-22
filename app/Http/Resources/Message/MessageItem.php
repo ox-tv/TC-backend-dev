@@ -25,7 +25,9 @@ class MessageItem extends JsonResource
 
 
         $user = ($withFrom)? UserMinimalItem::make($this->user) : null;
-
+if(!$this->user){
+    dd($this);
+}
         if($this->users()->where('users.id', $this->user->id)->exists()){
             $users = [];
         }else{
