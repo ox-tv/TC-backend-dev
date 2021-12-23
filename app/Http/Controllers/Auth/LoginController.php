@@ -74,7 +74,7 @@ class LoginController extends Controller
         }
 
         return response()->json([
-            'message' => __('users.messages.success_logout_message')
+            'message' => __('auth.logged_out_successfully')
         ]);
 
     }
@@ -105,7 +105,8 @@ class LoginController extends Controller
             ->queue(new PasswordResetMail($link));
 
         return response()->json([
-            'message' => __('users.messages.password_reset_link_sent'),
+            'status' => 'ok',
+            'message' => __('auth.password_reset_link_sent'),
         ]);
     }
 
@@ -115,7 +116,7 @@ class LoginController extends Controller
             ->where('created_at', '>', Carbon::now()->subDays(1))
             ->firstOrFail();
 
-        return response()->json(['message' => 'ok']);
+        return response()->json(['status' => 'ok']);
     }
 
     public function reset_password(\App\Http\Requests\PasswordReset $request)
@@ -135,6 +136,6 @@ class LoginController extends Controller
             'token' => $password_reset->token,
         ])->delete();
 
-        return response()->json(['message' => 'ok']);
+        return response()->json(['status' => 'ok', 'message' => __('auth.password_changed_successfully')]);
     }
 }
