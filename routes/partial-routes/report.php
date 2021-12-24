@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('videos/{id}/report', '\App\Http\Controllers\ReportController@store');
-    Route::post('comments/{id}/report', '\App\Http\Controllers\ReportController@store');
+    Route::post('videos/{id}/report', '\App\Http\Controllers\ReportController@store')->middleware('user.unmute');
+    Route::post('comments/{id}/report', '\App\Http\Controllers\ReportController@store')->middleware('user.unmute');
 
 });
 

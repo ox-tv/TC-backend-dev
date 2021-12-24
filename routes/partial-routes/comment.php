@@ -10,10 +10,10 @@ Route::get('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@storeComment');
-    Route::post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply');
-    Route::put('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like');
-    Route::put('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike');
+    Route::post('videos/{idOrHash}/comments', '\App\Http\Controllers\VideoController@storeComment')->middleware('user.unmute');
+    Route::post('comments/{comment}/reply', '\App\Http\Controllers\CommentController@reply')->middleware('user.unmute');
+    Route::put('comments/{comment}/like', '\App\Http\Controllers\CommentUserRelationController@like')->middleware('user.unmute');
+    Route::put('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike')->middleware('user.unmute');
     Route::put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
     Route::put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
 
