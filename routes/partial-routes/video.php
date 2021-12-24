@@ -22,8 +22,8 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
 
     // Video like/dislike routes
-    Route::put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like');
-    Route::put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike');
+    Route::put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like')->middleware('user.unmute');
+    Route::put('videos/{video}/dislike', '\App\Http\Controllers\UserVideoRelationController@dislike')->middleware('user.unmute');
 
     // Bookmark a video
     Route::get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
