@@ -18,6 +18,14 @@ class RegisterController extends Controller
 
     public function register(UserRegister $request)
     {
+        $duplicateEmail = User::where('email', $request->get('email'))->whereNotNull('email_verified_at')->exists();
+
+        if ($duplicateEmail){
+            return response()->json([
+                'message' => __('auth.email_already_taken'),
+            ],422);
+        }
+
         $user = User::where('email', $request->get('email'))->whereNull('email_verified_at')->first();
 
         if(is_null($user)){
