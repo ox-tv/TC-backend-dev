@@ -42,7 +42,8 @@ class UserRegister extends FormRequest
                         $fail(__('users.validation.account_deleted'));
                     }
                 },
-                Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
+                //Rule::unique('users', 'email')->whereNotNull('email_verified_at')
+            ],
             'password' => ['required', 'string', 'min:8'],
             'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
         ];
