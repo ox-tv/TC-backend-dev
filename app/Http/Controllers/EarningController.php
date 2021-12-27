@@ -173,9 +173,17 @@ class EarningController extends Controller
 
     public function getTotalDistributedMoney(Request $request)
     {
-        $request->validate([
-            'month' => 'nullable|date',
-        ]);
+        $isAdmin = $request->is('api/admin/*');
+
+        if ($isAdmin){
+            $request->validate([
+                'month' => 'nullable|date',
+            ]);
+
+            $month = $request->get('month')? Carbon::parse($request->get('month'))->format('Y-m') : '';
+        }else{
+            $month = Carbon::now()->format('Y-m');
+        }
 
         $totalValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
 
@@ -185,9 +193,8 @@ class EarningController extends Controller
             $totalValues = [];
         }
 
-        if ($request->get('month')){
-            $month = Carbon::parse($request->get('month'));
-            $value = $totalValues[$month->format('Y-m')]?? 0;
+        if ($month){
+            $value = $totalValues[$month]?? 0;
         }else{
             $value = $totalValues;
         }
