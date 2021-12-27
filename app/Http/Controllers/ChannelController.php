@@ -384,6 +384,9 @@ class ChannelController extends Controller
 
     public function performanceTotal(Request $request,PointService $pointService, User $user = null)
     {
+        $pointPerHeroSub = config('general.points.per_subscribe_hero');
+        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
+
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
         }
@@ -398,11 +401,34 @@ class ChannelController extends Controller
                 $q->where('date', '<=', $to);
             })->sum('amount');
 
+        // Calc total points
+        $totalPoints = VideoStatisticsDaily::when($from, function ($q, $from){
+                $q->where('date', '>=', $from);
+            })->when($to, function ($q, $to){
+                $q->where('date', '<=', $to);
+            })->sum('points');
+
+        $heroSubCounts = User::when($to, function ($q, $to){
+            $q->whereHas('subscribedChannels', function ($q) use ($to){
+                $q->where('channel_user.created_at', '<=', $to);
+            });
+        })->isHero()->count();
+
+        $nonHeroSubCounts = User::when($to, function ($q, $to){
+            $q->whereHas('subscribedChannels', function ($q) use ($to){
+                $q->where('channel_user.created_at', '<=', $to);
+            });
+        })->isNonHero()->count();
+
+        $totalPoints += ($heroSubCounts * $pointPerHeroSub);
+        $totalPoints += ($nonHeroSubCounts * $pointPerNonHeroSub);
+
         $result = [
-            'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
-            'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
-            'points_total' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
-            'earning' => floatval($earningAmount),
+            //'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
+            //'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
+            'points_total' => floatval($totalPoints),
+            'points_channel' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
+            'earning_channel' => floatval($earningAmount),
         ];
 
         return response()->json($result);
