@@ -89,7 +89,7 @@ class ReportController extends Controller
         return ReportMinimalItem::collection($query->paginate());
     }
 
-    public function store(Request $request, $id)
+    public function store(Request $request, $idOrUrlHash)
     {
         $report = new Report();
 
@@ -97,17 +97,16 @@ class ReportController extends Controller
         $report->user_id = auth('api')->id();
 
 
-
-        if ($request->is("api/videos/{$id}/report")){
+        if ($request->is("api/videos/{$idOrUrlHash}/report")){
             $option_key = Option::VIDEO_REPORT_REASONS;
-            $model = Video::findOrFail($id);
+            $model = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
             $report->reported_user_id = $model->user_id;
             $model_name = 'video';
         }
 
-        if ($request->is("api/comments/{$id}/report")){
+        if ($request->is("api/comments/{$idOrUrlHash}/report")){
             $option_key = Option::COMMENT_REPORT_REASONS;
-            $model = Comment::findOrFail($id);
+            $model = Comment::findOrFail($idOrUrlHash);
             $report->reported_user_id = $model->user_id;
             $model_name = 'comment';
         }
