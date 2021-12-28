@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Channel;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -19,15 +20,16 @@ class EnsureChannelIsUnFreeze
         $guard = auth('api')->check() ? 'api' : '';
 
         $user = auth($guard)->user();
+        $channel = $user->channel;
 
-        if (!$user){
+        if (!$user || !$channel){
             return $next($request);
         }
 
-        if (!$user->is_mute){
+        if ($channel->status != Channel::STATUS_FREEZE){
             return $next($request);
         }
 
-        abort(403, 'You are muted by administrators, Please contact supports.');
+        abort(403, __('channel.channel_freeze_info'));
     }
 }
