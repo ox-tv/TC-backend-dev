@@ -28,6 +28,6 @@ class EnsureUserIsUnMute
             return $next($request);
         }
 
-        abort(403, 'You are muted by administrators, Please contact supports.');
+        abort(403, __('user.user_is_mute_info'));
     }
 }

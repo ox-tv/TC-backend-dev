@@ -50,16 +50,17 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
-    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy');
-    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin');
-    Route::apiResource('videos', \App\Http\Controllers\VideoController::class);
+    Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy')->middleware('channel.unfreeze');
+    Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin')->middleware('user.unmute');
+    Route::apiResource('videos', \App\Http\Controllers\VideoController::class)->only(['index','show']);
+    Route::apiResource('videos', \App\Http\Controllers\VideoController::class)->only(['store','update','destroy'])->middleware('channel.unfreeze');
 
-    Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index']);
+    Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index'])->middleware('channel.unfreeze');
 
-    Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store');
+    Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store')->middleware('channel.unfreeze');
 
-    Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store');
-    Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy');
+    Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store')->middleware('channel.unfreeze');
+    Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy')->middleware('channel.unfreeze');
 
     Route::get('videos/{id_or_url_hash}/statistics/daily', '\App\Http\Controllers\VideoStatisticsController@daily')->name('video.statistics.daily');
     Route::get('videos/{id_or_url_hash}/statistics/monthly', '\App\Http\Controllers\VideoStatisticsController@monthly')->name('video.statistics.monthly');

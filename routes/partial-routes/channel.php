@@ -28,13 +28,14 @@ Route::group([
 ], function(){
 
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
-    Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update');
+    Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update')->middleware('channel.unfreeze');
 
     Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channel/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
 
-    Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')->name("channels.request-import");
+    Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')
+        ->name("channels.request-import")->middleware('channel.unfreeze');
 
 });
 

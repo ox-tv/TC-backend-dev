@@ -21,7 +21,8 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
-    Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')->name('videos.s3.upload.pre_signed_url');
+    Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')
+        ->name('videos.s3.upload.pre_signed_url')->middleware('channel.unfreeze');
 
 });
 
