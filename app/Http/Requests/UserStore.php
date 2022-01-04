@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Option;
 use App\Models\User;
+use App\Rules\ForbiddenWordsRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,6 +27,9 @@ class UserStore extends FormRequest
      */
     public function rules()
     {
+        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
+        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+
         return [
             'email' => [
                 'required', 'string', 'email', 'max:255',
@@ -36,7 +41,7 @@ class UserStore extends FormRequest
                     }
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
-            'username' => ['nullable', 'string', 'alpha_dash'],
+            'username' => ['nullable', 'string', 'alpha_dash', new ForbiddenWordsRule($forbiddenWords)],
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
             'role_id' => 'nullable|exists:roles,id',
