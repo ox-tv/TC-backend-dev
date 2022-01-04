@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class OptionController extends Controller
 {
+    // Reasons
     public function setReasonsOption(Request $request, $key)
     {
         if (!in_array($key, Option::REASONS)){
@@ -35,4 +36,25 @@ class OptionController extends Controller
         return Option::get($key)->value ?? null;
     }
 
+    // Forbidden Words
+    public function setForbiddenWords(Request $request)
+    {
+        $request->validate([
+            'forbidden_words' => 'nullable|array',
+            'forbidden_words.*' => 'nullable|string',
+        ]);
+
+        $forbiddenWords = $request->get('forbidden_words')?? [];
+
+        Option::set(Option::FORBIDDEN_WORDS, json_encode($forbiddenWords));
+
+        return response()->json(["message" => "ok"]);
+    }
+
+    public function getForbiddenWords(Request $request)
+    {
+        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
+
+        return $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+    }
 }
