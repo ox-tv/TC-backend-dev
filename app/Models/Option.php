@@ -19,6 +19,7 @@ class Option extends Model
     const COMMENT_DELETE_REASONS = 'comment_delete_reasons';
     const PUBLISHER_REQUEST_REJECT_REASONS = 'publisher_request_reject_reasons';
     const TOTAL_DISTRIBUTED_MONEY = 'total_distributed_money';
+    const FORBIDDEN_WORDS = 'forbidden_words';
 
     const REASONS = [
         self::VIDEO_REPORT_REASONS,
