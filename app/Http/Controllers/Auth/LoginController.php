@@ -92,7 +92,7 @@ class LoginController extends Controller
         $magicLogin = new MagicLogin();
         $magicLogin->email = $user->email;
         $magicLogin->token = $token;
-        $magicLogin->expired_at = Carbon::now()->addMinutes(1);
+        $magicLogin->expired_at = Carbon::now()->addMinutes(45);
         $magicLogin->save();
 
 
