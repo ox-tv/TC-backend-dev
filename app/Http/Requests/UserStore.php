@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Option;
 use App\Models\User;
-use App\Rules\ForbiddenWordsRule;
+use App\Rules\CustomRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -41,7 +41,12 @@ class UserStore extends FormRequest
                     }
                 },
                 Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
-            'username' => ['nullable', 'string', 'alpha_dash', new ForbiddenWordsRule($forbiddenWords)],
+            'username' => [
+                'nullable', 'string',
+                CustomRule::forbiddenWords($forbiddenWords),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
+                    ->ignore(auth('api')->id()),
+            ],
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
             'role_id' => 'nullable|exists:roles,id',
