@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Amir\Permission\Models\Role;
-use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
@@ -12,7 +11,6 @@ use App\Http\Resources\UserItem;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\Department;
-use App\Models\Earning;
 use App\Models\Message;
 use App\Models\MessageUser;
 use App\Models\Option;
@@ -20,18 +18,14 @@ use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
-use App\Models\VideoStatisticsDaily;
-use App\Rules\ForbiddenWordsRule;
-use App\Services\PointService;
+use App\Rules\CustomRule;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -191,7 +185,12 @@ class UserController extends Controller
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
         $request->validate([
-            'username' => ['nullable', 'string', 'alpha_dash', new ForbiddenWordsRule($forbiddenWords)],
+            'username' => [
+                'nullable', 'string',
+                CustomRule::forbiddenWords($forbiddenWords),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
+                    ->ignore(auth('api')->id())
+            ],
             'email' => 'nullable|email',
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
@@ -306,7 +305,12 @@ class UserController extends Controller
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
         $request->validate([
-            'username' => ['nullable', 'string', 'alpha_dash', new ForbiddenWordsRule($forbiddenWords)],
+            'username' => [
+                'nullable', 'string',
+                CustomRule::forbiddenWords($forbiddenWords),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
+                    ->ignore(auth('api')->id()),
+            ],
             //'email' => 'nullable|email',
             'avatar' => 'nullable|string',
             'current_password' => 'nullable|string|password|required_with:new_password',
@@ -315,6 +319,7 @@ class UserController extends Controller
             'tag_names' => 'nullable|array',
         ]);
 
+        return $request;
         $user = auth('api')->user();
 
         $user->username = $request->get('username', $user->username);
