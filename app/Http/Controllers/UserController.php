@@ -319,7 +319,6 @@ class UserController extends Controller
             'tag_names' => 'nullable|array',
         ]);
 
-        return $request;
         $user = auth('api')->user();
 
         $user->username = $request->get('username', $user->username);
