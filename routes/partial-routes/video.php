@@ -3,19 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
-Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
-Route::get('videos', '\App\Http\Controllers\VideoController@index');
-Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
-
-// Video End Screen Cards
-Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers');
-
-// Video chapters
-Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
-Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles');
-
-
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
@@ -40,6 +27,19 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::put('playlist/remove', '\App\Http\Controllers\PlaylistController@bulkRemove');
 
 });
+
+
+Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
+Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
+Route::get('videos', '\App\Http\Controllers\VideoController@index');
+Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');
+
+// Video End Screen Cards
+Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers');
+
+// Video chapters
+Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
+Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles');
 
 
 // For Publishers
