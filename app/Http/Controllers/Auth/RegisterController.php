@@ -58,7 +58,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'email' => $request->input('email'),
-            'message' => __('users.messages.verification_link_sent'),
+            'message' => __('auth.email_verification_link_sent'),
         ]);
     }
 
@@ -73,7 +73,7 @@ class RegisterController extends Controller
 
         event(new UserVerified($user));
 
-        return response()->json(['message' => __('users.messages.verified')], 200);
+        return response()->json(['message' => __('auth.email_verified_successfully')], 200);
     }
 
     public function resend(UserResendVerification $request)
@@ -90,7 +90,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'email' => $request->get("email"),
-            'message' => __('users.messages.verification_link_resent'),
+            'message' => __('auth.email_verification_link_resent'),
         ]);
     }
 

@@ -30,7 +30,7 @@ class UserRegister extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'email' => [
@@ -39,7 +39,7 @@ class UserRegister extends FormRequest
                     // check if user is deleted
                     $user = User::where('email', $value)->first();
                     if ($user && $user->deleted_at) {
-                        $fail(__('users.validation.account_deleted'));
+                        $fail(__('auth.account_deleted'));
                     }
                 },
                 //Rule::unique('users', 'email')->whereNotNull('email_verified_at')
