@@ -44,11 +44,11 @@ class uniqueTrimmedRule implements Rule
     public function passes($attribute, $value)
     {
         $trimmedValue = str_replace($this->punctuationMarks,'', $value);
-        $regex = implode(']|[',$this->punctuationMarks);
+        $regex = '[' . implode(']|[',$this->punctuationMarks) . ']';
         $column = $this->column ?? $attribute;
 
         $exists = DB::table($this->table)
-            ->whereRaw("REGEXP_REPLACE(?, '[?]', '') = '?'", [$column, $regex, $trimmedValue])
+            ->whereRaw("REGEXP_REPLACE({$column}, ?, '') = ?", [$regex, $trimmedValue])
             ->when($this->ignore, function ($query, $ignoreId) {
                 return $query->where($this->idColumn, '<>', $ignoreId);
             })->exists();
