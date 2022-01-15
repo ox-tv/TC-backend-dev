@@ -36,6 +36,8 @@ class VideoStore extends FormRequest
             'user_id' => 'sometimes|exists:users,id',
             'video' => 'file|required_without:s3_url',
             's3_url' => 'url|required_without:video',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string',
         ];
     }
 
