@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Option;
 use App\Models\Video;
+use App\Rules\CustomRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -26,6 +28,9 @@ class VideoStore extends FormRequest
      */
     public function rules()
     {
+        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
+        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+
         return [
             'categories.*.id' => 'exists:categories,id',
             'crypto_currencies.*' => 'exists:crypto_currencies,id',
@@ -37,7 +42,7 @@ class VideoStore extends FormRequest
             'video' => 'file|required_without:s3_url',
             's3_url' => 'url|required_without:video',
             'tags' => 'nullable|array',
-            'tags.*' => 'string',
+            'tags.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
         ];
     }
 
