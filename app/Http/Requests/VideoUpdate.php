@@ -36,6 +36,8 @@ class VideoUpdate extends FormRequest
             's3_url' => 'nullable|url',
             'youtube_link' => 'url',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
+            'tags' => 'nullable|array',
+            'tags.*' => 'string',
         ];
     }
 
