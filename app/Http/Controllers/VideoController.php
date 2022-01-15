@@ -231,33 +231,38 @@ class VideoController extends Controller
             $video->language_id = $request->get('language_id');
         }
 
-        $video->save();
 
-        // adding categories
-        if($request->get('categories')){
-            $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
-        }
+        DB::transaction(function () use ($request, $video){
 
-        // adding crypto currencies
-        if($request->get('crypto_currencies')){
-            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
-        }
+            $video->save();
 
-        // adding tags
-        if($request->get('tags')){
-            $tags = collect($request->get('tags', []));
+            // adding categories
+            if($request->get('categories')){
+                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+            }
 
-            $tags->map(function ($tag) use ($video){
-                $video->tags()->save(Tag::firstOrCreate([
-                    'name' => $tag
-                ]));
-            });
-        }
+            // adding crypto currencies
+            if($request->get('crypto_currencies')){
+                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
+            }
 
-        // adding playlist
-        if($request->get('playlists')){
-            $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
-        }
+            // adding tags
+            if($request->get('tags')){
+                $tags = collect($request->get('tags', []));
+
+                $tags->map(function ($tag) use ($video){
+                    $video->tags()->save(Tag::firstOrCreate([
+                        'name' => $tag
+                    ]));
+                });
+            }
+
+            // adding playlist
+            if($request->get('playlists')){
+                $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
+            }
+        });
+
 
         if ($video->status == Video::STATUS_PUBLISHED){
             $channel = $video->channel;
@@ -347,39 +352,45 @@ class VideoController extends Controller
 
         $video->save();
 
-        // updating categories
-        if($request->get('categories')){
-            if(is_array($request->get('categories'))){
-                $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
-            }else{
-                $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
+
+        DB::transaction(function () use ($request, $video){
+
+            $video->save();
+
+            // updating categories
+            if($request->get('categories')){
+                if(is_array($request->get('categories'))){
+                    $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+                }else{
+                    $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
+                }
             }
-        }
 
-        // updating crypto currency
-        if($request->get('crypto_currencies')){
-            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
-        }
+            // updating crypto currency
+            if($request->get('crypto_currencies')){
+                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
+            }
 
-        // updating tags
-        if($request->get('tags')){
-            $tags = collect($request->get('tags', []));
+            // updating tags
+            if($request->get('tags')){
+                $tags = collect($request->get('tags', []));
 
-            $tagIds = $tags->map(function ($tag){
-                return Tag::firstOrCreate([
-                    'name' => $tag
-                ])->id;
-            });
+                $tagIds = $tags->map(function ($tag){
+                    return Tag::firstOrCreate([
+                        'name' => $tag
+                    ])->id;
+                });
 
-            $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
-        }else{
-            $video->tags()->sync([]);
-        }
+                $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+            }else{
+                $video->tags()->sync([]);
+            }
 
-        // adding playlist
-        if($request->get('playlists')){
-            $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
-        }
+            // adding playlist
+            if($request->get('playlists')){
+                $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
+            }
+        });
 
 
         if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
