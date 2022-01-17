@@ -3,25 +3,27 @@
 namespace App\Events;
 
 use App\Models\Channel;
+use App\Models\Video;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class VideoUploaded
+class VideoUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $channel;
-    public $user;
+    public $oldVideo;
+    public $video;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Channel $channel)
+    public function __construct(Video $oldVideo, Video $video)
     {
-        $this->channel = $channel;
+        $this->oldVideo = $oldVideo;
+        $this->video = $video;
     }
 
 }

@@ -3,34 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
+use App\Events\VideoDeleted;
+use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
+use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\CommentItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
-use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
-use App\Notifications\DeleteVideo;
-use App\Notifications\HideVideo;
-use App\Notifications\NewVideoPublished;
-use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -263,23 +257,7 @@ class VideoController extends Controller
             }
         });
 
-
-        if ($video->status == Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
-
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
-
-        event(new VideoUploaded($video->channel));
+        event(new VideoCreated($video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }
@@ -313,7 +291,7 @@ class VideoController extends Controller
      */
     public function update(VideoUpdate $request, Video $video)
     {
-        $oldStatus = $video->status;
+        $oldVideo = clone $video;
 
         // updating title
         if($request->get('title')){
@@ -335,7 +313,7 @@ class VideoController extends Controller
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        if($request->get('status') && $oldStatus != Video::STATUS_HIDDEN){
+        if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
@@ -392,21 +370,7 @@ class VideoController extends Controller
             }
         });
 
-
-        if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
-
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoUpdated($oldVideo, $video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }
@@ -448,17 +412,7 @@ class VideoController extends Controller
 
         $video->delete();
 
-        if (request()->is('api/admin/videos/*')){
-            TCNotification::send(collect([$video->user]), new DeleteVideo(
-                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => videoMinimalItem::make($video),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoDeleted($video));
 
         return new VideoSummaryItem($video);
     }
@@ -574,15 +528,7 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        TCNotification::send(collect([$video->user]), new HideVideo(
-            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'video' => videoMinimalItem::make($video),
-            ],
-            get_class($video),
-            $video->id
-        ));
+        event(new VideoWasHidden($video));
 
         return VideoMinimalItem::make($video);
     }

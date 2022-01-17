@@ -6,11 +6,18 @@ use App\Events\ChannelSubscribed;
 use App\Events\CommentLiked;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
+use App\Events\VideoDeleted;
+use App\Events\VideoUpdated;
+use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
 use App\Listeners\ChannelStatisticsDailySubscribed;
-use App\Listeners\ChannelStatisticsDailyVideoUploaded;
+use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\SendNotificationOnVideoCreated;
+use App\Listeners\SendNotificationOnVideoDeleted;
+use App\Listeners\SendNotificationOnVideoUpdated;
+use App\Listeners\SendNotificationOnVideoWasHidden;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -21,7 +28,6 @@ use App\Listeners\VideoWatchedDataForVideoStatisticsDaily;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use App\Events\VideoViewed;
 use App\Listeners\VideoStatisticsDailyIncreaseView;
 use App\Events\VideoLiked;
@@ -60,8 +66,18 @@ class EventServiceProvider extends ServiceProvider
         ChannelSubscribed::class => [
             ChannelStatisticsDailySubscribed::class,
         ],
-        VideoUploaded::class => [
-            ChannelStatisticsDailyVideoUploaded::class,
+        VideoCreated::class => [
+            ChannelStatisticsDailyVideoCreated::class,
+            SendNotificationOnVideoCreated::class,
+        ],
+        VideoUpdated::class => [
+            SendNotificationOnVideoUpdated::class,
+        ],
+        VideoDeleted::class => [
+            SendNotificationOnVideoDeleted::class,
+        ],
+        VideoWasHidden::class => [
+            SendNotificationOnVideoWasHidden::class,
         ],
         VideoCommented::class => [
             VideoStatisticsDailyCommented::class,

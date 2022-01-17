@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
 use App\Events\VideoViewed;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\VideoStatisticsDaily;
@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class ChannelStatisticsDailyVideoUploaded
+class ChannelStatisticsDailyVideoCreated
 {
 
     /**
@@ -19,9 +19,10 @@ class ChannelStatisticsDailyVideoUploaded
      * @param  VideoViewed  $event
      * @return void
      */
-    public function handle(VideoUploaded $event)
+    public function handle(VideoCreated $event)
     {
-        $channel = $event->channel;
+        $video = $event->video;
+        $channel = $video->channel;
 
         $statistics = ChannelStatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
