@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
 use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
@@ -279,7 +279,7 @@ class VideoController extends Controller
             ));
         }
 
-        event(new VideoUploaded($video->channel));
+        event(new VideoCreated($video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }

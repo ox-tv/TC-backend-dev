@@ -6,10 +6,10 @@ use App\Events\ChannelSubscribed;
 use App\Events\CommentLiked;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
 use App\Events\VideoWatched;
 use App\Listeners\ChannelStatisticsDailySubscribed;
-use App\Listeners\ChannelStatisticsDailyVideoUploaded;
+use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
@@ -60,8 +60,8 @@ class EventServiceProvider extends ServiceProvider
         ChannelSubscribed::class => [
             ChannelStatisticsDailySubscribed::class,
         ],
-        VideoUploaded::class => [
-            ChannelStatisticsDailyVideoUploaded::class,
+        VideoCreated::class => [
+            ChannelStatisticsDailyVideoCreated::class,
         ],
         VideoCommented::class => [
             VideoStatisticsDailyCommented::class,
