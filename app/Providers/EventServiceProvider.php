@@ -7,12 +7,14 @@ use App\Events\CommentLiked;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
+use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoWatched;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
 use App\Listeners\SendNotificationOnVideoCreated;
+use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
@@ -68,6 +70,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoUpdated::class => [
             SendNotificationOnVideoUpdated::class,
+        ],
+        VideoDeleted::class => [
+            SendNotificationOnVideoDeleted::class,
         ],
         VideoCommented::class => [
             VideoStatisticsDailyCommented::class,

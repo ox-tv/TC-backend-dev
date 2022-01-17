@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
+use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
 use App\Events\VideoWatched;
@@ -419,17 +420,7 @@ class VideoController extends Controller
 
         $video->delete();
 
-        if (request()->is('api/admin/videos/*')){
-            TCNotification::send(collect([$video->user]), new DeleteVideo(
-                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => videoMinimalItem::make($video),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoDeleted($video));
 
         return new VideoSummaryItem($video);
     }
