@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
+use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
@@ -263,22 +264,6 @@ class VideoController extends Controller
             }
         });
 
-
-        if ($video->status == Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
-
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
-
         event(new VideoCreated($video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
@@ -313,7 +298,7 @@ class VideoController extends Controller
      */
     public function update(VideoUpdate $request, Video $video)
     {
-        $oldStatus = $video->status;
+        $oldVideo = clone $video;
 
         // updating title
         if($request->get('title')){
@@ -335,7 +320,7 @@ class VideoController extends Controller
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        if($request->get('status') && $oldStatus != Video::STATUS_HIDDEN){
+        if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
@@ -392,21 +377,7 @@ class VideoController extends Controller
             }
         });
 
-
-        if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
-
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoUpdated($oldVideo, $video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }
