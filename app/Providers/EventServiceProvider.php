@@ -7,10 +7,13 @@ use App\Events\CommentLiked;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
+use App\Events\VideoUpdated;
 use App\Events\VideoWatched;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\SendNotificationOnVideoCreated;
+use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -21,7 +24,6 @@ use App\Listeners\VideoWatchedDataForVideoStatisticsDaily;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use App\Events\VideoViewed;
 use App\Listeners\VideoStatisticsDailyIncreaseView;
 use App\Events\VideoLiked;
@@ -62,6 +64,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoCreated::class => [
             ChannelStatisticsDailyVideoCreated::class,
+            SendNotificationOnVideoCreated::class,
+        ],
+        VideoUpdated::class => [
+            SendNotificationOnVideoUpdated::class,
         ],
         VideoCommented::class => [
             VideoStatisticsDailyCommented::class,
