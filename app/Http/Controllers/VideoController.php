@@ -7,6 +7,7 @@ use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
+use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
@@ -536,15 +537,7 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        TCNotification::send(collect([$video->user]), new HideVideo(
-            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'video' => videoMinimalItem::make($video),
-            ],
-            get_class($video),
-            $video->id
-        ));
+        event(new VideoWasHidden($video));
 
         return VideoMinimalItem::make($video);
     }
