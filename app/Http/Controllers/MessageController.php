@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Channels\ChannelImportRequestCreated;
+use App\Events\Messages\MessageCreatedByAdmin;
+use App\Events\Messages\MessageCreatedByUser;
+use App\Events\Messages\MessageRepliedByAdmin;
+use App\Events\Messages\MessageRepliedByUser;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\Message\MessageStore;
 use App\Http\Resources\Message\MessageItem;
@@ -132,16 +137,7 @@ class MessageController extends Controller
             $message->users()->attach($message_users);
         });
 
-
-        TCNotification::send($users, new NewMessage(
-            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new MessageCreatedByAdmin($message));
 
         return $message;
     }
@@ -166,17 +162,7 @@ class MessageController extends Controller
 
         $message = $this->messageRepository->storeUser(auth("api")->id(), $message_data);
 
-        $admins = User::admins()->get();
-
-        TCNotification::send($admins, new NewMessage(
-            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new MessageCreatedByUser($message));
 
         return $message;
     }
@@ -203,15 +189,7 @@ class MessageController extends Controller
             $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
         }
 
-        TCNotification::send($parent_message->users, new ReplyMessage(
-            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new MessageRepliedByAdmin($message, $parent_message));
 
         return $message;
     }
@@ -251,18 +229,7 @@ class MessageController extends Controller
 
         $message->save();
 
-
-        $admins = User::admins()->get();
-
-        TCNotification::send($admins, new ReplyMessage(
-            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new MessageRepliedByUser($message, $parent_message));
 
         return $message;
     }
@@ -383,19 +350,7 @@ class MessageController extends Controller
 
         $message = $this->messageRepository->storeUser($user->id, $message_data);
 
-
-        $admins = User::admins()->get();
-
-        TCNotification::send($admins, new NewImportRequest(
-            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-                'youtube_url' => $user->channel->youtube_channel_url
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new ChannelImportRequestCreated($user, $message));
 
         return new MessageItem($message);
     }
