@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\Channels\ChannelImportRequestCreated;
 use App\Events\ChannelSubscribed;
 use App\Events\CommentLiked;
+use App\Events\Messages\MessageCreatedByAdmin;
+use App\Events\Messages\MessageCreatedByUser;
+use App\Events\Messages\MessageRepliedByAdmin;
+use App\Events\Messages\MessageRepliedByUser;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
@@ -11,9 +16,14 @@ use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
+use App\Listeners\Channels\SendNotificationOnChannelImportRequestCreated;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
+use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
+use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
+use App\Listeners\Messages\SendNotificationOnMessageRepliedByUser;
 use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
@@ -42,30 +52,53 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        // User
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
         UserVerified::class => [
             UserVerifiedDataForUserStatisticsDaily::class,
         ],
-        VideoViewed::class => [
-            VideoStatisticsDailyIncreaseView::class,
-            VideoViewedDataForUserStatisticsDaily::class,
+
+        // Channel
+        ChannelSubscribed::class => [
+            ChannelStatisticsDailySubscribed::class,
         ],
-        VideoWatched::class => [
-            VideoWatchedDataForUserStatisticsDaily::class,
-            VideoWatchedDataForVideoStatisticsDaily::class,
+        ChannelImportRequestCreated::class => [
+            SendNotificationOnChannelImportRequestCreated::class,
         ],
-        VideoLiked::class => [
-            VideoStatisticsDailyLiked::class,
-            VideoLikedDataForUserStatisticsDaily::class,
+
+        // Payment
+        WebhookReceived::class => [
+            StripeWebhookHandledListener::class,
+        ],
+
+        // Comments
+        VideoCommented::class => [
+            VideoStatisticsDailyCommented::class,
         ],
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
         ],
-        ChannelSubscribed::class => [
-            ChannelStatisticsDailySubscribed::class,
+
+        // Messages
+        MessageCreatedByAdmin::class => [
+            SendNotificationOnMessageCreatedByAdmin::class,
         ],
+        MessageCreatedByUser::class => [
+            SendNotificationOnMessageCreatedByUser::class,
+        ],
+        MessageRepliedByAdmin::class => [
+            SendNotificationOnMessageRepliedByAdmin::class,
+        ],
+        MessageRepliedByUser::class => [
+            SendNotificationOnMessageRepliedByUser::class,
+        ],
+
+        // Reports
+
+
+        // Videos
         VideoCreated::class => [
             ChannelStatisticsDailyVideoCreated::class,
             SendNotificationOnVideoCreated::class,
@@ -79,12 +112,19 @@ class EventServiceProvider extends ServiceProvider
         VideoWasHidden::class => [
             SendNotificationOnVideoWasHidden::class,
         ],
-        VideoCommented::class => [
-            VideoStatisticsDailyCommented::class,
+        VideoLiked::class => [
+            VideoStatisticsDailyLiked::class,
+            VideoLikedDataForUserStatisticsDaily::class,
         ],
-        WebhookReceived::class => [
-            StripeWebhookHandledListener::class,
+        VideoViewed::class => [
+            VideoStatisticsDailyIncreaseView::class,
+            VideoViewedDataForUserStatisticsDaily::class,
         ],
+        VideoWatched::class => [
+            VideoWatchedDataForUserStatisticsDaily::class,
+            VideoWatchedDataForVideoStatisticsDaily::class,
+        ],
+
     ];
 
     /**
