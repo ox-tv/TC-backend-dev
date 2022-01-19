@@ -2,37 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Channels\ChannelImportRequestAccepted;
+use App\Events\Channels\ChannelImportRequestCompleted;
+use App\Events\Channels\ChannelUpdated;
 use App\Events\ChannelSubscribed;
 use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
-use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Video\VideoItem;
-use App\Http\Resources\VideoCollection;
-use App\Mail\ImportRequestCompletedMail;
 use App\Models\Channel;
-use App\Models\ChannelStatisticsDaily;
 use App\Models\Earning;
-use App\Models\Notification;
 use App\Models\User;
-use App\Models\UserVideo;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
-use App\Notifications\ImportRequestAccepted;
-use App\Notifications\ImportRequestCompleted;
-use App\Notifications\TCNotification\TCNotification;
-use App\Notifications\UpdateChannelStatus;
 use App\Services\PointService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -217,7 +209,7 @@ class ChannelController extends Controller
             abort(403, 'You do not have permission to access');
         }
 
-        $prev_status = $channel->status;
+        $oldChannel = clone $channel;
 
         $channel->name = $request->get('name', $channel->name);
         $channel->description = $request->get('description', $channel->description);
@@ -241,7 +233,6 @@ class ChannelController extends Controller
 
         if($request->is('api/admin/channels/*') && $request->get('status')){
             $channel->status = array_flip(Channel::STATUS_TEXT)[$request->get('status')];
-            $current_status = $channel->status;
         }
 
         if($request->is('api/admin/channels/*') && $request->get('points')){
@@ -250,22 +241,9 @@ class ChannelController extends Controller
 
         $channel->save();
 
-
-        if($request->is('api/admin/*') && !empty($current_status) && $prev_status != $current_status){
-            TCNotification::send(collect([$channel->owner]), new UpdateChannelStatus(
-                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'prev_status' => Channel::STATUS_TEXT[$prev_status],
-                    'current_status' => Channel::STATUS_TEXT[$current_status],
-                ],
-                get_class($channel),
-                $channel->id
-            ));
-        }
+        event(new ChannelUpdated($oldChannel, $channel));
 
         return new ChannelItem($channel);
-
     }
 
     /**
@@ -333,20 +311,10 @@ class ChannelController extends Controller
     public function importRequest(ChannelImportRequest $request, Channel $channel){
 
         $channel->import_request_status = Channel::IMPORT_STATUS_REQUESTED;
-
         $channel->youtube_channel_id = $request->get("youtube_channel_id");
-
         $channel->save();
 
-        TCNotification::send(collect([$channel->owner]), new ImportRequestAccepted(
-            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'channel' => ChannelMinimalItem::make($channel),
-            ],
-            get_class($channel),
-            $channel->id
-        ));
+        event(new ChannelImportRequestAccepted($channel));
 
         return response()->json([
             'message' => __('channel.messages.import_request_submitted'),
@@ -364,18 +332,7 @@ class ChannelController extends Controller
         $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
-        TCNotification::send(collect([$channel->owner]), new ImportRequestCompleted(
-            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'channel' => ChannelMinimalItem::make($channel)
-            ],
-            get_class($channel),
-            $channel->id
-        ));
-
-        Mail::to($channel->owner->email)
-            ->queue(new ImportRequestCompletedMail());
+        event(new ChannelImportRequestCompleted($channel));
 
         return response()->json([
             'message' => __('channel.messages.import_completed'),
