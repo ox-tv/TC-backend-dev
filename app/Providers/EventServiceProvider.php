@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\Channels\ChannelImportRequestAccepted;
+use App\Events\Channels\ChannelImportRequestCompleted;
 use App\Events\Channels\ChannelImportRequestCreated;
+use App\Events\Channels\ChannelUpdated;
 use App\Events\ChannelSubscribed;
 use App\Events\CommentLiked;
 use App\Events\Messages\MessageCreatedByAdmin;
@@ -16,7 +19,11 @@ use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
+use App\Listeners\Channels\SendEmailOnChannelImportRequestCompleted;
+use App\Listeners\Channels\SendNotificationOnChannelImportRequestAccepted;
+use App\Listeners\Channels\SendNotificationOnChannelImportRequestCompleted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestCreated;
+use App\Listeners\Channels\SendNotificationOnChannelUpdated;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
@@ -35,6 +42,7 @@ use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
 use App\Listeners\VideoWatchedDataForUserStatisticsDaily;
 use App\Listeners\VideoWatchedDataForVideoStatisticsDaily;
+use App\Models\Channel;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -66,6 +74,16 @@ class EventServiceProvider extends ServiceProvider
         ],
         ChannelImportRequestCreated::class => [
             SendNotificationOnChannelImportRequestCreated::class,
+        ],
+        ChannelUpdated::class => [
+            SendNotificationOnChannelUpdated::class,
+        ],
+        ChannelImportRequestAccepted::class => [
+            SendNotificationOnChannelImportRequestAccepted::class,
+        ],
+        ChannelImportRequestCompleted::class => [
+            SendNotificationOnChannelImportRequestCompleted::class,
+            SendEmailOnChannelImportRequestCompleted::class,
         ],
 
         // Payment
