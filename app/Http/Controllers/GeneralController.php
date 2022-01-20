@@ -91,9 +91,10 @@ class GeneralController extends Controller
         $orderByPopular = implode(',', array_reverse($popularVideoIds));
 
         $popularVideos = Video::published()
-            ->orderByRaw("FIELD(id,$orderByPopular) DESC, Created_at DESC")
+            ->when(!empty($orderByPopular), function ($q) use ($orderByPopular){
+                $q->orderByRaw("FIELD(id,$orderByPopular) DESC, Created_at DESC");
+            })
             ->take(15)->get();
-
 
         return response()->json([
             'latest_videos' => HomeVideoItem::collection($latestVideos),
