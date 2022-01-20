@@ -1,27 +1,29 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Channels;
 
-use App\Models\Channel;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class VideoUploaded
+class ChannelImportRequestCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $channel;
     public $user;
+    public $message;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Channel $channel)
+    public function __construct($user, Message $message)
     {
-        $this->channel = $channel;
+        $this->user = $user;
+        $this->message = $message;
     }
 
 }

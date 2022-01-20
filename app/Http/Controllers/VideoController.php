@@ -3,34 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
-use App\Events\VideoUploaded;
+use App\Events\VideoCreated;
+use App\Events\VideoDeleted;
+use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
+use App\Events\VideoWasHidden;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\CommentItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoSummaryCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
-use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
-use App\Notifications\DeleteVideo;
-use App\Notifications\HideVideo;
-use App\Notifications\NewVideoPublished;
-use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -217,6 +211,11 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        // duration
+        if($request->get('duration')){
+            $video->duration = $request->get('duration');
+        }
+
         // adding main category
         if($request->get('category')){
             $video->category()->associate($request->get('category'));
@@ -226,50 +225,39 @@ class VideoController extends Controller
             $video->language_id = $request->get('language_id');
         }
 
-        $video->save();
 
-        // adding categories
-        if($request->get('categories')){
-            $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
-        }
+        DB::transaction(function () use ($request, $video){
 
-        // adding crypto currencies
-        if($request->get('crypto_currencies')){
-            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
-        }
+            $video->save();
 
-        // adding tags
-        if($request->get('tags')){
-            $tags = collect($request->get('tags', []));
+            // adding categories
+            if($request->get('categories')){
+                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+            }
 
-            $tags->map(function ($tag) use ($video){
-                $video->tags()->save(Tag::firstOrCreate([
-                    'name' => $tag
-                ]));
-            });
-        }
+            // adding crypto currencies
+            if($request->get('crypto_currencies')){
+                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
+            }
 
-        // adding playlist
-        if($request->get('playlists')){
-            $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
-        }
+            // adding tags
+            if($request->get('tags')){
+                $tags = collect($request->get('tags', []));
 
-        if ($video->status == Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
+                $tags->map(function ($tag) use ($video){
+                    $video->tags()->save(Tag::firstOrCreate([
+                        'name' => $tag
+                    ]));
+                });
+            }
 
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+            // adding playlist
+            if($request->get('playlists')){
+                $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
+            }
+        });
 
-        event(new VideoUploaded($video->channel));
+        event(new VideoCreated($video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }
@@ -282,21 +270,17 @@ class VideoController extends Controller
      */
     public function show($id_or_url_hash, Request $request)
     {
-        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->first();
+        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstorFail();
 
-        if(is_null($video)){
-            return response()->json([
-                'message' => __('general.not_found')
-            ],404);
+        $isAdmin = $request->is('api/admin/*');
+
+        if($isAdmin || $video->isPublished || $video->isMine){
+            return new \App\Http\Resources\Video\VideoItem($video);
         }
 
-        if(!($video->isPublished || $video->isMine)){
-            return response()->json([
-                'message' => 'You can\'t access this video'
-            ], 422);
-        }
-
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return response()->json([
+            'message' => 'You can\'t access this video'
+        ], 422);
     }
 
     /**
@@ -307,7 +291,7 @@ class VideoController extends Controller
      */
     public function update(VideoUpdate $request, Video $video)
     {
-        $oldStatus = $video->status;
+        $oldVideo = clone $video;
 
         // updating title
         if($request->get('title')){
@@ -325,29 +309,11 @@ class VideoController extends Controller
 
         $video->description = $request->get('description');
 
-
-        if($request->get('youtube_link')){
-            $video->youtube_link = $request->get('youtube_link');
-
-            $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE;
-
-        }else if($request->file('video')){ // updating video file
-            $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
-
-            $video->file_path = $videoFile;
-
-            $video->upload_method = Video::UPLOAD_METHOD_DIRECT;
-
-        }elseif($request->get('s3_url')){ // adding file to video
-
-            $video->s3_url = $request->get('s3_url');
-        }
-
         // thumbnail
         $video->thumbnail = $request->get('thumbnail');
 
         // status
-        if($request->get('status') && $oldStatus != Video::STATUS_HIDDEN){
+        if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
@@ -364,55 +330,47 @@ class VideoController extends Controller
 
         $video->save();
 
-        // updating categories
-        if($request->get('categories')){
-            if(is_array($request->get('categories'))){
-                $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
-            }else{
-                $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
+
+        DB::transaction(function () use ($request, $video){
+
+            $video->save();
+
+            // updating categories
+            if($request->get('categories')){
+                if(is_array($request->get('categories'))){
+                    $video->categories()->sync(Category::whereIn('id', $request->get('categories'))->get());
+                }else{
+                    $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
+                }
             }
-        }
 
-        // updating crypto currency
-        if($request->get('crypto_currencies')){
-            $video->crypto_currencies()->sync($request->get('crypto_currencies'));
-        }
+            // updating crypto currency
+            if($request->get('crypto_currencies')){
+                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
+            }
 
-        // updating tags
-        if($request->get('tags')){
-            $tags = collect($request->get('tags', []));
+            // updating tags
+            if($request->get('tags')){
+                $tags = collect($request->get('tags', []));
 
-            $tagIds = $tags->map(function ($tag){
-                return Tag::firstOrCreate([
-                    'name' => $tag
-                ])->id;
-            });
+                $tagIds = $tags->map(function ($tag){
+                    return Tag::firstOrCreate([
+                        'name' => $tag
+                    ])->id;
+                });
 
-            $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
-        }else{
-            $video->tags()->sync([]);
-        }
+                $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+            }else{
+                $video->tags()->sync([]);
+            }
 
-        // adding playlist
-        if($request->get('playlists')){
-            $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
-        }
+            // adding playlist
+            if($request->get('playlists')){
+                $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
+            }
+        });
 
-
-        if ($video->status == Video::STATUS_PUBLISHED && $oldStatus != Video::STATUS_PUBLISHED){
-            $channel = $video->channel;
-
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => VideoMinimalItem::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoUpdated($oldVideo, $video));
 
         return new \App\Http\Resources\Video\VideoItem($video);
     }
@@ -437,7 +395,7 @@ class VideoController extends Controller
                 'reason' => 'required'
             ]);
 
-            $option_key = 'video_delete_reasons';
+            $option_key = Option::VIDEO_DELETE_REASONS;
             $reasons = json_decode(Option::where("key", $option_key)->first()->value?? abort(404));
 
 
@@ -454,17 +412,7 @@ class VideoController extends Controller
 
         $video->delete();
 
-        if (request()->is('api/admin/videos/*')){
-            TCNotification::send(collect([$video->user]), new DeleteVideo(
-                Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'video' => videoMinimalItem::make($video),
-                ],
-                get_class($video),
-                $video->id
-            ));
-        }
+        event(new VideoDeleted($video));
 
         return new VideoSummaryItem($video);
     }
@@ -564,7 +512,7 @@ class VideoController extends Controller
             'reason' => 'required'
         ]);
 
-        $option_key = 'video_hide_reasons';
+        $option_key = Option::VIDEO_HIDE_REASONS;
         $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
 
@@ -580,15 +528,7 @@ class VideoController extends Controller
         $video->status = Video::STATUS_HIDDEN;
         $video->save();
 
-        TCNotification::send(collect([$video->user]), new HideVideo(
-            Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'video' => videoMinimalItem::make($video),
-            ],
-            get_class($video),
-            $video->id
-        ));
+        event(new VideoWasHidden($video));
 
         return VideoMinimalItem::make($video);
     }

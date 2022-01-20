@@ -32,7 +32,7 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+    /*public function withValidator($validator)
     {
         $validator->after(function ($validator) {
 
@@ -42,10 +42,10 @@ class LoginRequest extends FormRequest
             if(Auth::validate([$loginType => $login, 'password' => $this->request->get('password')])){
                 $user = Auth::getLastAttempted();
                 if($user->status == User::STATUS_INACTIVE) {
-                    $validator->errors()->add('credentials', 'auth.inactive_account');
+                    $validator->errors()->add('credentials', __('auth.inactive_account'));
                 }
             }
 
         });
-    }
+    }*/
 }

@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserMeta;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserItem extends JsonResource
@@ -18,14 +20,25 @@ class UserItem extends JsonResource
     {
         $include = explode(',', $request->get('include', ''));
 
+        $withChannel = in_array('channel', $include) || $this->relationLoaded('channel');
         $withFavoriteTags = in_array('favorite_tags', $include) || $this->relationLoaded('favoriteTags');
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
+
+
+        $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : null;
 
         $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
+
+        $publisher_request = null;
+        if (!$this->role_id && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
+            $publisher_request['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $publisher_request['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+        }
+
 
         return [
             'id' => $this->id,
@@ -45,6 +58,7 @@ class UserItem extends JsonResource
             'watch_time' => $this->watch_time,
             'role' => $this->role_name,
             'referral_code' => $this->referral_code,
+            'publisher_request' => $publisher_request,
             'request_details' => $this->when(
                 $withPublisherRequest,
                 Message::where([
@@ -59,6 +73,7 @@ class UserItem extends JsonResource
             'loyalty_points' => floatval($this->statistics()->sum('points')),
 
             'favorite_tags' => $this->when($withFavoriteTags, $favoriteTags),
+            'channel' => $this->when($withChannel, $channel),
         ];
     }
 }

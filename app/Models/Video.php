@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class Video extends Model
 {
@@ -58,8 +59,9 @@ class Video extends Model
             }
 
             // duration
-            if(is_null($model->duration) && !is_null($model->file_path)){
-                $model->duration = get_duration($model->file_path);
+            if(is_null($model->duration) && (!is_null($model->file_path) || !is_null($model->s3_url))){
+                $path = !empty($model->s3_url)? $model->s3_url: Storage::disk('videos')->path($model->file_path);
+                $model->duration = get_duration($path);
 
                 if($model->duration){
                     $model->save();

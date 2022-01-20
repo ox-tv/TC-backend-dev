@@ -42,6 +42,7 @@ class VideoItem extends JsonResource
         $withPlaylists = in_array('playlists', $include) || $this->relationLoaded('playlists');
         $withReports = in_array('reports', $include) || $this->relationLoaded('reports');
         $withSubtitles = in_array('subtitles', $include) || $this->relationLoaded('subtitles');
+        $withLayers = in_array('layers', $include) || $this->relationLoaded('layers');
 
         $user = ($withUser)? UserMinimalItem::make($this->user) : [];
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
@@ -52,6 +53,7 @@ class VideoItem extends JsonResource
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
         $subtitles = ($withSubtitles)? SubtitleItem::collection($this->subtitles) : [];
+        $layers = ($withLayers)? json_decode($this->meta()->where('key', 'layers')->first()->value?? null) : null;
 
         $url = '';
         if ($this->file_path){
@@ -97,6 +99,7 @@ class VideoItem extends JsonResource
             'playlists' => $this->when($withPlaylists, $playlists),
             'reports' => $this->when($withReports, $reports),
             'subtitles' => $this->when($withSubtitles, $subtitles),
+            'layers' => $this->when($withLayers, $layers),
         ];
     }
 }

@@ -6,7 +6,10 @@ use Amir\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\User\UserItem;
+use App\Mail\MagicLoginMail;
 use App\Mail\PasswordResetMail;
+use App\Mail\VerificationMail;
+use App\Models\MagicLogin;
 use App\Models\PasswordReset;
 use App\Models\User;
 use Carbon\Carbon;
@@ -25,6 +28,13 @@ class LoginController extends Controller
     {
         $login = $request->get('email')?:$request->get('login');
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+
+        if(Auth::validate([$loginType => $login, 'password' => $request->get('password')])){
+            $user = Auth::getLastAttempted();
+            if($user->status == User::STATUS_INACTIVE) {
+                return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
+            }
+        }
 
         $credentials = [
             $loginType => $login,
@@ -54,6 +64,75 @@ class LoginController extends Controller
         return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
     }
 
+    public function sendMagicLogin(Request $request, $scope = 'user')
+    {
+        $request->validate([
+            'login' => 'required|string',
+        ]);
+
+        $login = $request->get('login');
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
+
+        $userQuery = User::where($loginType, $login);
+
+        if($scope == 'publisher'){
+            $roleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
+            $userQuery->where('role_id', $roleId);
+        }
+
+        if($scope == 'admin'){
+            $roleId = Role::firstOrCreate(['name' => User::ADMIN_ROLE])->id;
+            $userQuery->where('role_id', $roleId);
+        }
+
+        $user = $userQuery->firstOrFail();
+
+        $token = sha1($user->id . time());
+
+        $magicLogin = new MagicLogin();
+        $magicLogin->email = $user->email;
+        $magicLogin->token = $token;
+        $magicLogin->expired_at = Carbon::now()->addMinutes(45);
+        $magicLogin->save();
+
+
+        if ($scope == 'publisher'){
+            $link = config('general.PUBLISHER_MAGIC_LOGIN_LINK') . $token;
+        }elseif ($scope == 'admin'){
+            $link = config('general.ADMIN_MAGIC_LOGIN_LINK') . $token;
+        }else{
+            $link = config('general.MWA_MAGIC_LOGIN_LINK') . $token;
+        }
+
+        Mail::to($user->email)
+            ->queue(new MagicLoginMail($link));
+
+        return response()->json([
+            'login' => $login,
+            'message' => __('auth.magic_link_sent'),
+        ]);
+    }
+
+    public function verifyMagicLogin($token)
+    {
+        $magicLogin = MagicLogin::where('token', $token)
+            ->where('expired_at', '>', Carbon::now())
+            ->firstOrFail();
+
+        $user = User::where('email', $magicLogin->email)->firstOrFail();
+
+        if($user->status == User::STATUS_INACTIVE) {
+            return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
+        }
+
+        // login
+        Auth::login($user);
+
+        $result['profile'] = UserItem::make($user->load('role'));
+        $result['token'] =  $user->createToken('access_token')->accessToken;
+        return response()->json($result, '200');
+    }
+
     /**
      * Logout user (Revoke the token)
      *
@@ -67,7 +146,7 @@ class LoginController extends Controller
         }
 
         return response()->json([
-            'message' => __('users.messages.success_logout_message')
+            'message' => __('auth.logged_out_successfully')
         ]);
 
     }
@@ -98,7 +177,8 @@ class LoginController extends Controller
             ->queue(new PasswordResetMail($link));
 
         return response()->json([
-            'message' => __('users.messages.password_reset_link_sent'),
+            'status' => 'ok',
+            'message' => __('auth.password_reset_link_sent'),
         ]);
     }
 
@@ -108,7 +188,7 @@ class LoginController extends Controller
             ->where('created_at', '>', Carbon::now()->subDays(1))
             ->firstOrFail();
 
-        return response()->json(['message' => 'ok']);
+        return response()->json(['status' => 'ok']);
     }
 
     public function reset_password(\App\Http\Requests\PasswordReset $request)
@@ -128,6 +208,6 @@ class LoginController extends Controller
             'token' => $password_reset->token,
         ])->delete();
 
-        return response()->json(['message' => 'ok']);
+        return response()->json(['status' => 'ok', 'message' => __('auth.password_changed_successfully')]);
     }
 }

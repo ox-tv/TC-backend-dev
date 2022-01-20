@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use Amir\Permission\Models\Role;
+use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Message\MessageItem;
@@ -20,6 +21,7 @@ use App\Models\MessageUser;
 use App\Models\Notification;
 use App\Models\Option;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Notifications\NewPublisherRequest;
 use App\Notifications\PublisherApproved;
 use App\Notifications\PublisherRejected;
@@ -93,28 +95,18 @@ class PublisherController extends Controller
 
         // Create verification token and send to user email
         $token = sha1($user->id . time());
-
-        if (config('app.env') == 'local') {
-            $token = 111111;
-            $user->status = User::STATUS_ACTIVE;
-        }
-
         $user->verification_code = $token;
-
         $user->save();
 
-        $link = config('general.EMAIL_VERIFICATION_URL').$token;
+        $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL').$token;
         Mail::to($user->email)
             ->queue(new PublisherVerificationMail($link));
 
-        // Create channel for user
-        $channel = new Channel();
-        $channel->name = $request->get('channel_name');
-        $channel->slug = Str::slug($request->get('channel_name'));
-        $channel->user_id = $user->id;
-        $channel->status = Channel::STATUS_DRAFT;
-        $channel->save();
-
+        // save requested channel name on user meta
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::REQUESTED_CHANNEL_NAME],
+            ['value' => $request->get('channel_name'),]
+        );
 
         // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
@@ -188,21 +180,30 @@ class PublisherController extends Controller
         $user->role_id = Role::firstOrCreate(['name' => 'publisher'])->id;
         $user->save();
 
-        // Check if channel name is unique then publish it
-        $channel = $user->channel;
+        // Create channel for user
+        $channelNameMeta = $user->meta()
+            ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first();
 
-        $alreadyTaken = Channel::where('id', '!=', $channel->id)
-            ->where('name', $channel->name)
-            ->whereIn('status', [Channel::STATUS_FREEZE, Channel::STATUS_PUBLISHED])->exists();
-        if ($alreadyTaken){
-            $channel->name = $user->email;
-            // TODO:: Can notify to user too
+        if ($channelNameMeta){
+            $channelName = $channelNameMeta->value;
+            $alreadyTaken = Channel::where('name', $channelName)->exists();
         }
 
+        if (!$channelNameMeta || $alreadyTaken){
+            $channelName = $user->email;
+        }
+
+        $channel = new Channel();
+        $channel->name = $channelName;
+        $channel->slug = Str::slug($channelName);
+        $channel->user_id = $user->id;
         $channel->status = Channel::STATUS_PUBLISHED;
         $channel->save();
 
+        $channelNameMeta = $user->meta()
+            ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->delete();
 
+        // Remove publisher request message
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
         Message::where([
@@ -237,10 +238,15 @@ class PublisherController extends Controller
             ]
         ]);
 
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'rejected',]
+        );
+
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
-        $option_key = 'report_video_reasons';
+        $option_key = Option::VIDEO_REPORT_REASONS;
 
         $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? [];
         if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
@@ -275,5 +281,85 @@ class PublisherController extends Controller
             ->queue(new PublisherRejectedMail($reason));
 
         return UserItem::make($user);
+    }
+
+
+    public function becomeAPublisher(BecomeAPublisherStore $request){
+
+        $user = auth('api')->user();
+
+        // save requested channel name on user meta
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'pending',]
+        );
+
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::REQUESTED_CHANNEL_NAME],
+            ['value' => $request->get('channel_name'),]
+        );
+
+        // Send publisher request message to admin
+        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+
+        $message_data = [
+            'subject' => trans("publisher.application_subject"),
+            'message' => trans('publisher.application_message', [
+                'email' => $user->email,
+                'channel_name' => $request->get('channel_name'),
+                'platform' => $request->get('platform')
+            ]),
+            'user_id' => $user->id,
+            'can_reply' => true,
+            'department_id' => $department->id,
+        ];
+
+        $message = $this->messageRepository->storeUser($user->id, $message_data);
+
+        // Check if platform is YouTube then send a message to user and ask about him/her YouTube information
+        if (strtolower($request->get('platform')) == 'youtube'){
+            $admin = User::admins()->first();
+
+            $replyMessage = new Message();
+            $replyMessage->subject = $message->subject;
+            $replyMessage->message = trans('publisher.application_reply_for_youtube_platform_users');
+            $replyMessage->user_id = $admin->id;
+            $replyMessage->parent_id = $message->id;
+            $replyMessage->department_id = $message->department_id;
+            $replyMessage->can_reply = $message->can_reply;
+            $replyMessage->type = $message->type;
+            $replyMessage->save();
+
+            $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
+
+            TCNotification::send(collect([$user]), new ReplyMessage(
+                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                [
+                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
+                ],
+                get_class($replyMessage),
+                $replyMessage->id
+            ));
+        }
+
+        $admins = User::admins()->get();
+
+        TCNotification::send($admins, new NewPublisherRequest(
+            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            [
+                'message' => MessageItem::make($message->load(['user', 'department'])),
+                'user' => UserMinimalItem::make($user),
+                'channel_name' => $request->get('channel_name')
+            ],
+            get_class($message),
+            $message->id
+        ));
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => __('publisher.messages.wait_for_verification'),
+        ]);
     }
 }

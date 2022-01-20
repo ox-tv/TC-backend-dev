@@ -97,7 +97,7 @@ class CommentController extends Controller
             'reason' => 'required'
         ]);
 
-        $option_key = 'comment_delete_reasons';
+        $option_key = Option::COMMENT_DELETE_REASONS;
         $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
         if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){

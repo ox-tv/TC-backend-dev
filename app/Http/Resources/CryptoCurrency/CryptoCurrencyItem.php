@@ -30,6 +30,8 @@ class CryptoCurrencyItem extends JsonResource
      */
     public function toArray($request)
     {
+        $prices = (!empty($this->prices))? $this->prices : [];
+
         $image_small = '';
 
         if($this->coinmarketcap_id){
@@ -53,7 +55,7 @@ class CryptoCurrencyItem extends JsonResource
             'thumbnails' => [
                 'small' => $image_small
             ],
-            'ratio' => $this->when(!empty($this->prices), $this->prices),
+            'ratio' => $prices,
             'is_favorite' => $this->is_favorite?? $is_favorite,
             'metadata' => $this->metadata,
         ];

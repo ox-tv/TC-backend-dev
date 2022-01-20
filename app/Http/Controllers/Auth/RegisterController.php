@@ -18,14 +18,18 @@ class RegisterController extends Controller
 
     public function register(UserRegister $request)
     {
+        $duplicateEmail = User::where('email', $request->get('email'))->whereNotNull('email_verified_at')->exists();
+
+        if ($duplicateEmail){
+            return response()->json([
+                'message' => __('auth.email_already_taken'),
+            ],422);
+        }
+
         $user = User::where('email', $request->get('email'))->whereNull('email_verified_at')->first();
 
         if(is_null($user)){
             $user = new User();
-        }
-
-        if (config('app.env') == 'local') {
-            $user->status = User::STATUS_ACTIVE;
         }
 
         do{
@@ -54,7 +58,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'email' => $request->input('email'),
-            'message' => __('users.messages.verification_link_sent'),
+            'message' => __('auth.email_verification_link_sent'),
         ]);
     }
 
@@ -63,12 +67,13 @@ class RegisterController extends Controller
         $user = User::where("verification_code", $token)->firstOrFail();
 
         $user->email_verified_at = now();
+        $user->status = User::STATUS_ACTIVE;
 
         $user->save();
 
         event(new UserVerified($user));
 
-        return response()->json(['message' => __('users.messages.verified')], 200);
+        return response()->json(['message' => __('auth.email_verified_successfully')], 200);
     }
 
     public function resend(UserResendVerification $request)
@@ -85,7 +90,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'email' => $request->get("email"),
-            'message' => __('users.messages.verification_link_resent'),
+            'message' => __('auth.email_verification_link_resent'),
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Message;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BecomeAPublisherStore extends FormRequest
 {
@@ -24,9 +25,12 @@ class BecomeAPublisherStore extends FormRequest
     public function rules()
     {
         return [
-            'youtube_url' => 'nullable',
-            'verification_url' => 'nullable',
-            'current_password' => 'required|password:api'
+            //'current_password' => 'required|password:api',
+            'channel_name' => [
+                'required',
+                Rule::unique('channels', 'name')
+            ],
+            'platform' => 'required',
         ];
     }
 

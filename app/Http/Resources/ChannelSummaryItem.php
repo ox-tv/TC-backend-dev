@@ -21,6 +21,8 @@ class ChannelSummaryItem extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'subscribers_count' => $this->subscribers->count(),
             'uploads_count' => $this->uploads_count,
             'total_views' => $this->total_views,

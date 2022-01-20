@@ -42,6 +42,8 @@ class User extends Authenticatable
         self::MUTE_PERMANENT => 'permanent',
     ];
 
+    const PUNCTUATION_MARKS = [' ', '!', '.', '-', '_', ','];
+
     /**
      * The attributes that are mass assignable.
      *
