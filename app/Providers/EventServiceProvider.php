@@ -15,6 +15,7 @@ use App\Events\Messages\MessageRepliedByUser;
 use App\Events\Publisher\NewPublisherRequested;
 use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
+use App\Events\Report\ReportCreated;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
@@ -39,6 +40,7 @@ use App\Listeners\Publisher\SendEmailOnPublisherRequestRejected;
 use App\Listeners\Publisher\SendNotificationOnNewPublisherRequested;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestApproved;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestRejected;
+use App\Listeners\Report\SendNotificationOnReportCreated;
 use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
@@ -135,7 +137,9 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         // Reports
-
+        ReportCreated::class => [
+            SendNotificationOnReportCreated::class,
+        ],
 
         // Videos
         VideoCreated::class => [

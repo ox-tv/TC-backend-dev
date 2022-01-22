@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Report\ReportCreated;
 use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Models\Comment;
-use App\Models\Notification;
 use App\Models\Option;
 use App\Models\Report;
-use App\Models\User;
 use App\Models\Video;
-use App\Notifications\ReportComment;
-use App\Notifications\ReportVideo;
-use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -101,14 +96,12 @@ class ReportController extends Controller
             $option_key = Option::VIDEO_REPORT_REASONS;
             $model = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
             $report->reported_user_id = $model->user_id;
-            $model_name = 'video';
         }
 
         if ($request->is("api/comments/{$idOrUrlHash}/report")){
             $option_key = Option::COMMENT_REPORT_REASONS;
             $model = Comment::findOrFail($idOrUrlHash);
             $report->reported_user_id = $model->user_id;
-            $model_name = 'comment';
         }
 
         $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? abort(404);
@@ -127,48 +120,7 @@ class ReportController extends Controller
 
         $model->reports()->save($report);
 
-
-        $notification = Notification::where([
-            'entity_type' => get_class($model),
-            'entity_id' => $model->id,
-            'type' => 'ReportVideo',
-            'scope' => Notification::SCOPE_ADMIN,
-        ])->first();
-
-        if ($notification){
-            $payload = [
-                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
-                'report' => $report,
-                'report_count' => $notification->payload['report_count'] + 1
-            ];
-            $notification->payload = $payload;
-            $notification->save();
-        }else{
-            $admins = User::admins()->get();
-            $payload = [
-                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
-                'report' => $report,
-                'report_count' => 1
-            ];
-
-            if($model_name == 'video'){
-                TCNotification::send($admins, new ReportVideo(
-                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                    $payload,
-                    get_class($model),
-                    $model->id
-                ));
-            }else{
-                TCNotification::send($admins, new ReportComment(
-                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                    $payload,
-                    get_class($model),
-                    $model->id
-                ));
-            }
-        }
+        event(new ReportCreated($report, $model));
 
         return ReportItem::make($report);
     }
