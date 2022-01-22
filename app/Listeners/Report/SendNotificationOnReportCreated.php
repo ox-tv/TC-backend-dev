@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Listeners\Report;
+
+use App\Events\Publisher\NewPublisherRequested;
+use App\Events\Publisher\PublisherRequestApproved;
+use App\Events\Publisher\PublisherRequestRejected;
+use App\Events\Report\ReportCreated;
+use App\Events\VideoViewed;
+use App\Http\Resources\Comment\CommentItem;
+use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\User\UserMinimalItem;
+use App\Http\Resources\Video\VideoMinimalItem;
+use App\Models\Channel;
+use App\Models\Comment;
+use App\Models\Notification;
+use App\Models\User;
+use App\Models\UserMeta;
+use App\Notifications\NewPublisherRequest;
+use App\Notifications\PublisherApproved;
+use App\Notifications\PublisherRejected;
+use App\Notifications\ReportComment;
+use App\Notifications\ReportVideo;
+use App\Notifications\TCNotification\TCNotification;
+
+class SendNotificationOnReportCreated
+{
+
+    /**
+     * Handle the event.
+     *
+     * @param  VideoViewed  $event
+     * @return void
+     */
+    public function handle(ReportCreated $event)
+    {
+        $report = $event->report;
+        $model = $event->model;
+
+        $model_name = get_class($model) == Comment::class? 'comment': 'video';
+
+        $notification = Notification::where([
+            'entity_type' => get_class($model),
+            'entity_id' => $model->id,
+            'type' => 'ReportVideo',
+            'scope' => Notification::SCOPE_ADMIN,
+        ])->first();
+
+        if ($notification){
+            $payload = [
+                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
+                'report' => $report,
+                'report_count' => $notification->payload['report_count'] + 1
+            ];
+            $notification->payload = $payload;
+            $notification->save();
+        }else{
+            $admins = User::admins()->get();
+            $payload = [
+                $model_name => $model_name == 'video'? VideoMinimalItem::make($model): CommentItem::make($model),
+                'report' => $report,
+                'report_count' => 1
+            ];
+
+            if($model_name == 'video'){
+                TCNotification::send($admins, new ReportVideo(
+                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                    $payload,
+                    get_class($model),
+                    $model->id
+                ));
+            }else{
+                TCNotification::send($admins, new ReportComment(
+                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                    $payload,
+                    get_class($model),
+                    $model->id
+                ));
+            }
+        }
+
+        return true;
+    }
+}
