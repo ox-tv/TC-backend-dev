@@ -12,6 +12,7 @@ use App\Events\Messages\MessageCreatedByAdmin;
 use App\Events\Messages\MessageCreatedByUser;
 use App\Events\Messages\MessageRepliedByAdmin;
 use App\Events\Messages\MessageRepliedByUser;
+use App\Events\Publisher\NewPublisherRequested;
 use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
 use App\Events\UserVerified;
@@ -35,6 +36,7 @@ use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByUser;
 use App\Listeners\Publisher\SendEmailOnPublisherRequestApproved;
 use App\Listeners\Publisher\SendEmailOnPublisherRequestRejected;
+use App\Listeners\Publisher\SendNotificationOnNewPublisherRequested;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestApproved;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestRejected;
 use App\Listeners\SendNotificationOnVideoCreated;
@@ -82,6 +84,9 @@ class EventServiceProvider extends ServiceProvider
         PublisherRequestRejected::class => [
             SendNotificationOnPublisherRequestRejected::class,
             SendEmailOnPublisherRequestRejected::class,
+        ],
+        NewPublisherRequested::class => [
+            SendNotificationOnNewPublisherRequested::class,
         ],
 
         // Channel
