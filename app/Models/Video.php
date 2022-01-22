@@ -68,6 +68,11 @@ class Video extends Model
                 }
             }
 
+            if (empty($model->published_at) && $model->status == self::STATUS_PUBLISHED){
+                $model->published_at = now();
+                $model->save();
+            }
+
         });
     }
 
@@ -299,10 +304,6 @@ class Video extends Model
             ])->exists();
         }
         return false;
-    }
-
-    public function getPublishedAtAttribute(){
-        return $this->created_at;
     }
 
     public function getRelatedVideosAttribute(){
