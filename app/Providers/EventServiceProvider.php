@@ -12,6 +12,8 @@ use App\Events\Messages\MessageCreatedByAdmin;
 use App\Events\Messages\MessageCreatedByUser;
 use App\Events\Messages\MessageRepliedByAdmin;
 use App\Events\Messages\MessageRepliedByUser;
+use App\Events\Publisher\PublisherRequestApproved;
+use App\Events\Publisher\PublisherRequestRejected;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
@@ -31,6 +33,10 @@ use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByUser;
+use App\Listeners\Publisher\SendEmailOnPublisherRequestApproved;
+use App\Listeners\Publisher\SendEmailOnPublisherRequestRejected;
+use App\Listeners\Publisher\SendNotificationOnPublisherRequestApproved;
+use App\Listeners\Publisher\SendNotificationOnPublisherRequestRejected;
 use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
@@ -66,6 +72,16 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserVerified::class => [
             UserVerifiedDataForUserStatisticsDaily::class,
+        ],
+
+        // Publisher
+        PublisherRequestApproved::class => [
+            SendNotificationOnPublisherRequestApproved::class,
+            SendEmailOnPublisherRequestApproved::class,
+        ],
+        PublisherRequestRejected::class => [
+            SendNotificationOnPublisherRequestRejected::class,
+            SendEmailOnPublisherRequestRejected::class,
         ],
 
         // Channel
