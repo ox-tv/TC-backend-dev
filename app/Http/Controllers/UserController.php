@@ -193,7 +193,7 @@ class UserController extends Controller
                 'nullable', 'string',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
-                    ->ignore(auth('api')->id())
+                    ->ignore($user->id)
             ],
             'email' => 'nullable|email',
             'avatar' => 'nullable|string',
