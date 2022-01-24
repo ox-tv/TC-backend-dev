@@ -124,7 +124,11 @@ class UserController extends Controller
      */
     public function store(UserStore $request)
     {
-        $user = new User();
+        $user = User::where('email', $request->get('email'))->whereNull('email_verified_at')->first();
+
+        if(is_null($user)){
+            $user = new User();
+        }
 
         $user->email = $request->get("email");
         $user->username = $request->get("username");
