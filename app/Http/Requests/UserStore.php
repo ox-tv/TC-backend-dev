@@ -44,8 +44,7 @@ class UserStore extends FormRequest
             'username' => [
                 'nullable', 'string',
                 CustomRule::forbiddenWords($forbiddenWords),
-                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
-                    ->ignore(auth('api')->id()),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username'),
             ],
             'avatar' => 'nullable|string',
             'eth_address' => 'nullable|string',
