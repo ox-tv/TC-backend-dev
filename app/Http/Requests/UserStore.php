@@ -35,12 +35,12 @@ class UserStore extends FormRequest
                 'required', 'string', 'email', 'max:255',
                 function($attribute, $value, $fail){
                     // check if user is deleted
-                    $user = User::where('email', $value)->first();
+                    $user = User::where('email', $value)->withTrashed()->first();
                     if ($user && $user->deleted_at) {
                         $fail(__('users.validation.account_deleted'));
                     }
                 },
-                Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
+                Rule::unique('users', 'email')->whereNull('deleted_at')->whereNotNull('email_verified_at')],
             'username' => [
                 'nullable', 'string',
                 CustomRule::forbiddenWords($forbiddenWords),
