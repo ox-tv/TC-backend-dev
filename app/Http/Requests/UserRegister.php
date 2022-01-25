@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Amir\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -37,12 +38,14 @@ class UserRegister extends FormRequest
                 'required', 'string', 'email', 'max:255',
                 function($attribute, $value, $fail){
                     // check if user is deleted
-                    $user = User::where('email', $value)->first();
-                    if ($user && $user->deleted_at) {
+                    $isDeleted = User::where('email', $value)->withTrashed()->whereNotNull('deleted_at')->exists();
+                    if ($isDeleted) {
                         $fail(__('auth.account_deleted'));
                     }
                 },
-                //Rule::unique('users', 'email')->whereNotNull('email_verified_at')
+                /*Rule::unique('users', 'email')->where(function($q) use($publisherRoleId) {
+                    $q->whereNull('role_id')->orWhere('role_id', $publisherRoleId);
+                })->whereNotNull('email_verified_at')*/
             ],
             'password' => ['required', 'string', 'min:8'],
             'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],

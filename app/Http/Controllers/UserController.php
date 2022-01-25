@@ -124,7 +124,21 @@ class UserController extends Controller
      */
     public function store(UserStore $request)
     {
-        $user = User::where('email', $request->get('email'))->whereNull('email_verified_at')->first();
+        $adminRole = Role::firstOrCreate(['name' => User::ADMIN_ROLE]);
+        $publisherRole = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE]);
+
+        $userQuery = User::where('email', $request->get('email'))->whereNull('email_verified_at');
+
+        if ($request->is('api/admin/admins')){
+            $userQuery->where('role_id', $adminRole->id);
+        }else{
+            $userQuery->where(function($q) use($publisherRole) {
+                $q->whereNull('role_id')
+                    ->orWhere('role_id', $publisherRole->id);
+            });
+        }
+
+        $user = $userQuery->first();
 
         if(is_null($user)){
             $user = new User();
@@ -139,7 +153,6 @@ class UserController extends Controller
         $user->password = Hash::make(rand(100000,1000000000));
 
         if ($request->is('api/admin/admins')){
-            $adminRole = Role::firstOrCreate(['name' => 'admin']);
             $user->role_id = $adminRole->id;
         }
 

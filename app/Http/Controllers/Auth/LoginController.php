@@ -153,7 +153,16 @@ class LoginController extends Controller
 
     public function send_password_reset_link(Request $request)
     {
-        $user = User::where("email", $request->get("email"))->first();
+        $scope = $request->get('scope');
+
+        $userQuery = User::where("email", $request->get("email"));
+
+        if ($scope == 'admin'){
+            $roleId = Role::firstOrCreate(['name' => User::ADMIN_ROLE])->id;
+            $userQuery->where('role_id', $roleId);
+        }
+
+        $user = $userQuery->first();
 
         abort_unless($user, 404, 'The email you entered does not exist.');
 
@@ -165,9 +174,9 @@ class LoginController extends Controller
         $reset_password->token = $token;
         $reset_password->save();
 
-        if ($request->get('scope') == 'publisher'){
+        if ($scope == 'publisher'){
             $link = config('general.PUBLISHER_PASSWORD_RESET_URL') . $token;
-        }elseif ($request->get('scope') == 'admin'){
+        }elseif ($scope == 'admin'){
             $link = config('general.ADMIN_PASSWORD_RESET_URL') . $token;
         }else{
             $link = config('general.MWA_PASSWORD_RESET_URL') . $token;
