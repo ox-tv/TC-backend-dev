@@ -3,7 +3,6 @@
 namespace App\Events\Channels;
 
 use App\Models\Channel;
-use App\Models\Video;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -20,7 +19,7 @@ class ChannelUpdated
      *
      * @return void
      */
-    public function __construct(Video $oldChannel, Video $channel)
+    public function __construct(Channel $oldChannel, Channel $channel)
     {
         $this->oldChannel = $oldChannel;
         $this->channel = $channel;
