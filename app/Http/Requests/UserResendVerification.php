@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Amir\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,10 +26,14 @@ class UserResendVerification extends FormRequest
      */
     public function rules()
     {
+        $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
+
         return [
             'email' => [
                 'required', 'string', 'email', 'max:255',
-                Rule::exists('users', 'email')->whereNull('email_verified_at')
+                Rule::exists('users', 'email')->where(function($q) use($publisherRoleId) {
+                    $q->whereNull('role_id')->orWhere('role_id', $publisherRoleId);
+                })->whereNull('email_verified_at')
             ],
         ];
     }
