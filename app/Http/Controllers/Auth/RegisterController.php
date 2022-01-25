@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Amir\Permission\Models\Role;
 use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
 use App\Http\Requests\UserResendVerification;
 use App\Mail\VerificationMail;
 use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -18,7 +18,14 @@ class RegisterController extends Controller
 
     public function register(UserRegister $request)
     {
-        $duplicateEmail = User::where('email', $request->get('email'))->whereNotNull('email_verified_at')->exists();
+        $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
+
+        $duplicateEmail = User::where('email', $request->get('email'))
+            ->where(function($q) use($publisherRoleId) {
+                $q->whereNull('role_id')
+                    ->orWhere('role_id', $publisherRoleId);
+            })->whereNotNull('email_verified_at')
+            ->exists();
 
         if ($duplicateEmail){
             return response()->json([
@@ -78,7 +85,15 @@ class RegisterController extends Controller
 
     public function resend(UserResendVerification $request)
     {
-        $user = User::where("email", $request->get("email"))->firstOrFail();
+        $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
+
+        $user = User::where("email", $request->get("email"))
+            ->where(function($q) use($publisherRoleId) {
+                $q->whereNull('role_id')
+                    ->orWhere('role_id', $publisherRoleId);
+            })
+            ->whereNull('email_verified_at')
+            ->firstOrFail();
 
         $token = sha1($user->id . time());
         $user->verification_code = $token;
