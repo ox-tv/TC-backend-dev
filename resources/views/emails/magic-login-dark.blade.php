@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Email Verification</title>
+    <title>Magic Login</title>
 
     <style type="text/css">
         p{
@@ -392,6 +392,7 @@
             }
 
         }</style>
+    <script>var w=window;if(w.performance||w.mozPerformance||w.msPerformance||w.webkitPerformance){var d=document;AKSB=w.AKSB||{},AKSB.q=AKSB.q||[],AKSB.mark=AKSB.mark||function(e,_){AKSB.q.push(["mark",e,_||(new Date).getTime()])},AKSB.measure=AKSB.measure||function(e,_,t){AKSB.q.push(["measure",e,_,t||(new Date).getTime()])},AKSB.done=AKSB.done||function(e){AKSB.q.push(["done",e])},AKSB.mark("firstbyte",(new Date).getTime()),AKSB.prof={custid:"162687",ustr:"",originlat:"0",clientrtt:"28",ghostip:"104.84.152.13",ipv6:false,pct:"10",clientip:"82.118.29.132",requestid:"7bf0a5f",region:"28076",protocol:"h2",blver:14,akM:"x",akN:"ae",akTT:"O",akTX:"1",akTI:"7bf0a5f",ai:"199322",ra:"false",pmgn:"",pmgi:"",pmp:"",qc:""},function(e){var _=d.createElement("script");_.async="async",_.src=e;var t=d.getElementsByTagName("script"),t=t[t.length-1];t.parentNode.insertBefore(_,t)}(("https:"===d.location.protocol?"https:":"http:")+"//ds-aksb-a.akamaihd.net/aksb.min.js")}</script>
 </head>
 <body>
 <center>
@@ -436,30 +437,12 @@
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
                                                     <a href="http://www.todayscrypto.com" title="" class="" target="_blank">
-                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/2f2bca11-c610-4966-a21f-c23ff8a52d60.jpg" width="152.28" style="max-width:852px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/2f2bca11-c610-4966-a21f-c23ff8a52d60.jpg" width="107.16" style="max-width:852px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
                                             </tr>
                                             </tbody></table>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock" style="min-width:100%;">
-                                <tbody class="mcnDividerBlockOuter">
-                                <tr>
-                                    <td class="mcnDividerBlockInner" style="min-width:100%; padding:18px;">
-                                        <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width: 100%;border-top: 2px none #EAEAEA;">
-                                            <tbody><tr>
-                                                <td>
-                                                    <span></span>
-                                                </td>
-                                            </tr>
-                                            </tbody></table>
-                                        <!--
-                                                        <td class="mcnDividerBlockInner" style="padding: 18px;">
-                                                        <hr class="mcnDividerContent" style="border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;" />
-                                        -->
                                     </td>
                                 </tr>
                                 </tbody>
@@ -501,9 +484,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
-<br>
-<span style="font-size:14px">We are happy to have you aboard, and we hope you will gain lots of valuable insights into the crypto market. Click the button below to verify your email. Once you have done this, you are all set!</span></span></div>
+                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><span style="font-size:14px"><strong>Magic link request:</strong>&nbsp;Click the button below to log in.</span></span></div>
 
                                                 </td>
                                             </tr>
@@ -545,7 +526,7 @@
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 12px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $verification_link }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify Email</a>
+                                                    <a class="mcnButton " title="Log me in!" href="{{$magicLoginLink}}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Log me in!</a>
                                                 </td>
                                             </tr>
                                             </tbody>

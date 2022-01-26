@@ -11,7 +11,7 @@ class MagicLoginMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $verification_link;
+    public $magicLoginLink;
 
     /**
      * Create a new message instance.
@@ -20,7 +20,7 @@ class MagicLoginMail extends Mailable
      */
     public function __construct($link)
     {
-        $this->verification_link = $link;
+        $this->magicLoginLink = $link;
     }
 
     /**
