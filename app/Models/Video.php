@@ -59,8 +59,8 @@ class Video extends Model
             }
 
             // duration
-            if(is_null($model->duration) && (!is_null($model->file_path) || !is_null($model->s3_url))){
-                $path = !empty($model->s3_url)? $model->s3_url: Storage::disk('videos')->path($model->file_path);
+            if(is_null($model->duration) && (!is_null($model->file_path) || !is_null($model->file_url))){
+                $path = !empty($model->file_url)? $model->file_url: Storage::disk('videos')->path($model->file_path);
                 $model->duration = get_duration($path);
 
                 if($model->duration){

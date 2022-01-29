@@ -22,8 +22,8 @@ class VideoMinimalItem extends JsonResource
         $url = '';
         if ($this->file_path){
             $url = Storage::disk('videos')->url($this->file_path);
-        }elseif ($this->s3_url){
-            $url = $this->s3_url;
+        }elseif ($this->file_url){
+            $url = $this->file_url;
         }
 
         return [

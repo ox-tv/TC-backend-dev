@@ -38,7 +38,7 @@ class VideoUpdate extends FormRequest
             'category' => 'exists:categories,id',
             'language_id' => ['nullable','exists:languages,id'],
             'video' => 'nullable|file',
-            's3_url' => 'nullable|url',
+            'file_url' => 'nullable|url',
             'youtube_link' => 'url',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
             'tags' => 'nullable|array',
