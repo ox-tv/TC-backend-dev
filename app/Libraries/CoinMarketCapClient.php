@@ -66,7 +66,7 @@ class CoinMarketCapClient
     /*
      * Can pass multi symbols separated by comma
      * */
-    public function GetInfo($slugs)
+    public function GetInfo($ids)
     {
         $result = [];
 
@@ -82,7 +82,7 @@ class CoinMarketCapClient
                     'X-CMC_PRO_API_KEY' => $this->api_key,
                 ]
             ])->get("{$this->base_url}/v1/cryptocurrency/info",[
-                "slug" => $slugs,
+                "id" => implode(',', $ids),
             ]);
 
             $body = $response->json();
@@ -93,7 +93,7 @@ class CoinMarketCapClient
 
             if (!empty($body['data'])){
                 foreach ($body['data'] as $id => $value){
-                    $result[$value['slug']] = $value;
+                    $result[$id] = $value;
                 }
             }
 

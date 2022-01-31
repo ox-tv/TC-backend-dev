@@ -55,8 +55,8 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
 
             $info = [];
 
-            foreach (array_chunk(array_column($response['data'], 'slug'), 100) as $slugs){
-                $infoResponse = $client->GetInfo(implode(',', $slugs));
+            foreach (array_chunk(array_column($response['data'], 'id'), 100) as $ids){
+                $infoResponse = $client->GetInfo($ids);
 
                 if(empty($infoResponse)){
                     continue;
