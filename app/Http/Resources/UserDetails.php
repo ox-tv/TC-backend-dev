@@ -30,7 +30,7 @@ class UserDetails extends JsonResource
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar_url? :$this->avatar,
             'eth_address' => $this->when($isEthAddressVisible, $this->eth_address),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
