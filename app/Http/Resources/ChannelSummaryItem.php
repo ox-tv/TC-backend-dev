@@ -34,7 +34,7 @@ class ChannelSummaryItem extends JsonResource
             'hero_subscribers_count' => $this->heroSubscribers->count(),
             "owner" => $this->when($withOwner, UserItem::make($this->owner)),
             'url_hash' => $this->url_hash,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar_url? :$this->avatar,
             "slogan" => $this->slogan,
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
