@@ -48,6 +48,10 @@ class Comment extends Model
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    public function PinnedBy(){
+        return $this->belongsTo('App\Models\User', 'pinned_by')->withTrashed();
+    }
+
     public function parent(){
         return $this->hasOne('App\Models\Comment', 'parent_id');
     }
