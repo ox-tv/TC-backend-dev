@@ -6,6 +6,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class OptionController extends Controller
 {
@@ -20,6 +21,7 @@ class OptionController extends Controller
             'reasons' => 'nullable|array',
             'reasons.*.key' => 'required|string',
             'reasons.*.value' => 'required|string',
+            'reasons.*.status' => ['required', Rule::in([Option::REASONS_STATUS_ACTIVE, Option::REASONS_STATUS_INACTIVE])],
         ]);
 
         Option::set($key, json_encode($request->get('reasons')));
