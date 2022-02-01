@@ -32,7 +32,7 @@ class VideoUpdate extends FormRequest
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
         return [
-            'title' => 'string',
+            'title' => 'required|string',
             'thumbnail' => [
                 Rule::requiredIf(function () {
                     $status = request()->get('status');
