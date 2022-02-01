@@ -22,6 +22,7 @@ class CommentSummaryItem extends JsonResource
             'text' => $this->text,
             'status' => $this->status,
             'is_pinned' => (bool) $this->is_pinned,
+            'pinned_by' => ($this->is_pinned)? $this->PinnedBy : null,
             'likes_count' => $this->likedBy()->count(),
             'dislikes_count' => $this->dislikedBy()->count(),
             'reports_count' => $this->reports_count,
