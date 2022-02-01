@@ -30,6 +30,9 @@ class Option extends Model
         self::PUBLISHER_REQUEST_REJECT_REASONS,
     ];
 
+    const REASONS_STATUS_ACTIVE = 'active';
+    const REASONS_STATUS_INACTIVE = 'inactive';
+
     public static function set($key, $value)
     {
         return self::updateOrCreate(
