@@ -144,6 +144,7 @@ class CommentController extends Controller
         ]);
 
         $comment->is_pinned = 1;
+        $comment->pinned_by = auth()->id();
         $comment->save();
 
         return new CommentItem($comment);
@@ -155,6 +156,7 @@ class CommentController extends Controller
      */
     public function unpin(Comment $comment){
         $comment->is_pinned = 0;
+        $comment->pinned_by = null;
         $comment->save();
 
         return new CommentItem($comment);
