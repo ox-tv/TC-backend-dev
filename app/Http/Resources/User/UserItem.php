@@ -74,7 +74,7 @@ class UserItem extends JsonResource
                     'user_id' => $this->id,
                     'department_id' => $publisherApplicationDepartmentId
                     ]
-                )->orderBy('created_at', 'desc')->first()
+                )->orderBy('created_at', 'asc')->first()
             ),
         ];
     }
