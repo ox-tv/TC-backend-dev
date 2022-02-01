@@ -221,8 +221,8 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
-        if($request->get('language_id')){
-            $video->language_id = $request->get('language_id');
+        if($request->get('language')){
+            $video->language_id = $request->get('language');
         }
 
 
@@ -322,8 +322,8 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
-        if($request->get('language_id')){
-            $video->language_id = $request->get('language_id');
+        if($request->get('language')){
+            $video->language_id = $request->get('language');
         }else{
             $video->language_id = null;
         }
