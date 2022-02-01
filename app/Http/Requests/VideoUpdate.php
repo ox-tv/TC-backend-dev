@@ -48,7 +48,7 @@ class VideoUpdate extends FormRequest
                     return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
                 })
             ],
-            'language_id' => [
+            'language' => [
                 'nullable','exists:languages,id',
                 Rule::requiredIf(function () {
                     $status = request()->get('status');
