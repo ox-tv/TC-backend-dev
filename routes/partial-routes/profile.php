@@ -11,6 +11,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
+    Route::delete('profile', '\App\Http\Controllers\UserController@destroy')->name('profile.destroy');
+
     Route::get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
     // Become A Publisher
