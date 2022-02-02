@@ -36,6 +36,7 @@ Route::group([
 ], function(){
 
     Route::post('options/reasons/{key}', '\App\Http\Controllers\OptionController@setReasonsOption')->name("options.reasons.store");
+    Route::get('options/reasons/{key}', '\App\Http\Controllers\OptionController@getReasonsOption')->name("options.reasons.get");
 
     Route::post('options/forbidden-words', '\App\Http\Controllers\OptionController@setForbiddenWords')->name("options.forbidden-words.store");
 });
