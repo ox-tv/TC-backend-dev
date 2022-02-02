@@ -281,8 +281,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user = null)
     {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
         // remove user relations
         $channel = $user->channel()->first();
         if ($channel){
