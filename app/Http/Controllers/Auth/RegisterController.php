@@ -74,6 +74,7 @@ class RegisterController extends Controller
         $user = User::where("verification_code", $token)->firstOrFail();
 
         $user->email_verified_at = now();
+        $user->verification_code = null;
         $user->status = User::STATUS_ACTIVE;
 
         $user->save();
