@@ -22,6 +22,8 @@ return [
     'PUBLISHER_MAGIC_LOGIN_LINK' => env('PUBLISHER_MAGIC_LOGIN_LINK', ''),
     'ADMIN_MAGIC_LOGIN_LINK' => env('ADMIN_MAGIC_LOGIN_LINK', ''),
 
+    'ACCOUNT_DELETION_URL' => env('ACCOUNT_DELETION_URL', ''),
+
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
     ],

@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use Amir\Permission\Models\Role;
+use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
+use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
+use App\Models\AccountDeletion;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
@@ -283,10 +286,6 @@ class UserController extends Controller
      */
     public function destroy(Request $request, User $user = null)
     {
-        if (!$request->is('api/admin/*')){
-            $user = auth('api')->user();
-        }
-
         // remove user relations
         $channel = $user->channel()->first();
         if ($channel){
@@ -295,6 +294,52 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        return response()->json([
+            'message' => 'general.successful'
+        ]);
+    }
+
+    public function deleteAccountRequest()
+    {
+        $user = auth('api')->user();
+
+        $token = sha1($user->id . time());
+
+
+        $accountDeletion = AccountDeletion::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'token' => $token,
+                'created_at' => Carbon::now(),
+                'expired_at' => Carbon::now()->addMinutes(45)
+            ],
+        );
+
+        $link = config('general.ACCOUNT_DELETION_URL') . $token;
+        Mail::to($user->email)
+            ->queue(new DeleteAccountMail($link));
+
+        return response()->json([
+            'email' => $user->email,
+            'message' => __('account.account_deletion_link_sent'),
+        ]);
+    }
+
+    public function deleteAccount($token)
+    {
+        $accountDeletion = AccountDeletion::where('token', $token)
+            ->where('expired_at', '>', Carbon::now())
+            ->firstOrFail();
+
+        $user = User::findOrFail($accountDeletion->user_id);
+
+        $user->delete();
+
+        $accountDeletion->expired_at = now();
+        $accountDeletion->save();
+
+        event(new AccountDeleted($user));
 
         return response()->json([
             'message' => 'general.successful'
