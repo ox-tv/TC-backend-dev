@@ -42,7 +42,7 @@ Route::group([], __DIR__.'/partial-routes/option.php');
 
 Route::group([], __DIR__.'/partial-routes/report.php');
 
-Route::group([], __DIR__.'/partial-routes/profile.php');
+Route::group([], __DIR__.'/partial-routes/account.php');
 
 Route::group([], __DIR__.'/partial-routes/comment.php');
 
