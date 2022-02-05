@@ -326,6 +326,7 @@ class UserController extends Controller
             ->queue(new DeleteAccountMail($link));
 
         return response()->json([
+            'status' => 'ok',
             'email' => $user->email,
             'message' => __('account.account_deletion_link_sent'),
         ]);
@@ -347,6 +348,7 @@ class UserController extends Controller
         event(new AccountDeleted($user));
 
         return response()->json([
+            'status' => 'ok',
             'message' => 'general.successful'
         ]);
     }
