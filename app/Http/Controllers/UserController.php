@@ -300,7 +300,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function deleteAccountRequest()
+    public function deleteAccountRequest(Request $request)
     {
         $user = auth('api')->user();
 
@@ -316,7 +316,12 @@ class UserController extends Controller
             ],
         );
 
-        $link = config('general.ACCOUNT_DELETION_URL') . $token;
+        if ($request->is('api/publisher/*')){
+            $link = config('general.PUBLISHER_ACCOUNT_DELETION_URL') . $token;
+        }else{
+            $link = config('general.MWA_ACCOUNT_DELETION_URL') . $token;
+        }
+
         Mail::to($user->email)
             ->queue(new DeleteAccountMail($link));
 
