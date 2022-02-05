@@ -35,6 +35,8 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    // Delete account
+    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
 
 });
 
