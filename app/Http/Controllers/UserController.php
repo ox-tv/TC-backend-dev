@@ -371,6 +371,11 @@ class UserController extends Controller
             $channel->status = Channel::STATUS_PUBLISHED;
             $channel->save();
         }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'general.successful'
+        ]);
     }
 
     /**
