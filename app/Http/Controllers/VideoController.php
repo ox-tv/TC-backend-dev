@@ -204,7 +204,7 @@ class VideoController extends Controller
         }
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status')){
@@ -310,7 +310,7 @@ class VideoController extends Controller
         $video->description = $request->get('description');
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
