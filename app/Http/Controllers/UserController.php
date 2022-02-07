@@ -13,6 +13,7 @@ use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\AccountDeletion;
+use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
@@ -339,6 +340,11 @@ class UserController extends Controller
             ->firstOrFail();
 
         $user = User::findOrFail($accountDeletion->user_id);
+
+        $channel = $user->channel()->first();
+        if ($channel){
+            $channel->status = Channel::STATUS_FREEZE;
+        }
 
         $user->delete();
 
