@@ -344,6 +344,7 @@ class UserController extends Controller
         $channel = $user->channel()->first();
         if ($channel){
             $channel->status = Channel::STATUS_FREEZE;
+            $channel->save();
         }
 
         $user->delete();
@@ -357,6 +358,19 @@ class UserController extends Controller
             'status' => 'ok',
             'message' => 'general.successful'
         ]);
+    }
+
+    public function restoreUser($id)
+    {
+        $user = User::onlyTrashed()->where('id', $id)->firstOrFail();
+
+        $user->restore();
+
+        $channel = $user->channel()->first();
+        if ($channel){
+            $channel->status = Channel::STATUS_PUBLISHED;
+            $channel->save();
+        }
     }
 
     /**
