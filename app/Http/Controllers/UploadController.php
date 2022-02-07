@@ -66,11 +66,7 @@ class UploadController extends Controller
 
             // Create multiple sizes
             if ($isImage){
-                $sizes = [
-                    ['w' => 300, 'h' => 300],
-                    ['w' => null, 'h' => 120],
-                    ['w' => 2000, 'h' => null],
-                ];
+                $sizes = config('upload.thumbnail_sizes');
 
                 $originalImage = $imageManager->make($url);
                 $fileName = pathinfo($url, PATHINFO_BASENAME);
@@ -80,7 +76,6 @@ class UploadController extends Controller
                     $key = ($size['w']?:'auto') . '_' . ($size['h']?:'auto');
                     $filePath = $directory . "/{$key}/" . $fileName;
 
-                    //$this->testCrop($image);
                     $image->resize($size['w'], $size['h'], function ($constraint) use ($size) {
                         if (empty($size['w']) || empty($size['h'])){
                             $constraint->aspectRatio();
