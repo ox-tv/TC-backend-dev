@@ -210,7 +210,7 @@ class Video extends Model
     }
 
     public function user(){
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function channels(){
@@ -218,7 +218,7 @@ class Video extends Model
     }
 
     public function channel(){
-        return $this->belongsTo('App\Models\Channel');
+        return $this->belongsTo('App\Models\Channel')->withTrashed();
     }
 
     public function tags(){
