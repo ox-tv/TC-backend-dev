@@ -31,6 +31,7 @@ class UserDetails extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'avatar' => $this->avatar_url? :$this->avatar,
+            'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
             'eth_address' => $this->when($isEthAddressVisible, $this->eth_address),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
