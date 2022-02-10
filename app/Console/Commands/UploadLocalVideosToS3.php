@@ -38,7 +38,6 @@ class UploadLocalVideosToS3 extends Command
         $videos = Video::withTrashed()->whereNotNull('file_path')->get();
         $s3 = Storage::disk('s3');
 
-
         foreach ($videos as $video){
             try{
                 $channel = $video->channel()->withTrashed()->first();
@@ -52,8 +51,9 @@ class UploadLocalVideosToS3 extends Command
                 $video->save();
 
             }catch (Exception $e){
-                dd($e->getMessage());
+                dump($e->getMessage());
                 Log::error($e->getMessage());
+                continue;
             }
         }
 
