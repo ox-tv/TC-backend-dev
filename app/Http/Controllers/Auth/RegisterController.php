@@ -59,7 +59,12 @@ class RegisterController extends Controller
         $user->verification_code = $token;
         $user->save();
 
-        $link = config('general.EMAIL_VERIFICATION_URL').$token;
+        if ($request->is('api/publisher/*')){
+            $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL') . $token;
+        }else{
+            $link = config('general.MWA_EMAIL_VERIFICATION_URL') . $token;
+        }
+
         Mail::to($user->email)
             ->queue(new VerificationMail($link));
 
