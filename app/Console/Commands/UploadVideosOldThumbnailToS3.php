@@ -70,6 +70,7 @@ class UploadVideosOldThumbnailToS3 extends Command
                 $video->save();
 
             }catch (Exception $e){
+                dd($e->getMessage());
                 Log::error($e->getMessage());
             }
         }
