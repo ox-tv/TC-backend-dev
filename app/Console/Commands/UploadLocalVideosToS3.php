@@ -43,12 +43,15 @@ class UploadLocalVideosToS3 extends Command
                 $channel = $video->channel()->withTrashed()->first();
                 $directory = "channel/{$channel->id}/videos";
                 $file = Storage::disk('videos')->path($video->file_path);
-                $originalFilePath = $s3->putFile($directory, $file, 'public');
-                $url = $s3->url($originalFilePath);
 
-                $video->file_url = $url;
-                $video->file_path = null;
-                $video->save();
+                if (file_exists($file)) {
+                    $originalFilePath = $s3->putFile($directory, $file, 'public');
+                    $url = $s3->url($originalFilePath);
+                    $video->file_url = $url;
+                    $video->file_path = null;
+                    $video->save();
+                }
+
 
             }catch (Exception $e){
                 dump($e->getMessage());
