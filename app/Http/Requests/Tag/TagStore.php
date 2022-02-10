@@ -38,4 +38,11 @@ class TagStore extends FormRequest
             'status' => ['nullable', Rule::in(Tag::STATUS_TEXT)],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'Tag already exists',
+        ];
+    }
 }
