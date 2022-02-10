@@ -191,9 +191,9 @@ class VideoController extends Controller
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
             $video->file_path = $videoFile;
 
-        }elseif($request->get('s3_url')){ // adding file to video
+        }elseif($request->get('file_url')){ // adding file to video
 
-            $video->s3_url = $request->get('s3_url');
+            $video->file_url = $request->get('file_url');
         }
 
         // adding user to video
@@ -204,7 +204,7 @@ class VideoController extends Controller
         }
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status')){
@@ -310,7 +310,7 @@ class VideoController extends Controller
         $video->description = $request->get('description');
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){

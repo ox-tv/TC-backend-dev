@@ -48,7 +48,7 @@ class PlanController extends Controller
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
         $plan->is_popular = $request->get('is_popular');
-        $plan->thumbnail = $request->get('thumbnail');
+        $plan->thumbnail_url = $request->get('thumbnail');
 
 
         // Save to DB
@@ -80,7 +80,7 @@ class PlanController extends Controller
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
         $plan->is_popular = $request->get('is_popular');
-        $plan->thumbnail = $request->get('thumbnail');
+        $plan->thumbnail_url = $request->get('thumbnail');
 
 
         // Save to DB

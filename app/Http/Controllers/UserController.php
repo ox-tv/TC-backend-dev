@@ -152,7 +152,7 @@ class UserController extends Controller
         $user->username = $request->get("username");
         $user->status = User::STATUS_ACTIVE;
         $user->email_verified_at = now();
-        $user->avatar = $request->get('avatar');
+        $user->avatar_url = $request->get('avatar');
         $user->eth_address = $request->get('eth_address');
         $user->password = Hash::make(rand(100000,1000000000));
 
@@ -226,7 +226,7 @@ class UserController extends Controller
         $user->username = $request->get('username', $user->username);
         $user->email = $request->get('email', $user->email);
 
-        $user->avatar = $request->get('avatar', $user->avatar);
+        $user->avatar_url = $request->get('avatar', $user->avatar_url);
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
@@ -422,7 +422,7 @@ class UserController extends Controller
 
         $user->username = $request->get('username', $user->username);
 
-        $user->avatar = $request->get('avatar', $user->avatar);
+        $user->avatar_url = $request->get('avatar', $user->avatar_url);
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));

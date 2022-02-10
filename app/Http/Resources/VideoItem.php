@@ -23,21 +23,15 @@ class VideoItem extends JsonResource
         $withComments = in_array('comments', explode(',', $request->get('include', '')));
         $withRelated = in_array('related', explode(',', $request->get('include', '')));
 
-        $url = '';
-        if ($this->file_path){
-            $url = Storage::disk('videos')->url($this->file_path);
-        }elseif ($this->s3_url){
-            $url = $this->s3_url;
-        }
-
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'slug' => $this->slug,
-            'url' => $url,
+            'url' => $this->file_url? : Storage::disk('videos')->url($this->file_path),
             'url_hash' => $this->url_hash,
-            'thumbnail' => $this->thumbnail,
+            'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
+            'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
             'rating' => (float)$this->rating,
             'view_count' => $this->view_count,
             'comment_count' => $this->comments()->count(),

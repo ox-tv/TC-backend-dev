@@ -23,6 +23,27 @@ if(!function_exists('get_duration')){
     }
 }
 
+// Get Image Thumbnails
+if(!function_exists('get_thumbnails')){
+    /**
+     * @param $filePath
+     * @return mixed|null
+     */
+    function getThumbnails($fileUrl){
+        $result = ['original' => $fileUrl];
+
+        $sizes = config('upload.thumbnail_sizes');
+        $fileName = pathinfo($fileUrl, PATHINFO_BASENAME);
+
+        foreach ($sizes as $size){
+            $key = ($size['w']?:'auto') . '_' . ($size['h']?:'auto');
+            $result[$key] = str_replace($fileName, $key . '/' .$fileName, $fileUrl);
+        }
+
+        return $result;
+    }
+}
+
 
 // Create a URL hash
 if(!function_exists('url_hash')){
