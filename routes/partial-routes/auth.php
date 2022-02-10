@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
-Route::post('publisher/register', '\App\Http\Controllers\PublisherController@register');
+Route::post('publisher/register', '\App\Http\Controllers\Auth\RegisterController@register');
 
 Route::post('login/magic/{scope?}', '\App\Http\Controllers\Auth\LoginController@sendMagicLogin')->where('scope', 'admin|publisher');
 Route::post('login/magic/{token}', '\App\Http\Controllers\Auth\LoginController@verifyMagicLogin');
