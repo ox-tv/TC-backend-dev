@@ -41,9 +41,9 @@ class WatchTimeStore extends FormRequest
             $user = auth('api')->user();
             $idOrUrlHash = $this->route('idOrUrlHash');
             $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
-            $duration = $this->get('end_time') - $this->get('start_time');
+            $duration = $this->get('end_time') - $this->get('start_time') + 1;
 
-            if ($duration > 32){
+            if ($duration > 33){
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
