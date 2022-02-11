@@ -29,7 +29,16 @@ class UserItem extends JsonResource
 
         $favoriteTags = ($withFavoriteTags)? $this->favoriteTags : [];
 
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $withPublisherRequest = $request->is('api/admin/publisher-requests');
+        $publisherRequest = null;
+        if ($withPublisherRequest){
+            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+            $publisherRequest = Message::where([
+                    'user_id' => $this->id,
+                    'department_id' => $publisherApplicationDepartmentId
+                ]
+            )->orderBy('created_at', 'asc')->first();
+        }
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
@@ -60,14 +69,8 @@ class UserItem extends JsonResource
             'role' => $this->role_name,
             'referral_code' => $this->referral_code,
             'publisher_request' => $publisher_request,
-            'request_details' => $this->when(
-                $withPublisherRequest,
-                Message::where([
-                    'user_id' => $this->id,
-                    'department_id' => $publisherApplicationDepartmentId
-                    ]
-                )->orderBy('created_at', 'desc')->first()
-            ),
+            'request_details' => $this->when($withPublisherRequest, $publisherRequest),
+            'is_conversion' => ($withPublisherRequest && ($publisherRequest->created_at >= $this->created_at->addHours(24)))? false : true,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
