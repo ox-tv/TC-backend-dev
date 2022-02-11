@@ -33,7 +33,16 @@ class UserItem extends JsonResource
 
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherRequest = null;
+        if ($withPublisherRequest){
+            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+            $publisherRequest = Message::where([
+                    'user_id' => $this->id,
+                    'department_id' => $publisherApplicationDepartmentId
+                ]
+            )->orderBy('created_at', 'asc')->first();
+        }
+
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
@@ -69,14 +78,8 @@ class UserItem extends JsonResource
             'disliked_videos_count' => $this->dislikedVideos()->count(),
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
-            'request_details' => $this->when(
-                $withPublisherRequest,
-                Message::where([
-                    'user_id' => $this->id,
-                    'department_id' => $publisherApplicationDepartmentId
-                    ]
-                )->orderBy('created_at', 'asc')->first()
-            ),
+            'request_details' => $this->when($withPublisherRequest, $publisherRequest),
+            'is_conversion' => ($withPublisherRequest && ($publisherRequest->created_at >= $this->created_at->addHours(24)))? false : true,
         ];
     }
 }
