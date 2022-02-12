@@ -79,7 +79,7 @@ class UserItem extends JsonResource
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
             'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($withPublisherRequest && ($publisherRequest->created_at >= $this->created_at->addHours(24)))? false : true,
+            'is_conversion' => ($withPublisherRequest && ($publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
         ];
     }
 }
