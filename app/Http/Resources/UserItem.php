@@ -6,6 +6,7 @@ use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\UserMeta;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserItem extends JsonResource
@@ -67,7 +68,7 @@ class UserItem extends JsonResource
             'referral_code' => $this->referral_code,
             'publisher_request' => $publisher_request,
             'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($publisherRequest && ($publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
+            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequest && $publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

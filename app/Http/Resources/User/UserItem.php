@@ -5,6 +5,7 @@ namespace App\Http\Resources\User;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserItem extends JsonResource
@@ -76,7 +77,7 @@ class UserItem extends JsonResource
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
             'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($publisherRequest && ($publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
+            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequest && $publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
         ];
     }
 }
