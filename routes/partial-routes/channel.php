@@ -3,10 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
-
-Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
-Route::apiResource('channels', \App\Http\Controllers\ChannelController::class)->only(['index']);
 
 
 // For Login Users
@@ -17,6 +13,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('channel/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channel.monthly-performance');
 
 });
+
+
+Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
+
+Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
+Route::apiResource('channels', \App\Http\Controllers\ChannelController::class)->only(['index']);
 
 
 // For Publishers
