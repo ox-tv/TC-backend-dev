@@ -68,7 +68,7 @@ class UserItem extends JsonResource
             'referral_code' => $this->referral_code,
             'publisher_request' => $publisher_request,
             'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequest && $publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
+            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequest && $publisherRequest->created_at < $this->created_at->addHours(24)))? false : true,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
