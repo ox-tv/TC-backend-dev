@@ -54,6 +54,17 @@ class UserController extends Controller
                 $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
             })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
             $query = User::whereIn('id', $publisherRequestUserId);
+
+            $query = User::whereHas('meta', function ($q) use($request) {
+                $q->where('key', UserMeta::PUBLISHER_REQUEST_STATUS);
+
+                $filters = $request->get('filters', []);
+                $publisherRequestFilter = Arr::get($filters, 'status');
+
+                if ($publisherRequestFilter){
+                    $q->where('value', $publisherRequestFilter);
+                }
+            });
         }else{
             $query = User::query();
         }
