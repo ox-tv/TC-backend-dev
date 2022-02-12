@@ -33,15 +33,12 @@ class UserItem extends JsonResource
 
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
-        $publisherRequest = null;
-        if ($withPublisherRequest){
-            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
-            $publisherRequest = Message::where([
-                    'user_id' => $this->id,
-                    'department_id' => $publisherApplicationDepartmentId
-                ]
-            )->orderBy('created_at', 'asc')->first();
-        }
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherRequest = Message::where([
+                'user_id' => $this->id,
+                'department_id' => $publisherApplicationDepartmentId
+            ]
+        )->orderBy('created_at', 'asc')->first();
 
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
@@ -79,7 +76,7 @@ class UserItem extends JsonResource
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
             'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($withPublisherRequest && ($publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
+            'is_conversion' => ($publisherRequest && ($publisherRequest->created_at < $this->created_at->addHours(24)))? true : false,
         ];
     }
 }
