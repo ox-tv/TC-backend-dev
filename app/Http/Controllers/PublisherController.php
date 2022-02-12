@@ -211,6 +211,11 @@ class PublisherController extends Controller
             ]
         )->delete();
 
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'confirmed',]
+        );
+
         event(new PublisherRequestApproved($user));
 
         return UserItem::make($user);

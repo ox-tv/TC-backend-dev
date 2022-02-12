@@ -45,7 +45,7 @@ class UserController extends Controller
         }elseif ($request->is('api/admin/publishers')){
             $query = User::publishers();
         }elseif ($request->is('api/admin/publisher-requests')){
-            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
 
             $publisherRequestUserId = Message::where([
                     'department_id' => $publisherApplicationDepartmentId,
@@ -53,7 +53,7 @@ class UserController extends Controller
             )->whereHas('users', function ($q){
                 $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
             })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
-            $query = User::whereIn('id', $publisherRequestUserId);
+            $query = User::whereIn('id', $publisherRequestUserId);*/
 
             $query = User::whereHas('meta', function ($q) use($request) {
                 $q->where('key', UserMeta::PUBLISHER_REQUEST_STATUS);
