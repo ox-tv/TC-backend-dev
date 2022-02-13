@@ -500,15 +500,15 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding: 0px 18px 9px;color: #F15858;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
+                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Good news!</span></strong><br>
 <br>
-Your application&nbsp;has now been reviewed and approved. Start earning crypto&nbsp;today by uploading a video via your publisher panel.</span><br>
+Your application has now been reviewed and approved. You could now access everything in your publisher panel, so why not start by uploading your first video/podcast.</span><br>
                                                         <br>
-                                                        <span style="color:f15858"><strong>Want help exporting and importing videos from your YouTube channel?</strong></span><br>
+                                                        <span style="color:f15858"><strong>Want help exporting and importing media from your existing YouTube channel?</strong></span><br>
                                                         <br>
-                                                        <span style="color:#FFFFFF">With your permission, we can export and import your YouTube videos for the last 3 months directly to your TC channel.<br>
+                                                        <span style="color:#FFFFFF">We can export and import your YouTube channel and videos for the last three months directly to your TC channel with your permission.<br>
 <br>
-For this service, just click the "Request Import" button below. You can create a request later via our message center inside your publisher panel if you do not want to do this now.</span></div>
+For this service, click the "Request Import" button below. You can create a request later via our support center inside the publisher panel if you don't want to do this now.</span></div>
 
                                                 </td>
                                             </tr>
