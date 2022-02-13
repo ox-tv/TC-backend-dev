@@ -502,9 +502,9 @@
 
                                                     <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
 <br>
-<span style="font-size:14px">We are happy to have you aboard.&nbsp;We review all applications manually to avoid fraudsters and cloned channels. We may need additional information to verify that you own the content uploaded to Today's Crypto. So sit back, and we will get back to you soon!<br>
+<span style="font-size:14px">We are happy to have you aboard.<br>
 <br>
-While you wait, feel free to click around in the publisher panel. All communication from us will, from now on, take place via the publisher panel, and you can easily create a support ticket if you have any questions.<br>
+Once you have verified your email address, you are ready for the next step in your application!<br>
 <br>
 Click the button below to verify your email.</span></span></div>
 

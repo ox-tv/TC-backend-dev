@@ -7,6 +7,7 @@ use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
 use App\Http\Requests\UserResendVerification;
+use App\Mail\PublisherVerificationMail;
 use App\Mail\VerificationMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -61,13 +62,14 @@ class RegisterController extends Controller
 
         if ($request->is('api/publisher/*')){
             $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL') . $token;
+            Mail::to($user->email)
+                ->queue(new PublisherVerificationMail($link));
         }else{
             $link = config('general.MWA_EMAIL_VERIFICATION_URL') . $token;
+            Mail::to($user->email)
+                ->queue(new VerificationMail($link));
         }
-
-        Mail::to($user->email)
-            ->queue(new VerificationMail($link));
-
+        
         return response()->json([
             'email' => $request->input('email'),
             'message' => __('auth.email_verification_link_sent'),
