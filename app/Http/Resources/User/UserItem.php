@@ -5,6 +5,7 @@ namespace App\Http\Resources\User;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserMeta;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,12 +36,18 @@ class UserItem extends JsonResource
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
         $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
-        $publisherRequest = Message::where([
+        $publisherRequestDetails = Message::where([
                 'user_id' => $this->id,
                 'department_id' => $publisherApplicationDepartmentId
             ]
         )->orderBy('created_at', 'asc')->first();
 
+
+        $publisherRequest = null;
+        if (!$this->role_id && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
+            $publisherRequest['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $publisherRequest['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+        }
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
@@ -76,8 +83,9 @@ class UserItem extends JsonResource
             'disliked_videos_count' => $this->dislikedVideos()->count(),
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
-            'request_details' => $this->when($withPublisherRequest, $publisherRequest),
-            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequest && $publisherRequest->created_at < $this->created_at->addHours(24)))? false : true,
+            'request_details' => $this->when($withPublisherRequest, $publisherRequestDetails),
+            'publisher_request' => $this->when($withPublisherRequest, $publisherRequest),
+            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequestDetails && $publisherRequestDetails->created_at < $this->created_at->addHours(24)))? false : true,
         ];
     }
 }
