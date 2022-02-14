@@ -64,7 +64,7 @@ class UserController extends Controller
                 if ($publisherRequestFilter){
                     $q->where('value', $publisherRequestFilter);
                 }
-            });
+            })->whereNull('role_id');
         }else{
             $query = User::query();
         }
