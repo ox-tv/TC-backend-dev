@@ -38,7 +38,7 @@ class CryptoCurrencyController extends Controller
         if ($request->get('per_page') == -1){
             $data = $query->get();
         }else{
-            $data = $query->paginate();
+            $data = $query->paginate(100);
         }
 
         // check need prices
