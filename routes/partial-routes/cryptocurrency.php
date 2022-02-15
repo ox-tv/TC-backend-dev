@@ -1,16 +1,6 @@
 <?php
 
-use App\Libraries\CoinMarketCapClient;
 use Illuminate\Support\Facades\Route;
-
-Route::get('test', function (){
-    $client = new CoinMarketCapClient();
-
-    //$res = $client->GetCryptoCurrencies(1, 100);
-
-    $res = $client->GetInfo([1839,1,1027]);
-    return $res;
-});
 
 Route::get('market/cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
