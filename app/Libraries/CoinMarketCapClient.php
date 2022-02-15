@@ -20,14 +20,18 @@ class CoinMarketCapClient
         $this->status = config("coinmarketcap.status");
     }
 
-    /*
-     * Can pass multi symbols separated by comma
-     * */
-    public function GetPrices($slugs): array
+
+    public function GetPrices($ids): array
     {
-        $result = [];
+        $result = [
+            'http_code' => 0,
+            'error_code' => 0,
+            'error_message' => '',
+            'data' => [],
+        ];
 
         if (strtolower($this->status) != 'on'){
+            $result['error_message'] = 'CoinMarketCap Client is turn off.';
             return $result;
         }
 
@@ -39,38 +43,47 @@ class CoinMarketCapClient
                     'X-CMC_PRO_API_KEY' => $this->api_key,
                 ]
             ])->get("{$this->base_url}/v1/cryptocurrency/quotes/latest",[
-                "slug" => $slugs,
+                "id" => implode(',', $ids),
                 "aux" => 'date_added',
             ]);
 
             $body = $response->json();
 
             if(!$response->successful()){
+                $result['error_code'] = $body['status']['error_code'];
                 throw new Exception($body['status']['error_message'], $response->status());
             }
 
-            if (!empty($body['data'])){
-                foreach ($body['data'] as $id => $value){
-                    $result[$value['slug']] = $value['quote']['USD'];
-                }
+            $result['http_code'] = $response->status();
+
+            foreach ($body['data'] as $value){
+                $result['data'][$value['id']] = $value['quote']['USD'];
             }
 
+            return $result;
+
         }catch(Exception $e){
-            Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+            $result['http_code'] = $e->getCode();
+            $result['error_message'] = $e->getMessage();
+            Log::channel('coinmarketcap')->error("CoinMarketCap GetPrices Api Error: {$e->getMessage()}");
             // TODO: send mail to admin
         }
 
         return $result;
     }
 
-    /*
-     * Can pass multi symbols separated by comma
-     * */
+
     public function GetInfo($ids)
     {
-        $result = [];
+        $result = [
+            'http_code' => 0,
+            'error_code' => 0,
+            'error_message' => '',
+            'data' => [],
+        ];
 
         if (strtolower($this->status) != 'on'){
+            $result['error_message'] = 'CoinMarketCap Client is turn off.';
             return $result;
         }
 
@@ -88,17 +101,20 @@ class CoinMarketCapClient
             $body = $response->json();
 
             if(!$response->successful()){
+                $result['error_code'] = $body['status']['error_code'];
                 throw new Exception($body['status']['error_message'], $response->status());
             }
 
-            if (!empty($body['data'])){
-                foreach ($body['data'] as $id => $value){
-                    $result[$id] = $value;
-                }
+            $result['http_code'] = $response->status();
+
+            foreach ($body['data'] as $value){
+                $result['data'][$value['id']] = $value;
             }
 
         }catch(Exception $e){
-            Log::error("CoinMarketCap GetPriceRatio Api Error: {$e->getMessage()}");
+            $result['http_code'] = $e->getCode();
+            $result['error_message'] = $e->getMessage();
+            Log::channel('coinmarketcap')->error("CoinMarketCap GetInfo Api Error: {$e->getMessage()}");
             // TODO: send mail to admin
         }
 
@@ -107,9 +123,15 @@ class CoinMarketCapClient
 
     public function GetCryptoCurrencies($start = 1, $limit = 1000)
     {
-        $result = [];
+        $result = [
+            'http_code' => 0,
+            'error_code' => 0,
+            'error_message' => '',
+            'data' => [],
+        ];
 
         if (strtolower($this->status) != 'on'){
+            $result['error_message'] = 'CoinMarketCap Client is turn off.';
             return $result;
         }
 
@@ -123,24 +145,28 @@ class CoinMarketCapClient
                 ])->get("{$this->base_url}/v1/cryptocurrency/listings/latest",[
                     "start" => $start,
                     "limit" => $limit,
-                    "aux" => 'date_added',
+                    "aux" => 'date_added,cmc_rank',
                 ]);
-
-            if($response->successful()){
-                return $response->json();
-            }
 
             $body = $response->json();
 
             if(!$response->successful()){
+                $result['error_code'] = $body['status']['error_code'];
                 throw new Exception($body['status']['error_message'], $response->status());
             }
 
+            $result['http_code'] = $response->status();
+            $result['data'] = $body['data'];
+
+            return $result;
+
         }catch(Exception $e){
-            Log::error("CoinMarketCap GetCryptoCurrencies Api Error: {$e->getMessage()}");
+            $result['http_code'] = $e->getCode();
+            $result['error_message'] = $e->getMessage();
+            Log::channel('coinmarketcap')->error("CoinMarketCap GetCryptoCurrencies Api Error: {$e->getMessage()}");
             // TODO: send mail to admin
         }
 
-        return [];
+        return $result;
     }
 }
