@@ -52,23 +52,27 @@ class CryptoCurrencyController extends Controller
                 }
             }
             if (!empty($needToGetPrices)){
-                $this->GetPrices($needToGetPrices);
+                $this->updatePrices($needToGetPrices);
             }
         }
 
         return CryptoCurrencyItem::collection($data);
     }
 
-    private function GetPrices($crypto_currencies): void
+    private function updatePrices($crypto_currencies): void
     {
         $client = new CoinMarketCapClient();
 
-        $slugs = array_column($crypto_currencies, 'slug');
+        $ids = array_column($crypto_currencies, 'coinmarketcap_id');
 
-        $res = $client->GetPrices(implode(',', $slugs));
+        $resPrices = $client->GetPrices($ids);
+
+        if (empty($resPrices['data'])){
+            return;
+        }
 
         foreach($crypto_currencies as $crypto_currency){
-            $crypto_currency->prices = $res[$crypto_currency->slug]??  null;
+            $crypto_currency->prices = $resPrices['data'][$crypto_currency->coinmarketcap_id]??  null;
             $crypto_currency->save();
         }
     }
@@ -84,7 +88,7 @@ class CryptoCurrencyController extends Controller
             }
         }
         if (!empty($needToGetPrices)){
-            $this->GetPrices($needToGetPrices);
+            $this->updatePrices($needToGetPrices);
         }
 
         foreach($data as $crypto_currency){
