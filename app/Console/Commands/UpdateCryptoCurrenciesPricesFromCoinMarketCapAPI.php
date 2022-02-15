@@ -49,13 +49,12 @@ class UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI extends Command
 
         $response = $client->GetCryptoCurrencies($start, $limit);
 
-        //Log::info($response);return;
         if(empty($response['data'])){
             return;
         }
 
         $data = [];
-        foreach ($response['data'] as $order => $value){
+        foreach ($response['data'] as $value){
             $data[] = [
                 'status' => CryptoCurrency::STATUS_LIST,
                 'symbol' => $value['symbol'],
@@ -63,7 +62,7 @@ class UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI extends Command
                 'slug' => $value['slug'],
                 'coinmarketcap_id' => $value['id'],
                 'prices' => json_encode($value['quote']['USD']),
-                'order' => $start + $order,
+                'order' => $value['cmc_rank'],
             ];
 
             $available_coins[] = $value['id'];
@@ -71,11 +70,11 @@ class UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI extends Command
 
         CryptoCurrency::upsert($data, ['coinmarketcap_id'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
 
-        // update without touch updated_at
+        // Update orders without touch updated_at
         DB::table('crypto_currencies')->whereNotIn('coinmarketcap_id', $available_coins)->update([
             'order' => 100000,
+            'status' => CryptoCurrency::STATUS_DELIST,
         ]);
-
         return 0;
     }
 }
