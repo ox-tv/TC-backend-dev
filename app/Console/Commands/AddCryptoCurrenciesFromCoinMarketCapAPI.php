@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Libraries\CoinMarketCapClient;
 use App\Models\CryptoCurrency;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
@@ -43,53 +44,61 @@ class AddCryptoCurrenciesFromCoinMarketCapAPI extends Command
         $client = new CoinMarketCapClient();
 
         $start = 1;
-        $limit = 1000;
+        $limit = 200;
         $available_coins = [];
 
         do{
             $response = $client->GetCryptoCurrencies($start, $limit);
+
+            if ($response['http_code'] == 429){
+                sleep(60);
+                continue;
+            }
 
             if(empty($response['data'])){
                 break;
             }
 
             $info = [];
+            $infoResponse = $client->GetInfo(array_column($response['data'], 'id'));
 
-            foreach (array_chunk(array_column($response['data'], 'id'), 100) as $ids){
-                $infoResponse = $client->GetInfo($ids);
-
-                if(empty($infoResponse)){
-                    continue;
-                }
-
-                $info = array_merge($info, $infoResponse);
+            if ($infoResponse['http_code'] == 429){
+                sleep(60);
+                continue;
             }
 
+            if(empty($infoResponse['data'])){
+                break;
+            }
+
+            $info = $infoResponse['data'];
+
             $data = [];
-            foreach ($response['data'] as $order => $value){
+            foreach ($response['data'] as $value){
                 $data[] = [
                     'status' => CryptoCurrency::STATUS_LIST,
                     'symbol' => $value['symbol'],
                     'name' => $value['name'],
                     'slug' => $value['slug'],
                     'coinmarketcap_id' => $value['id'],
-                    'metadata' => json_encode($info[$value['slug']]?? null),
-                    'order' => $start + $order,
+                    'prices' => json_encode($value['quote']['USD']),
+                    'metadata' => !empty($info[$value['id']])? json_encode($info[$value['id']]) : null,
+                    'order' => $value['cmc_rank'],
                 ];
 
                 $available_coins[] = $value['id'];
             }
 
-            DB::table('crypto_currencies')->upsert(
+            CryptoCurrency::upsert(
                 $data,
                 ['coinmarketcap_id'],
-                ['name', 'symbol', 'slug', 'order', 'metadata', 'status']
+                ['name', 'symbol', 'slug', 'order', 'metadata', 'status', 'prices']
             );
 
             $start += $limit;
         } while(1);
 
-        DB::table('crypto_currencies')->whereNotIn('coinmarketcap_id', $available_coins)->update([
+        CryptoCurrency::whereNotIn('coinmarketcap_id', $available_coins)->update([
             'order' => 100000,
             'status' => CryptoCurrency::STATUS_DELIST,
         ]);
