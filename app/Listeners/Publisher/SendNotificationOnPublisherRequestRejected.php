@@ -26,7 +26,7 @@ class SendNotificationOnPublisherRequestRejected
         $parentMessage = $event->parentMessage;
 
         TCNotification::send(collect([$user]), new PublisherRejected(
-            Notification::SCOPE_TEXT[Notification::SCOPE_USER],
+            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message_id' => $parentMessage->id,
