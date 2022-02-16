@@ -8,6 +8,7 @@ use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
 use App\Events\VideoWasHidden;
+use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
@@ -539,12 +540,14 @@ class VideoController extends Controller
         return VideoMinimalItem::make($video);
     }
 
-    public function unHide(Video $video){
-
+    public function unHide(Video $video)
+    {
         $video->reason_key = null;
         $video->reason_text = null;
         $video->status = Video::STATUS_PUBLISHED;
         $video->save();
+
+        event(new VideoWasUnHidden($video));
 
         return VideoMinimalItem::make($video);
     }
