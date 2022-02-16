@@ -104,7 +104,7 @@
             table-layout:fixed !important;
         }
         body,#bodyTable{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
         }
         #bodyCell{
             /*@editable*/border-top:0;
@@ -153,7 +153,7 @@
             /*@editable*/text-align:left;
         }
         #templatePreheader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -176,7 +176,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateHeader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -199,7 +199,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateBody{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -222,7 +222,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateFooter{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
