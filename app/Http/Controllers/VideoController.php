@@ -512,6 +512,12 @@ class VideoController extends Controller
             'reason' => 'required'
         ]);
 
+        if ($video->status != Video::STATUS_PUBLISHED){
+            return response()->json([
+                'message' => __('video.video_is_not_published')
+            ], 422);
+        }
+
         $option_key = Option::VIDEO_HIDE_REASONS;
         $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
