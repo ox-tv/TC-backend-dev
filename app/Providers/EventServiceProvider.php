@@ -22,6 +22,7 @@ use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
+use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
 use App\Listeners\Channels\SendEmailOnChannelImportRequestCompleted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestAccepted;
@@ -45,6 +46,7 @@ use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
+use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -154,6 +156,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoWasHidden::class => [
             SendNotificationOnVideoWasHidden::class,
+        ],
+        VideoWasUnHidden::class => [
+            SendNotificationOnVideoWasUnHidden::class,
         ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,
