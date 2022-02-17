@@ -396,7 +396,7 @@
 </head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:rgb(42,44,63)">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
