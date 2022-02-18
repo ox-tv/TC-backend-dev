@@ -434,8 +434,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank">
-                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/2f2bca11-c610-4966-a21f-c23ff8a52d60.jpg" width="152.28" style="max-width:852px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TodaysCrypto-logo-full.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
