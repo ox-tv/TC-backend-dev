@@ -394,7 +394,7 @@
         }</style></head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:rgb(42,44,63)">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#2a2c3f !important">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
