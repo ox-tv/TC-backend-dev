@@ -218,6 +218,6 @@ class User extends Authenticatable
     }
 
     public function getAvatarAttribute($value){
-        return $this->channel? $this->channel->avatar : $value;
+        return $this->channel ? ($this->channel->avatar_url ?: $this->avatar) : $value;
     }
 }
