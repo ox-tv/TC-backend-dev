@@ -216,4 +216,8 @@ class User extends Authenticatable
     public function getUsernameAttribute($value){
         return $this->channel? $this->channel->name : $value;
     }
+
+    public function getAvatarAttribute($value){
+        return $this->channel? $this->channel->avatar : $value;
+    }
 }
