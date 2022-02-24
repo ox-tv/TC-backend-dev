@@ -27,6 +27,7 @@ use App\Notifications\NewPublisherRequest;
 use App\Notifications\ReplyMessage;
 use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -108,7 +109,7 @@ class PublisherController extends Controller
         );
 
         // Send publisher request message to admin
-        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+        $department = Department::firstOrCreate(['name' => 'Publisher Application']);
 
         $message_data = [
             'subject' => trans("publisher.application_subject"),
@@ -203,7 +204,7 @@ class PublisherController extends Controller
             ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->delete();
 
         // Remove publisher request message
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
 
         Message::where([
                 'user_id' => $user->id,
@@ -284,10 +285,14 @@ class PublisherController extends Controller
         );
 
         // Send publisher request message to admin
-        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+        $department = Department::firstOrCreate(['name' => 'Publisher Application']);
+
+
+        // check if it's conversion or regular request
+        $isConversion = $user->created_at >= Carbon::now()->subHours(24);
 
         $message_data = [
-            'subject' => trans("publisher.application_subject"),
+            'subject' => $isConversion ? trans("publisher.conversion_application_subject") : trans("publisher.new_application_subject"),
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),

@@ -35,7 +35,7 @@ class UserItem extends JsonResource
 
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
         $publisherRequestDetails = Message::where([
                 'user_id' => $this->id,
                 'department_id' => $publisherApplicationDepartmentId

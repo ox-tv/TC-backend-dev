@@ -45,7 +45,7 @@ class UserController extends Controller
         }elseif ($request->is('api/admin/publishers')){
             $query = User::publishers();
         }elseif ($request->is('api/admin/publisher-requests')){
-            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
 
             $publisherRequestUserId = Message::where([
                     'department_id' => $publisherApplicationDepartmentId,
