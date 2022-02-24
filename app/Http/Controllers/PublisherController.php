@@ -287,8 +287,12 @@ class PublisherController extends Controller
         // Send publisher request message to admin
         $department = Department::firstOrCreate(['name' => 'Publisher Application']);
 
+
+        // check if it's conversion or regular request
+        $isConversion = $user->created_at >= Carbon::now()->subHours(24);
+
         $message_data = [
-            'subject' => trans("publisher.application_subject"),
+            'subject' => $isConversion ? trans("publisher.conversion_application_subject") : trans("publisher.new_application_subject"),
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),
