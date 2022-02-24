@@ -292,7 +292,7 @@ class PublisherController extends Controller
         $isConversion = $user->created_at >= Carbon::now()->subHours(24);
 
         $message_data = [
-            'subject' => $isConversion ? trans("publisher.conversion_application_subject") : trans("publisher.new_application_subject"),
+            'subject' => $isConversion ? trans("publisher.new_application_subject") : trans("publisher.conversion_application_subject"),
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),
