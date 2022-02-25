@@ -203,6 +203,14 @@ class User extends Authenticatable
         return $this->hero_due_at > now();
     }
 
+    public function getHasMembershipHistoryAttribute(){
+
+        $pricingUserQuery = PricingUser::where('user_id', $this->id);
+
+        return $pricingUserQuery->count() > 0;
+
+    }
+
     public function getIsMuteAttribute($value){
         return $value && (empty($this->muted_until) || $this->muted_until > now());
     }
