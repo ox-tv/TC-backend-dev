@@ -205,9 +205,7 @@ class User extends Authenticatable
 
     public function getHasMembershipHistoryAttribute(){
 
-        $pricingUserQuery = PricingUser::orderBy('created_at','desc');
-
-        $pricingUserQuery->where('user_id', $this->id);
+        $pricingUserQuery = PricingUser::where('user_id', $this->id);
 
         return $pricingUserQuery->count() > 0;
 
