@@ -204,6 +204,23 @@ class UserController extends Controller
         return UserDetails::make($user);
     }
 
+    public function usernameCheck(Request $request)
+    {
+        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
+        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+
+        $request->validate([
+            'username' => [
+                'required', 'string',
+                CustomRule::forbiddenWords($forbiddenWords),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
+                    ->ignore(auth('api')->id())
+            ],
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
     /**
      * Update the specified resource in storage.
      *
