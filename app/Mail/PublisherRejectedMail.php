@@ -12,15 +12,17 @@ class PublisherRejectedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $reason;
+    public $supportLink;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($reason)
+    public function __construct($reason, $supportLink)
     {
         $this->reason = $reason;
+        $this->supportLink = $supportLink;
     }
 
     /**

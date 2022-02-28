@@ -35,8 +35,10 @@ class SendEmailOnPublisherRequestRejected
         $user = $event->user;
         $reason = $event->reason;
 
+        $supportLink = config('PUBLISHER_SUPPORT_URL');
+
         Mail::to($user->email)
-            ->queue(new PublisherRejectedMail($reason));
+            ->queue(new PublisherRejectedMail($reason, $supportLink));
 
         return true;
     }
