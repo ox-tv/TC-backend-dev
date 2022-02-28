@@ -273,6 +273,12 @@ class PublisherController extends Controller
 
         $user = auth('api')->user();
 
+        if ($user->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
+            return response()->json([
+                'message' => __('publisher.duplicate_request'),
+            ], 422);
+        }
+
         // save requested channel name on user meta
         $user->meta()->updateOrCreate(
             ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
