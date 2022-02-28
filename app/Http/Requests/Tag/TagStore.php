@@ -30,11 +30,8 @@ class TagStore extends FormRequest
      */
     public function rules()
     {
-        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
-        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
-
         return [
-            'name' => ['required', CustomRule::forbiddenWords($forbiddenWords), Rule::unique('tags', 'name'),],
+            'name' => ['required', Rule::unique('tags', 'name')],
             'status' => ['nullable', Rule::in(Tag::STATUS_TEXT)],
         ];
     }
