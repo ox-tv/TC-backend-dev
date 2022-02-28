@@ -25,6 +25,8 @@ return [
     'PUBLISHER_ACCOUNT_DELETION_URL' => env('PUBLISHER_ACCOUNT_DELETION_URL', ''),
     'MWA_ACCOUNT_DELETION_URL' => env('MWA_ACCOUNT_DELETION_URL', ''),
 
+    'PUBLISHER_SUPPORT_URL' => env('PUBLISHER_SUPPORT_URL', ''),
+
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
     ],
