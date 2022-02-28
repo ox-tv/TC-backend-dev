@@ -4,12 +4,14 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
 
 });
+
+
+Route::post('users/username/check', '\App\Http\Controllers\UserController@usernameCheck')->name('users.username.check');
 
 
 // For Publishers
