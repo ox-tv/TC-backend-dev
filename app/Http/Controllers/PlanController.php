@@ -48,6 +48,10 @@ class PlanController extends Controller
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
         $plan->is_popular = $request->get('is_popular');
+        $plan->meta = [
+            'extra_text_content' => $request->get('extra_text_content'),
+            'extra_text_color' => $request->get('extra_text_color')
+        ];
         $plan->thumbnail_url = $request->get('thumbnail');
 
 
@@ -80,6 +84,10 @@ class PlanController extends Controller
         $plan->interval = $request->get('interval');
         $plan->status = array_flip(Plan::STATUS_TEXT)[$request->get('status')];
         $plan->is_popular = $request->get('is_popular');
+        $plan->meta = [
+            'extra_text_content' => $request->get('extra_text_content'),
+            'extra_text_color' => $request->get('extra_text_color')
+        ];
         $plan->thumbnail_url = $request->get('thumbnail');
 
 
