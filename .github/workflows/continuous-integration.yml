@@ -15,7 +15,7 @@ jobs:
           
     steps:
       - name: PWD
-        run: pwd
+        run: pwd && whoami
       
       - name: Pull
         run: git pull
