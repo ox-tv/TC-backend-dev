@@ -33,6 +33,8 @@ class PlanUpdate extends FormRequest
             'interval' => ['required', 'numeric', 'gt:0'],
             'status' => ['required', Rule::in(Plan::STATUS_TEXT)],
             'is_popular' => ['nullable', 'boolean'],
+            'extra_text_content' => ['nullable', 'string'],
+            'extra_text_color' => ['nullable', 'string'],
             'description' => ['nullable'],
             'thumbnail' => ['nullable'],
             'pricing.*.id' => ['nullable', Rule::exists('pricing', 'id')],
