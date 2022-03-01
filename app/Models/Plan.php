@@ -18,6 +18,10 @@ class Plan extends Model
         self::STATUS_ACTIVE => 'active',
     ];
 
+    protected $casts = [
+        'meta' => 'array'
+    ];
+
     public function scopeActive($query){
         $query->where('status', self::STATUS_ACTIVE);
         return $query;
