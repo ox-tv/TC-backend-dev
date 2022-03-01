@@ -31,6 +31,8 @@ class PlanItem extends JsonResource
             'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
             'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
             'is_popular' => (bool) $this->is_popular,
+            'extra_text_content' => $this->meta['extra_text_content']??null,
+            'extra_text_color' => $this->meta['extra_text_color']??null,
             'pricing' => $this->when($withPricing, $pricing),
             'created_at' => $this->created_at
         ];
