@@ -503,9 +503,9 @@
 <br>
 <span style="font-size:14px">We are happy to have you aboard.<br>
 <br>
-Once you have verified your email address, you are ready for the next step in your application!<br>
+Once you have verified your email address, you are ready for the next step in your application!</span><br>
 <br>
-Click the button below to verify your email.</span></span></div>
+<span style="color:#FFFFFF">Click the button below to verify your email.</span></span></div>
 
                                                 </td>
                                             </tr>
