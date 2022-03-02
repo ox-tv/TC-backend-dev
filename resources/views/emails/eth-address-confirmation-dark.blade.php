@@ -499,9 +499,9 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">You have requested to update your ETH address.</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">You have requested to update your ETH address.</span></strong><br>
 <br>
-Click the button below to verify your new ETH address.</span></div>
+Click the button below to verify your new ETH address.</p></div>
 
                                                 </td>
                                             </tr>

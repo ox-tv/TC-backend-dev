@@ -499,13 +499,12 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF !important;"><strong><span style="font-size:18px">Welcome!</span></strong><br>
 <br>
 <span style="font-size:14px">We are happy to have you aboard.<br>
 <br>
-Once you have verified your email address, you are ready for the next step in your application!</span><br>
-<br>
-<span style="color:#FFFFFF">Click the button below to verify your email.</span></span></div>
+Once you have verified your email address, you are ready for the next step in your application!<br>
+<br>Click the button below to verify your email.</span></p></div>
 
                                                 </td>
                                             </tr>

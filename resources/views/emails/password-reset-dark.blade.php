@@ -499,10 +499,10 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Forgot your password?</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">Forgot your password?</span></strong><br>
 <br>
 <span style="font-size:14px">We can definitely help you with this.<br>
-Click the button below to reset your password.</span></span></div>
+Click the button below to reset your password.</span></p></div>
 
                                                 </td>
                                             </tr>

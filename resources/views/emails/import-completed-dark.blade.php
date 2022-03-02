@@ -499,13 +499,13 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Good news!</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">Good news!</span></strong><br>
 <br>
 Your YouTube videos are now imported.<br>
 <br>
 If you want to change any video title,&nbsp;description, or add tags, you can easily do this via your publisher panel.<br>
 <br>
-Please note that we have not imported tags or related coins/tokens. We recommend that you do this for each upload.</span></div>
+Please note that we have not imported tags or related coins/tokens. We recommend that you do this for each upload.</p></div>
 
                                                 </td>
                                             </tr>

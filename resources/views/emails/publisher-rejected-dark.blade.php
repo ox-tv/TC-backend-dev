@@ -577,7 +577,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></span>
+                                                    <p style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></p>
                                                 </td>
                                             </tr>
                                             </tbody></table>
