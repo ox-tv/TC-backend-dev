@@ -57,7 +57,7 @@ class UserStore extends FormRequest
                 })->whereNotNull('email_verified_at')->whereNull('deleted_at'),
             ],
             'username' => [
-                'nullable', 'string',
+                'nullable', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username'),
             ],
