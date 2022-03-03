@@ -30,9 +30,17 @@ class LoginController extends Controller
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
 
         if(Auth::validate([$loginType => $login, 'password' => $request->get('password')])){
+
             $user = Auth::getLastAttempted();
+
             if($user->status == User::STATUS_INACTIVE) {
-                return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
+
+                if (!$user->email_verified_at){
+                    auth()->emailVerification($user, $scope);
+                    return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
+                }
+
+                return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
             }
         }
 
