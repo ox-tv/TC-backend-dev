@@ -211,7 +211,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'required', 'string',
+                'required', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore(auth('api')->id())
@@ -235,7 +235,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'nullable', 'string',
+                'nullable', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore($user->id)
@@ -432,7 +432,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'nullable', 'string',
+                'nullable', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore(auth('api')->id()),
