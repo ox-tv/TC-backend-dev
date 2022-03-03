@@ -19,6 +19,8 @@ class RegisterController extends Controller
 
     public function register(UserRegister $request)
     {
+        $scope = $request->is('api/publisher/*')? 'publisher' : 'mwa';
+
         $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
 
         $duplicateEmail = User::where('email', $request->get('email'))
@@ -55,20 +57,9 @@ class RegisterController extends Controller
 
         $user->save();
 
-        // Create verification token and send to user email
-        $token = sha1($user->id . time());
-        $user->verification_code = $token;
-        $user->save();
 
-        if ($request->is('api/publisher/*')){
-            $link = config('general.PUBLISHER_EMAIL_VERIFICATION_URL') . $token;
-            Mail::to($user->email)
-                ->queue(new PublisherVerificationMail($link));
-        }else{
-            $link = config('general.MWA_EMAIL_VERIFICATION_URL') . $token;
-            Mail::to($user->email)
-                ->queue(new VerificationMail($link));
-        }
+        // Create verification token and send to user email
+        auth()->emailVerification($user, $scope);
         
         return response()->json([
             'email' => $request->input('email'),
@@ -93,7 +84,7 @@ class RegisterController extends Controller
         return response()->json(['message' => __('auth.email_verified_successfully')]);
     }
 
-    public function resend(UserResendVerification $request)
+    public function resend(UserResendVerification $request, $scope = 'user')
     {
         $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
 
@@ -105,13 +96,7 @@ class RegisterController extends Controller
             ->whereNull('email_verified_at')
             ->firstOrFail();
 
-        $token = sha1($user->id . time());
-        $user->verification_code = $token;
-        $user->save();
-
-        $link = config('general.EMAIL_VERIFICATION_URL').$token;
-        Mail::to($user->email)
-            ->queue(new VerificationMail($link));
+        auth()->emailVerification($user, $scope);
 
         return response()->json([
             'email' => $request->get("email"),
