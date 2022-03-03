@@ -14,7 +14,7 @@ Route::get('password/verify/{token}', '\App\Http\Controllers\Auth\LoginControlle
 Route::put('password/reset', '\App\Http\Controllers\Auth\LoginController@reset_password');
 
 Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
-Route::post('users/resend', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
+Route::post('users/resend/{scope?}', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
 
 // For Login Users
