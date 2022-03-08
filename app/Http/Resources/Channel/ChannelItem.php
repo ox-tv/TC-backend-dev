@@ -48,8 +48,7 @@ class ChannelItem extends JsonResource
             'uploads_count' => $this->uploads_count,
             'total_views' => $this->total_views,
             'watch_time' => $this->watch_time,
-            'is_subscribed' => auth('api')->check() ?
-                ($this->subscribers()->where('user_id', auth('api')->id())->exists() ? true : false) : false,
+            'is_subscribed' => auth('api')->check() && $this->subscribers()->where('user_id', auth('api')->id())->exists(),
             'subscribers_count' => $this->subscribers()->count(),
             'hero_subscribers_count' => $this->heroSubscribers()->count(),
             'total_likes' => $this->total_likes,
