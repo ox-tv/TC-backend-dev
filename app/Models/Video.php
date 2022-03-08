@@ -274,40 +274,36 @@ class Video extends Model
     }
 
     public function getIsMineAttribute(){
-        return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
+        return auth('api')->check() && $this->user_id == auth('api')->user()->id;
     }
 
     public function getIsLikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::LIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsDislikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsDislikedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::DISLIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsBookmarkedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsBookmarkedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::BOOKMARKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
     public function getRelatedVideosAttribute(){
