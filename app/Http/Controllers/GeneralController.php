@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Category\CategoryItem;
+use App\Http\Resources\Channel\ChannelItem;
+use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Video\HomeVideoCollection;
 use App\Http\Resources\Video\HomeVideoItem;
+use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryCollection;
 use App\Models\Category;
 use App\Models\Channel;
+use App\Models\ChannelStatisticsDaily;
 use App\Models\Comment;
 use App\Models\Report;
+use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
@@ -22,6 +27,121 @@ class GeneralController extends Controller
 {
     public function home(Request $request)
     {
+        $result = [];
+        $user = auth('api')->user();
+
+        // Trending Channels
+        $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
+            ->whereDate('date', '>=', (Carbon::now())->subDays(30)->format('Y-m-d'))
+            ->groupBy('channel_id')
+            ->withoutGlobalScope('orderByDate')
+            ->orderBy('subscribers', 'DESC')
+            ->take(15)
+            ->pluck('channel_id')->toArray();
+
+        $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
+
+        $trendingChannels = Channel::published()
+            ->when(!empty($orderByTrendingChannelIds), function ($q) use ($orderByTrendingChannelIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingChannelIds) DESC, Created_at DESC");
+            })
+            ->take(15)
+            ->get();
+        //$result['trending_channels'] = ChannelMinimalItem::collection($trendingChannels);
+        $result['trending_channels'] = $trendingChannels;
+
+        // Trending Videos
+        $trendingVideoIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
+            ->whereDate('date', '>=', (Carbon::now())->subDays(7)->format('Y-m-d'))
+            ->groupBy('video_id')
+            ->withoutGlobalScope('orderByDate')
+            ->orderBy('points', 'DESC')
+            ->take(15)
+            ->pluck('video_id')->toArray();
+
+        $orderByTrendingvidoIds = implode(',', array_reverse($trendingVideoIds));
+
+        $trendingVideos = Video::published()
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->when(!empty($orderByTrendingvidoIds), function ($q) use ($orderByTrendingvidoIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingvidoIds) DESC, Created_at DESC");
+            })
+            ->take(15)
+            ->get();
+        $result['trending_videos'] = HomeVideoItem::collection($trendingVideos);
+
+        // Latest Videos On TC
+        $latestVideos = Video::published()->take(15)->get();
+        $result['latest_videos'] = HomeVideoItem::collection($latestVideos);
+
+        // Top Channels
+        $topChannels = Channel::published()
+            ->withCount('subscribers')
+            ->orderBy('subscribers_count', 'desc')
+            ->take(15)
+            ->get();
+        //$result['top_channels'] = ChannelMinimalItem::collection($topChannels);
+        $result['top_channels'] = $topChannels;
+
+
+        if ($user){
+            // Videos For You
+            $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                ->select('crypto_currency_id')
+                ->where('user_id', $user->id)
+                ->pluck('crypto_currency_id')
+                ->toArray();
+
+            if (empty($userFavoriteCoinIds)){
+                $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                    ->selectRaw('COUNT(*) AS count, `crypto_currency_id`')
+                    ->groupBy('crypto_currency_id')
+                    ->orderBy('count','DESC')
+                    ->take(15)
+                    ->pluck('crypto_currency_id')->toArray();
+            }
+
+            $userFavoriteTagIds = DB::table('tag_user')
+                ->select('tag_id')
+                ->where('user_id', $user->id)
+                ->pluck('tag_id')
+                ->toArray();
+
+            if (empty($userFavoriteTagIds)){
+                $userFavoriteTagIds = DB::table('tag_video')
+                    ->selectRaw('COUNT(*) AS count, `tag_id`')
+                    ->groupBy('tag_id')
+                    ->orderBy('count','DESC')
+                    ->take(15)
+                    ->pluck('tag_id')->toArray();
+            }
+
+            $videosForYou = Video::published()
+                ->where(function ($query) use ($userFavoriteCoinIds, $userFavoriteTagIds){
+                    $query->whereHas('crypto_currencies', function ($query) use ($userFavoriteCoinIds){
+                        $query->whereIn('id', $userFavoriteCoinIds);
+                    })->orWhereHas('tags', function ($query) use ($userFavoriteTagIds){
+                        $query->whereIn('id', $userFavoriteTagIds);
+                    });
+                })
+                ->take(15)
+                ->get();
+
+            $result['videos_for_you'] = HomeVideoItem::collection($videosForYou);
+
+            // My Subscriptions Videos
+            $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
+            $mySubscriptionsVideos = Video::published()
+                ->whereIn('channel_id', $subscriptionsChannelIds)
+                ->take(15)
+                ->get();
+            $result['my_subscriptions_videos'] = HomeVideoItem::collection($mySubscriptionsVideos);
+        }
+
+        return $result;
+
+
+
         $user = auth('api')->user();
 
         // Get user favorite coin videos else trending coin videos
