@@ -247,6 +247,12 @@ class Video extends Model
 
 
     // Attributes
+    public function getLayersAttribute()
+    {
+        $meta = $this->meta()->where('key', 'layers')->first();
+        return $meta? json_decode($meta->value) : null;
+    }
+
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)
             ->whereIn("relation",[UserVideo::LIKED_RELATION, UserVideo::DISLIKED_RELATION])
