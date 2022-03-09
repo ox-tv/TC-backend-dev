@@ -41,7 +41,7 @@ class ChannelSummaryItem extends JsonResource
             "slogan" => $this->slogan,
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
-            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
+            'is_subscribed' => auth('api')->check() && $this->subscribers()->where('user_id', auth('api')->id())->exists(),
         ];
     }
 }

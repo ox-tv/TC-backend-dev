@@ -27,7 +27,7 @@ class ChannelSubscriberItem extends JsonResource
             'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
             "slogan" => $this->slogan,
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
-            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->id()) ? true : false) : false,
+            'is_subscribed' => auth('api')->check() && $this->subscribers()->where('user_id', auth('api')->id())->exists(),
         ];
     }
 }

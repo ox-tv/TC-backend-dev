@@ -247,6 +247,12 @@ class Video extends Model
 
 
     // Attributes
+    public function getLayersAttribute()
+    {
+        $meta = $this->meta()->where('key', 'layers')->first();
+        return $meta? json_decode($meta->value) : null;
+    }
+
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)
             ->whereIn("relation",[UserVideo::LIKED_RELATION, UserVideo::DISLIKED_RELATION])
@@ -274,40 +280,36 @@ class Video extends Model
     }
 
     public function getIsMineAttribute(){
-        return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
+        return auth('api')->check() && $this->user_id == auth('api')->user()->id;
     }
 
     public function getIsLikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::LIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsDislikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsDislikedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::DISLIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsBookmarkedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsBookmarkedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::BOOKMARKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
     public function getRelatedVideosAttribute(){
