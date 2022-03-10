@@ -21,8 +21,10 @@ class ChannelMinimalItem extends JsonResource
             'description' => $this->description,
             'slug' => $this->slug,
             'url_hash' => $this->url_hash,
-            'cover' => $this->cover,
-            'avatar' => $this->avatar,
+            'cover' => $this->cover_url? :$this->cover,
+            'cover_thumbnails' => $this->cover_url? getThumbnails($this->cover_url):[],
+            'avatar' => $this->avatar_url? :$this->avatar,
+            'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
             "instagram" => $this->instagram,
             "facebook" => $this->facebook,
             "twitter" => $this->twitter,
@@ -36,8 +38,7 @@ class ChannelMinimalItem extends JsonResource
             'youtube_channel_url' => $this->youtube_channel_url,
             "created_at" => $this->created_at,
 
-            'is_subscribed' => auth('api')->check() ?
-                ($this->subscribers()->where('user_id', auth('api')->id())->exists() ? true : false) : false,
+            'is_subscribed' => auth('api')->check() && $this->subscribers()->where('user_id', auth('api')->id())->exists(),
             'subscribers_count' => $this->subscribers()->count(),
         ];
     }

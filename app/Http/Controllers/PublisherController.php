@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 
 use Amir\Permission\Models\Role;
+use App\Events\Messages\MessageRepliedByAdmin;
+use App\Events\Publisher\NewPublisherRequested;
+use App\Events\Publisher\PublisherRequestApproved;
+use App\Events\Publisher\PublisherRequestRejected;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Message\MessageItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\UserItem;
-use App\Mail\PublisherApprovedMail;
-use App\Mail\PublisherRejectedMail;
 use App\Mail\PublisherVerificationMail;
-use App\Mail\VerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
@@ -23,11 +24,10 @@ use App\Models\Option;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Notifications\NewPublisherRequest;
-use App\Notifications\PublisherApproved;
-use App\Notifications\PublisherRejected;
 use App\Notifications\ReplyMessage;
 use App\Notifications\TCNotification\TCNotification;
 use App\Repository\MessageRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -109,7 +109,7 @@ class PublisherController extends Controller
         );
 
         // Send publisher request message to admin
-        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+        $department = Department::firstOrCreate(['name' => 'Publisher Application']);
 
         $message_data = [
             'subject' => trans("publisher.application_subject"),
@@ -204,7 +204,7 @@ class PublisherController extends Controller
             ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->delete();
 
         // Remove publisher request message
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
 
         Message::where([
                 'user_id' => $user->id,
@@ -212,16 +212,12 @@ class PublisherController extends Controller
             ]
         )->delete();
 
-        TCNotification::send(collect([$user]), new PublisherApproved(
-            Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [],
-            get_class($user),
-            $user->id
-        ));
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::PUBLISHER_REQUEST_STATUS],
+            ['value' => 'confirmed',]
+        );
 
-        Mail::to($user->email)
-            ->queue(new PublisherApprovedMail());
+        event(new PublisherRequestApproved($user));
 
         return UserItem::make($user);
     }
@@ -246,9 +242,11 @@ class PublisherController extends Controller
         $reason = $request->get('reason');
         $message_id = $request->get('message_id');
         $parent_message = Message::find($message_id);
-        $option_key = Option::VIDEO_REPORT_REASONS;
+        $option_key = Option::PUBLISHER_REQUEST_REJECT_REASONS;
 
-        $reasons = json_decode(Option::where("key", $option_key)->first()->value, true) ?? [];
+        $reasons = Option::get($option_key)->value ?? null;
+        $reasons = $reasons? json_decode($reasons, true): [];
+
         if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
             $reason = $reasons[$key]->value;
         }
@@ -266,19 +264,8 @@ class PublisherController extends Controller
 
         $parent_message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_CLOSE]);
 
-        TCNotification::send(collect([$user]), new PublisherRejected(
-            Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message_id' => $message_id,
-                'reason' => $reason,
-            ],
-            get_class($user),
-            $user->id
-        ));
 
-        Mail::to($user->email)
-            ->queue(new PublisherRejectedMail($reason));
+        event(new PublisherRequestRejected($user, $reason, $parent_message, $message));
 
         return UserItem::make($user);
     }
@@ -287,6 +274,12 @@ class PublisherController extends Controller
     public function becomeAPublisher(BecomeAPublisherStore $request){
 
         $user = auth('api')->user();
+
+        if ($user->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
+            return response()->json([
+                'message' => __('publisher.duplicate_request'),
+            ], 422);
+        }
 
         // save requested channel name on user meta
         $user->meta()->updateOrCreate(
@@ -300,10 +293,14 @@ class PublisherController extends Controller
         );
 
         // Send publisher request message to admin
-        $department = Department::firstOrCreate(['name' => 'Publisher Applications']);
+        $department = Department::firstOrCreate(['name' => 'Publisher Application']);
+
+
+        // check if it's conversion or regular request
+        $isConversion = $user->created_at >= Carbon::now()->subHours(24);
 
         $message_data = [
-            'subject' => trans("publisher.application_subject"),
+            'subject' => $isConversion ? trans("publisher.new_application_subject") : trans("publisher.conversion_application_subject"),
             'message' => trans('publisher.application_message', [
                 'email' => $user->email,
                 'channel_name' => $request->get('channel_name'),
@@ -332,30 +329,10 @@ class PublisherController extends Controller
 
             $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
 
-            TCNotification::send(collect([$user]), new ReplyMessage(
-                Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                [
-                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
-                ],
-                get_class($replyMessage),
-                $replyMessage->id
-            ));
+            event(new MessageRepliedByAdmin($replyMessage, $message));
         }
 
-        $admins = User::admins()->get();
-
-        TCNotification::send($admins, new NewPublisherRequest(
-            Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-            [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-                'user' => UserMinimalItem::make($user),
-                'channel_name' => $request->get('channel_name')
-            ],
-            get_class($message),
-            $message->id
-        ));
+        event(new NewPublisherRequested($user, $message));
 
         return response()->json([
             'status' => 'ok',

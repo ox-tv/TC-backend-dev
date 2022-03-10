@@ -32,6 +32,10 @@ class Video extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $casts = [
+        'published_at' => 'datetime'
+    ];
+
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
@@ -59,13 +63,18 @@ class Video extends Model
             }
 
             // duration
-            if(is_null($model->duration) && (!is_null($model->file_path) || !is_null($model->s3_url))){
-                $path = !empty($model->s3_url)? $model->s3_url: Storage::disk('videos')->path($model->file_path);
+            if(is_null($model->duration) && (!is_null($model->file_path) || !is_null($model->file_url))){
+                $path = !empty($model->file_url)? $model->file_url: Storage::disk('videos')->path($model->file_path);
                 $model->duration = get_duration($path);
 
                 if($model->duration){
                     $model->save();
                 }
+            }
+
+            if (empty($model->published_at) && $model->status == self::STATUS_PUBLISHED){
+                $model->published_at = now();
+                $model->save();
             }
 
         });
@@ -205,7 +214,7 @@ class Video extends Model
     }
 
     public function user(){
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function channels(){
@@ -213,7 +222,7 @@ class Video extends Model
     }
 
     public function channel(){
-        return $this->belongsTo('App\Models\Channel');
+        return $this->belongsTo('App\Models\Channel')->withTrashed();
     }
 
     public function tags(){
@@ -238,6 +247,12 @@ class Video extends Model
 
 
     // Attributes
+    public function getLayersAttribute()
+    {
+        $meta = $this->meta()->where('key', 'layers')->first();
+        return $meta? json_decode($meta->value) : null;
+    }
+
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)
             ->whereIn("relation",[UserVideo::LIKED_RELATION, UserVideo::DISLIKED_RELATION])
@@ -265,44 +280,36 @@ class Video extends Model
     }
 
     public function getIsMineAttribute(){
-        return auth('api')->check() ? ($this->user_id ==  auth('api')->user()->id) : false;
+        return auth('api')->check() && $this->user_id == auth('api')->user()->id;
     }
 
     public function getIsLikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::LIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsDislikedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsDislikedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::DISLIKED_RELATION
             ])->exists();
-        }
-        return false;
     }
 
-    public function getIsBookmarkedAttribute(){
-        if(auth('api')->check()){
-            return UserVideo::where([
+    public function getIsBookmarkedAttribute()
+    {
+        return auth('api')->check()
+            && UserVideo::where([
                 "user_id" => auth('api')->id(),
                 "video_id" => $this->id,
                 "relation" => UserVideo::BOOKMARKED_RELATION
             ])->exists();
-        }
-        return false;
-    }
-
-    public function getPublishedAtAttribute(){
-        return $this->created_at;
     }
 
     public function getRelatedVideosAttribute(){

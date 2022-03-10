@@ -104,7 +104,7 @@
             table-layout:fixed !important;
         }
         body,#bodyTable{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
         }
         #bodyCell{
             /*@editable*/border-top:0;
@@ -153,7 +153,7 @@
             /*@editable*/text-align:left;
         }
         #templatePreheader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -176,7 +176,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateHeader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -199,7 +199,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateBody{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -222,7 +222,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateFooter{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -394,7 +394,7 @@
         }</style></head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#2a2c3f !important">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
@@ -434,8 +434,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank">
-                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/2f2bca11-c610-4966-a21f-c23ff8a52d60.jpg" width="152.28" style="max-width:852px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Blue.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -500,9 +499,9 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">You have requested to update your ETH address.</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">You have requested to update your ETH address.</span></strong><br>
 <br>
-Click the button below to verify your new ETH address.</span></div>
+Click the button below to verify your new ETH address.</p></div>
 
                                                 </td>
                                             </tr>

@@ -32,13 +32,31 @@ class VideoUpdate extends FormRequest
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
         return [
-            'title' => 'string',
+            'title' => 'required|string',
+            'thumbnail' => [
+                Rule::requiredIf(function () {
+                    $status = request()->get('status');
+                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
+                })
+            ],
             'categories.*.id' => 'exists:categories,id',
             'crypto_currencies.*' => 'exists:crypto_currencies,id',
-            'category' => 'exists:categories,id',
-            'language_id' => ['nullable','exists:languages,id'],
+            'category' => [
+                'exists:categories,id',
+                Rule::requiredIf(function () {
+                    $status = request()->get('status');
+                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
+                })
+            ],
+            'language' => [
+                'nullable','exists:languages,id',
+                Rule::requiredIf(function () {
+                    $status = request()->get('status');
+                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
+                })
+            ],
             'video' => 'nullable|file',
-            's3_url' => 'nullable|url',
+            'file_url' => 'nullable|url',
             'youtube_link' => 'url',
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
             'tags' => 'nullable|array',

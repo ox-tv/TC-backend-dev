@@ -104,7 +104,7 @@
             table-layout:fixed !important;
         }
         body,#bodyTable{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
         }
         #bodyCell{
             /*@editable*/border-top:0;
@@ -153,7 +153,7 @@
             /*@editable*/text-align:left;
         }
         #templatePreheader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -176,7 +176,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateHeader{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -199,7 +199,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateBody{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -222,7 +222,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateFooter{
-            /*@editable*/background-color:#2a2c3f;
+            /*@editable*/background-color:rgb(42,44,63);
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -394,7 +394,7 @@
         }</style></head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:rgb(42,44,63)" style="background-color:rgb(42,44,63)" style="background-color:rgb(42,44,63)">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
@@ -434,8 +434,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank">
-                                                        <img align="center" alt="" src="https://mcusercontent.com/f7434511997c37d3840fc9c58/images/2f2bca11-c610-4966-a21f-c23ff8a52d60.jpg" width="152.28" style="max-width:852px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Blue.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -500,15 +499,15 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding: 0px 18px 9px;color: #F15858;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
+                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Good news!</span></strong><br>
 <br>
-Your application&nbsp;has now been reviewed and approved. Start earning crypto&nbsp;today by uploading a video via your publisher panel.</span><br>
+Your application has now been reviewed and approved. You could now access everything in your publisher panel, so why not start by uploading your first video/podcast.</span><br>
                                                         <br>
-                                                        <span style="color:f15858"><strong>Want help exporting and importing videos from your YouTube channel?</strong></span><br>
+                                                        <span style="color:f15858"><strong>Want help exporting and importing media from your existing YouTube channel?</strong></span><br>
                                                         <br>
-                                                        <span style="color:#FFFFFF">With your permission, we can export and import your YouTube videos for the last 3 months directly to your TC channel.<br>
+                                                        <span style="color:#FFFFFF">We can export and import your YouTube channel and videos for the last three months directly to your TC channel with your permission.<br>
 <br>
-For this service, just click the "Request Import" button below. You can create a request later via our message center inside your publisher panel if you do not want to do this now.</span></div>
+For this service, click the "Request Import" button below. You can create a request later via our support center inside the publisher panel if you don't want to do this now.</span></div>
 
                                                 </td>
                                             </tr>
@@ -594,7 +593,7 @@ For this service, just click the "Request Import" button below. You can create a
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></span>
+                                                    <p style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></p>
                                                 </td>
                                             </tr>
                                             </tbody></table>

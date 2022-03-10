@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Channel extends Model
 {
@@ -119,7 +120,7 @@ class Channel extends Model
     // Relations
 
     public function owner(){
-        return $this->belongsTo('App\Models\User', 'user_id');
+        return $this->belongsTo('App\Models\User', 'user_id')->withTrashed();
     }
 
     public function videos(){
@@ -171,5 +172,23 @@ class Channel extends Model
         $video_ids = $this->videos()->pluck('id');
 
         return Comment::whereIn('video_id', $video_ids)->count();
+    }
+
+    public function getIsSubscribedAttribute()
+    {
+        return auth('api')->check()
+            && DB::table('channel_user')
+                ->where(['user_id' => auth('api')->id(), 'channel_id' => $this->id])
+                ->exists();
+    }
+
+    public function getSubscribersCountAttribute()
+    {
+        return $this->subscribers()->count();
+    }
+
+    public function getHeroSubscribersCountAttribute()
+    {
+        return $this->heroSubscribers()->count();
     }
 }

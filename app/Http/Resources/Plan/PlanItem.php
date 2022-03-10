@@ -28,8 +28,11 @@ class PlanItem extends JsonResource
             'description' => $this->description,
             'interval' => $this->interval,
             'status' => Plan::STATUS_TEXT[$this->status],
-            'thumbnail' => $this->thumbnail,
+            'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
+            'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
             'is_popular' => (bool) $this->is_popular,
+            'extra_text_content' => $this->meta['extra_text_content']??null,
+            'extra_text_color' => $this->meta['extra_text_color']??null,
             'pricing' => $this->when($withPricing, $pricing),
             'created_at' => $this->created_at
         ];

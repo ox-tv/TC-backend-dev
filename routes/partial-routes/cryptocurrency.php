@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('market/cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 

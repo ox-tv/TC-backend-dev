@@ -32,24 +32,26 @@ class PublisherEarningsExport implements FromCollection, WithHeadings, WithMappi
             'UserName',
             'Email',
             'Channel Name',
+            'ETH Address',
             'Earning Status',
             'Earning Amount',
         ];
     }
 
-    public function map($user): array
+    public function map($row): array
     {
         return [
-            $user->id,
-            $user->username,
-            $user->email,
-            $user->channelName,
-            $user->earningStatus,
-            $user->earningAmount,
+            $row->id,
+            $row->username,
+            $row->email,
+            $row->channelName,
+            $row->eth_address,
+            $row->earningStatus,
+            $row->earningAmount,
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             // Style the first row as bold text.

@@ -6,7 +6,7 @@ return [
 
     'PUBLISHER_PANEL_URL' => env('PUBLISHER_PANEL_URL', ''),
 
-    'EMAIL_VERIFICATION_URL' => env('EMAIL_VERIFICATION_URL', ''),
+    'MWA_EMAIL_VERIFICATION_URL' => env('MWA_EMAIL_VERIFICATION_URL', ''),
     'PUBLISHER_EMAIL_VERIFICATION_URL' => env('PUBLISHER_EMAIL_VERIFICATION_URL', ''),
 
     'IMPORT_REQUEST_URL' => env('IMPORT_REQUEST_URL', ''),
@@ -22,13 +22,18 @@ return [
     'PUBLISHER_MAGIC_LOGIN_LINK' => env('PUBLISHER_MAGIC_LOGIN_LINK', ''),
     'ADMIN_MAGIC_LOGIN_LINK' => env('ADMIN_MAGIC_LOGIN_LINK', ''),
 
+    'PUBLISHER_ACCOUNT_DELETION_URL' => env('PUBLISHER_ACCOUNT_DELETION_URL', ''),
+    'MWA_ACCOUNT_DELETION_URL' => env('MWA_ACCOUNT_DELETION_URL', ''),
+
+    'PUBLISHER_SUPPORT_URL' => env('PUBLISHER_SUPPORT_URL', ''),
+
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
     ],
 
     'points' => [
         'to_usd_rate' => env('POINT_TO_USD_RATE', 0.2),
-        'per_view' => env('POINTS_PER_VIEW', 0.01),
+        'per_view' => env('POINTS_PER_VIEW', 0.1),
         'per_like_hero' => env('POINTS_PER_LIKE_HERO', 150),
         'per_like_non_hero' => env('POINTS_PER_LIKE_NON_HERO', 50),
         'per_dislike_hero' => env('POINTS_PER_DISLIKE_HERO', 150),

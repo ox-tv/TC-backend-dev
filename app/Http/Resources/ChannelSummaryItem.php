@@ -34,11 +34,14 @@ class ChannelSummaryItem extends JsonResource
             'hero_subscribers_count' => $this->heroSubscribers->count(),
             "owner" => $this->when($withOwner, UserItem::make($this->owner)),
             'url_hash' => $this->url_hash,
-            'avatar' => $this->avatar,
+            'cover' => $this->cover_url? :$this->cover,
+            'cover_thumbnails' => $this->cover_url? getThumbnails($this->cover_url):[],
+            'avatar' => $this->avatar_url? :$this->avatar,
+            'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
             "slogan" => $this->slogan,
             "status" => $this->status ? Channel::STATUS_TEXT[$this->status] : null,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
-            'is_subscribed' => auth('api')->check() ? ($this->subscribers()->find(auth('api')->user()->id) ? true : false) : false,
+            'is_subscribed' => auth('api')->check() && $this->subscribers()->where('user_id', auth('api')->id())->exists(),
         ];
     }
 }

@@ -108,8 +108,8 @@ class ChannelController extends Controller
         $channel->description = $request->get('description');
         $channel->slug = Str::slug($request->get('name'));
 
-        $channel->cover = $request->get('cover');
-        $channel->avatar = $request->get('avatar');
+        $channel->cover_url = $request->get('cover');
+        $channel->avatar_url = $request->get('avatar');
 
         if($request->get('intro_video_id')){
             $channel->intro_video_id = $request->get('intro_video_id');
@@ -216,8 +216,8 @@ class ChannelController extends Controller
 
         $channel->slug = $request->get('slug')? $request->get('slug'): Str::slug($request->get('name', $channel->name));
 
-        $channel->cover = $request->get('cover', $channel->cover);
-        $channel->avatar = $request->get('avatar', $channel->avatar);
+        $channel->cover_url = $request->get('cover', $channel->cover_url);
+        $channel->avatar_url = $request->get('avatar', $channel->avatar_url);
 
         if($request->get('intro_video_id')){
             $channel->intro_video_id = $request->get('intro_video_id');

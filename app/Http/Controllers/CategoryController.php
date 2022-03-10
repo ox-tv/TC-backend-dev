@@ -45,15 +45,11 @@ class CategoryController extends Controller
         return new CategoryItem($category);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show($idOrSlug)
     {
-        //
+        $category = Category::where('id', $idOrSlug)->orWhere('slug', $idOrSlug)->firstOrFail();
+
+        return CategoryItem::make($category);
     }
 
     /**

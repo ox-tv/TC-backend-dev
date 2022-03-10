@@ -12,12 +12,17 @@ use App\Events\Messages\MessageCreatedByAdmin;
 use App\Events\Messages\MessageCreatedByUser;
 use App\Events\Messages\MessageRepliedByAdmin;
 use App\Events\Messages\MessageRepliedByUser;
+use App\Events\Publisher\NewPublisherRequested;
+use App\Events\Publisher\PublisherRequestApproved;
+use App\Events\Publisher\PublisherRequestRejected;
+use App\Events\Report\ReportCreated;
 use App\Events\UserVerified;
 use App\Events\VideoCommented;
 use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
+use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
 use App\Listeners\Channels\SendEmailOnChannelImportRequestCompleted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestAccepted;
@@ -31,10 +36,17 @@ use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByUser;
+use App\Listeners\Publisher\SendEmailOnPublisherRequestApproved;
+use App\Listeners\Publisher\SendEmailOnPublisherRequestRejected;
+use App\Listeners\Publisher\SendNotificationOnNewPublisherRequested;
+use App\Listeners\Publisher\SendNotificationOnPublisherRequestApproved;
+use App\Listeners\Publisher\SendNotificationOnPublisherRequestRejected;
+use App\Listeners\Report\SendNotificationOnReportCreated;
 use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
+use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -66,6 +78,19 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserVerified::class => [
             UserVerifiedDataForUserStatisticsDaily::class,
+        ],
+
+        // Publisher
+        PublisherRequestApproved::class => [
+            SendNotificationOnPublisherRequestApproved::class,
+            SendEmailOnPublisherRequestApproved::class,
+        ],
+        PublisherRequestRejected::class => [
+            SendNotificationOnPublisherRequestRejected::class,
+            SendEmailOnPublisherRequestRejected::class,
+        ],
+        NewPublisherRequested::class => [
+            SendNotificationOnNewPublisherRequested::class,
         ],
 
         // Channel
@@ -114,7 +139,9 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         // Reports
-
+        ReportCreated::class => [
+            SendNotificationOnReportCreated::class,
+        ],
 
         // Videos
         VideoCreated::class => [
@@ -129,6 +156,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoWasHidden::class => [
             SendNotificationOnVideoWasHidden::class,
+        ],
+        VideoWasUnHidden::class => [
+            SendNotificationOnVideoWasUnHidden::class,
         ],
         VideoLiked::class => [
             VideoStatisticsDailyLiked::class,

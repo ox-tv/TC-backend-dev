@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use Amir\Permission\Models\Role;
+use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelSubscriberCollection;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
+use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
+use App\Models\AccountDeletion;
+use App\Models\Channel;
 use App\Models\Department;
 use App\Models\Message;
 use App\Models\MessageUser;
@@ -41,7 +45,7 @@ class UserController extends Controller
         }elseif ($request->is('api/admin/publishers')){
             $query = User::publishers();
         }elseif ($request->is('api/admin/publisher-requests')){
-            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
 
             $publisherRequestUserId = Message::where([
                     'department_id' => $publisherApplicationDepartmentId,
@@ -49,7 +53,18 @@ class UserController extends Controller
             )->whereHas('users', function ($q){
                 $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
             })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
-            $query = User::whereIn('id', $publisherRequestUserId);
+            $query = User::whereIn('id', $publisherRequestUserId);*/
+
+            $query = User::whereHas('meta', function ($q) use($request) {
+                $q->where('key', UserMeta::PUBLISHER_REQUEST_STATUS);
+
+                $filters = $request->get('filters', []);
+                $publisherRequestFilter = Arr::get($filters, 'status');
+
+                if ($publisherRequestFilter){
+                    $q->where('value', $publisherRequestFilter);
+                }
+            })->whereNull('role_id');
         }else{
             $query = User::query();
         }
@@ -124,18 +139,35 @@ class UserController extends Controller
      */
     public function store(UserStore $request)
     {
-        $user = new User();
+        $adminRole = Role::firstOrCreate(['name' => User::ADMIN_ROLE]);
+        $publisherRole = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE]);
+
+        $userQuery = User::where('email', $request->get('email'))->whereNull('email_verified_at');
+
+        if ($request->is('api/admin/admins')){
+            $userQuery->where('role_id', $adminRole->id);
+        }else{
+            $userQuery->where(function($q) use($publisherRole) {
+                $q->whereNull('role_id')
+                    ->orWhere('role_id', $publisherRole->id);
+            });
+        }
+
+        $user = $userQuery->first();
+
+        if(is_null($user)){
+            $user = new User();
+        }
 
         $user->email = $request->get("email");
         $user->username = $request->get("username");
         $user->status = User::STATUS_ACTIVE;
         $user->email_verified_at = now();
-        $user->avatar = $request->get('avatar');
+        $user->avatar_url = $request->get('avatar');
         $user->eth_address = $request->get('eth_address');
         $user->password = Hash::make(rand(100000,1000000000));
 
         if ($request->is('api/admin/admins')){
-            $adminRole = Role::firstOrCreate(['name' => 'admin']);
             $user->role_id = $adminRole->id;
         }
 
@@ -172,6 +204,23 @@ class UserController extends Controller
         return UserDetails::make($user);
     }
 
+    public function usernameCheck(Request $request)
+    {
+        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
+        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+
+        $request->validate([
+            'username' => [
+                'required', 'string', 'between:4,14',
+                CustomRule::forbiddenWords($forbiddenWords),
+                CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
+                    ->ignore(auth('api')->id())
+            ],
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -186,10 +235,10 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'nullable', 'string',
+                'nullable', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
-                    ->ignore(auth('api')->id())
+                    ->ignore($user->id)
             ],
             'email' => 'nullable|email',
             'avatar' => 'nullable|string',
@@ -205,7 +254,7 @@ class UserController extends Controller
         $user->username = $request->get('username', $user->username);
         $user->email = $request->get('email', $user->email);
 
-        $user->avatar = $request->get('avatar', $user->avatar);
+        $user->avatar_url = $request->get('avatar', $user->avatar_url);
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
@@ -264,7 +313,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user = null)
     {
         // remove user relations
         $channel = $user->channel()->first();
@@ -276,6 +325,83 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json([
+            'message' => 'general.successful'
+        ]);
+    }
+
+    public function deleteAccountRequest(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $token = sha1($user->id . time());
+
+
+        $accountDeletion = AccountDeletion::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'token' => $token,
+                'created_at' => Carbon::now(),
+                'expired_at' => Carbon::now()->addMinutes(45)
+            ],
+        );
+
+        if ($request->is('api/publisher/*')){
+            $link = config('general.PUBLISHER_ACCOUNT_DELETION_URL') . $token;
+        }else{
+            $link = config('general.MWA_ACCOUNT_DELETION_URL') . $token;
+        }
+
+        Mail::to($user->email)
+            ->queue(new DeleteAccountMail($link));
+
+        return response()->json([
+            'status' => 'ok',
+            'email' => $user->email,
+            'message' => __('account.account_deletion_link_sent'),
+        ]);
+    }
+
+    public function deleteAccount($token)
+    {
+        $accountDeletion = AccountDeletion::where('token', $token)
+            ->where('expired_at', '>', Carbon::now())
+            ->firstOrFail();
+
+        $user = User::findOrFail($accountDeletion->user_id);
+
+        $channel = $user->channel()->first();
+        if ($channel){
+            $channel->status = Channel::STATUS_FREEZE;
+            $channel->save();
+        }
+
+        $user->delete();
+
+        $accountDeletion->expired_at = now();
+        $accountDeletion->save();
+
+        event(new AccountDeleted($user));
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'general.successful'
+        ]);
+    }
+
+    public function restoreUser($id)
+    {
+        $user = User::onlyTrashed()->where('id', $id)->firstOrFail();
+
+        $user->restore();
+
+        $channel = $user->channel()->first();
+        if ($channel){
+            $channel->status = Channel::STATUS_PUBLISHED;
+            $channel->save();
+        }
+
+        return response()->json([
+            'status' => 'ok',
             'message' => 'general.successful'
         ]);
     }
@@ -306,7 +432,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'nullable', 'string',
+                'nullable', 'string', 'between:4,14',
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore(auth('api')->id()),
@@ -316,14 +442,15 @@ class UserController extends Controller
             'current_password' => 'nullable|string|password|required_with:new_password',
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
             'scope' => 'required_with:eth_address',
-            'tag_names' => ['nullable', 'array', CustomRule::forbiddenWords($forbiddenWords)],
+            'tag_names' => ['nullable', 'array'],
+            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
         ]);
 
         $user = auth('api')->user();
 
         $user->username = $request->get('username', $user->username);
 
-        $user->avatar = $request->get('avatar', $user->avatar);
+        $user->avatar_url = $request->get('avatar', $user->avatar_url);
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));

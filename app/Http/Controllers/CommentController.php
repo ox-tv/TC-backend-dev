@@ -140,10 +140,12 @@ class CommentController extends Controller
     public function pin(Comment $comment)
     {
         Comment::where('video_id', $comment->video_id)->update([
-            'is_pinned' => 0
+            'is_pinned' => false,
+            'pinned_by' => null,
         ]);
 
-        $comment->is_pinned = 1;
+        $comment->is_pinned = true;
+        $comment->pinned_by = auth()->id();
         $comment->save();
 
         return new CommentItem($comment);
@@ -154,7 +156,8 @@ class CommentController extends Controller
      * @return CommentItem
      */
     public function unpin(Comment $comment){
-        $comment->is_pinned = 0;
+        $comment->is_pinned = false;
+        $comment->pinned_by = null;
         $comment->save();
 
         return new CommentItem($comment);

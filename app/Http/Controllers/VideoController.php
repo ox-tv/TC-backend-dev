@@ -8,6 +8,7 @@ use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
 use App\Events\VideoWasHidden;
+use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
 use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
@@ -191,9 +192,9 @@ class VideoController extends Controller
             $videoFile = Storage::disk('videos')->put('/', $request->file('video'));
             $video->file_path = $videoFile;
 
-        }elseif($request->get('s3_url')){ // adding file to video
+        }elseif($request->get('file_url')){ // adding file to video
 
-            $video->s3_url = $request->get('s3_url');
+            $video->file_url = $request->get('file_url');
         }
 
         // adding user to video
@@ -204,7 +205,7 @@ class VideoController extends Controller
         }
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status')){
@@ -221,8 +222,8 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
-        if($request->get('language_id')){
-            $video->language_id = $request->get('language_id');
+        if($request->get('language')){
+            $video->language_id = $request->get('language');
         }
 
 
@@ -310,7 +311,7 @@ class VideoController extends Controller
         $video->description = $request->get('description');
 
         // thumbnail
-        $video->thumbnail = $request->get('thumbnail');
+        $video->thumbnail_url = $request->get('thumbnail');
 
         // status
         if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
@@ -322,8 +323,8 @@ class VideoController extends Controller
             $video->category()->associate($request->get('category'));
         }
 
-        if($request->get('language_id')){
-            $video->language_id = $request->get('language_id');
+        if($request->get('language')){
+            $video->language_id = $request->get('language');
         }else{
             $video->language_id = null;
         }
@@ -512,6 +513,12 @@ class VideoController extends Controller
             'reason' => 'required'
         ]);
 
+        if ($video->status != Video::STATUS_PUBLISHED){
+            return response()->json([
+                'message' => __('video.video_is_not_published')
+            ], 422);
+        }
+
         $option_key = Option::VIDEO_HIDE_REASONS;
         $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
@@ -533,12 +540,14 @@ class VideoController extends Controller
         return VideoMinimalItem::make($video);
     }
 
-    public function unHide(Video $video){
-
+    public function unHide(Video $video)
+    {
         $video->reason_key = null;
         $video->reason_text = null;
         $video->status = Video::STATUS_PUBLISHED;
         $video->save();
+
+        event(new VideoWasUnHidden($video));
 
         return VideoMinimalItem::make($video);
     }

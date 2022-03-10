@@ -6,6 +6,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class OptionController extends Controller
 {
@@ -20,6 +21,7 @@ class OptionController extends Controller
             'reasons' => 'nullable|array',
             'reasons.*.key' => 'required|string',
             'reasons.*.value' => 'required|string',
+            'reasons.*.status' => ['required', Rule::in([Option::REASONS_STATUS_ACTIVE, Option::REASONS_STATUS_INACTIVE])],
         ]);
 
         Option::set($key, json_encode($request->get('reasons')));
@@ -27,13 +29,25 @@ class OptionController extends Controller
         return response()->json(["message" => "ok"]);
     }
 
-    public function getReasonsOption($key)
+    public function getReasonsOption(Request $request, $key)
     {
         if (!in_array($key, Option::REASONS)){
             abort(404);
         }
 
-        return Option::get($key)->value ?? null;
+        $value = Option::get($key)->value ?? null;
+
+        $value = $value? json_decode($value, true): null;
+
+        if (!$request->is('api/admin/*')){
+            foreach ($value as $key => $reason) {
+                if (empty($reason['status']) || $reason['status'] == Option::REASONS_STATUS_INACTIVE) {
+                    unset($value[$key]);
+                }
+            }
+        }
+
+        return $value;
     }
 
     // Forbidden Words

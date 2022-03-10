@@ -5,6 +5,8 @@ namespace App\Http\Resources\User;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Models\Department;
 use App\Models\Message;
+use App\Models\UserMeta;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserItem extends JsonResource
@@ -33,7 +35,19 @@ class UserItem extends JsonResource
 
 
         $withPublisherRequest = $request->is('api/admin/publisher-requests');
-        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Applications'])->id;
+        $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
+        $publisherRequestDetails = Message::where([
+                'user_id' => $this->id,
+                'department_id' => $publisherApplicationDepartmentId
+            ]
+        )->orderBy('created_at', 'asc')->first();
+
+
+        $publisherRequest = null;
+        if (!$this->role_id && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
+            $publisherRequest['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $publisherRequest['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+        }
 
         $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
@@ -41,7 +55,8 @@ class UserItem extends JsonResource
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar_url? :$this->avatar,
+            'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
             'eth_address' => $this->when($isEthAddressVisible, $this->eth_address),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
@@ -68,14 +83,9 @@ class UserItem extends JsonResource
             'disliked_videos_count' => $this->dislikedVideos()->count(),
             'comments_count' => $this->comments()->count(),
             'subscribed_channels_count' => $this->subscribedChannels()->count(),
-            'request_details' => $this->when(
-                $withPublisherRequest,
-                Message::where([
-                    'user_id' => $this->id,
-                    'department_id' => $publisherApplicationDepartmentId
-                    ]
-                )->orderBy('created_at', 'desc')->first()
-            ),
+            'request_details' => $this->when($withPublisherRequest, $publisherRequestDetails),
+            'publisher_request' => $this->when($withPublisherRequest, $publisherRequest),
+            'is_conversion' => ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequestDetails && $publisherRequestDetails->created_at < $this->created_at->addHours(24)))? false : true,
         ];
     }
 }

@@ -4,12 +4,14 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
 
 });
+
+
+Route::post('users/username/check', '\App\Http\Controllers\UserController@usernameCheck')->name('users.username.check');
 
 
 // For Publishers
@@ -35,6 +37,7 @@ Route::group([
     Route::get('users', '\App\Http\Controllers\UserController@index')->name('users');
     Route::get('users/{user}', '\App\Http\Controllers\UserController@show')->name('users.show');
     Route::post('users', '\App\Http\Controllers\UserController@store')->name('users.store');
+    Route::put('users/{user}/restore', '\App\Http\Controllers\UserController@restoreUser')->name('users.restore');
     Route::put('users/{user}', '\App\Http\Controllers\UserController@update')->name('users.update');
     Route::delete('users/{user}', '\App\Http\Controllers\UserController@destroy')->name('users.destroy');
 

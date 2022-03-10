@@ -203,6 +203,14 @@ class User extends Authenticatable
         return $this->hero_due_at > now();
     }
 
+    public function getHasMembershipHistoryAttribute(){
+
+        $pricingUserQuery = PricingUser::where('user_id', $this->id);
+
+        return $pricingUserQuery->count() > 0;
+
+    }
+
     public function getIsMuteAttribute($value){
         return $value && (empty($this->muted_until) || $this->muted_until > now());
     }
@@ -211,5 +219,13 @@ class User extends Authenticatable
         $adminRoleId = Role::firstOrCreate(['name' => self::ADMIN_ROLE])->id;
 
         return $this->role_id == $adminRoleId;
+    }
+
+    public function getUsernameAttribute($value){
+        return $this->channel? $this->channel->name : $value;
+    }
+
+    public function getAvatarAttribute($value){
+        return $this->channel ? ($this->channel->avatar_url ?: $this->channel->avatar) : $value;
     }
 }

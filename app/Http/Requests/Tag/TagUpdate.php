@@ -33,12 +33,16 @@ class TagUpdate extends FormRequest
     {
         $tag_id = $this->route('tag');
 
-        $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
-        $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
-
         return [
-            'name' => ['required', CustomRule::forbiddenWords($forbiddenWords), Rule::unique('tags', 'name')->ignore($tag_id)],
+            'name' => ['required', Rule::unique('tags', 'name')->ignore($tag_id)],
             'status' => ['nullable', Rule::in(Tag::STATUS_TEXT)],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'Tag already exists',
         ];
     }
 }
