@@ -95,6 +95,16 @@ class LoginController extends Controller
 
         $user = $userQuery->firstOrFail();
 
+        if($user->status == User::STATUS_INACTIVE) {
+
+            if (!$user->email_verified_at){
+                auth()->emailVerification($user, $scope);
+                return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
+            }
+
+            return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
+        }
+
         $token = sha1($user->id . time());
 
         $magicLogin = new MagicLogin();
