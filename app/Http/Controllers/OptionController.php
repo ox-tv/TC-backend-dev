@@ -39,7 +39,7 @@ class OptionController extends Controller
 
         $value = $value? json_decode($value, true): null;
 
-        if (!$request->is('api/admin/*')){
+        if (!$request->is('api/admin/*') && is_array($value)){
             foreach ($value as $key => $reason) {
                 if (empty($reason['status']) || $reason['status'] == Option::REASONS_STATUS_INACTIVE) {
                     unset($value[$key]);
