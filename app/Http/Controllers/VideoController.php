@@ -114,6 +114,8 @@ class VideoController extends Controller
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }elseif ($sort === 'most_viewed'){
             $query->orderBy('view_count', 'desc');
+        }elseif ($sort === 'published_at'){
+            $query->orderBy('published_at', 'desc');
         }elseif ($sort === 'most_commented'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
