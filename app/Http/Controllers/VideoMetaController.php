@@ -50,7 +50,7 @@ class VideoMetaController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    public function storeMeta(Request $request, $videoIdOrHash, $key)
+    public function store(Request $request, $videoIdOrHash, $key)
     {
         $request->validate([
             'value' => 'nullable|array',

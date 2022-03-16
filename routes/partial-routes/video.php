@@ -58,7 +58,7 @@ Route::group([
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index'])->middleware('channel.unfreeze');
 
     Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store')->middleware('channel.unfreeze');
-    Route::post('videos/{id_or_url_hash}/meta/{key}', '\App\Http\Controllers\VideoMetaController@storeMeta')->name('videos.meta.json.set')->middleware('channel.unfreeze');
+    Route::post('videos/{id_or_url_hash}/meta/{key}', '\App\Http\Controllers\VideoMetaController@store')->name('videos.meta.json.set')->middleware('channel.unfreeze');
 
     Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store')->middleware('channel.unfreeze');
     Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy')->middleware('channel.unfreeze');
