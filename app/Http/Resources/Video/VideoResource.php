@@ -76,8 +76,8 @@ class VideoResource extends JsonResource
             'playlists' => PlaylistMinimalItem::collection($this->whenLoaded('playlists')),
             'subtitles' => SubtitleItem::collection($this->whenLoaded('subtitles')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
-            'layers' => VideoMetaResource::make($this->whenLoaded('layers')),
-            'layers_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
+            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
+            'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];
     }
 }
