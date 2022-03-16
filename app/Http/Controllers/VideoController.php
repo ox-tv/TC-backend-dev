@@ -273,7 +273,7 @@ class VideoController extends Controller
      */
     public function show($id_or_url_hash, Request $request)
     {
-        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstorFail();
+        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->with(['layers','layersDraft'])->firstorFail();
 
         $isAdmin = $request->is('api/admin/*');
 

@@ -14,6 +14,7 @@ use App\Http\Resources\Subtitle\SubtitleItem;
 use App\Http\Resources\Tag\TagItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Models\Video;
+use App\Models\VideoMeta;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -63,7 +64,7 @@ class VideoResource extends JsonResource
             'is_liked' => $this->whenAppended('is_liked'),
             'is_disliked' => $this->whenAppended('is_disliked'),
             'is_bookmarked' => $this->whenAppended('is_bookmarked'),
-            'layers' => $this->whenAppended('layers'),
+            //'layers' => $this->whenAppended('layers'),
 
             // Relations
             'user' => UserMinimalItem::make($this->whenLoaded('user')),
@@ -75,6 +76,8 @@ class VideoResource extends JsonResource
             'playlists' => PlaylistMinimalItem::collection($this->whenLoaded('playlists')),
             'subtitles' => SubtitleItem::collection($this->whenLoaded('subtitles')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
+            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
+            'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];
     }
 }
