@@ -123,7 +123,7 @@ class CommentController extends Controller
      */
     public function reply(CommentReply $request, Comment $comment){
         $reply = new Comment();
-        $reply->text = $request->get('text');
+        $reply->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $request->get('text'));
         $reply->user_id = Auth::user()->id;
         $reply->video_id = $comment->video_id;
         $reply->save();

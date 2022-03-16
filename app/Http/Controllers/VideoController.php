@@ -441,7 +441,7 @@ class VideoController extends Controller
         $user = Auth::user();
 
         $comment = new Comment();
-        $comment->text = $request->get('text');
+        $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $request->get('text'));
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
@@ -496,7 +496,7 @@ class VideoController extends Controller
 
         $videoIds->map(function ($videoId) use ($userId, $text){
             $comment = new Comment();
-            $comment->text = $text;
+            $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $text);
             $comment->user_id = $userId;
             $comment->video()->associate($videoId);
             $comment->is_pinned = Comment::COMMENT_PINNED;
