@@ -439,7 +439,7 @@ class VideoController extends Controller
         $video = Video::published()->where('id', $videoIdOrHash)->orWhere('url_hash', $videoIdOrHash)->firstOrFail();
 
         $user = Auth::user();
-
+dd($request->get('text'));
         $comment = new Comment();
         $comment->text = $request->get('text');
         $comment->user_id = $user->id;
