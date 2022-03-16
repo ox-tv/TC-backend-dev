@@ -53,7 +53,7 @@ class VideoItem extends JsonResource
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];
         $subtitles = ($withSubtitles)? SubtitleItem::collection($this->subtitles) : [];
-        $layers = ($withLayers)? json_decode($this->meta()->where('key', 'layers')->first()->value?? null) : null;
+        //$layers = ($withLayers)? json_decode($this->meta()->where('key', 'layers')->first()->value?? null) : null;
 
         return [
             'id' => $this->id,
@@ -93,7 +93,8 @@ class VideoItem extends JsonResource
             'playlists' => $this->when($withPlaylists, $playlists),
             'reports' => $this->when($withReports, $reports),
             'subtitles' => $this->when($withSubtitles, $subtitles),
-            'layers' => $this->when($withLayers, $layers),
+            'layers' => VideoMetaResource::make($this->whenLoaded('layers')),
+            'layers_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];
     }
 }
