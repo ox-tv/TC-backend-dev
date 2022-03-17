@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
@@ -36,6 +35,8 @@ Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@rela
 
 // Video End Screen Cards
 Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers');
+Route::get('videos/{id_or_url_hash}/meta/{key}', '\App\Http\Controllers\VideoMetaController@get');
+Route::get('videos/{id_or_url_hash}/meta', '\App\Http\Controllers\VideoMetaController@index');
 
 // Video chapters
 Route::get('videos/{id_or_url_hash}/chapters', '\App\Http\Controllers\ChapterController@index');
@@ -58,6 +59,7 @@ Route::group([
     Route::apiResource('videos.chapters', '\App\Http\Controllers\ChapterController')->except(['show','index'])->middleware('channel.unfreeze');
 
     Route::post('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@setLayers')->name('videos.layers.store')->middleware('channel.unfreeze');
+    Route::post('videos/{id_or_url_hash}/meta/{key}', '\App\Http\Controllers\VideoMetaController@store')->name('videos.meta.json.set')->middleware('channel.unfreeze');
 
     Route::post('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@store')->name('videos.subtitles.store')->middleware('channel.unfreeze');
     Route::delete('subtitles/{subtitle}', '\App\Http\Controllers\SubtitleController@destroy')->name('videos.subtitles.destroy')->middleware('channel.unfreeze');
@@ -84,6 +86,8 @@ Route::group([
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
 
     Route::get('videos/{id_or_url_hash}/layers', '\App\Http\Controllers\VideoMetaController@getLayers')->name('videos.layers.index');
+    Route::get('videos/{id_or_url_hash}/meta/{key}', '\App\Http\Controllers\VideoMetaController@get')->name('videos.meta.json.get');
+    Route::get('videos/{id_or_url_hash}/meta', '\App\Http\Controllers\VideoMetaController@index')->name('videos.meta.index');
     Route::get('videos/{id_or_url_hash}/subtitles', '\App\Http\Controllers\SubtitleController@getSubtitles')->name('videos.subtitles.index');
 
 
