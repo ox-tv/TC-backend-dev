@@ -31,6 +31,7 @@ class VideoMetaResource extends JsonResource
     {
         return [
             // Main attributes
+            'key' => $this->key,
             'value' => $this->value,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
