@@ -93,4 +93,23 @@ class VideoMetaController extends Controller
 
         return VideoMetaResource::make($video->meta()->where('key', $key)->first());
     }
+
+    public function index(Request $request, $videoIdOrHash)
+    {
+        $video_query = Video::where(function ($query) use ($videoIdOrHash){
+            $query->whereId($videoIdOrHash)->orWhere('url_hash', $videoIdOrHash);
+        });
+
+        if (!$request->is('api/admin/*')){
+            $video_query->where(function ($query){
+                $query->where(function ($query){
+                    $query->mine();
+                })->orWhere('status', Video::STATUS_PUBLISHED);
+            });
+        }
+
+        $video = $video_query->firstOrFail();
+
+        return VideoMetaResource::collection($video->meta);
+    }
 }
