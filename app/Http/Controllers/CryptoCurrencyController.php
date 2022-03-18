@@ -14,7 +14,7 @@ class CryptoCurrencyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CryptoCurrency::query();
+        $query = CryptoCurrency::where('status', CryptoCurrency::STATUS_LIST);
 
         $filters = $request->get('filters', []);
 
@@ -79,7 +79,7 @@ class CryptoCurrencyController extends Controller
 
     public function favorites(Request $request)
     {
-        $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
+        $data = auth('api')->user()->favoriteCryptoCurrencies()->where('status', CryptoCurrency::STATUS_LIST)->get();
 
         $needToGetPrices = [];
         foreach($data as $crypto_currency){
