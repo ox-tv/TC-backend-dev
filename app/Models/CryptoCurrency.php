@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\OrderByOrderASCScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CryptoCurrency extends Model
 {
@@ -50,10 +51,32 @@ class CryptoCurrency extends Model
         return $this->belongsToMany('App\Models\Video', 'crypto_currency_video');
     }
 
-    // Mutators
+
+    // Attributes
     public function setRatioAttribute($value)
     {
         $this->attributes['ratio'] = $value;
+    }
+
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
+
+    public function getIsFavoriteAttribute($value)
+    {
+        $is_favorite = false;
+
+        if(
+            auth('api')->check()
+            && DB::table('crypto_currency_user')->where([
+                'crypto_currency_id' => $this->id,
+                'user_id' => auth('api')->id(),
+            ])->exists()
+        ){
+            $is_favorite = true;
+        }
+
+        return $is_favorite;
     }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Libraries\CoinMarketCapClient;
 use App\Models\Category;
 use App\Models\CryptoCurrency;
@@ -79,7 +80,7 @@ class CryptoCurrencyController extends Controller
 
     public function favorites(Request $request)
     {
-        $data = auth('api')->user()->favoriteCryptoCurrencies()->get();
+        $data = auth('api')->user()->favoriteCryptoCurrencies()->get()->append(['is_favorite']);
 
         $needToGetPrices = [];
         foreach($data as $crypto_currency){
@@ -91,11 +92,14 @@ class CryptoCurrencyController extends Controller
             $this->updatePrices($needToGetPrices);
         }
 
-        foreach($data as $crypto_currency){
+//        $data->each(function($crypto_currency, $key) {
+//            $crypto_currency->is_favorite = true;
+//        });
+        /*foreach($data as $crypto_currency){
             $crypto_currency->is_favorite = true;
-        }
+        }*/
 
-        return CryptoCurrencyItem::collection($data);
+        return CryptoCurrencyResource::collection($data);
     }
 
     public function addToFavorites($crypto_currency_id)
