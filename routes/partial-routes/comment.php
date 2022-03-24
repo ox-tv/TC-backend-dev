@@ -16,6 +16,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::put('comments/{comment}/dislike', '\App\Http\Controllers\CommentUserRelationController@dislike')->middleware('user.unmute');
     Route::put('comments/{comment}/pin', '\App\Http\Controllers\CommentController@pin');
     Route::put('comments/{comment}/unpin', '\App\Http\Controllers\CommentController@unpin');
+    Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['destroy']);
 
 });
 
