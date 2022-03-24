@@ -93,22 +93,30 @@ class CommentController extends Controller
      */
     public function destroy(Request $request, Comment $comment)
     {
-        $request->validate([
-            'reason' => 'required'
-        ]);
+        $isAdmin = $request->is('api/admin/*');
 
-        $option_key = Option::COMMENT_DELETE_REASONS;
-        $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
-
-        if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
-            $comment->reason_key = $request->get('reason');
-            $comment->reason_text = $reasons[$key]->value;
-        }else{
-            $comment->reason_key = 'other';
-            $comment->reason_text = $request->get('reason');
+        if (!$isAdmin && auth('api')->id() != $comment->user_id){
+            return response()->json(["message" => "You do not have access to delete this comment"],403);
         }
 
-        $comment->save();
+        if ($isAdmin){
+            $request->validate([
+                'reason' => 'required'
+            ]);
+
+            $option_key = Option::COMMENT_DELETE_REASONS;
+            $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
+
+            if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
+                $comment->reason_key = $request->get('reason');
+                $comment->reason_text = $reasons[$key]->value;
+            }else{
+                $comment->reason_key = 'other';
+                $comment->reason_text = $request->get('reason');
+            }
+
+            $comment->save();
+        }
 
         $comment->delete();
 
