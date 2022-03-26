@@ -62,21 +62,24 @@ class CryptoCurrency extends Model
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
-    public function getIsFavoriteAttribute($value)
-    {
-        $is_favorite = false;
+    public function getThumbnailsAttribute(){
+        return [
+            'small' => "https://s2.coinmarketcap.com/static/img/coins/64x64/{$this->coinmarketcap_id}.png"
+        ];
+    }
 
-        if(
-            auth('api')->check()
-            && DB::table('crypto_currency_user')->where([
-                'crypto_currency_id' => $this->id,
-                'user_id' => auth('api')->id(),
-            ])->exists()
-        ){
-            $is_favorite = true;
+    public function getIsFavoriteAttribute($isFavorite)
+    {
+        if (is_null($isFavorite)){
+            $isFavorite = auth('api')->check()
+                && DB::table('crypto_currency_user')
+                    ->where([
+                        'crypto_currency_id' => $this->id,
+                        'user_id' => auth('api')->id(),
+                    ])->exists();
         }
 
-        return $is_favorite;
+        return $isFavorite;
     }
 
 }
