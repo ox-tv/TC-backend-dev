@@ -2,20 +2,15 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryCollection;
-use App\Http\Resources\Category\CategoryItem;
 use App\Http\Resources\Category\CategoryMinimalCollection;
 use App\Http\Resources\Category\CategoryMinimalItem;
 use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Playlist\PlaylistMinimalCollection;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
-use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\Subtitle\SubtitleItem;
 use App\Http\Resources\User\UserMinimalItem;
-use App\Http\Resources\VideoCommentCollection;
-use App\Http\Resources\VideoSummaryCollection;
 use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +43,7 @@ class VideoItem extends JsonResource
         $channel = ($withChannel)? ChannelMinimalItem::make($this->channel) : [];
         $category = ($withMainCategory)? CategoryMinimalItem::make($this->category) : [];
         $categories = ($withCategories)? CategoryMinimalItem::collection($this->categories) : [];
-        $crypto_currencies = ($withCryptoCurrencies)? CryptoCurrencyItem::collection($this->crypto_currencies) : [];
+        $crypto_currencies = ($withCryptoCurrencies)? CryptoCurrencyResource::collection($this->crypto_currencies) : [];
         $tags = ($withTags)? $this->tags : [];
         $playlists = ($withPlaylists)? PlaylistMinimalItem::collection($this->playlists) : [];
         $reports = ($withReports)? ReportMinimalItem::collection($this->reports) : [];

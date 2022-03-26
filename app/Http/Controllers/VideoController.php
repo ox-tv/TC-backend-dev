@@ -14,7 +14,7 @@ use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryItem;
@@ -159,7 +159,7 @@ class VideoController extends Controller
 
         if($cryptoCurrencySlug){
             $result->additional([
-                'cryptocurrency' => CryptoCurrencyItem::make($cryptoCurrency)
+                'cryptocurrency' => CryptoCurrencyResource::make($cryptoCurrency)
             ]);
         }
 

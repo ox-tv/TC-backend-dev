@@ -2,11 +2,9 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryCollection;
 use App\Http\Resources\Category\CategoryMinimalItem;
-use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Language\LanguageItem;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
 use App\Http\Resources\Report\ReportMinimalItem;
@@ -70,7 +68,7 @@ class VideoResource extends JsonResource
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
             'category' => CategoryMinimalItem::make($this->whenLoaded('category')),
             'language' => LanguageItem::make($this->whenLoaded('language')),
-            'crypto_currencies' => CryptoCurrencyItem::collection($this->whenLoaded('crypto_currencies')),
+            'crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('crypto_currencies')),
             'tags' => TagItem::collection($this->whenLoaded('tags')),
             'playlists' => PlaylistMinimalItem::collection($this->whenLoaded('playlists')),
             'subtitles' => SubtitleItem::collection($this->whenLoaded('subtitles')),
