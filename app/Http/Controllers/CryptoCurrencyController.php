@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Libraries\CoinMarketCapClient;
-use App\Models\Category;
 use App\Models\CryptoCurrency;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -42,6 +40,8 @@ class CryptoCurrencyController extends Controller
             $data = $query->paginate();
         }
 
+        $data->append(['is_favorite']);
+
         // check need prices
         $isMarket = $request->is('api/market/cryptocurrencies');
 
@@ -57,33 +57,18 @@ class CryptoCurrencyController extends Controller
             }
         }
 
-        return CryptoCurrencyItem::collection($data);
-    }
-
-    private function updatePrices($crypto_currencies): void
-    {
-        $client = new CoinMarketCapClient();
-
-        $ids = array_column($crypto_currencies, 'coinmarketcap_id');
-
-        $resPrices = $client->GetPrices($ids);
-
-        if (empty($resPrices['data'])){
-            return;
-        }
-
-        foreach($crypto_currencies as $crypto_currency){
-            $crypto_currency->prices = $resPrices['data'][$crypto_currency->coinmarketcap_id]??  null;
-            $crypto_currency->save();
-        }
+        return CryptoCurrencyResource::collection($data);
     }
 
     public function favorites(Request $request)
     {
-        $data = auth('api')->user()->favoriteCryptoCurrencies()->get()->append(['is_favorite']);
+        $cryptoCurrencies = auth('api')->user()
+            ->favoriteCryptoCurrencies()
+            ->get()
+        ->append(['is_favorite']);
 
         $needToGetPrices = [];
-        foreach($data as $crypto_currency){
+        foreach($cryptoCurrencies as $crypto_currency){
             if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
                 $needToGetPrices[] = $crypto_currency;
             }
@@ -92,14 +77,12 @@ class CryptoCurrencyController extends Controller
             $this->updatePrices($needToGetPrices);
         }
 
-//        $data->each(function($crypto_currency, $key) {
-//            $crypto_currency->is_favorite = true;
-//        });
-        /*foreach($data as $crypto_currency){
+        // Set is_favorite True on the fly without run any DB query
+        $cryptoCurrencies->each(function ($crypto_currency, $key){
             $crypto_currency->is_favorite = true;
-        }*/
+        });
 
-        return CryptoCurrencyResource::collection($data);
+        return CryptoCurrencyResource::collection($cryptoCurrencies);
     }
 
     public function addToFavorites($crypto_currency_id)
@@ -128,5 +111,23 @@ class CryptoCurrencyController extends Controller
         auth('api')->user()->favoriteCryptoCurrencies()->detach($crypto_currency_id);
 
         return response()->json(['message' => 'ok']);
+    }
+
+    private function updatePrices($crypto_currencies): void
+    {
+        $client = new CoinMarketCapClient();
+
+        $ids = array_column($crypto_currencies, 'coinmarketcap_id');
+
+        $resPrices = $client->GetPrices($ids);
+
+        if (empty($resPrices['data'])){
+            return;
+        }
+
+        foreach($crypto_currencies as $crypto_currency){
+            $crypto_currency->prices = $resPrices['data'][$crypto_currency->coinmarketcap_id]??  null;
+            $crypto_currency->save();
+        }
     }
 }
