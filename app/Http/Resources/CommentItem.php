@@ -16,7 +16,7 @@ class CommentItem extends JsonResource
     {
 
         $withReplies = in_array('replies', explode(',', $request->get('include', '')));
-
+dd($this,$this->user);
         return [
             'id' => $this->id,
             'text' => $this->text,
