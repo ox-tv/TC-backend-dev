@@ -191,4 +191,8 @@ class Channel extends Model
     {
         return $this->heroSubscribers()->count();
     }
+
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
 }
