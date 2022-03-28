@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Amir\Permission\Models\Role;
 use Amir\Permission\Traits\HasRoles;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Billable;
 use Laravel\Passport\HasApiTokens;
 
@@ -199,11 +201,13 @@ class User extends Authenticatable
 
 
     // Attributes
-    public function getIsHeroAttribute(){
+    public function getIsHeroAttribute()
+    {
         return $this->hero_due_at > now();
     }
 
-    public function getHasMembershipHistoryAttribute(){
+    public function getHasMembershipHistoryAttribute()
+    {
 
         $pricingUserQuery = PricingUser::where('user_id', $this->id);
 
@@ -211,25 +215,104 @@ class User extends Authenticatable
 
     }
 
-    public function getIsMuteAttribute($value){
+    public function getIsMuteAttribute($value)
+    {
         return $value && (empty($this->muted_until) || $this->muted_until > now());
     }
 
-    public function getIsAdminAttribute(){
+    public function getIsAdminAttribute()
+    {
         $adminRoleId = Role::firstOrCreate(['name' => self::ADMIN_ROLE])->id;
 
         return $this->role_id == $adminRoleId;
     }
 
-    public function getUsernameAttribute($value){
+    public function getUsernameAttribute($value)
+    {
         return $this->channel? $this->channel->name : $value;
     }
 
-    public function getAvatarAttribute($value){
+    public function getAvatarAttribute($value)
+    {
         return $this->channel ? $this->channel->avatar : ($this->avatar_url? :$value);
     }
 
-    public function getAvatarThumbnilsAttribute($value){
+    public function getAvatarThumbnilsAttribute($value)
+    {
         return $this->avatar_url? getThumbnails($this->avatar_url):[];
+    }
+
+    public function getLikedVideosCountAttribute()
+    {
+        return DB::table('user_video')->where([
+            'relation' => UserVideo::LIKED_RELATION,
+            'user_id' => $this->id
+        ])->count();
+    }
+
+    public function getDislikedVideosCountAttribute()
+    {
+        return DB::table('user_video')->where([
+            'relation' => UserVideo::DISLIKED_RELATION,
+            'user_id' => $this->id
+        ])->count();
+    }
+
+    public function getBookmarkedVideosCountAttribute()
+    {
+        return DB::table('user_video')->where([
+            'relation' => UserVideo::BOOKMARKED_RELATION,
+            'user_id' => $this->id
+        ])->count();
+    }
+
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
+    }
+
+    public function getSubscribedChannelsCountAttribute()
+    {
+        return DB::table('channel_user')->where('user_id', $this->id)->count();
+    }
+
+    public function getPublisherRequestDetailsAttribute($value)
+    {
+        if (is_null($value)){
+            $publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
+            $value = $this->attributes['publisher_request_details'] = Message::where([
+                    'user_id' => $this->id,
+                    'department_id' => $publisherApplicationDepartmentId
+                ]
+            )->whereNull('parent_id')->orderBy('created_at', 'asc')->first();
+        }
+
+        return $value;
+    }
+
+    public function getPublisherRequestAttribute($value)
+    {
+        if (
+            is_null($value)
+            && !$this->role_id
+            && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()
+        ){
+            $value['status'] = $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->first()->value?? '';
+            $value['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
+            $this->attributes['publisher_request'] = $value;
+        }
+
+        return $value;
+    }
+
+    public function getIsConversionAttribute()
+    {
+        $publisherRequestDetails = $this->publisher_request_details;
+        return ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequestDetails && $publisherRequestDetails->created_at < $this->created_at->addHours(24)))? false : true;
+    }
+
+    public function getLoyaltyPointsAttribute()
+    {
+        return floatval($this->statistics()->sum('points'));
     }
 }
