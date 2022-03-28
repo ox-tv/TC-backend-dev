@@ -14,6 +14,7 @@ use App\Http\Resources\Subtitle\SubtitleItem;
 use App\Http\Resources\Tag\TagItem;
 use App\Http\Resources\Tag\TagResource;
 use App\Http\Resources\User\UserMinimalItem;
+use App\Http\Resources\User\UserResource;
 use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -67,7 +68,7 @@ class VideoResource extends JsonResource
             'layers' => $this->whenAppended('layers'),
 
             // Relations
-            'user' => UserMinimalItem::make($this->whenLoaded('user')),
+            'user' => UserResource::make($this->whenLoaded('user')),
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
             'category' => CategoryResource::make($this->whenLoaded('category')),
             'language' => LanguageItem::make($this->whenLoaded('language')),
