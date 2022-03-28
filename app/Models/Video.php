@@ -312,6 +312,10 @@ class Video extends Model
             ])->exists();
     }
 
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
+
     public function getRelatedVideosAttribute(){
 
 

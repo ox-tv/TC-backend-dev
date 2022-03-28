@@ -40,7 +40,6 @@ class VideoResource extends JsonResource
             'url' => $this->file_url? : Storage::disk('videos')->url($this->file_path),
             'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
             'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
-            'status' => Video::STATUS_TEXT[$this->status]?? null,
             'duration' => $this->duration,
             'user_id' => $this->user_id,
             'view_count' => $this->view_count,
@@ -55,6 +54,7 @@ class VideoResource extends JsonResource
 
             // Custom attributes without query
             'is_published' => $this->is_published,
+            'status' => $this->status_text,
 
             // Custom attributes with query
             'rating' => $this->whenAppended('rating'),
