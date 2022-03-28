@@ -38,7 +38,7 @@ class UserItem extends JsonResource
             ]
         )->orderBy('created_at', 'asc')->first();
 
-        $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->user()->id;
+        $isEthAddressVisible = $request->is('api/admin/*') || $this->id = auth('api')->id();
 
         $publisher_request = null;
         if (!$this->role_id && $this->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){
@@ -48,7 +48,7 @@ class UserItem extends JsonResource
 
 
         return [
-            'id' => $this->id,
+            'id' => $this->resource->id,
             'username' => $this->username,
             'email' => $this->email,
             'avatar' => $this->avatar_url? :$this->avatar,
