@@ -543,8 +543,8 @@
                                         <table border="0" cellpadding="0" cellspacing="0" class="mcnButtonContentContainer" style="border-collapse: separate !important;border-radius: 6px;background-color: #F15858;">
                                             <tbody>
                                             <tr>
-                                                <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 12px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $verification_link }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Verify Email</a>
+                                                <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Helvetica Neue, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 12px;">
+                                                    <a class="mcnButton " title="Verify Email" href="{{ $verification_link }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF; text-transform: uppercase;">Verify Email</a>
                                                 </td>
                                             </tr>
                                             </tbody>
