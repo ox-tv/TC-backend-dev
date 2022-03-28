@@ -9,11 +9,28 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
 Route::get('test', function (){
-    $model = \App\Models\User::with(['channel'])
-        ->first()
-        ->append(['eth_address']);
+    $model = \App\Models\Comment::with([
+            'PinnedBy',
+            'user',
+            'video',
+            'replies',
+            'reports',
+        ])
+        ->findOrFail(1786)
+        ->append([
+            'is_liked',
+            'is_disliked',
+            'reports_count',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+            'reason_key',
+            'reason_text',
+        ]);
 
-    return  \App\Http\Resources\User\UserResource::make($model);
+    return  \App\Http\Resources\Comment\CommentResource::make($model);
+    //return  \App\Http\Resources\User\UserItem::make($model);
+    //return  \App\Http\Resources\UserItem::make($model);
 });
 
 // For Publishers
