@@ -46,7 +46,7 @@ class UserItem extends JsonResource
             $publisher_request['channel_name'] = $this->meta()->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->first()->value?? '';
         }
 
-
+dd($this, $this->id);
         return [
             'id' => $this->id,
             'username' => $this->username,
