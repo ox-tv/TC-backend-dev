@@ -9,10 +9,11 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
 Route::get('test', function (){
-    $playlist = \App\Models\Tag::with([])
+    $model = \App\Models\User::with(['channel'])
         ->first()
-        ->append(['favorited_by_users_count', 'videos_count']);
-    return  \App\Http\Resources\Tag\TagResource::make($playlist);
+        ->append(['eth_address']);
+
+    return  \App\Http\Resources\User\UserResource::make($model);
 });
 
 // For Publishers
