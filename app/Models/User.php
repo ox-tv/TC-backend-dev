@@ -208,11 +208,8 @@ class User extends Authenticatable
 
     public function getHasMembershipHistoryAttribute()
     {
-
         $pricingUserQuery = PricingUser::where('user_id', $this->id);
-
         return $pricingUserQuery->count() > 0;
-
     }
 
     public function getIsMuteAttribute($value)
