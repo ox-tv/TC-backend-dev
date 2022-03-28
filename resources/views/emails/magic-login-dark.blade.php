@@ -484,7 +484,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><span style="font-size:14px"><strong>Magic link request:</strong>&nbsp;Click the button below to log in.</span></p></div>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><span style="font-size:14px">Magic link request:&nbsp;Click the button below to log in.</span></p></div>
 
                                                 </td>
                                             </tr>
