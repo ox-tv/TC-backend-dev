@@ -107,6 +107,24 @@ class Video extends Model
         return $query;
     }
 
+    public function scopePublishedOrMine($query){
+        $query->where(function ($query) {
+            $query->where('status', self::STATUS_PUBLISHED);
+
+            if(auth('api')->check()){
+                $query->orWhere('user_id', auth('api')->id());
+            }
+        });
+        return $query;
+    }
+
+    public function scopeIdOrUrlHash($query, $idOrUrlHash){
+        $query->where(function ($query) use ($idOrUrlHash){
+            $query->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash);
+        });
+        return $query;
+    }
+
     public function scopeInChannel($query, $channelId){
         $query->where('channel_id', $channelId);
         return $query;

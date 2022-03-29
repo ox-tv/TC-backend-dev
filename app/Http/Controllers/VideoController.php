@@ -16,6 +16,7 @@ use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoMinimalItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
@@ -273,7 +274,38 @@ class VideoController extends Controller
      */
     public function show($id_or_url_hash, Request $request)
     {
-        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->with(['layers','layersDraft'])->firstorFail();
+        $video = Video::idOrUrlHash($id_or_url_hash)
+            ->when(!$request->is('api/admin/*'), function ($query){
+                $query->publishedOrMine();
+            })
+            ->with([
+                'user',
+                'channel',
+                'category',
+                'language',
+                'crypto_currencies',
+                'tags',
+                'playlists',
+                'subtitles',
+                'meta',
+            ])
+            ->firstorFail()
+            ->append([
+                'rating',
+                'comment_count',
+                'likes_count',
+                'dislikes_count',
+                'reports_count',
+                'is_liked',
+                'is_disliked',
+                'is_bookmarked',
+            ]);
+
+        return VideoResource::make($video);
+
+        $video = Video::where('id', $id_or_url_hash)
+            ->orWhere('url_hash', $id_or_url_hash)
+            ->with(['layers','layersDraft'])->firstorFail();
 
         $isAdmin = $request->is('api/admin/*');
 
