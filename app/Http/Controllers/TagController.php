@@ -24,6 +24,7 @@ class TagController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $statusFilter = Arr::get($filters, 'status');
         $excludeIdsFilter = Arr::get($filters, 'exclude_ids');
+        $excludeNamesFilter = Arr::get($filters, 'exclude_names');
 
         if($searchFilter){
             $query->searchName($searchFilter);
@@ -31,6 +32,10 @@ class TagController extends Controller
 
         if($excludeIdsFilter){
             $query->whereNotIn('id', $excludeIdsFilter);
+        }
+
+        if($excludeNamesFilter){
+            $query->whereNotIn('name', $excludeNamesFilter);
         }
 
         if($statusFilter && !empty(array_flip(Tag::STATUS_TEXT)[$statusFilter])){
