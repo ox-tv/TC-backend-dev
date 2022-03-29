@@ -69,8 +69,21 @@ class Comment extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
     }
 
-    public function getReportsCountAttribute(){
-        return $this->reports()->count();
+    public function replies(){
+        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
+    }
+
+
+    // Attributes
+
+    public function getIsDislikedAttribute(){
+        if(auth('api')->check()){
+            if($this->dislikedBy()->find(auth('api')->user()->id)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getIsLikedAttribute(){
@@ -83,17 +96,23 @@ class Comment extends Model
         return false;
     }
 
-    public function getIsDislikedAttribute(){
-        if(auth('api')->check()){
-            if($this->dislikedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
-        }
-
-        return false;
+    public function getReportsCountAttribute(){
+        return $this->reports()->count();
     }
 
-    public function replies(){
-        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
+    public function getLikesCountAttribute(){
+        return $this->likedBy()->count();
+    }
+
+    public function getDislikesCountAttribute(){
+        return $this->dislikedBy()->count();
+    }
+
+    public function getRepliesCountAttribute(){
+        return $this->replies()->count();
+    }
+
+    public function getIsPinnedAttribute($value){
+        return (bool) $value;
     }
 }

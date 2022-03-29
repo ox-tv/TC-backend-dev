@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "90a94b6e7afd3bf992c40f29d0176b53",
+    "content-hash": "34a0d3fe702f803d5cfbbdea8b77849b",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -74,16 +74,16 @@
         },
         {
             "name": "amir/laravel-permission",
-            "version": "v1.3",
+            "version": "v1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amiryousefi/laravel-permission.git",
-                "reference": "e4cdc579cef3fd886910c3f1fa9a7271daa264cf"
+                "reference": "4469dfe007d181d45d8a848990097881047a9924"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amiryousefi/laravel-permission/zipball/e4cdc579cef3fd886910c3f1fa9a7271daa264cf",
-                "reference": "e4cdc579cef3fd886910c3f1fa9a7271daa264cf",
+                "url": "https://api.github.com/repos/amiryousefi/laravel-permission/zipball/4469dfe007d181d45d8a848990097881047a9924",
+                "reference": "4469dfe007d181d45d8a848990097881047a9924",
                 "shasum": ""
             },
             "type": "library",
@@ -112,9 +112,9 @@
             "description": "an easy and flexible way for permissions management",
             "support": {
                 "issues": "https://github.com/amiryousefi/laravel-permission/issues",
-                "source": "https://github.com/amiryousefi/laravel-permission/tree/v1.3"
+                "source": "https://github.com/amiryousefi/laravel-permission/tree/v1.4"
             },
-            "time": "2021-11-29T08:57:06+00:00"
+            "time": "2022-03-26T14:21:37+00:00"
         },
         {
             "name": "asm89/stack-cors",

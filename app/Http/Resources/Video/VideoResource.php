@@ -2,19 +2,15 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryCollection;
-use App\Http\Resources\Category\CategoryMinimalItem;
-use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
-use App\Http\Resources\Language\LanguageItem;
-use App\Http\Resources\Playlist\PlaylistMinimalItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
+use App\Http\Resources\Language\LanguageResource;
+use App\Http\Resources\Playlist\PlaylistResource;
 use App\Http\Resources\Report\ReportMinimalItem;
-use App\Http\Resources\Subtitle\SubtitleItem;
-use App\Http\Resources\Tag\TagItem;
-use App\Http\Resources\User\UserMinimalItem;
-use App\Models\Video;
-use App\Models\VideoMeta;
+use App\Http\Resources\Subtitle\SubtitleResource;
+use App\Http\Resources\Tag\TagResource;
+use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,7 +35,6 @@ class VideoResource extends JsonResource
             'url' => $this->file_url? : Storage::disk('videos')->url($this->file_path),
             'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
             'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
-            'status' => Video::STATUS_TEXT[$this->status]?? null,
             'duration' => $this->duration,
             'user_id' => $this->user_id,
             'view_count' => $this->view_count,
@@ -54,6 +49,7 @@ class VideoResource extends JsonResource
 
             // Custom attributes without query
             'is_published' => $this->is_published,
+            'status' => $this->status_text,
 
             // Custom attributes with query
             'rating' => $this->whenAppended('rating'),
@@ -67,14 +63,14 @@ class VideoResource extends JsonResource
             //'layers' => $this->whenAppended('layers'),
 
             // Relations
-            'user' => UserMinimalItem::make($this->whenLoaded('user')),
+            'user' => UserResource::make($this->whenLoaded('user')),
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
-            'category' => CategoryMinimalItem::make($this->whenLoaded('category')),
-            'language' => LanguageItem::make($this->whenLoaded('language')),
-            'crypto_currencies' => CryptoCurrencyItem::collection($this->whenLoaded('crypto_currencies')),
-            'tags' => TagItem::collection($this->whenLoaded('tags')),
-            'playlists' => PlaylistMinimalItem::collection($this->whenLoaded('playlists')),
-            'subtitles' => SubtitleItem::collection($this->whenLoaded('subtitles')),
+            'category' => CategoryResource::make($this->whenLoaded('category')),
+            'language' => LanguageResource::make($this->whenLoaded('language')),
+            'crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('crypto_currencies')),
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'playlists' => PlaylistResource::collection($this->whenLoaded('playlists')),
+            'subtitles' => SubtitleResource::collection($this->whenLoaded('subtitles')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
             'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
             'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
