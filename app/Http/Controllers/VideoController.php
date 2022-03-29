@@ -286,7 +286,7 @@ class VideoController extends Controller
                 'crypto_currencies',
                 'tags',
                 'playlists',
-                'subtitles',
+                'subtitles.language',
                 'meta',
             ])
             ->firstorFail()
