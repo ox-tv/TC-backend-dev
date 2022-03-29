@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\Video\HomeVideoItem;
-use App\Http\Resources\Video\VideoCardItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\ChannelStatisticsDaily;

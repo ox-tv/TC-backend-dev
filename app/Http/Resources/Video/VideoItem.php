@@ -2,11 +2,9 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryMinimalCollection;
 use App\Http\Resources\Category\CategoryMinimalItem;
 use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
-use App\Http\Resources\Playlist\PlaylistMinimalCollection;
 use App\Http\Resources\Playlist\PlaylistMinimalItem;
 use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\Subtitle\SubtitleItem;

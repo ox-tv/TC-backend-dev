@@ -2,12 +2,8 @@
 
 namespace App\Http\Resources\Subtitle;
 
-use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Language\LanguageResource;
-use App\Http\Resources\PaymentMethod\PaymentMethodItem;
-use App\Http\Resources\User\UserResource;
 use App\Http\Resources\Video\VideoResource;
-use App\Models\Transaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 

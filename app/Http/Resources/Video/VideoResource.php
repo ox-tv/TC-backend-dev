@@ -2,20 +2,15 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryMinimalItem;
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
-use App\Http\Resources\Language\LanguageItem;
-use App\Http\Resources\Playlist\PlaylistMinimalItem;
+use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\Playlist\PlaylistResource;
 use App\Http\Resources\Report\ReportMinimalItem;
-use App\Http\Resources\Subtitle\SubtitleItem;
-use App\Http\Resources\Tag\TagItem;
+use App\Http\Resources\Subtitle\SubtitleResource;
 use App\Http\Resources\Tag\TagResource;
-use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\User\UserResource;
-use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -71,11 +66,11 @@ class VideoResource extends JsonResource
             'user' => UserResource::make($this->whenLoaded('user')),
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
             'category' => CategoryResource::make($this->whenLoaded('category')),
-            'language' => LanguageItem::make($this->whenLoaded('language')),
+            'language' => LanguageResource::make($this->whenLoaded('language')),
             'crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('crypto_currencies')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'playlists' => PlaylistResource::collection($this->whenLoaded('playlists')),
-            'subtitles' => SubtitleItem::collection($this->whenLoaded('subtitles')),
+            'subtitles' => SubtitleResource::collection($this->whenLoaded('subtitles')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
         ];
     }

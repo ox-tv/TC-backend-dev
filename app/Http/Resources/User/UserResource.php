@@ -6,10 +6,6 @@ use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Http\Resources\Video\VideoResource;
-use App\Models\Department;
-use App\Models\Message;
-use App\Models\UserMeta;
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource

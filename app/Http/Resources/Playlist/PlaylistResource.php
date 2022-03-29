@@ -2,11 +2,8 @@
 
 namespace App\Http\Resources\Playlist;
 
-use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\User\UserResource;
-use App\Models\Playlist;
-use App\Models\Video;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlaylistResource extends JsonResource
