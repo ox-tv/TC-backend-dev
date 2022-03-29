@@ -288,6 +288,7 @@ class VideoController extends Controller
                 'playlists',
                 'subtitles',
                 'meta',
+                'layers',
             ])
             ->firstorFail()
             ->append([
