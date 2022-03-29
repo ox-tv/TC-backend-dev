@@ -209,26 +209,6 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'en',
                 'displayName' => 'English',
             ],
-            48 => [
-                'languageCode' => 'en-CA',
-                'displayName' => 'English (Canada)',
-            ],
-            49 => [
-                'languageCode' => 'en-IN',
-                'displayName' => 'English (India)',
-            ],
-            50 => [
-                'languageCode' => 'en-IE',
-                'displayName' => 'English (Ireland)',
-            ],
-            51 => [
-                'languageCode' => 'en-GB',
-                'displayName' => 'English (United Kingdom)',
-            ],
-            52 => [
-                'languageCode' => 'en-US',
-                'displayName' => 'English (United States)',
-            ],
             53 => [
                 'languageCode' => 'eo',
                 'displayName' => 'Esperanto',
