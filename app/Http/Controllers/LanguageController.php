@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Chapter\ChapterStore;
-use App\Http\Requests\Chapter\ChapterUpdate;
-use App\Http\Resources\Chapter\ChapterItem;
-use App\Http\Resources\Language\LanguageItem;
-use App\Models\Chapter;
+use App\Http\Resources\Language\LanguageResource;
 use App\Models\Language;
-use App\Models\Video;
 use Illuminate\Http\Request;
 
 class LanguageController extends Controller
@@ -19,6 +14,6 @@ class LanguageController extends Controller
             ->orderBy('id','ASC')
             ->get();
 
-        return LanguageItem::collection($languages);
+        return LanguageResource::collection($languages);
     }
 }
