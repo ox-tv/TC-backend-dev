@@ -276,7 +276,7 @@ class Video extends Model
     public function getLayersAttribute()
     {
         $meta = $this->meta()->where('key', 'layers')->first();
-        return $meta? json_decode($meta->value) : null;
+        return $meta? $meta->value : null;
     }
 
     public function getRatingAttribute(){
