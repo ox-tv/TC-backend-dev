@@ -2,21 +2,7 @@
 
 namespace App\Http\Resources\Video;
 
-use App\Http\Resources\Category\CategoryCollection;
-use App\Http\Resources\Category\CategoryMinimalItem;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
-use App\Http\Resources\Language\LanguageItem;
-use App\Http\Resources\Playlist\PlaylistMinimalItem;
-use App\Http\Resources\Report\ReportMinimalItem;
-use App\Http\Resources\Subtitle\SubtitleItem;
-use App\Http\Resources\Tag\TagItem;
-use App\Http\Resources\User\UserMinimalItem;
-use App\Models\Video;
-use App\Models\VideoMeta;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 
 class VideoMetaResource extends JsonResource
