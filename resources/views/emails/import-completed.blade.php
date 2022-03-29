@@ -558,8 +558,8 @@ If you want to change any video title,&nbsp;description, or add tags, you can ea
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonContentContainer" style="border-collapse: separate !important;border-radius: 6px;background-color: #444444;">
                                             <tbody>
                                             <tr>
-                                                <td align="center" valign="middle" class="mcnButtonContent" style="font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 15px;">
-                                                    <a class="mcnButton " title="Visit your Publisher Panel" href="{{ config("general.PUBLISHER_PANEL_URL") }}" target="_blank" style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Visit your Publisher Panel</a>
+                                                <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Helvetica Neue, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 15px;">
+                                                    <a class="mcnButton " title="Visit your Publisher Panel" href="{{ config("general.PUBLISHER_PANEL_URL") }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF; text-transform: uppercase;">Visit your Publisher Panel</a>
                                                 </td>
                                             </tr>
                                             </tbody>

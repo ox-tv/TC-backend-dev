@@ -48,7 +48,7 @@ class UserItem extends JsonResource
 
 
         return [
-            'id' => $this->id,
+            'id' => $this->resource->id,
             'username' => $this->username,
             'email' => $this->email,
             'avatar' => $this->avatar_url? :$this->avatar,
