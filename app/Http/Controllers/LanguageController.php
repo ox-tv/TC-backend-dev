@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Language\LanguageItem;
+use App\Http\Resources\Language\LanguageResource;
 use App\Models\Language;
 use Illuminate\Http\Request;
 
@@ -14,6 +14,6 @@ class LanguageController extends Controller
             ->orderBy('id','ASC')
             ->get();
 
-        return LanguageItem::collection($languages);
+        return LanguageResource::collection($languages);
     }
 }
