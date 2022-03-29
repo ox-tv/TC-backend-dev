@@ -13,7 +13,7 @@ class CryptoCurrencyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CryptoCurrency::query();
+        $query = CryptoCurrency::where('status', CryptoCurrency::STATUS_LIST);
 
         $filters = $request->get('filters', []);
 
@@ -64,6 +64,7 @@ class CryptoCurrencyController extends Controller
     {
         $cryptoCurrencies = auth('api')->user()
             ->favoriteCryptoCurrencies()
+            ->where('status', CryptoCurrency::STATUS_LIST)
             ->get()
         ->append(['is_favorite']);
 

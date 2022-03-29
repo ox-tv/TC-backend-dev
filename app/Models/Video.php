@@ -241,17 +241,25 @@ class Video extends Model
         return $this->hasMany('App\Models\VideoMeta');
     }
 
+    public function layers(){
+        return $this->hasOne('App\Models\VideoMeta')->where('key', VideoMeta::VIDEO_LAYERS);
+    }
+
+    public function layersDraft(){
+        return $this->hasOne('App\Models\VideoMeta')->where('key', VideoMeta::VIDEO_LAYERS_DRAFT);
+    }
+
     public function dailyStatistics(){
         return $this->hasMany('App\Models\VideoStatisticsDaily');
     }
 
 
     // Attributes
-    public function getLayersAttribute()
+    /*public function getLayersAttribute()
     {
         $meta = $this->meta()->where('key', 'layers')->first();
         return $meta? json_decode($meta->value) : null;
-    }
+    }*/
 
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)

@@ -73,7 +73,7 @@ class UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI extends Command
         // Update orders without touch updated_at
         DB::table('crypto_currencies')->whereNotIn('coinmarketcap_id', $available_coins)->update([
             'order' => 100000,
-            'status' => CryptoCurrency::STATUS_DELIST,
+            //'status' => CryptoCurrency::STATUS_DELIST,
         ]);
         return 0;
     }
