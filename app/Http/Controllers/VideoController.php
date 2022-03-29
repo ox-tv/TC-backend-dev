@@ -299,6 +299,7 @@ class VideoController extends Controller
                 'is_liked',
                 'is_disliked',
                 'is_bookmarked',
+                'layers',
             ]);
 
         return VideoResource::make($video);
