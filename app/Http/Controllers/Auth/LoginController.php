@@ -93,7 +93,14 @@ class LoginController extends Controller
             $userQuery->where('role_id', $roleId);
         }
 
-        $user = $userQuery->firstOrFail();
+        $user = $userQuery->first();
+
+        if (!$user){
+            return response()->json([
+                'login' => $login,
+                'message' => __('auth.magic_link_sent'),
+            ]);
+        }
 
         if($user->status == User::STATUS_INACTIVE) {
 
