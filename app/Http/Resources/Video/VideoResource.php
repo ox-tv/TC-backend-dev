@@ -60,6 +60,7 @@ class VideoResource extends JsonResource
             'is_liked' => $this->whenAppended('is_liked'),
             'is_disliked' => $this->whenAppended('is_disliked'),
             'is_bookmarked' => $this->whenAppended('is_bookmarked'),
+            'layers' => $this->whenAppended('layers'),
 
             // Relations
             'user' => UserResource::make($this->whenLoaded('user')),
@@ -72,7 +73,6 @@ class VideoResource extends JsonResource
             'subtitles' => SubtitleResource::collection($this->whenLoaded('subtitles')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
             'meta' => VideoMetaResource::collection($this->whenLoaded('meta')),
-            'layers' => $this->whenAppended('layers'),
             //'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
             //'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];
