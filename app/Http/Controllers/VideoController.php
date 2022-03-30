@@ -302,6 +302,8 @@ class VideoController extends Controller
                 'layers',
             ]);
 
+        $video->channel->append(['is_subscribed']);
+
         return VideoResource::make($video);
 
         $video = Video::where('id', $id_or_url_hash)
