@@ -338,14 +338,24 @@ class Video extends Model
             ])->exists();
     }
 
-    public function getStatusTextAttribute(){
+    public function getStatusTextAttribute()
+    {
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
-    public function getRelatedVideosAttribute(){
-
-
+    public function getFileUrlAttribute($value)
+    {
+        return $value? : Storage::disk('videos')->url($this->file_path);
     }
 
+    public function getThumbnailUrlAttribute($value)
+    {
+        return $value? :$this->thumbnail;
+    }
+
+    public function getThumbnailsAttribute()
+    {
+        return $this->thumbnail_url? getThumbnails($this->thumbnail_url):[];
+    }
 
 }
