@@ -32,9 +32,6 @@ class VideoResource extends JsonResource
             'slug' => $this->slug,
             'url_hash' => $this->url_hash,
             'description' => $this->description,
-            'url' => $this->file_url? : Storage::disk('videos')->url($this->file_path),
-            'thumbnail' => $this->thumbnail_url? :$this->thumbnail,
-            'thumbnails' => $this->thumbnail_url? getThumbnails($this->thumbnail_url):[],
             'duration' => $this->duration,
             'user_id' => $this->user_id,
             'view_count' => $this->view_count,
@@ -42,14 +39,17 @@ class VideoResource extends JsonResource
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
             'watch_time' => $this->watch_time,
-            'reason_key' => $this->when($this->reason_key, $this->reason_key),
-            'reason_text' => $this->when($this->reason_text, $this->reason_text),
+            'reason_key' => $this->whenAppended('reason_key'),
+            'reason_text' => $this->whenAppended('reason_text'),
             'channel_id' => $this->channel_id,
             'language_id' => $this->language_id,
 
             // Custom attributes without query
             'is_published' => $this->is_published,
             'status' => $this->status_text,
+            'url' => $this->file_url,
+            'thumbnail' => $this->thumbnail_url,
+            'thumbnails' => $this->thumbnails,
 
             // Custom attributes with query
             'rating' => $this->whenAppended('rating'),
