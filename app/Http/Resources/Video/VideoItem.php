@@ -87,8 +87,8 @@ class VideoItem extends JsonResource
             'reports' => $this->when($withReports, $reports),
             'subtitles' => $this->when($withSubtitles, $subtitles),
             'layers' => $this->when($withLayers, $layers),
-            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
-            'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
+//            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
+//            'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];
     }
 }

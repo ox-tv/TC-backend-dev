@@ -302,7 +302,7 @@ class VideoController extends Controller
                 'layers',
             ]);
 
-        $video->channel->append(['is_subscribed']);
+        $video->channel->append(['is_subscribed', 'subscribers_count']);
 
         return VideoResource::make($video);
 
