@@ -224,14 +224,9 @@ class User extends Authenticatable
         return $this->role_id == $adminRoleId;
     }
 
-    public function getUsernameAttribute($value)
-    {
-        return $this->channel? $this->channel->name : $value;
-    }
-
     public function getAvatarAttribute($value)
     {
-        return $this->channel ? $this->channel->avatar : ($this->avatar_url? :$value);
+        return $this->avatar_url? :$value;
     }
 
     public function getAvatarThumbnilsAttribute($value)
