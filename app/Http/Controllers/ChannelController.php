@@ -136,6 +136,11 @@ class ChannelController extends Controller
 
         $channel->save();
 
+        $user = $channel->owner;
+        $user->username = $channel->name;
+        $user->avatar_url = $channel->avatar_url;
+        $user->save();
+
         return new ChannelItem($channel);
 
     }
@@ -240,6 +245,11 @@ class ChannelController extends Controller
         }
 
         $channel->save();
+
+        $user = $channel->owner;
+        $user->username = $channel->name;
+        $user->avatar_url = $channel->avatar_url;
+        $user->save();
 
         event(new ChannelUpdated($oldChannel, $channel));
 
