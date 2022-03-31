@@ -287,6 +287,7 @@ class VideoController extends Controller
                 'tags',
                 'playlists',
                 'subtitles.language',
+                'chapters',
                 'meta',
             ])
             ->firstorFail()

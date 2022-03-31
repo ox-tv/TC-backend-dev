@@ -4,6 +4,7 @@ namespace App\Http\Resources\Video;
 
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Channel\ChannelResource;
+use App\Http\Resources\Chapter\ChapterResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\Playlist\PlaylistResource;
@@ -71,6 +72,7 @@ class VideoResource extends JsonResource
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'playlists' => PlaylistResource::collection($this->whenLoaded('playlists')),
             'subtitles' => SubtitleResource::collection($this->whenLoaded('subtitles')),
+            'chapters' => ChapterResource::collection($this->whenLoaded('chapters')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
             'meta' => VideoMetaResource::collection($this->whenLoaded('meta')),
 //            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
