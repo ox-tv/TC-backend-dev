@@ -200,6 +200,10 @@ class PublisherController extends Controller
         $channel->status = Channel::STATUS_PUBLISHED;
         $channel->save();
 
+        $user->username = $channel->name;
+        $user->avatar_url = $channel->avatar_url;
+        $user->save();
+
         $channelNameMeta = $user->meta()
             ->where('key', UserMeta::REQUESTED_CHANNEL_NAME)->delete();
 
