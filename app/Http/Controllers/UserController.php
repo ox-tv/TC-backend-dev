@@ -251,10 +251,12 @@ class UserController extends Controller
             ],
         ]);
 
-        $user->username = $request->get('username', $user->username);
         $user->email = $request->get('email', $user->email);
 
-        $user->avatar_url = $request->get('avatar', $user->avatar_url);
+        if (!$user->channel){
+            $user->username = $request->get('username', $user->username);
+            $user->avatar_url = $request->get('avatar', $user->avatar_url);
+        }
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
@@ -448,9 +450,10 @@ class UserController extends Controller
 
         $user = auth('api')->user();
 
-        $user->username = $request->get('username', $user->username);
-
-        $user->avatar_url = $request->get('avatar', $user->avatar_url);
+        if (!$user->channel){
+            $user->username = $request->get('username', $user->username);
+            $user->avatar_url = $request->get('avatar', $user->avatar_url);
+        }
 
         if($request->get('new_password')){
             $user->password = Hash::make($request->get('new_password'));
