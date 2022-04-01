@@ -17,7 +17,7 @@ class DepartmentItem extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'Scope' => $this->scope_text,
+            'Scope' => $this->whenAppended('scope_text'),
             'created_at' => $this->created_at
         ];
     }
