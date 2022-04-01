@@ -19,6 +19,12 @@ class DepartmentController extends Controller
             $query->scopePublisherOrGlobal();
         }
 
-        return DepartmentItem::collection($query->get());
+        $departments = $query->get();
+
+        if($request->is('api/admin/*')){
+            $departments->append(['scope_text']);
+        }
+
+        return DepartmentItem::collection($departments);
     }
 }
