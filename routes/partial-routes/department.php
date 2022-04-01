@@ -21,6 +21,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
 });
 
@@ -33,5 +34,6 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
+    Route::get('departments', '\App\Http\Controllers\DepartmentController@index')->name("departments");
 
 });
