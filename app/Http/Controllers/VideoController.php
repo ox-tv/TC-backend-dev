@@ -289,8 +289,11 @@ class VideoController extends Controller
     public function show($id_or_url_hash, Request $request)
     {
         $video = Video::idOrUrlHash($id_or_url_hash)
-            ->when(!$request->is('api/admin/*'), function ($query){
-                $query->publishedOrMine()->publishedOnceWithTrashed();
+            ->when($request->is('api/videos/*'), function ($query){
+                $query->publishedOnceWithTrashed();
+            })
+            ->when($request->is('api/publisher/videos/*'), function ($query){
+                $query->mine();
             })
             ->firstorFail();
 
