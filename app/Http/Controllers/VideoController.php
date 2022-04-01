@@ -298,8 +298,14 @@ class VideoController extends Controller
             ->firstorFail();
 
         if (
-            !is_null($video->published_at)
-            && (!is_null($video->deleted_at) || $video->status != Video::STATUS_PUBLISHED)
+            !$request->is('api/admin/videos/*') &&
+            (
+                $video->user_id != auth('api')->id() ||
+                (
+                    !is_null($video->published_at)
+                    && (!is_null($video->deleted_at) || $video->status != Video::STATUS_PUBLISHED)
+                )
+            )
         ){
             return response()->json([
                 'message' => __('video.media_is_no_longer_available'),
