@@ -125,6 +125,11 @@ class Video extends Model
         return $query;
     }
 
+    public function scopePublishedOnceWithTrashed($query){
+        $query->withTrashed()->whereNotNull('published_at');
+        return $query;
+    }
+
     public function scopeInChannel($query, $channelId){
         $query->where('channel_id', $channelId);
         return $query;
