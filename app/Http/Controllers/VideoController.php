@@ -276,9 +276,21 @@ class VideoController extends Controller
     {
         $video = Video::idOrUrlHash($id_or_url_hash)
             ->when(!$request->is('api/admin/*'), function ($query){
-                $query->publishedOrMine();
+                $query->publishedOrMine()->publishedOnceWithTrashed();
             })
-            ->with([
+            ->firstorFail();
+
+        if (
+            !is_null($video->published_at)
+            && (!is_null($video->deleted_at) || $video->status != Video::STATUS_PUBLISHED)
+        ){
+            return response()->json([
+                'message' => __('video.media_is_no_longer_available'),
+                'code' => 'media_is_no_longer_available',
+            ], 404);
+        }
+
+        $video->load([
                 'user',
                 'channel',
                 'category',
@@ -290,7 +302,6 @@ class VideoController extends Controller
                 'chapters',
                 'meta',
             ])
-            ->firstorFail()
             ->append([
                 'rating',
                 'comment_count',
@@ -306,20 +317,6 @@ class VideoController extends Controller
         $video->channel->append(['is_subscribed', 'subscribers_count']);
 
         return VideoResource::make($video);
-
-        $video = Video::where('id', $id_or_url_hash)
-            ->orWhere('url_hash', $id_or_url_hash)
-            ->with(['layers','layersDraft'])->firstorFail();
-
-        $isAdmin = $request->is('api/admin/*');
-
-        if($isAdmin || $video->isPublished || $video->isMine){
-            return new \App\Http\Resources\Video\VideoItem($video);
-        }
-
-        return response()->json([
-            'message' => 'You can\'t access this video'
-        ], 422);
     }
 
     /**

@@ -3,6 +3,7 @@
 return [
 
     'cannot_hide_unpublished_video' => 'You can not hide this video because the video is not published.',
+    'media_is_no_longer_available' => 'Media is no longer available.',
 
 
 
