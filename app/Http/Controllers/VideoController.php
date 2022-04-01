@@ -300,7 +300,7 @@ class VideoController extends Controller
         if (
             !$request->is('api/admin/videos/*') &&
             (
-                $video->user_id != auth('api')->id() ||
+                $video->user_id != auth('api')->id() &&
                 (
                     !is_null($video->published_at)
                     && (!is_null($video->deleted_at) || $video->status != Video::STATUS_PUBLISHED)
