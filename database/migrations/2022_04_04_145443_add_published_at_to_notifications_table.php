@@ -14,7 +14,7 @@ class AddPublishedAtToNotificationsTable extends Migration
     public function up()
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->timestamp('published_at')->nullable();
+            $table->timestamp('published_at')->useCurrent();
         });
     }
 
