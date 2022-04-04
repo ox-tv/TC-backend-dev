@@ -244,6 +244,8 @@ class VideoController extends Controller
         }
 
 
+
+
         DB::transaction(function () use ($request, $video){
 
             $video->save();
@@ -272,6 +274,16 @@ class VideoController extends Controller
             // adding playlist
             if($request->get('playlists')){
                 $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
+            }
+
+            if($request->get('comment_text')){
+                $comment = new Comment();
+                $comment->text = $request->get('comment_text');
+                $comment->user_id = $video->user_id;
+                $comment->is_pinned = Comment::COMMENT_PINNED;
+                $comment->pinned_by = $video->user_id;
+                $comment->video()->associate($video->id);
+                $comment->save();
             }
         });
 
@@ -497,7 +509,7 @@ class VideoController extends Controller
         $user = Auth::user();
 
         $comment = new Comment();
-        $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $request->get('text'));
+        $comment->text = $request->get('text');
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
@@ -552,10 +564,11 @@ class VideoController extends Controller
 
         $videoIds->map(function ($videoId) use ($userId, $text){
             $comment = new Comment();
-            $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $text);
+            $comment->text = $text;
             $comment->user_id = $userId;
             $comment->video()->associate($videoId);
             $comment->is_pinned = Comment::COMMENT_PINNED;
+            $comment->pinned_by = $userId;
             $comment->save();
         });
 
