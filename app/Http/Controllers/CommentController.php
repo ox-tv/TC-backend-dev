@@ -42,6 +42,9 @@ class CommentController extends Controller
         }
 
         $sort = $request->get('sort');
+        if ($videos){
+            $query->orderBy('is_pinned','Desc');
+        }
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }
