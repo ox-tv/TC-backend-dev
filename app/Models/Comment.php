@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,6 +23,7 @@ class Comment extends Model
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
+        static::addGlobalScope(new WhereParentNullScope);
     }
 
     // scopes
