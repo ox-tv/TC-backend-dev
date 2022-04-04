@@ -78,6 +78,11 @@ class Comment extends Model
 
     // Attributes
 
+    public function setTextAttribute($value)
+    {
+        $this->attributes['text'] = preg_replace("/([\n][\n][\n]+)/", "\n\n", $value);;
+    }
+
     public function getIsDislikedAttribute(){
         if(auth('api')->check()){
             if($this->dislikedBy()->find(auth('api')->user()->id)){
