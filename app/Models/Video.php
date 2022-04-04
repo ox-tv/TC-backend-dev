@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -225,7 +226,7 @@ class Video extends Model
     }
 
     public function comments(){
-        return $this->hasMany('App\Models\Comment')->whereNull('parent_id')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
+        return $this->hasMany('App\Models\Comment')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
     }
 
     public function chapters(){
@@ -291,7 +292,7 @@ class Video extends Model
     }
 
     public function getCommentCountAttribute(){
-        return $this->comments()->count();
+        return $this->comments()->withoutGlobalScope(WhereParentNullScope::class)->count();
     }
 
     public function getLikesCountAttribute(){
