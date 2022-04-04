@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\WherePublishedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\DatabaseNotification;
@@ -39,6 +40,11 @@ class Notification extends Model
         self::SCOPE_PUBLISHER => 'publisher',
         self::SCOPE_USER => 'user',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new WherePublishedScope());
+    }
 
     public function users(){
         return $this->belongsToMany('App\Models\User')->withPivot(["read_at"]);
