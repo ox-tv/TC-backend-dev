@@ -94,7 +94,7 @@ class MessageController extends Controller
         if($request->get("department_id")){
             $message->department_id = $request->get("department_id");
         }else{
-            $department = Department::firstOrCreate(['name' => 'General']);
+            $department = Department::firstOrCreate(['name' => 'Other']);
             $message->department_id = $department->id;
         }
 
@@ -139,7 +139,7 @@ class MessageController extends Controller
         if($request->get("department_id")){
             $department_id = $request->get("department_id");
         }else{
-            $department = Department::firstOrCreate(['name' => 'General']);
+            $department = Department::firstOrCreate(['name' => 'Other']);
             $department_id = $department->id;
         }
 
@@ -327,7 +327,7 @@ class MessageController extends Controller
 
         $user = auth('api')->user();
 
-        $department = Department::firstOrCreate(['name' => 'Publisher Import Request']);
+        $department = Department::firstOrCreate(['name' => 'Content import']);
 
         $message_data = [
             'subject' => trans("channel.request_subject"),
