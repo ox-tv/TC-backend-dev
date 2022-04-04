@@ -72,7 +72,7 @@ class Comment extends Model
     }
 
     public function replies(){
-        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
+        return $this->hasMany('App\Models\Comment', 'parent_id', 'id')->withoutGlobalScope(WhereParentNullScope::class);
     }
 
 
