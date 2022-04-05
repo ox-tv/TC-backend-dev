@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class NotificationRepository implements NotificationRepositoryInterface
 {
 
-    public function store($users, $type, $scope, $userGroup, $payload = null, $entityType = null, $entityId = null, $from = null)
+    public function store($users, $type, $scope, $userGroup, $payload = null, $entityType = null, $entityId = null, $from = null, $publishedAt = null)
     {
         $notification = new Notification();
         $notification->type = $type;
@@ -21,6 +21,7 @@ class NotificationRepository implements NotificationRepositoryInterface
         $notification->sender_id = $from;
         $notification->entity_type = $entityType;
         $notification->entity_id = $entityId;
+        $notification->published_at = $publishedAt;
 
         DB::transaction(function () use ($notification, $users){
             $notification->save();

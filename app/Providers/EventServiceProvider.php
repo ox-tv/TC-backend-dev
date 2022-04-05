@@ -42,6 +42,7 @@ use App\Listeners\Publisher\SendNotificationOnNewPublisherRequested;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestApproved;
 use App\Listeners\Publisher\SendNotificationOnPublisherRequestRejected;
 use App\Listeners\Report\SendNotificationOnReportCreated;
+use App\Listeners\SendNotificationOnUserVerified;
 use App\Listeners\SendNotificationOnVideoCreated;
 use App\Listeners\SendNotificationOnVideoDeleted;
 use App\Listeners\SendNotificationOnVideoUpdated;
@@ -78,6 +79,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserVerified::class => [
             UserVerifiedDataForUserStatisticsDaily::class,
+            SendNotificationOnUserVerified::class,
         ],
 
         // Publisher
