@@ -152,7 +152,7 @@ class VideoController extends Controller
 
         if ($publisherVideos) {
             $relations = ['playlists', 'category'];
-            $attributes = ['comment_count', 'likes_count'];
+            $attributes = ['comment_count', 'rating'];
         }elseif ($adminVideos) {
             $relations = ['channel', 'category'];
             $attributes = ['comment_count', 'likes_count', 'reports_count'];
