@@ -150,7 +150,21 @@ class VideoController extends Controller
 
         $videos = $query->paginate($perPage);
 
-        $result = \App\Http\Resources\Video\VideoItem::collection($videos);
+        if ($publisherVideos) {
+            $relations = ['playlists', 'category'];
+            $attributes = ['comment_count', 'likes_count'];
+        }elseif ($adminVideos) {
+            $relations = ['channel', 'category'];
+            $attributes = ['comment_count', 'likes_count', 'reports_count'];
+        }else{
+            $relations = ['channel'];
+            $attributes = ['is_bookmarked'];
+        }
+
+        $videos->load($relations)->append($attributes);
+
+        $result = VideoResource::collection($videos);
+        //$result = \App\Http\Resources\Video\VideoItem::collection($videos);
 
         if($categorySlug){
             $result->additional([
