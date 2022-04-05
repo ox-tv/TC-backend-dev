@@ -53,7 +53,7 @@ class VideoMetaController extends Controller
     public function store(Request $request, $videoIdOrHash, $key)
     {
         $request->validate([
-            'value' => 'nullable|array',
+            'value' => 'nullable',
         ]);
 
         $video = Video::where(function ($query) use ($videoIdOrHash){
