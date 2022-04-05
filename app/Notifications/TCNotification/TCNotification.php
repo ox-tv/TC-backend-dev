@@ -21,6 +21,7 @@ class TCNotification
             $notification->entityType,
             $notification->entityId,
             $notification->from,
+            $notification->publishedAt?? null,
         );
 
         \Illuminate\Support\Facades\Notification::send($users, $notification);
