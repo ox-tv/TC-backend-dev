@@ -14,13 +14,13 @@ class VideoMeta extends Model
     const VIDEO_LAYERS = 'layers';
     const VIDEO_LAYERS_DRAFT = 'layers_draft';
     const VIDEO_STUDIO = 'studio';
-    const VIDEO_CHAPTERS = 'chapters';
+    const VIDEO_STUDIO_DRAFT = 'studio_draft';
 
     const KEYS_WITH_JSON_VALUE = [
         self::VIDEO_LAYERS,
         self::VIDEO_LAYERS_DRAFT,
         self::VIDEO_STUDIO,
-        self::VIDEO_CHAPTERS,
+        self::VIDEO_STUDIO_DRAFT,
     ];
 
     // Relations
