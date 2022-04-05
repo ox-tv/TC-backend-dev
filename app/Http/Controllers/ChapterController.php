@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Chapter\ChapterStore;
 use App\Http\Requests\Chapter\ChapterUpdate;
-use App\Http\Resources\Chapter\ChapterItem;
+use App\Http\Resources\Chapter\ChapterResource;
 use App\Models\Chapter;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class ChapterController extends Controller
                 })->orWhere('status', Video::STATUS_PUBLISHED);
             })->firstorFail();
 
-        return ChapterItem::collection($video->chapters);
+        return ChapterResource::collection($video->chapters);
     }
 
     public function store(ChapterStore $request, $video_id)

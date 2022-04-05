@@ -14,8 +14,9 @@ use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyItem;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoMinimalItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
@@ -159,7 +160,7 @@ class VideoController extends Controller
 
         if($cryptoCurrencySlug){
             $result->additional([
-                'cryptocurrency' => CryptoCurrencyItem::make($cryptoCurrency)
+                'cryptocurrency' => CryptoCurrencyResource::make($cryptoCurrency)
             ]);
         }
 
@@ -229,6 +230,8 @@ class VideoController extends Controller
         }
 
 
+
+
         DB::transaction(function () use ($request, $video){
 
             $video->save();
@@ -258,6 +261,16 @@ class VideoController extends Controller
             if($request->get('playlists')){
                 $video->playlists()->saveMany(Playlist::whereIn('id', $request->get('playlists'))->get());
             }
+
+            if($request->get('comment_text')){
+                $comment = new Comment();
+                $comment->text = $request->get('comment_text');
+                $comment->user_id = $video->user_id;
+                $comment->is_pinned = Comment::COMMENT_PINNED;
+                $comment->pinned_by = $video->user_id;
+                $comment->video()->associate($video->id);
+                $comment->save();
+            }
         });
 
         event(new VideoCreated($video));
@@ -273,17 +286,58 @@ class VideoController extends Controller
      */
     public function show($id_or_url_hash, Request $request)
     {
-        $video = Video::where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->with(['layers','layersDraft'])->firstorFail();
+        $video = Video::idOrUrlHash($id_or_url_hash)
+            ->when($request->is('api/videos/*'), function ($query){
+                $query->publishedOnceWithTrashed();
+            })
+            ->when($request->is('api/publisher/videos/*'), function ($query){
+                $query->mine();
+            })
+            ->firstorFail();
 
-        $isAdmin = $request->is('api/admin/*');
-
-        if($isAdmin || $video->isPublished || $video->isMine){
-            return new \App\Http\Resources\Video\VideoItem($video);
+        if (
+            !$request->is('api/admin/videos/*') &&
+            (
+                $video->user_id != auth('api')->id() &&
+                (
+                    !is_null($video->published_at)
+                    && (!is_null($video->deleted_at) || $video->status != Video::STATUS_PUBLISHED)
+                )
+            )
+        ){
+            return response()->json([
+                'message' => __('video.media_is_no_longer_available'),
+                'code' => 'media_is_no_longer_available',
+            ], 404);
         }
 
-        return response()->json([
-            'message' => 'You can\'t access this video'
-        ], 422);
+        $video->load([
+                'user',
+                'channel',
+                'category',
+                'language',
+                'crypto_currencies',
+                'tags',
+                'playlists',
+                'subtitles.language',
+                'chapters',
+                'meta',
+            ])
+            ->append([
+                'rating',
+                'comment_count',
+                'likes_count',
+                'dislikes_count',
+                'reports_count',
+                'is_liked',
+                'is_disliked',
+                'is_bookmarked',
+                'layers',
+            ]);
+
+        $video->channel->append(['is_subscribed', 'subscribers_count']);
+
+        return VideoResource::make($video);
     }
 
     /**
@@ -441,7 +495,7 @@ class VideoController extends Controller
         $user = Auth::user();
 
         $comment = new Comment();
-        $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $request->get('text'));
+        $comment->text = $request->get('text');
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
@@ -496,10 +550,11 @@ class VideoController extends Controller
 
         $videoIds->map(function ($videoId) use ($userId, $text){
             $comment = new Comment();
-            $comment->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $text);
+            $comment->text = $text;
             $comment->user_id = $userId;
             $comment->video()->associate($videoId);
             $comment->is_pinned = Comment::COMMENT_PINNED;
+            $comment->pinned_by = $userId;
             $comment->save();
         });
 

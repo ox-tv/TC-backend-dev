@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Video;
+namespace App\Http\Resources\Category;
 
+use App\Http\Resources\Video\VideoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
-class VideoMetaResource extends JsonResource
+class CategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,17 +17,16 @@ class VideoMetaResource extends JsonResource
     {
         return [
             // Main attributes
-            'key' => $this->key,
-            'value' => $this->value,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
 
             // Custom attributes without query
 
             // Custom attributes with query
 
             // Relations
-            'video' => VideoResource::make($this->whenLoaded('video')),
+            'videos' => VideoResource::collection($this->whenLoaded('main_videos')),
         ];
     }
 }

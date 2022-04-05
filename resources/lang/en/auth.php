@@ -29,5 +29,6 @@ return [
     'email_verified_already' => 'Email verified Already.',
     'password_reset_link_sent' => 'Password reset link sent.',
     'password_changed_successfully' => 'Password updated.',
+    'magic_link_sent' => 'You will receive an email to login via magic link in a few minutes if your email is registered with us.',
 
 ];

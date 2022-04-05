@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Channel;
 
 use App\Http\Resources\User\UserMinimalItem;
+use App\Http\Resources\User\UserResource;
 use App\Models\Channel;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -33,13 +34,13 @@ class ChannelResource extends JsonResource
             "website" => $this->website,
             "slogan" => $this->slogan,
             "user_id" => $this->user_id,
-            "status" => Channel::STATUS_TEXT[$this->status]?? null,
             'points' => $this->points,
             "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
 
             // Custom attributes without query
+            'status' => $this->status_text,
 
             // Custom attributes with query
             'uploads_count' => $this->whenAppended('uploads_count'),
@@ -53,7 +54,7 @@ class ChannelResource extends JsonResource
             'hero_subscribers_count' => $this->whenAppended('hero_subscribers_count'),
 
             // Relations
-            'owner' => UserMinimalItem::make($this->whenLoaded('owner')),
+            'owner' => UserResource::make($this->whenLoaded('owner')),
         ];
     }
 }

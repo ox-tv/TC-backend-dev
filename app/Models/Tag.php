@@ -64,4 +64,23 @@ class Tag extends Model
     public function favoritedByUsers(){
         return $this->belongsToMany('App\Models\User');
     }
+
+
+    // Attributes
+
+    public function getFavoritedByUsersCountAttribute(){
+        return $this->favoritedByUsers()->count();
+    }
+
+    public function getVideosCountAttribute(){
+        return $this->videos()->count();
+    }
+
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
+
+    public function getCreationScopeTextAttribute(){
+        return self::CREATION_SCOPE_TEXT[$this->creation_scope]?? $this->creation_scope;
+    }
 }

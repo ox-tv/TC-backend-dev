@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,6 +23,7 @@ class Comment extends Model
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
+        static::addGlobalScope(new WhereParentNullScope);
     }
 
     // scopes
@@ -69,18 +71,16 @@ class Comment extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
     }
 
-    public function getReportsCountAttribute(){
-        return $this->reports()->count();
+    public function replies(){
+        return $this->hasMany('App\Models\Comment', 'parent_id', 'id')->withoutGlobalScope(WhereParentNullScope::class);
     }
 
-    public function getIsLikedAttribute(){
-        if(auth('api')->check()){
-            if($this->likedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
-        }
 
-        return false;
+    // Attributes
+
+    public function setTextAttribute($value)
+    {
+        $this->attributes['text'] = preg_replace("/([\n][\n][\n]+)/", "\n\n", $value);;
     }
 
     public function getIsDislikedAttribute(){
@@ -93,7 +93,33 @@ class Comment extends Model
         return false;
     }
 
-    public function replies(){
-        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
+    public function getIsLikedAttribute(){
+        if(auth('api')->check()){
+            if($this->likedBy()->find(auth('api')->user()->id)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getReportsCountAttribute(){
+        return $this->reports()->count();
+    }
+
+    public function getLikesCountAttribute(){
+        return $this->likedBy()->count();
+    }
+
+    public function getDislikesCountAttribute(){
+        return $this->dislikedBy()->count();
+    }
+
+    public function getRepliesCountAttribute(){
+        return $this->replies()->count();
+    }
+
+    public function getIsPinnedAttribute($value){
+        return (bool) $value;
     }
 }

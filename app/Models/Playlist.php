@@ -44,13 +44,40 @@ class Playlist extends Model
         return $query;
     }
 
+
     // Relations
 
     public function owner(){
         return $this->belongsTo('App\Models\User', 'user_id');
     }
 
+    public function channel()
+    {
+        return $this->hasOneThrough(
+            Channel::class,
+            User::class,
+            'id',
+            'user_id',
+            'user_id',
+            'id');
+    }
+
     public function videos(){
         return $this->belongsToMany('App\Models\Video');
+    }
+
+
+    // Attributes
+
+    public function getTotalVideosCountAttribute(){
+        return $this->videos()->count();
+    }
+
+    public function getPublishedVideosCountAttribute(){
+        return $this->videos()->where('status', Video::STATUS_PUBLISHED)->count();
+    }
+
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 }

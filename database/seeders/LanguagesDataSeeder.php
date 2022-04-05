@@ -17,6 +17,38 @@ class LanguagesDataSeeder extends Seeder
     public function run()
     {
         $languages = [
+            47 => [
+                'languageCode' => 'en',
+                'displayName' => 'English',
+            ],
+            67 => [
+                'languageCode' => 'de',
+                'displayName' => 'German',
+            ],
+            59 => [
+                'languageCode' => 'fr',
+                'displayName' => 'French',
+            ],
+            171 => [
+                'languageCode' => 'es',
+                'displayName' => 'Spanish',
+            ],
+            92 => [
+                'languageCode' => 'it',
+                'displayName' => 'Italian',
+            ],
+            179 => [
+                'languageCode' => 'sv',
+                'displayName' => 'Swedish',
+            ],
+            141 => [
+                'languageCode' => 'pt',
+                'displayName' => 'Portuguese',
+            ],
+            192 => [
+                'languageCode' => 'tr',
+                'displayName' => 'Turkish',
+            ],
             0 => [
                 'languageCode' => 'ab',
                 'displayName' => 'Abkhazian',
@@ -205,30 +237,6 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'dz',
                 'displayName' => 'Dzongkha',
             ],
-            47 => [
-                'languageCode' => 'en',
-                'displayName' => 'English',
-            ],
-            48 => [
-                'languageCode' => 'en-CA',
-                'displayName' => 'English (Canada)',
-            ],
-            49 => [
-                'languageCode' => 'en-IN',
-                'displayName' => 'English (India)',
-            ],
-            50 => [
-                'languageCode' => 'en-IE',
-                'displayName' => 'English (Ireland)',
-            ],
-            51 => [
-                'languageCode' => 'en-GB',
-                'displayName' => 'English (United Kingdom)',
-            ],
-            52 => [
-                'languageCode' => 'en-US',
-                'displayName' => 'English (United States)',
-            ],
             53 => [
                 'languageCode' => 'eo',
                 'displayName' => 'Esperanto',
@@ -253,26 +261,6 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'fi',
                 'displayName' => 'Finnish',
             ],
-            59 => [
-                'languageCode' => 'fr',
-                'displayName' => 'French',
-            ],
-            60 => [
-                'languageCode' => 'fr-BE',
-                'displayName' => 'French (Belgium)',
-            ],
-            61 => [
-                'languageCode' => 'fr-CA',
-                'displayName' => 'French (Canada)',
-            ],
-            62 => [
-                'languageCode' => 'fr-FR',
-                'displayName' => 'French (France)',
-            ],
-            63 => [
-                'languageCode' => 'fr-CH',
-                'displayName' => 'French (Switzerland)',
-            ],
             64 => [
                 'languageCode' => 'ff',
                 'displayName' => 'Fulah',
@@ -284,22 +272,6 @@ class LanguagesDataSeeder extends Seeder
             66 => [
                 'languageCode' => 'ka',
                 'displayName' => 'Georgian',
-            ],
-            67 => [
-                'languageCode' => 'de',
-                'displayName' => 'German',
-            ],
-            68 => [
-                'languageCode' => 'de-AT',
-                'displayName' => 'German (Austria)',
-            ],
-            69 => [
-                'languageCode' => 'de-DE',
-                'displayName' => 'German (Germany)',
-            ],
-            70 => [
-                'languageCode' => 'de-CH',
-                'displayName' => 'German (Switzerland)',
             ],
             71 => [
                 'languageCode' => 'el',
@@ -384,10 +356,6 @@ class LanguagesDataSeeder extends Seeder
             91 => [
                 'languageCode' => 'ga',
                 'displayName' => 'Irish',
-            ],
-            92 => [
-                'languageCode' => 'it',
-                'displayName' => 'Italian',
             ],
             93 => [
                 'languageCode' => 'ja',
@@ -581,18 +549,6 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'pl',
                 'displayName' => 'Polish',
             ],
-            141 => [
-                'languageCode' => 'pt',
-                'displayName' => 'Portuguese',
-            ],
-            142 => [
-                'languageCode' => 'pt-BR',
-                'displayName' => 'Portuguese (Brazil)',
-            ],
-            143 => [
-                'languageCode' => 'pt-PT',
-                'displayName' => 'Portuguese (Portugal)',
-            ],
             144 => [
                 'languageCode' => 'pa',
                 'displayName' => 'Punjabi',
@@ -701,26 +657,6 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'st',
                 'displayName' => 'Southern Sotho',
             ],
-            171 => [
-                'languageCode' => 'es',
-                'displayName' => 'Spanish',
-            ],
-            172 => [
-                'languageCode' => 'es-419',
-                'displayName' => 'Spanish (Latin America)',
-            ],
-            173 => [
-                'languageCode' => 'es-MX',
-                'displayName' => 'Spanish (Mexico)',
-            ],
-            174 => [
-                'languageCode' => 'es-ES',
-                'displayName' => 'Spanish (Spain)',
-            ],
-            175 => [
-                'languageCode' => 'es-US',
-                'displayName' => 'Spanish (United States)',
-            ],
             176 => [
                 'languageCode' => 'su',
                 'displayName' => 'Sundanese',
@@ -733,10 +669,7 @@ class LanguagesDataSeeder extends Seeder
                 'languageCode' => 'ss',
                 'displayName' => 'Swati',
             ],
-            179 => [
-                'languageCode' => 'sv',
-                'displayName' => 'Swedish',
-            ],
+
             180 => [
                 'languageCode' => 'tl',
                 'displayName' => 'Tagalog',
@@ -784,10 +717,6 @@ class LanguagesDataSeeder extends Seeder
             191 => [
                 'languageCode' => 'tn',
                 'displayName' => 'Tswana',
-            ],
-            192 => [
-                'languageCode' => 'tr',
-                'displayName' => 'Turkish',
             ],
             193 => [
                 'languageCode' => 'tk',

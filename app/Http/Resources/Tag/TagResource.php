@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Video;
+namespace App\Http\Resources\Tag;
 
+use App\Models\Tag;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
-class VideoMetaResource extends JsonResource
+class TagResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,17 +17,20 @@ class VideoMetaResource extends JsonResource
     {
         return [
             // Main attributes
-            'key' => $this->key,
-            'value' => $this->value,
+            'id' => $this->id,
+            'name' => $this->name,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
 
             // Custom attributes without query
+            'status' => $this->status_text,
+            'creation_scope' => $this->creation_scope_text,
 
             // Custom attributes with query
+            'favorited_count' => $this->whenAppended('favorited_by_users_count'),
+            'videos_count' => $this->whenAppended('videos_count'),
 
             // Relations
-            'video' => VideoResource::make($this->whenLoaded('video')),
+
         ];
     }
 }

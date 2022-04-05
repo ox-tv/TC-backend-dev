@@ -9,7 +9,6 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
 
-
 // For Publishers
 Route::group([
     'middleware' => 'auth.role',

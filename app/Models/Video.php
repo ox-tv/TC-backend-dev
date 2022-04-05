@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -107,6 +108,29 @@ class Video extends Model
         return $query;
     }
 
+    public function scopePublishedOrMine($query){
+        $query->where(function ($query) {
+            $query->where('status', self::STATUS_PUBLISHED);
+
+            if(auth('api')->check()){
+                $query->orWhere('user_id', auth('api')->id());
+            }
+        });
+        return $query;
+    }
+
+    public function scopeIdOrUrlHash($query, $idOrUrlHash){
+        $query->where(function ($query) use ($idOrUrlHash){
+            $query->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash);
+        });
+        return $query;
+    }
+
+    public function scopePublishedOnceWithTrashed($query){
+        $query->withTrashed()->whereNotNull('published_at');
+        return $query;
+    }
+
     public function scopeInChannel($query, $channelId){
         $query->where('channel_id', $channelId);
         return $query;
@@ -202,7 +226,7 @@ class Video extends Model
     }
 
     public function comments(){
-        return $this->hasMany('App\Models\Comment')->whereNull('parent_id')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
+        return $this->hasMany('App\Models\Comment')->withoutGlobalScope(OrderDescScope::class)->orderByDesc("is_pinned")->orderByDesc("created_at");
     }
 
     public function chapters(){
@@ -241,13 +265,13 @@ class Video extends Model
         return $this->hasMany('App\Models\VideoMeta');
     }
 
-    public function layers(){
+    /*public function layers(){
         return $this->hasOne('App\Models\VideoMeta')->where('key', VideoMeta::VIDEO_LAYERS);
     }
 
     public function layersDraft(){
         return $this->hasOne('App\Models\VideoMeta')->where('key', VideoMeta::VIDEO_LAYERS_DRAFT);
-    }
+    }*/
 
     public function dailyStatistics(){
         return $this->hasMany('App\Models\VideoStatisticsDaily');
@@ -255,11 +279,11 @@ class Video extends Model
 
 
     // Attributes
-    /*public function getLayersAttribute()
+    public function getLayersAttribute()
     {
         $meta = $this->meta()->where('key', 'layers')->first();
-        return $meta? json_decode($meta->value) : null;
-    }*/
+        return $meta? $meta->value : null;
+    }
 
     public function getRatingAttribute(){
         return UserVideo::where('video_id', $this->id)
@@ -268,7 +292,7 @@ class Video extends Model
     }
 
     public function getCommentCountAttribute(){
-        return $this->comments()->count();
+        return $this->comments()->withoutGlobalScope(WhereParentNullScope::class)->count();
     }
 
     public function getLikesCountAttribute(){
@@ -320,10 +344,24 @@ class Video extends Model
             ])->exists();
     }
 
-    public function getRelatedVideosAttribute(){
-
-
+    public function getStatusTextAttribute()
+    {
+        return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
+    public function getFileUrlAttribute($value)
+    {
+        return $value? : Storage::disk('videos')->url($this->file_path);
+    }
+
+    public function getThumbnailUrlAttribute($value)
+    {
+        return $value? :$this->thumbnail;
+    }
+
+    public function getThumbnailsAttribute()
+    {
+        return $this->thumbnail_url? getThumbnails($this->thumbnail_url):[];
+    }
 
 }

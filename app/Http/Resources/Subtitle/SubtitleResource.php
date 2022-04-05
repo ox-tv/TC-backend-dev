@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Resources\Video;
+namespace App\Http\Resources\Subtitle;
 
+use App\Http\Resources\Language\LanguageResource;
+use App\Http\Resources\Video\VideoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
-
-class VideoMetaResource extends JsonResource
+class SubtitleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,17 +18,17 @@ class VideoMetaResource extends JsonResource
     public function toArray($request)
     {
         return [
+
             // Main attributes
-            'key' => $this->key,
-            'value' => $this->value,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id' => $this->id,
+            'url' => Storage::disk('public')->url($this->file_path),
 
             // Custom attributes without query
 
             // Custom attributes with query
 
             // Relations
+            'language' => LanguageResource::make($this->whenLoaded('language')),
             'video' => VideoResource::make($this->whenLoaded('video')),
         ];
     }

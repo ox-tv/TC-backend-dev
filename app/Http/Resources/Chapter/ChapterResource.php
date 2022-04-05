@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Video;
+namespace App\Http\Resources\Chapter;
 
+use App\Http\Resources\Video\VideoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
-class VideoMetaResource extends JsonResource
+class ChapterResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +17,10 @@ class VideoMetaResource extends JsonResource
     {
         return [
             // Main attributes
-            'key' => $this->key,
-            'value' => $this->value,
+            'id' => $this->id,
+            'from' => $this->from,
+            'title' => $this->title,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
 
             // Custom attributes without query
 

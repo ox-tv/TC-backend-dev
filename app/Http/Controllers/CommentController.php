@@ -42,6 +42,9 @@ class CommentController extends Controller
         }
 
         $sort = $request->get('sort');
+        if ($videos){
+            $query->orderBy('is_pinned','Desc');
+        }
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }
@@ -131,7 +134,7 @@ class CommentController extends Controller
      */
     public function reply(CommentReply $request, Comment $comment){
         $reply = new Comment();
-        $reply->text = preg_replace("/([\n][\n][\n]+)/", "\n\n", $request->get('text'));
+        $reply->text = $request->get('text');
         $reply->user_id = Auth::user()->id;
         $reply->video_id = $comment->video_id;
         $reply->save();

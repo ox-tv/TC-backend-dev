@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Department;
+namespace App\Http\Resources\Language;
 
+use App\Http\Resources\PaymentMethod\PaymentMethodItem;
+use App\Models\Transaction;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DepartmentItem extends JsonResource
+class LanguageResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +18,8 @@ class DepartmentItem extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'Scope' => $this->whenAppended('scope_text'),
-            'created_at' => $this->created_at
+            'code' => $this->code,
+            'display_name' => $this->display_name,
         ];
     }
 }
