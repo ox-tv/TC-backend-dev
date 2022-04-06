@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\VideoViewed;
 use App\Events\VideoWasUnHidden;
-use App\Http\Resources\Video\VideoMinimalItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
 use App\Notifications\TCNotification\TCNotification;
 use App\Notifications\UnHideVideo;
@@ -26,7 +26,7 @@ class SendNotificationOnVideoWasUnHidden
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
-                'video' => videoMinimalItem::make($video),
+                'video' => VideoResource::make($video),
             ],
             get_class($video),
             $video->id

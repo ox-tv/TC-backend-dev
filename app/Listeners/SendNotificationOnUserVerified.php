@@ -4,9 +4,7 @@ namespace App\Listeners;
 
 use App\Events\UserVerified;
 use App\Events\VideoViewed;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Models\Notification;
-use App\Notifications\DeleteVideo;
 use App\Notifications\FillCustomFeedTags;
 use App\Notifications\TCNotification\TCNotification;
 
