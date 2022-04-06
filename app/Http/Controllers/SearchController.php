@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelItem;
 use App\Http\Resources\Video\VideoItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
@@ -49,12 +50,20 @@ class SearchController extends Controller
 
             $orderByPopular = implode(',', array_reverse($popularVideoIds));
 
-            $additionalData['suggested_videos'] = VideoItem::collection(Video::published()
+            $suggestedResult = Video::published()
                 ->orderByRaw("FIELD(id,$orderByPopular) DESC, Created_at DESC")
-                ->take(15)->get());
+                ->take(15)->get();
+
+            $suggestedResult->load(['channel'])->append(['is_bookmarked']);
+
+            $additionalData['suggested_videos'] = VideoResource::collection($suggestedResult);
         }
 
-        return VideoItem::collection($videoQuery->paginate())
+        $searchResult = $videoQuery->paginate();
+
+        $searchResult->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($searchResult)
             ->additional($additionalData);
     }
 }
