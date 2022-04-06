@@ -22,6 +22,8 @@ class SendNotificationOnVideoWasHidden
     {
         $video = $event->video;
 
+        $video->append(['reason_key', 'reason_text']);
+
         TCNotification::send(collect([$video->user]), new HideVideo(
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
