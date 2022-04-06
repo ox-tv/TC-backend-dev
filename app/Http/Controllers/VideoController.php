@@ -492,7 +492,11 @@ class VideoController extends Controller
     {
         $perPage = request()->get('per_page') ?: 15;
 
-        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($perPage));
+        $videos = auth('api')->user()->bookmarkVideos()->paginate($perPage);
+
+        $videos->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($videos);
     }
 
     /**
