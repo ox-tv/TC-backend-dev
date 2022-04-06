@@ -164,7 +164,6 @@ class VideoController extends Controller
         $videos->load($relations)->append($attributes);
 
         $result = VideoResource::collection($videos);
-        //$result = \App\Http\Resources\Video\VideoItem::collection($videos);
 
         if($categorySlug){
             $result->additional([
@@ -633,14 +632,13 @@ class VideoController extends Controller
 
         abort_if(is_null($video), 404);
 
-
         $query = Video::published()->where("id", "!=", $video->id);
 
         $tags = $video->tags()->pluck('id')->toArray();
         $category = $video->category ? $video->category->id : null;
 
         if(!$category && !count($tags)){
-            return \App\Http\Resources\Video\VideoItem::collection(new Paginator([],15));
+            return VideoResource::collection(new Paginator([],15));
         }
 
         $query->where(function ($query) use ($tags, $category){
@@ -658,7 +656,11 @@ class VideoController extends Controller
             }
         });
 
-        return \App\Http\Resources\Video\VideoItem::collection($query->paginate());
+        $videos = $query->paginate();
+
+        $videos->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($videos);
     }
 
     public function increase_view(Video $video)
