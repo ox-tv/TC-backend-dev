@@ -61,18 +61,18 @@ class VideoMetaController extends Controller
         })->mine()->firstOrFail();
 
         if (in_array($key, VideoMeta::KEYS_WITH_JSON_VALUE)){
-            $video->meta()->updateOrCreate(
+            $videoMeta = $video->meta()->updateOrCreate(
                 ['key' => $key],
                 ['value' => json_encode($request->get('value'))]
             );
         }else{
-            $video->meta()->updateOrCreate(
+            $videoMeta = $video->meta()->updateOrCreate(
                 ['key' => $key],
                 ['value' => $request->get('value')]
             );
         }
 
-        return response()->json(["message" => "ok"]);
+        return VideoMetaResource::make($videoMeta);
     }
 
     public function get(Request $request, $idOrHash, $key)
