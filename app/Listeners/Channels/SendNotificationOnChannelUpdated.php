@@ -3,22 +3,11 @@
 namespace App\Listeners\Channels;
 
 use App\Events\Channels\ChannelUpdated;
-use App\Events\VideoCreated;
-use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Models\Channel;
-use App\Models\ChannelStatisticsDaily;
 use App\Models\Notification;
-use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
-use App\Notifications\NewVideoPublished;
 use App\Notifications\TCNotification\TCNotification;
 use App\Notifications\UpdateChannelStatus;
-use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class SendNotificationOnChannelUpdated
 {
