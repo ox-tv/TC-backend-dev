@@ -15,10 +15,8 @@ use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
@@ -445,13 +443,6 @@ class VideoController extends Controller
         return new VideoResource($video);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Video $video
-     * @return \Illuminate\Http\JsonResponse | VideoSummaryItem
-     * @throws \Exception
-     */
     public function destroy(Request $request, Video $video)
     {
         if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
@@ -484,7 +475,7 @@ class VideoController extends Controller
 
         event(new VideoDeleted($video));
 
-        return new VideoSummaryItem($video);
+        return new VideoResource($video);
     }
 
     public function bookmarks()
@@ -611,7 +602,7 @@ class VideoController extends Controller
 
         event(new VideoWasHidden($video));
 
-        return VideoMinimalItem::make($video);
+        return VideoResource::make($video);
     }
 
     public function unHide(Video $video)
@@ -623,7 +614,7 @@ class VideoController extends Controller
 
         event(new VideoWasUnHidden($video));
 
-        return VideoMinimalItem::make($video);
+        return VideoResource::make($video);
     }
 
     public function related_videos($id_or_url_hash)
