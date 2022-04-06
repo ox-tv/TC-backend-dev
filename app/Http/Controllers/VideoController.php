@@ -288,7 +288,7 @@ class VideoController extends Controller
 
         event(new VideoCreated($video));
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return new VideoResource($video);
     }
 
     /**
@@ -442,7 +442,7 @@ class VideoController extends Controller
 
         event(new VideoUpdated($oldVideo, $video));
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return new VideoResource($video);
     }
 
     /**
