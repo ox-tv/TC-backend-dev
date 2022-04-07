@@ -77,32 +77,18 @@ class ChannelController extends Controller
         return ChannelResource::collection($channels);
     }
 
-    public function show(Request $request, $id_or_slug = null)
+    public function show(Request $request, $idOrSlug = null)
     {
         $adminPanel = $request->is('api/admin/*');
         $currentUser = $request->is('api/channel');
 
-        if($id_or_slug){
-
-            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->firstOrFail();
-
-        }else{
-
-            $user = Auth::guard('api')->user();
-            $userChannel = $user->channel;
-
-            if(is_null($userChannel)){
-
-                $newChannel = new Channel();
-                $newChannel->name = $user->username ? : $user->email;
-                $newChannel->owner()->associate($user);
-                $newChannel->save();
-                $channel = $newChannel;
-
-            }else{
-                $channel = $userChannel;
-            }
-        }
+        $channel = Channel::when($idOrSlug, function ($q, $idOrSlug){
+                $q->idOrSlug($idOrSlug);
+            })
+            ->when(!$idOrSlug, function ($q){
+                $q->where('user_id', auth('api')->id());
+            })
+            ->firstOrFail();
 
         if ($adminPanel || $currentUser){
             $channel->load(['owner'])->append([
