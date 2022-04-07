@@ -80,7 +80,7 @@ class ChannelController extends Controller
     public function show(Request $request, $idOrSlug = null)
     {
         $adminPanel = $request->is('api/admin/*');
-        $currentUser = $request->is('api/channel');
+        $currentUser = $request->is('api/publisher/*');
 
         $channel = Channel::when($idOrSlug, function ($q, $idOrSlug){
                 $q->idOrSlug($idOrSlug);
