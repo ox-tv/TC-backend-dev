@@ -69,17 +69,53 @@ class ChannelController extends Controller
         $channels = $query->paginate($perPage);
 
         if ($isAdmin){
-            $relations = [];
-            $attributes = ['subscribers_count', 'uploads_count', 'total_views', 'total_likes', 'total_comments'];
+            $channels->append(['subscribers_count', 'uploads_count', 'total_views', 'total_likes', 'total_comments']);
         }else{
-            $relations = [];
-            $attributes = ['is_subscribed', 'subscribers_count'];
+            $channels->append(['is_subscribed', 'subscribers_count']);
         }
 
-        $channels->load($relations)->append($attributes);
-
         return ChannelResource::collection($channels);
+    }
 
+    public function show(Request $request, $id_or_slug = null)
+    {
+        $adminPanel = $request->is('api/admin/*');
+        $currentUser = $request->is('api/channel');
+
+        if($id_or_slug){
+
+            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->firstOrFail();
+
+        }else{
+
+            $user = Auth::guard('api')->user();
+            $userChannel = $user->channel;
+
+            if(is_null($userChannel)){
+
+                $newChannel = new Channel();
+                $newChannel->name = $user->username ? : $user->email;
+                $newChannel->owner()->associate($user);
+                $newChannel->save();
+                $channel = $newChannel;
+
+            }else{
+                $channel = $userChannel;
+            }
+        }
+
+        if ($adminPanel){
+
+        }elseif ($currentUser){
+
+        }else{
+            $channel->append(['is_subscribed', 'subscribers_count']);
+            return ChannelResource::make($channel);
+        }
+
+        $result = new ChannelItem($channel);
+
+        return $result;
     }
 
     public function store(ChannelStore $request)
@@ -125,42 +161,6 @@ class ChannelController extends Controller
 
         return new ChannelItem($channel);
 
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param Request $request
-     * @param null $id_or_slug
-     * @return ChannelItem
-     */
-    public function show(Request $request, $id_or_slug=null)
-    {
-        if($id_or_slug){
-
-            $channel = Channel::where('id', $id_or_slug)->orWhere('slug', $id_or_slug)->firstOrFail();
-
-        }else{
-
-            $user = Auth::guard('api')->user();
-            $userChannel = $user->channel;
-
-            if(is_null($userChannel)){
-
-                $newChannel = new Channel();
-                $newChannel->name = $user->username ? : $user->email;
-                $newChannel->owner()->associate($user);
-                $newChannel->save();
-                $channel = $newChannel;
-
-            }else{
-                $channel = $userChannel;
-            }
-        }
-
-        $result = new ChannelItem($channel);
-
-        return $result;
     }
 
     /**
