@@ -15,7 +15,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 });
 
 
-Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
+//Route::get('top-channels', '\App\Http\Controllers\ChannelController@topChannels');
 
 Route::get('channels/{id_or_slug}', '\App\Http\Controllers\ChannelController@show');
 Route::apiResource('channels', \App\Http\Controllers\ChannelController::class)->only(['index']);
