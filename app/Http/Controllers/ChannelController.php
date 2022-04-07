@@ -177,17 +177,6 @@ class ChannelController extends Controller
 
         $result = new ChannelItem($channel);
 
-        /*if(in_array('videos', explode(',', $request->get('include', '')))){
-
-            $videos = Video::published()->whereHas('channel', function ($query) use ($id_or_slug) {
-                return $query->where('id', $id_or_slug)->orWhere('slug', $id_or_slug);
-            })->paginate()->appends($request->all());
-
-            $result->additional([
-                'videos' => VideoItem::collection($videos)
-            ]);
-        }*/
-
         return $result;
     }
 

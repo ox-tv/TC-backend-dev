@@ -45,7 +45,6 @@ class ReportController extends Controller
 
         if ($is_video){
             $result->load(['user', 'channel'])->append(['reports_count']);
-            //return \App\Http\Resources\Video\VideoItem::collection($result);
             return VideoResource::collection($result);
         }
 
