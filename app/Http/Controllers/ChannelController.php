@@ -80,7 +80,7 @@ class ChannelController extends Controller
     public function show(Request $request, $idOrSlug = null)
     {
         $adminPanel = $request->is('api/admin/*');
-        $currentUser = $request->is('api/channel');
+        $publisherPanel = $request->is('api/publisher/*');
 
         $channel = Channel::when($idOrSlug, function ($q, $idOrSlug){
                 $q->idOrSlug($idOrSlug);
@@ -90,8 +90,8 @@ class ChannelController extends Controller
             })
             ->firstOrFail();
 
-        if ($adminPanel || $currentUser){
-            $channel->load(['owner'])->append([
+        if ($adminPanel || $publisherPanel){
+            $channel->append([
                 'is_subscribed',
                 'subscribers_count',
                 'uploads_count',
@@ -102,6 +102,10 @@ class ChannelController extends Controller
                 'total_comments',
                 'hero_subscribers_count',
             ]);
+
+            if ($adminPanel){
+                $channel->load(['owner']);
+            }
         }else{
             $channel->append(['is_subscribed', 'subscribers_count']);
         }
