@@ -31,14 +31,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ChannelController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return ChannelSummaryCollection
-     */
+
     public function index(Request $request)
     {
-        $per_page = $request->get('per_page') ?: 15;
+        $perPage = $request->get('per_page') ?: 15;
         $isAdmin = $request->is('api/admin/channels');
 
         if($isAdmin){
@@ -70,7 +66,7 @@ class ChannelController extends Controller
             $query->withCount('comments')->orderBy('comments_count', 'desc');
         }
 
-        $channels = $query->paginate($per_page);
+        $channels = $query->paginate($perPage);
 
         if ($isAdmin){
             $relations = [];
@@ -86,31 +82,6 @@ class ChannelController extends Controller
 
     }
 
-    public function topChannels()
-    {
-        $datetime = (Carbon::now())->subDays(30);
-        $channelIds = VideoStatisticsDaily::selectRaw('SUM(points) as points, channel_id')
-            ->whereDate('date', '>=', $datetime->format('Y-m-d'))
-            ->groupBy('channel_id')
-            ->orderBy('points', 'DESC')
-            ->withoutGlobalScope('orderByDate')
-            ->pluck('channel_id')->toArray();
-
-        $orderByIds = implode(',', array_reverse($channelIds));
-
-        $channels = Channel::where('status', Channel::STATUS_PUBLISHED)
-            ->orderByRaw(($orderByIds?"FIELD(id, $orderByIds) DESC, ":"") . "Created_at DESC")
-            ->paginate();
-
-        return \App\Http\Resources\Channel\ChannelItem::collection($channels);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return ChannelItem
-     */
     public function store(ChannelStore $request)
     {
         $channel = new Channel();
