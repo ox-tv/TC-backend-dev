@@ -104,18 +104,23 @@ class ChannelController extends Controller
             }
         }
 
-        if ($adminPanel){
-
-        }elseif ($currentUser){
-
+        if ($adminPanel || $currentUser){
+            $channel->load(['owner'])->append([
+                'is_subscribed',
+                'subscribers_count',
+                'uploads_count',
+                'total_views',
+                'watch_time',
+                'total_likes',
+                'total_dislikes',
+                'total_comments',
+                'hero_subscribers_count',
+            ]);
         }else{
             $channel->append(['is_subscribed', 'subscribers_count']);
-            return ChannelResource::make($channel);
         }
 
-        $result = new ChannelItem($channel);
-
-        return $result;
+        return ChannelResource::make($channel);
     }
 
     public function store(ChannelStore $request)
