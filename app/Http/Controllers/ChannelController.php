@@ -13,7 +13,6 @@ use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
-use App\Http\Resources\Video\VideoItem;
 use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\User;
@@ -166,22 +165,19 @@ class ChannelController extends Controller
             if(is_null($userChannel)){
 
                 $newChannel = new Channel();
-                $newChannel->name = $user->username ? $user->username : $user->email;
+                $newChannel->name = $user->username ? : $user->email;
                 $newChannel->owner()->associate($user);
                 $newChannel->save();
                 $channel = $newChannel;
 
             }else{
-
                 $channel = $userChannel;
-
             }
-
         }
 
         $result = new ChannelItem($channel);
 
-        if(in_array('videos', explode(',', $request->get('include', '')))){
+        /*if(in_array('videos', explode(',', $request->get('include', '')))){
 
             $videos = Video::published()->whereHas('channel', function ($query) use ($id_or_slug) {
                 return $query->where('id', $id_or_slug)->orWhere('slug', $id_or_slug);
@@ -190,11 +186,9 @@ class ChannelController extends Controller
             $result->additional([
                 'videos' => VideoItem::collection($videos)
             ]);
-        }
+        }*/
 
         return $result;
-
-
     }
 
     /**

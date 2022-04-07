@@ -6,6 +6,7 @@ use App\Events\Report\ReportCreated;
 use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
 use App\Models\Option;
 use App\Models\Report;
@@ -21,34 +22,35 @@ class ReportController extends Controller
         $is_comment = $request->is("api/admin/reports/comment");
 
         if ($is_video){
-            $query = Video::with(["user", "channel"]);
+            $query = Video::query();
         }
 
         if ($is_comment){
-            $query = Comment::with(["user", "video"]);
+            $query = Comment::query();
         }
 
         // filters
         $filters = $request->get('filters', []);
         $reasonFilter = Arr::get($filters, 'reason');
 
-        if($reasonFilter){
-            $query->whereHas("reports", function ($q) use ($reasonFilter){
-                return $q->where('reason_key', $reasonFilter);
+        $query->whereHas("reports", function ($q) use ($reasonFilter){
+            return $q->when($reasonFilter, function($q, $reasonFilter){
+                $q->where('reason_key', $reasonFilter);
             });
-        }else{
-            $query->whereHas("reports");
-        }
+        });
 
         $query->withCount('reports')->orderBy('reports_count', 'desc');
 
         $result =$query->paginate();
 
         if ($is_video){
-            return \App\Http\Resources\Video\VideoItem::collection($result);
+            $result->load(['user', 'channel'])->append(['reports_count']);
+            //return \App\Http\Resources\Video\VideoItem::collection($result);
+            return VideoResource::collection($result);
         }
 
         if ($is_comment){
+            $result->load(['user', 'video']);
             return CommentItem::collection($result);
         }
     }
