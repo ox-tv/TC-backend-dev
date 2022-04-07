@@ -22,6 +22,8 @@ class SendNotificationOnVideoDeleted
     {
         $video = $event->video;
 
+        $video->append(['reason_key', 'reason_text']);
+
         if (request()->is('api/admin/videos/*')){
             TCNotification::send(collect([$video->user]), new DeleteVideo(
                 Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
