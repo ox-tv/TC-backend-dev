@@ -229,33 +229,6 @@ class ChannelController extends Controller
     }
 
     /**
-     * Removed from system
-     */
-    public function add(Channel $channel, Video $video){
-
-        if($channel->owner->id != Auth::user()->id){
-            throw new NotFoundHttpException();
-        }
-
-        if (empty($video->channel_id)){
-            $video->channel_id = $channel->id;
-            $video->save();
-        }
-    }
-
-    /**
-     * Removed from system
-     */
-    public function remove(Channel $channel, Video $video){
-
-        if($channel->owner->id != Auth::user()->id){
-            throw new NotFoundHttpException();
-        }
-
-        $channel->videos()->detach($video);
-    }
-
-    /**
      * @param Channel $channel
      */
     public function subscription(Channel $channel){
