@@ -154,17 +154,10 @@ class ChannelController extends Controller
         $user->avatar_url = $channel->avatar_url;
         $user->save();
 
-        return new ChannelItem($channel);
+        return ChannelResource::make($channel);
 
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param Channel $channel
-     * @return ChannelItem
-     */
     public function update(ChannelUpdate $request, Channel $channel)
     {
         if(is_null($request->route('channel'))){
@@ -214,23 +207,14 @@ class ChannelController extends Controller
 
         event(new ChannelUpdated($oldChannel, $channel));
 
-        return new ChannelItem($channel);
+        return ChannelResource::make($channel);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Channel $channel
-     * @return void
-     */
     public function destroy(Channel $channel)
     {
         $channel->delete();
     }
 
-    /**
-     * @param Channel $channel
-     */
     public function subscription(Channel $channel){
 
         $user = Auth::user();
@@ -238,9 +222,9 @@ class ChannelController extends Controller
         $subscribedBefore = $channel->subscribers()->where('id', $user->id)->exists();
 
         if($subscribedBefore){
-            $channel->subscribers()->detach(Auth::user());
+            $channel->subscribers()->detach(auth('api')->user());
         }else{
-            $channel->subscribers()->attach(Auth::user());
+            $channel->subscribers()->attach(auth('api')->user());
         }
 
         event(new ChannelSubscribed(
@@ -249,7 +233,7 @@ class ChannelController extends Controller
             $subscribedBefore?0:1,
             $subscribedBefore?1:0));
 
-        return new \App\Http\Resources\Channel\ChannelItem($channel);
+        return ChannelResource::make($channel);
     }
 
     public function importRequest(ChannelImportRequest $request, Channel $channel){
@@ -265,14 +249,15 @@ class ChannelController extends Controller
         ]);
     }
 
-    public function importRequests(){
+    public function importRequests()
+    {
         $requests = Channel::where('import_request_status', Channel::IMPORT_STATUS_REQUESTED)->get();
 
         return ImportRequestsCollection::make($requests);
     }
 
-    public function importCompleted(Channel $channel){
-
+    public function importCompleted(Channel $channel)
+    {
         $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
