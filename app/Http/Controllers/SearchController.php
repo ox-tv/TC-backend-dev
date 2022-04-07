@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelItem;
-use App\Http\Resources\Video\VideoItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\Video;
