@@ -10,6 +10,7 @@ use App\Exports\PublisherEarningsExport;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Http\Resources\ChannelItem;
 use App\Http\Resources\ChannelSummaryCollection;
@@ -38,8 +39,9 @@ class ChannelController extends Controller
     public function index(Request $request)
     {
         $per_page = $request->get('per_page') ?: 15;
+        $isAdmin = $request->is('api/admin/channels');
 
-        if($request->is('api/admin/channels')){
+        if($isAdmin){
             $query = Channel::query();
         }else{
             $query = Channel::published();
@@ -70,7 +72,17 @@ class ChannelController extends Controller
 
         $channels = $query->paginate($per_page);
 
-        return new ChannelSummaryCollection($channels);
+        if ($isAdmin){
+            $relations = [];
+            $attributes = ['subscribers_count', 'uploads_count', 'total_views', 'total_likes', 'total_comments'];
+        }else{
+            $relations = [];
+            $attributes = ['is_subscribed', 'subscribers_count'];
+        }
+
+        $channels->load($relations)->append($attributes);
+
+        return ChannelResource::collection($channels);
 
     }
 
