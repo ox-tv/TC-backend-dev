@@ -465,7 +465,6 @@ class UserController extends Controller
         ]);
 
         return UserResource::make($user);
-
     }
 
     /**
