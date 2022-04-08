@@ -8,8 +8,8 @@ use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\User\UserResource;
 use App\Http\Resources\UserCollection;
-use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
@@ -202,7 +202,7 @@ class UserController extends Controller
         Mail::to($user->email)
             ->queue(new PasswordResetMail($link));
 
-        return response()->json(new UserItem($user));
+        return VideoResource::make($user);
     }
 
     /**
@@ -340,7 +340,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(new UserItem($user));
+        return UserResource::make($user);
 
     }
 
@@ -450,9 +450,29 @@ class UserController extends Controller
      */
     public function profile()
     {
-        $user = Auth::user();
+        $user = auth('api')->user();
 
-        return response()->json(new UserItem($user->load('role')));
+        $user->load([
+            'channel',
+            'referrer',
+            'meta',
+            'favoriteTags',
+            'favoriteCryptoCurrencies',
+        ])->append([
+            'eth_address',
+            'role_name',
+            'liked_videos_count',
+            'disliked_videos_count',
+            'bookmarked_videos_count',
+            'comments_count',
+            'subscribed_channels_count',
+            'publisher_request',
+            'publisher_request_details',
+            'is_conversion',
+            'loyalty_points',
+        ]);
+
+        return UserResource::make($user);
 
     }
 
