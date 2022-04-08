@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Channel\ChannelItem;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\Video;
@@ -33,8 +33,11 @@ class SearchController extends Controller
             $query->SearchTitle($keyword);
         });
 
+        $channels = $channelQuery->take(10)->get();
+        $channels->append(['is_subscribed']);
+
         $additionalData = [
-            'channels' => ChannelItem::collection($channelQuery->take(10)->get()),
+            'channels' => ChannelResource::collection($channels),
         ];
 
         // Get Popular Videos if Search Result is Empty
