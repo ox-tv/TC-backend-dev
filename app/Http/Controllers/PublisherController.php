@@ -11,7 +11,6 @@ use App\Events\Publisher\PublisherRequestRejected;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Message\MessageItem;
 use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\UserItem;

@@ -12,12 +12,9 @@ use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Channel\ImportRequestsCollection;
-use App\Http\Resources\ChannelItem;
-use App\Http\Resources\ChannelSummaryCollection;
 use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\User;
-use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use App\Services\PointService;
 use Carbon\Carbon;
@@ -27,7 +24,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ChannelController extends Controller
 {
