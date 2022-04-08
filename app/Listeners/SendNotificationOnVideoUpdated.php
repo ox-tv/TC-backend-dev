@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\VideoUpdated;
 use App\Events\VideoViewed;
-use App\Http\Resources\Channel\ChannelMinimalItem;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
 use App\Models\Video;
@@ -33,7 +33,7 @@ class SendNotificationOnVideoUpdated
                 Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                 [
                     'video' => VideoResource::make($video),
-                    'channel' => ChannelMinimalItem::make($channel),
+                    'channel' => ChannelResource::make($channel),
                 ],
                 get_class($video),
                 $video->id
