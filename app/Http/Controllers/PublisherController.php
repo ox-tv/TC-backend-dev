@@ -12,8 +12,7 @@ use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Message\MessageItem;
-use App\Http\Resources\User\UserMinimalItem;
-use App\Http\Resources\UserItem;
+use App\Http\Resources\User\UserResource;
 use App\Mail\PublisherVerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
@@ -168,7 +167,7 @@ class PublisherController extends Controller
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
-                'user' => UserMinimalItem::make($user),
+                'user' => UserResource::make($user),
                 'channel_name' => $request->get('channel_name')
             ],
             get_class($message),
@@ -232,7 +231,7 @@ class PublisherController extends Controller
 
         event(new PublisherRequestApproved($user));
 
-        return UserItem::make($user);
+        return UserResource::make($user);
     }
 
     public function reject(Request $request, User $user)
@@ -280,7 +279,7 @@ class PublisherController extends Controller
 
         event(new PublisherRequestRejected($user, $reason, $parent_message, $message));
 
-        return UserItem::make($user);
+        return UserResource::make($user);
     }
 
 

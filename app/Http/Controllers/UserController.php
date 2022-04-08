@@ -7,8 +7,6 @@ use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\User\UserResource;
-use App\Http\Resources\UserCollection;
-use App\Http\Resources\UserItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
@@ -24,18 +22,12 @@ use App\Rules\CustomRule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return UserCollection
-     */
     public function index(Request $request)
     {
         $isAdminList = $request->is('api/admin/admins');
@@ -529,7 +521,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(new UserItem($user));
+        return UserResource::make($user);
 
     }
 

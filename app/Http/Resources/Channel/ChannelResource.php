@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Channel;
 
-use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\User\UserResource;
 use App\Models\Channel;
 use Illuminate\Http\Resources\Json\JsonResource;

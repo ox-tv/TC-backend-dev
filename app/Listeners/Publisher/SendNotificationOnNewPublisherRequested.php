@@ -3,18 +3,13 @@
 namespace App\Listeners\Publisher;
 
 use App\Events\Publisher\NewPublisherRequested;
-use App\Events\Publisher\PublisherRequestApproved;
-use App\Events\Publisher\PublisherRequestRejected;
 use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
-use App\Http\Resources\User\UserMinimalItem;
-use App\Models\Channel;
+use App\Http\Resources\User\UserResource;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Notifications\NewPublisherRequest;
-use App\Notifications\PublisherApproved;
-use App\Notifications\PublisherRejected;
 use App\Notifications\TCNotification\TCNotification;
 
 class SendNotificationOnNewPublisherRequested
@@ -40,7 +35,7 @@ class SendNotificationOnNewPublisherRequested
             Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
-                'user' => UserMinimalItem::make($user),
+                'user' => UserResource::make($user),
                 'channel_name' => $channelNameMeta->value ?? ""
             ],
             get_class($message),
