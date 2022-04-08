@@ -5,21 +5,18 @@ namespace App\Http\Controllers\Auth;
 use Amir\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Http\Resources\User\UserItem;
+use App\Http\Resources\User\UserResource;
 use App\Mail\MagicLoginMail;
 use App\Mail\PasswordResetMail;
-use App\Mail\VerificationMail;
 use App\Models\MagicLogin;
 use App\Models\PasswordReset;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
 {
@@ -64,7 +61,7 @@ class LoginController extends Controller
 
         if($attempt){
             $user = Auth::user();
-            $result['profile'] = UserItem::make($user->load('role'));
+            $result['profile'] = UserResource::make($user->append('role_name'));
             $result['token'] =  $user->createToken('access_token')->accessToken;
             return response()->json($result, '200');
         }
@@ -153,7 +150,7 @@ class LoginController extends Controller
         // login
         Auth::login($user);
 
-        $result['profile'] = UserItem::make($user->load('role'));
+        $result['profile'] = UserResource::make($user->append('role_name'));
         $result['token'] =  $user->createToken('access_token')->accessToken;
         return response()->json($result, '200');
     }
