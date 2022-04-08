@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Amir\Permission\Models\Role;
 use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
-use App\Http\Resources\Channel\ChannelSubscriberCollection;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
@@ -14,9 +14,6 @@ use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\AccountDeletion;
 use App\Models\Channel;
-use App\Models\Department;
-use App\Models\Message;
-use App\Models\MessageUser;
 use App\Models\Option;
 use App\Models\PasswordReset;
 use App\Models\Tag;
@@ -534,6 +531,10 @@ class UserController extends Controller
     {
         $per_page = request()->get('per_page') ?: 15;
 
-        return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
+        $channels = auth('api')->user()->subscribedChannels()->paginate($per_page);
+
+        $channels->append(['is_subscribed', 'subscribers_count']);
+
+        return ChannelResource::collection($channels);
     }
 }
