@@ -10,6 +10,7 @@ use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\ChannelSummaryCollection;
 use App\Http\Resources\Message\MessageItem;
 use App\Http\Resources\User\UserMinimalItem;
@@ -78,7 +79,16 @@ class PublisherController extends Controller
 
         $channels = $query->paginate(50);
 
-        return new ChannelSummaryCollection($channels);
+        $channels->append([
+            'uploads_count',
+            'total_views',
+            'total_likes',
+            'total_dislikes',
+            'subscribers_count',
+            'hero_subscribers_count',
+        ]);
+
+        return ChannelResource::collection($channels);
     }
 
     public function register(PublisherRegister $request){
