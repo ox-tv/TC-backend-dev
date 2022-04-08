@@ -120,7 +120,7 @@ class UserController extends Controller
 
         $users = $query->paginate();
 
-
+        // Add Attributes
         if ($isAdminList){
             // Nothing
         }elseif ($isPublisherList){
@@ -213,7 +213,30 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return UserDetails::make($user);
+        $user->load([
+            'channel',
+            'subscribedChannels',
+            'referrer',
+            'referrals',
+            'meta',
+            'favoriteTags',
+            'favoriteCryptoCurrencies',
+            'bookmarkVideos',
+        ])->append([
+            'eth_address',
+            'role_name',
+            'liked_videos_count',
+            'disliked_videos_count',
+            'bookmarked_videos_count',
+            'comments_count',
+            'subscribed_channels_count',
+            'publisher_request',
+            'publisher_request_details',
+            'is_conversion',
+            'loyalty_points',
+        ]);
+
+        return UserResource::make($user);
     }
 
     public function usernameCheck(Request $request)
