@@ -6,6 +6,7 @@ use Amir\Permission\Models\Role;
 use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelResource;
+use App\Http\Resources\User\UserResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserDetails;
 use App\Http\Resources\UserItem;
@@ -37,31 +38,25 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->is('api/admin/admins')){
-            $query = User::admins();
-        }elseif ($request->is('api/admin/publishers')){
-            $query = User::publishers();
-        }elseif ($request->is('api/admin/publisher-requests')){
-            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
+        $isAdminList = $request->is('api/admin/admins');
+        $isPublisherList = $request->is('api/admin/publishers');
+        $isPublisherRequestsList = $request->is('api/admin/publisher-requests');
 
-            $publisherRequestUserId = Message::where([
-                    'department_id' => $publisherApplicationDepartmentId,
-                ]
-            )->whereHas('users', function ($q){
-                $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
-            })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
-            $query = User::whereIn('id', $publisherRequestUserId);*/
+        if ($isAdminList){
+            $query = User::admins();
+        }elseif ($isPublisherList){
+            $query = User::publishers();
+        }elseif ($isPublisherRequestsList){
 
             $query = User::whereHas('meta', function ($q) use($request) {
+                $publisherRequestFilter = Arr::get($request->get('filters', []), 'status');
+
                 $q->where('key', UserMeta::PUBLISHER_REQUEST_STATUS);
-
-                $filters = $request->get('filters', []);
-                $publisherRequestFilter = Arr::get($filters, 'status');
-
                 if ($publisherRequestFilter){
                     $q->where('value', $publisherRequestFilter);
                 }
             })->whereNull('role_id');
+
         }else{
             $query = User::query();
         }
@@ -125,7 +120,27 @@ class UserController extends Controller
 
         $users = $query->paginate();
 
-        return \App\Http\Resources\User\UserItem::collection($users);
+
+        if ($isAdminList){
+            // Nothing
+        }elseif ($isPublisherList){
+            $users->load(['channel']);
+        }elseif ($isPublisherRequestsList){
+            $users->append([
+                'publisher_request',
+                'publisher_request_details',
+            ]);
+        }else{
+            $users->append([
+                'role_name',
+                'liked_videos_count',
+                'disliked_videos_count',
+                'comments_count',
+                'subscribed_channels_count',
+            ]);
+        }
+
+        return UserResource::collection($users);
     }
 
     /**
