@@ -14,6 +14,7 @@ use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
@@ -513,11 +514,27 @@ class VideoController extends Controller
         return new \App\Http\Resources\Comment\CommentItem($comment);
     }
 
-    public function comments($id_or_url_hash)
+    public function comments($idOrUrlHash)
     {
-        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstOrFail();
+        $video = Video::published()
+            ->idOrUrlHash($idOrUrlHash)
+            ->firstOrFail();
 
-        return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
+        $comments = $video->comments()->paginate();
+
+        $comments->load([
+            'user',
+            'replies',
+            'PinnedBy'
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count'
+        ]);
+
+        return CommentResource::collection($comments);
     }
 
     public function bulkDestroy(Request $request){
