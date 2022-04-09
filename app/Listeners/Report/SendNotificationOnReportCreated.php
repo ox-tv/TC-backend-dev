@@ -4,7 +4,7 @@ namespace App\Listeners\Report;
 
 use App\Events\Report\ReportCreated;
 use App\Events\VideoViewed;
-use App\Http\Resources\Comment\CommentItem;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
 use App\Models\Notification;
@@ -38,7 +38,7 @@ class SendNotificationOnReportCreated
 
         if ($notification){
             $payload = [
-                $model_name => $model_name == 'video'? VideoResource::make($model): CommentItem::make($model),
+                $model_name => $model_name == 'video'? VideoResource::make($model): CommentResource::make($model),
                 'report' => $report,
                 'report_count' => $notification->payload['report_count'] + 1
             ];
@@ -47,7 +47,7 @@ class SendNotificationOnReportCreated
         }else{
             $admins = User::admins()->get();
             $payload = [
-                $model_name => $model_name == 'video'? VideoResource::make($model): CommentItem::make($model),
+                $model_name => $model_name == 'video'? VideoResource::make($model): CommentResource::make($model),
                 'report' => $report,
                 'report_count' => 1
             ];

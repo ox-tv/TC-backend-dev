@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\VideoCommented;
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\Comment\CommentResource;
-use App\Http\Resources\CommentCollection;
-use App\Http\Resources\CommentItem;
 use App\Models\Comment;
 use App\Models\Option;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,11 +14,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return CommentCollection
-     */
     public function index(Request $request)
     {
         $query = Comment::query();
@@ -77,12 +70,6 @@ class CommentController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function show(Comment $comment)
     {
         $comment->load([
@@ -172,13 +159,9 @@ class CommentController extends Controller
 
         $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
 
-        return new CommentItem($reply);
+        return CommentResource::make($reply);
     }
 
-    /**
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function pin(Comment $comment)
     {
         Comment::where('video_id', $comment->video_id)->update([
@@ -190,19 +173,15 @@ class CommentController extends Controller
         $comment->pinned_by = auth()->id();
         $comment->save();
 
-        return new CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
-    /**
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function unpin(Comment $comment){
         $comment->is_pinned = false;
         $comment->pinned_by = null;
         $comment->save();
 
-        return new CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
 }
