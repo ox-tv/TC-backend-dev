@@ -260,7 +260,7 @@ class PublisherController extends Controller
         $reasons = $reasons? json_decode($reasons, true): [];
 
         if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
-            $reason = $reasons[$key]->value;
+            $reason = $reasons[$key]['value'];
         }
 
         $message = new Message();
