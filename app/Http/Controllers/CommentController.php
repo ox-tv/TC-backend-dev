@@ -22,7 +22,7 @@ class CommentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Comment::whereNull('parent_id');
+        $query = Comment::query();
 
         if($request->is('api/publisher/comments')){
             $query->whereHas('video', function (Builder $query) {
