@@ -56,7 +56,7 @@ class PlaylistController extends Controller
     public function show($idOrHash)
     {
         $playlist = Playlist::public()->where('id', $idOrHash)->orWhere('url_hash', $idOrHash)->firstOrFail();
-        $playlist->append(['total_videos_count', 'published_videos_count']);
+        $playlist->load(['channel'])->append(['total_videos_count', 'published_videos_count']);
         return PlaylistResource::make($playlist);
     }
 
