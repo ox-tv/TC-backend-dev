@@ -32,7 +32,7 @@ class PlaylistController extends Controller
 
         $playlists->append(['total_videos_count', 'published_videos_count']);
 
-        return new PlaylistResource($playlists);
+        return PlaylistResource::collection($playlists);
     }
 
     public function store(PlaylistStore $request)
@@ -50,14 +50,14 @@ class PlaylistController extends Controller
 
         $playlist->save();
 
-        return new PlaylistResource($playlist);
+        return PlaylistResource::make($playlist);
     }
 
     public function show($idOrHash)
     {
         $playlist = Playlist::public()->where('id', $idOrHash)->orWhere('url_hash', $idOrHash)->firstOrFail();
         $playlist->append(['total_videos_count', 'published_videos_count']);
-        return new PlaylistResource($playlist);
+        return PlaylistResource::make($playlist);
     }
 
     public function update(PlaylistUpdate $request, Playlist $playlist)
@@ -72,7 +72,7 @@ class PlaylistController extends Controller
         $playlist->owner()->associate(Auth::user());
         $playlist->save();
 
-        return new PlaylistResource($playlist);
+        return PlaylistResource::make($playlist);
     }
 
     public function destroy(Playlist $playlist)
