@@ -87,7 +87,7 @@ class CommentController extends Controller
     {
         $comment->load([
             'video',
-            'replies',
+            'replies.user',
             'user',
         ])->append([
             'is_liked',
@@ -97,9 +97,7 @@ class CommentController extends Controller
             'replies_count',
         ]);
 
-        $comment->replies->load([
-            'user',
-        ])->append([
+        $comment->replies->append([
             'is_liked',
             'is_disliked',
             'likes_count',
