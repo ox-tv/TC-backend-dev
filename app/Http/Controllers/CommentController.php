@@ -85,7 +85,28 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        return new CommentItem($comment);
+        $comment->load([
+            'video',
+            'replies',
+            'user',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+        ]);
+
+        $comment->replies->load([
+            'user',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+        ]);
+
+        return CommentResource::make($comment);
     }
 
     /**
