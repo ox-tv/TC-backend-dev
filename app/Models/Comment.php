@@ -83,21 +83,19 @@ class Comment extends Model
         $this->attributes['text'] = preg_replace("/([\n][\n][\n]+)/", "\n\n", $value);;
     }
 
-    public function getIsDislikedAttribute(){
+    public function getIsDislikedAttribute()
+    {
         if(auth('api')->check()){
-            if($this->dislikedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
+            return $this->dislikedBy()->whereUserId(auth('api')->id())->exists();
         }
 
         return false;
     }
 
-    public function getIsLikedAttribute(){
+    public function getIsLikedAttribute()
+    {
         if(auth('api')->check()){
-            if($this->likedBy()->find(auth('api')->user()->id)){
-                return true;
-            }
+            return $this->likedBy()->whereUserId(auth('api')->id())->exists();
         }
 
         return false;
