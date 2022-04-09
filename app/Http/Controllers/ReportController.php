@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Events\Report\ReportCreated;
 use App\Http\Resources\Comment\CommentItem;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
 use App\Models\Option;
 use App\Models\Report;
+use App\Models\Scopes\WhereParentNullScope;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -26,7 +28,7 @@ class ReportController extends Controller
         }
 
         if ($is_comment){
-            $query = Comment::query();
+            $query = Comment::withoutGlobalScope(WhereParentNullScope::class);
         }
 
         // filters
@@ -49,8 +51,12 @@ class ReportController extends Controller
         }
 
         if ($is_comment){
-            $result->load(['user', 'video']);
-            return CommentItem::collection($result);
+            $result->load(['user', 'video'])->append([
+                'likes_count',
+                'dislikes_count',
+                'reports_count',
+            ]);
+            return CommentResource::collection($result);
         }
     }
 
