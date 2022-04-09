@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
 use App\Http\Requests\CommentReply;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\CommentCollection;
 use App\Http\Resources\CommentItem;
 use App\Models\Comment;
@@ -51,7 +52,18 @@ class CommentController extends Controller
 
         $comments = $query->paginate();
 
-        return new CommentCollection($comments);
+        $comments->load([
+            'video',
+            'user',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+        ]);
+
+        return CommentResource::collection($comments);
     }
 
     /**
