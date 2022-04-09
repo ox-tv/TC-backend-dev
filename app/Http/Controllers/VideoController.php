@@ -511,7 +511,7 @@ class VideoController extends Controller
 
         event(new VideoCommented($video, auth('api')->user()));
 
-        return new \App\Http\Resources\Comment\CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
     public function comments($idOrUrlHash)
