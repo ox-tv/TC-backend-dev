@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Tag\TagStore;
 use App\Http\Requests\Tag\TagUpdate;
-use App\Http\Resources\Tag\TagItem;
+use App\Http\Resources\Tag\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -14,6 +14,8 @@ class TagController extends Controller
 {
     public function index(Request $request)
     {
+        $isAdmin = $request->is('api/admin/*');
+
         $query = Tag::query();
 
         if (!$request->is('api/admin/*')){
@@ -50,14 +52,26 @@ class TagController extends Controller
             $query->withCount('favoritedByUsers')->orderBy('favorited_by_users_count', 'desc');
         }
 
-        return TagItem::collection($query->paginate());
+        $tags = $query->paginate();
+
+        if ($isAdmin){
+            $tags->append(['favorited_by_users_count', 'videos_count']);
+        }
+
+        return TagResource::collection($tags);
     }
 
-    public function show($tag_id)
+    public function show(Request $request, $tag_id)
     {
+        $isAdmin = $request->is('api/admin/*');
+
         $tag = Tag::findorFail($tag_id);
 
-        return new TagItem($tag);
+        if ($isAdmin){
+            $tag->append(['favorited_by_users_count', 'videos_count']);
+        }
+
+        return new TagResource($tag);
     }
 
     public function store(TagStore $request)
@@ -68,7 +82,7 @@ class TagController extends Controller
         $tag->creation_scope = Tag::CREATION_SCOPE_ADMIN;
         $tag->save();
 
-        return new TagItem($tag);
+        return new TagResource($tag);
     }
 
     public function update(TagUpdate $request, $tag_id)
@@ -78,7 +92,7 @@ class TagController extends Controller
         $tag->status = array_flip(Tag::STATUS_TEXT)[$request->get('status')]?? Tag::STATUS_PUBLISHED;
         $tag->save();
 
-        return new TagItem($tag);
+        return new TagResource($tag);
     }
 
     public function destroy($tag_id)
