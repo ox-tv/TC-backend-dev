@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\Report\ReportCreated;
-use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\Report\ReportItem;
 use App\Http\Resources\Report\ReportMinimalItem;
