@@ -132,9 +132,9 @@ return [
         /*
          * Require verification of SSL certificate used.
          */
-        'verify_peer' => env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER', true),
+        'verify_peer' => (bool) env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER', true),
 
-        'verify_peer_name' => env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER_NAME', true),
+        'verify_peer_name' => (bool) env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER_NAME', true),
     ],
 
     /*
