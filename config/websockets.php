@@ -128,6 +128,13 @@ return [
          * Passphrase for your local_cert file.
          */
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
+
+        /*
+         * Require verification of SSL certificate used.
+         */
+        'verify_peer' => env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER', true),
+
+        'verify_peer_name' => env('LARAVEL_WEBSOCKETS_SSL_VERIFY_PEER_NAME', true),
     ],
 
     /*
