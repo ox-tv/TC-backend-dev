@@ -32,6 +32,11 @@ class PrivateHello implements ShouldBroadcast
         ];
     }
 
+    public function broadcastAs()
+    {
+        return 'notification.hello';
+    }
+
     /**
      * Get the channels the event should broadcast on.
      *
@@ -39,6 +44,6 @@ class PrivateHello implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('App.Models.User.1');
+        return new PrivateChannel('App.Models.User.12');
     }
 }
