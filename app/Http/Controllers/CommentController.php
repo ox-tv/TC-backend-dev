@@ -84,12 +84,16 @@ class CommentController extends Controller
             'replies_count',
         ]);
 
-        $comment->replies->append([
-            'is_liked',
-            'is_disliked',
-            'likes_count',
-            'dislikes_count',
-        ]);
+        $comment->replies->each(function ($item, $key) {
+            $item->append([
+                'is_liked',
+                'is_disliked',
+                'likes_count',
+                'dislikes_count',
+            ]);
+
+            $item->user->append('is_publisher');
+        });
 
         return CommentResource::make($comment);
     }

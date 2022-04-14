@@ -303,6 +303,17 @@ class User extends Authenticatable
         return ($this->created_at >= Carbon::now()->subHours(24) || ($publisherRequestDetails && $publisherRequestDetails->created_at < $this->created_at->addHours(24)))? false : true;
     }
 
+    public function getIsPublisherAttribute()
+    {
+        if (!is_null($this->role_id)){
+            $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+
+            return $publisherRoleId == $this->role_id;
+        }
+        
+        return false;
+    }
+
     public function getLoyaltyPointsAttribute()
     {
         return floatval($this->statistics()->sum('points'));

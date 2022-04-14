@@ -40,6 +40,7 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'avatar' => $this->avatar,
             'role' => $this->whenAppended('role_name'),
+            'is_publisher' => $this->whenAppended('is_publisher'),
             'liked_videos_count' => $this->whenAppended('liked_videos_count'),
             'disliked_videos_count' => $this->whenAppended('disliked_videos_count'),
             'bookmarked_videos_count' => $this->whenAppended('bookmarked_videos_count'),
