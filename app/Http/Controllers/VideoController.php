@@ -524,7 +524,6 @@ class VideoController extends Controller
 
         $comments->load([
             'user',
-            'replies',
             'PinnedBy'
         ])->append([
             'is_liked',
@@ -533,6 +532,10 @@ class VideoController extends Controller
             'dislikes_count',
             'replies_count'
         ]);
+
+        $comments->each(function ($item, $key) {
+            $item->user->append('is_publisher');
+        });
 
         return CommentResource::collection($comments);
     }
