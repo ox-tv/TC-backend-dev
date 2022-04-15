@@ -46,9 +46,11 @@ class VideoResource extends JsonResource
             'language_id' => $this->language_id,
 
             // Custom attributes without query
+            'media_type' => $this->media_type_text,
             'is_published' => $this->is_published,
             'status' => $this->status_text,
             'url' => $this->file_url,
+            'file_type' => $this->file_type,
             'thumbnail' => $this->thumbnail_url,
             'thumbnails' => $this->thumbnails,
 
