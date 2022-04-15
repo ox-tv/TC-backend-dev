@@ -227,6 +227,11 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        // media type
+        if($request->get('media_type')){
+            $video->media_type = array_flip(Video::MEDIA_TYPE_TEXT)[$request->get('media_type')];
+        }
+
         // duration
         if($request->get('duration')){
             $video->duration = $request->get('duration');
@@ -240,8 +245,6 @@ class VideoController extends Controller
         if($request->get('language')){
             $video->language_id = $request->get('language');
         }
-
-
 
 
         DB::transaction(function () use ($request, $video){
@@ -384,6 +387,10 @@ class VideoController extends Controller
         // status
         if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
+        }
+
+        if($request->get('media_type')){
+            $video->media_type = array_flip(Video::MEDIA_TYPE_TEXT)[$request->get('media_type')];
         }
 
         // adding main category

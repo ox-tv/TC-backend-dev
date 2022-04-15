@@ -27,6 +27,17 @@ class Video extends Model
         self::STATUS_HIDDEN => 'hidden'
     ];
 
+    const MEDIA_TYPE_VIDEO = 1;
+    const MEDIA_TYPE_PODCAST = 2;
+
+    const MEDIA_TYPE_TEXT = [
+        self::MEDIA_TYPE_VIDEO => 'video',
+        self::MEDIA_TYPE_PODCAST => 'podcast',
+    ];
+
+    const FILE_TYPE_VIDEO = 'video';
+    const FILE_TYPE_AUDIO = 'audio';
+
     const UPLOAD_METHOD_DIRECT = 1;
     const UPLOAD_METHOD_YOUTUBE = 2;
 
@@ -35,6 +46,10 @@ class Video extends Model
 
     protected $casts = [
         'published_at' => 'datetime'
+    ];
+
+    protected $attributes = [
+        'media_type' => self::MEDIA_TYPE_VIDEO,
     ];
 
     protected static function booted()
@@ -362,6 +377,20 @@ class Video extends Model
     public function getThumbnailsAttribute()
     {
         return $this->thumbnail_url? getThumbnails($this->thumbnail_url):[];
+    }
+
+    public function getMediaTypeTextAttribute()
+    {
+        return self::MEDIA_TYPE_TEXT[$this->media_type]?? $this->media_type;
+    }
+
+    public function getFileTypeAttribute()
+    {
+        $extention = strtolower(pathinfo($this->file_url, PATHINFO_EXTENSION));
+
+        return in_array($extention, ['mp4', 'mov', 'webm'])?
+            self::FILE_TYPE_VIDEO:
+            self::FILE_TYPE_AUDIO;
     }
 
 }
