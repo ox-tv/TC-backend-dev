@@ -62,6 +62,7 @@ class VideoStore extends FormRequest
             'file_url' => 'url|required_without:video',
             'tags' => 'nullable|array',
             'tags.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
+            'media_type' => ['nullable', Rule::in(Video::MEDIA_TYPE_TEXT)],
         ];
     }
 
