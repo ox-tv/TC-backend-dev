@@ -4,9 +4,9 @@
 namespace App\Notifications\TCNotification;
 
 
-use App\Models\Notification;
 use App\Repository\Eloquent\NotificationRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 
 class TCNotification
 {
@@ -25,6 +25,6 @@ class TCNotification
             $notification->publishedAt?? Carbon::now(),
         );
 
-        \Illuminate\Support\Facades\Notification::send($users, $notification);
+        Notification::send($users, $notification);
     }
 }

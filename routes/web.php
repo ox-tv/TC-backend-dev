@@ -1,5 +1,7 @@
 <?php
 
+use App\Notifications\CustomNotification;
+use App\Notifications\TCNotification\TCNotification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,4 +25,18 @@ Route::get('/event', function () {
 });
 Route::get('/private-event', function () {
     event(new \App\Events\PrivateHello('private say my name'));
+});
+
+Route::get('/notification', function () {
+    $user = \App\Models\User::find(12);
+
+    TCNotification::send(collect([$user]),
+        new CustomNotification(
+            'global',
+            'custom',
+            ['message' => "my custom notification"]
+        )
+    );
+
+    return "done";
 });
