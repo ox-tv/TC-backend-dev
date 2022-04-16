@@ -53,7 +53,7 @@ class ChannelController extends Controller
 
         $sort = $request->get('sort');
         if($sort === 'most_uploads'){
-            $query->withCount('videos')->orderBy('videos_count', 'desc');
+            $query->withCount(['videos'=> function($q){$q->distinct('video_id');}])->orderBy('videos_count', 'desc');
         }elseif ($sort === 'most_subscribers'){
             $query->withCount('subscribers')->orderBy('subscribers_count', 'desc');
         }elseif ($sort === 'most_points'){
