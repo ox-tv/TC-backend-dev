@@ -21,7 +21,7 @@ class SendNotificationOnUserVerified
     {
         $user = $event->user;
         $customFeedTagsText = "Hey!
-        Improve your experience by setting up your custom feed. By doing so, you will create a more relevant content feed based on your favorite cryptos. *Set up your custom feed now.";
+        Improve your experience by setting up your custom feed. By doing so, you will create a more relevant content feed based on your favorite cryptos. Set up your custom feed now.";
 
         TCNotification::send(collect([$user]), new FillCustomFeedTags(
             Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
