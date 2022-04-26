@@ -28,7 +28,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 });
 
 
-Route::put('videos/{video}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
+Route::put('videos/{ir_or_url_hash}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');
 Route::get('videos', '\App\Http\Controllers\VideoController@index');
 Route::get('videos/{video}/related', '\App\Http\Controllers\VideoController@related_videos');

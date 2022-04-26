@@ -681,8 +681,9 @@ class VideoController extends Controller
         return VideoResource::collection($videos);
     }
 
-    public function increase_view(Video $video)
+    public function increase_view($idOrUrlHash)
     {
+        $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
         $video->view_count++;
         $video->save();
 
