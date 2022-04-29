@@ -2,24 +2,15 @@
 
 namespace App\Http\Resources\Notification;
 
-use App\Http\Resources\Category\CategoryMinimalItem;
 use App\Http\Resources\Category\CategoryResource;
-use App\Http\Resources\Channel\ChannelMinimalItem;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\Comment\CommentItem;
 use App\Http\Resources\Comment\CommentResource;
-use App\Http\Resources\Department\DepartmentItem;
 use App\Http\Resources\Report\ReportItem;
-use App\Http\Resources\Report\ReportMinimalItem;
-use App\Http\Resources\User\UserMinimalItem;
 use App\Http\Resources\User\UserResource;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Category;
 use App\Models\Channel;
 use App\Models\Comment;
-use App\Models\Message;
-use App\Models\MessageUser;
 use App\Models\Notification;
 use App\Models\Report;
 use App\Models\User;
