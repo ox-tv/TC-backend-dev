@@ -1,7 +1,6 @@
 <?php
 
-use App\Notifications\CustomNotification;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,22 +20,32 @@ Route::get('/', function () {
 
 
 Route::get('/event', function () {
-    broadcast(new \App\Events\Hello('say my name'));
+    $data = \App\Models\Notification::latest()->first();
+
+    $data->load(['entity','from']);
+
+    $resource = \App\Http\Resources\Notification\NotificationResource::make($data);
+
+    //broadcast(new \App\Events\Hello('say my name'));
+    broadcast(new \App\Events\Hello($resource));
 });
 Route::get('/private-event', function () {
     event(new \App\Events\PrivateHello('private say my name'));
 });
 
 Route::get('/notification', function () {
-    $user = \App\Models\User::find(12);
-
-    TCNotification::send(collect([$user]),
-        new CustomNotification(
-            'global',
-            'custom',
-            ['message' => "my custom notification"]
-        )
-    );
+    $users = \App\Models\User::whereIn('id', [12,13])->get();
+    TCN::Send($users, new GeneralNotification(
+        \App\Models\Notification::TYPE_CUSTOM_NOTIFICATION,
+        'global',
+        ['message' => "test new notification"],
+        [
+            //'published_at' => \Carbon\Carbon::now()->addDay(),
+            'from' => 12,
+            'entity_id' => 12,
+            'entity_type' => \App\Models\User::class,
+        ]
+    ));
 
     return "done";
 });
