@@ -15793,28 +15793,7 @@
      
 }
 
-        namespace App\TCNotification { 
-            /**
-     * 
-     *
-     */ 
-        class TCNotification2Facade {
-                    /**
-         * 
-         *
-         * @static 
-         */ 
-        public static function send($notifiables, $notification)
-        {
-                        /** @var \App\TCNotification\TCNotificationManager $instance */
-                        return $instance->send($notifiables, $notification);
-        }
-         
-    }
-     
-}
-
-    namespace Facade\Ignition\Facades { 
+        namespace Facade\Ignition\Facades { 
             /**
      * Class Flare.
      *
@@ -19946,7 +19925,6 @@ namespace  {
             class URL extends \Illuminate\Support\Facades\URL {}
             class Validator extends \Illuminate\Support\Facades\Validator {}
             class View extends \Illuminate\Support\Facades\View {}
-            class TCNotification extends \App\TCNotification\TCNotification2Facade {}
             class Flare extends \Facade\Ignition\Facades\Flare {}
             class Image extends \Intervention\Image\Facades\Image {}
             class Excel extends \Maatwebsite\Excel\Facades\Excel {}
