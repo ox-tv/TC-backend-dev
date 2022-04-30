@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Notifications\Channels\TCDatabaseChannel;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,7 +29,5 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         JsonResource::withoutWrapping();
-
-        $this->app->instance(DatabaseChannel::class, new TCDatabaseChannel);
     }
 }
