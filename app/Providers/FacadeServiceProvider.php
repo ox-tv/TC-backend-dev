@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
+use App\TCNotification\TCNotificationManager;
 use App\Services\TCAuthManager;
-use App\Services\TCChannelManager;
-use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\ServiceProvider;
 
 class FacadeServiceProvider extends ServiceProvider
@@ -30,8 +29,8 @@ class FacadeServiceProvider extends ServiceProvider
             return new TCAuthManager($app);
         });
 
-        $this->app->singleton(ChannelManager::class, function ($app) {
-            return new TCChannelManager($app);
+        $this->app->singleton(TCNotificationManager::class, function () {
+            return new TCNotificationManager();
         });
     }
 }
