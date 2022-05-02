@@ -6,8 +6,8 @@ use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\VideoViewed;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Models\Notification;
-use App\Notifications\ImportRequestAccepted;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnChannelImportRequestAccepted
 {
@@ -22,14 +22,14 @@ class SendNotificationOnChannelImportRequestAccepted
     {
         $channel = $event->channel;
 
-        TCNotification::send(collect([$channel->owner]), new ImportRequestAccepted(
+        TCNotification::Send(collect([$channel->owner]), new GeneralNotification(
+            Notification::TYPE_IMPORT_REQUEST_ACCEPTED,
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['channel' => ChannelResource::make($channel)],
             [
-                'channel' => ChannelResource::make($channel),
-            ],
-            get_class($channel),
-            $channel->id
+                'entity_type' => get_class($channel),
+                'entity_id' => $channel->id,
+            ]
         ));
 
         return true;

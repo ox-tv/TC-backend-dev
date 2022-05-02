@@ -9,8 +9,8 @@ use App\Http\Resources\User\UserResource;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserMeta;
-use App\Notifications\NewPublisherRequest;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnNewPublisherRequested
 {
@@ -30,16 +30,18 @@ class SendNotificationOnNewPublisherRequested
 
         $admins = User::admins()->get();
 
-        TCNotification::send($admins, new NewPublisherRequest(
+        TCNotification::Send($admins, new GeneralNotification(
+            Notification::TYPE_NEW_PUBLISHER_REQUEST,
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
                 'user' => UserResource::make($user),
                 'channel_name' => $channelNameMeta->value ?? ""
             ],
-            get_class($message),
-            $message->id
+            [
+                'entity_type' => get_class($message),
+                'entity_id' => $message->id,
+            ]
         ));
 
         return true;

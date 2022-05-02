@@ -6,8 +6,8 @@ use App\Events\Messages\MessageCreatedByAdmin;
 use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Notification;
-use App\Notifications\NewMessage;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnMessageCreatedByAdmin
 {
@@ -23,14 +23,14 @@ class SendNotificationOnMessageCreatedByAdmin
         $message = $event->message;
         $users = $message->users;
 
-        TCNotification::send($users, new NewMessage(
+        TCNotification::Send($users, new GeneralNotification(
+            Notification::TYPE_NEW_MESSAGE,
             Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['message' => MessageItem::make($message->load(['user', 'department']))],
             [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
+                'entity_type' => get_class($message),
+                'entity_id' => $message->id,
+            ]
         ));
 
         return true;

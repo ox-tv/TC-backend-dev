@@ -2,14 +2,13 @@
 
 namespace App\Listeners\Messages;
 
-use App\Events\Messages\MessageCreatedByAdmin;
 use App\Events\Messages\MessageCreatedByUser;
 use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Notification;
 use App\Models\User;
-use App\Notifications\NewMessage;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnMessageCreatedByUser
 {
@@ -25,14 +24,14 @@ class SendNotificationOnMessageCreatedByUser
         $message = $event->message;
         $admins = User::admins()->get();
 
-        TCNotification::send($admins, new NewMessage(
+        TCNotification::Send($admins, new GeneralNotification(
+            Notification::TYPE_NEW_MESSAGE,
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['message' => MessageItem::make($message->load(['user', 'department']))],
             [
-                'message' => MessageItem::make($message->load(['user', 'department'])),
-            ],
-            get_class($message),
-            $message->id
+                'entity_type' => get_class($message),
+                'entity_id' => $message->id,
+            ]
         ));
 
         return true;

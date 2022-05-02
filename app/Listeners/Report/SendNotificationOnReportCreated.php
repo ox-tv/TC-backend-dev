@@ -9,9 +9,8 @@ use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
 use App\Models\Notification;
 use App\Models\User;
-use App\Notifications\ReportComment;
-use App\Notifications\ReportVideo;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnReportCreated
 {
@@ -53,22 +52,20 @@ class SendNotificationOnReportCreated
             ];
 
             if($model_name == 'video'){
-                TCNotification::send($admins, new ReportVideo(
-                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                    $payload,
-                    get_class($model),
-                    $model->id
-                ));
+                $notifType = Notification::TYPE_REPORT_VIDEO;
             }else{
-                TCNotification::send($admins, new ReportComment(
-                    Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-                    Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
-                    $payload,
-                    get_class($model),
-                    $model->id
-                ));
+                $notifType = Notification::TYPE_REPORT_COMMENT;
             }
+
+            TCNotification::Send($admins, new GeneralNotification(
+                $notifType,
+                Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
+                $payload,
+                [
+                    'entity_type' => get_class($model),
+                    'entity_id' => $model->id,
+                ]
+            ));
         }
 
         return true;
