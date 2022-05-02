@@ -179,6 +179,7 @@ return [
         // Custom Service Providers...
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\FacadeServiceProvider::class,
+        App\Providers\ObserverServiceProvider::class,
 
     ],
 
