@@ -1,17 +1,35 @@
 <?php
 
-
 namespace App\Repository\Eloquent;
 
-
 use App\Models\Notification;
-use App\Repository\NotificationRepositoryInterface;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
-class NotificationRepository implements NotificationRepositoryInterface
+class NotificationRepository
 {
+    // Method Overloading
+    public function __call($member, $arguments)
+    {
+        $numberOfArguments = count($arguments);
+        $functionName = '';
 
-    public function store($users, $type, $scope, $userGroup, $payload = null, $entityType = null, $entityId = null, $from = null, $publishedAt = null)
+        if($member == 'store' && $numberOfArguments >= 4){
+            $functionName = 'storeOld';
+        }
+
+        if($member == 'store' && $numberOfArguments == 2){
+            $functionName = 'storeNew';
+        }
+
+        if (method_exists($this, $functionName)) {
+            return call_user_func_array(array($this, $functionName), $arguments);
+        }
+
+        throw new Exception("Method {$member} Not Found");
+    }
+
+    private function storeOld($users, $type, $scope, $userGroup, $payload = null, $entityType = null, $entityId = null, $from = null, $publishedAt = null)
     {
         $notification = new Notification();
         $notification->type = $type;
@@ -31,7 +49,7 @@ class NotificationRepository implements NotificationRepositoryInterface
         return true;
     }
 
-    public function store2($users, $data)
+    private function storeNew($users, $data)
     {
         $notification = new Notification();
         $notification->type = $data['type'];

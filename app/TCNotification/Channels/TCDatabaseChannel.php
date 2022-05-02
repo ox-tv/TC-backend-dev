@@ -12,7 +12,7 @@ class TCDatabaseChannel
 
         $notificationRepository = new NotificationRepository();
 
-        return $notificationRepository->store2($notifiables, $data);
+        return $notificationRepository->store($notifiables, $data);
     }
 
     private function getData($notifiable, $notification)
