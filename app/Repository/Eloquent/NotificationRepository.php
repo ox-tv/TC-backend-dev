@@ -35,9 +35,9 @@ class NotificationRepository implements NotificationRepositoryInterface
     {
         $notification = new Notification();
         $notification->type = $data['type'];
-        $notification->scope = array_flip(Notification::SCOPE_TEXT)[$data['scope']];
+        $notification->scope = $data['scope'];
         $notification->payload = $data['payload'];
-        $notification->user_group = array_flip(Notification::USER_GROUP_TEXT)[$data['user_group']];
+        $notification->user_group = $data['user_group'];
         $notification->sender_id = $data['sender_id'];
         $notification->entity_type = $data['entity_type'];
         $notification->entity_id = $data['entity_id'];
