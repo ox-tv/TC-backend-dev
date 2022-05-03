@@ -19,6 +19,8 @@ Route::get('/', function () {
 });
 
 
+
+
 Route::get('/event', function () {
     $data = \App\Models\Notification::latest()->first();
 
@@ -29,13 +31,14 @@ Route::get('/event', function () {
     //broadcast(new \App\Events\Hello('say my name'));
     broadcast(new \App\Events\Hello($resource));
 });
+
 Route::get('/private-event', function () {
     event(new \App\Events\PrivateHello('private say my name'));
 });
 
 Route::get('/notification', function () {
     $users = \App\Models\User::whereIn('id', [12,13])->get();
-    TCN::Send($users, new GeneralNotification(
+    TCNotification::Send($users, new GeneralNotification(
         \App\Models\Notification::TYPE_CUSTOM_NOTIFICATION,
         'global',
         ['message' => "test new notification"],
