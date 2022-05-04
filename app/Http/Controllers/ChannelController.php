@@ -346,6 +346,72 @@ class ChannelController extends Controller
             ];
         }
 
+
+        if (4610 == $user->id){
+            $rawData = [
+                'January' => [
+                    'points' => 8620,
+                    'earning' => 249,
+                ],
+                'February' => [
+                    'points' => 11710,
+                    'earning' => 341,
+                ],
+                'March' => [
+                    'points' => 9395,
+                    'earning' => 328,
+                ],
+                'April' => [
+                    'points' => 13190,
+                    'earning' => 462,
+                ],
+                'May' => [
+                    'points' => 0,
+                    'earning' => 0,
+                ],
+                'June' => [
+                    'points' => 12275,
+                    'earning' => 448,
+                ],
+                'July' => [
+                    'points' => 0,
+                    'earning' => 0,
+                ],
+                'August' => [
+                    'points' => 0,
+                    'earning' => 0,
+                ],
+                'September' => [
+                    'points' => 3785,
+                    'earning' => 114,
+                ],
+                'October' => [
+                    'points' => 5215,
+                    'earning' => 137,
+                ],
+                'November' => [
+                    'points' => 7840,
+                    'earning' => 182,
+                ],
+                'December' => [
+                    'points' => 6275,
+                    'earning' => 176,
+                ],
+            ];
+
+            foreach ($monthPeriods as $month) {
+                $monthName = $month->startOfMonth()->format("F");
+
+                $result[$month->format("Y-m")] = [
+                    'date' => $month->format("Y-m"),
+                    'points_hero' => 0,
+                    'points_non_hero' => 0,
+                    'points_total' => $rawData[$monthName]['points'],
+                    'earning' => $rawData[$monthName]['earning'],
+                ];
+            }
+        }
+
         return response()->json($result);
     }
 
