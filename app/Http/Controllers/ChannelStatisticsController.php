@@ -211,7 +211,7 @@ class ChannelStatisticsController extends Controller
         $rawData = [
             'January' => [
                 'points' => 8620,
-                'watch_time' => 387,
+                'watch_time' => 387 * 3600,
                 'views' => 2322,
                 'subscribers' => 5266,
                 'unsubscribers' => 5,
@@ -221,7 +221,7 @@ class ChannelStatisticsController extends Controller
             ],
             'February' => [
                 'points' => 11710,
-                'watch_time' => 459,
+                'watch_time' => 459 * 3600,
                 'views' => 2754,
                 'subscribers' => 3896,
                 'unsubscribers' => 12,
@@ -231,7 +231,7 @@ class ChannelStatisticsController extends Controller
             ],
             'March' => [
                 'points' => 9395,
-                'watch_time' => 406,
+                'watch_time' => 406 * 3600,
                 'views' => 2436,
                 'subscribers' => 3643,
                 'unsubscribers' => 9,
@@ -241,7 +241,7 @@ class ChannelStatisticsController extends Controller
             ],
             'April' => [
                 'points' => 13190,
-                'watch_time' => 614,
+                'watch_time' => 614 * 3600,
                 'views' => 3684,
                 'subscribers' => 4691,
                 'unsubscribers' => 10,
@@ -261,7 +261,7 @@ class ChannelStatisticsController extends Controller
             ],
             'June' => [
                 'points' => 12275,
-                'watch_time' => 581,
+                'watch_time' => 581 * 3600,
                 'views' => 3486,
                 'subscribers' => 6448,
                 'unsubscribers' => 8,
@@ -291,7 +291,7 @@ class ChannelStatisticsController extends Controller
             ],
             'September' => [
                 'points' => 3785,
-                'watch_time' => 146,
+                'watch_time' => 146 * 3600,
                 'views' => 870,
                 'subscribers' => 2028,
                 'unsubscribers' => 6,
@@ -301,7 +301,7 @@ class ChannelStatisticsController extends Controller
             ],
             'October' => [
                 'points' => 5215,
-                'watch_time' => 226,
+                'watch_time' => 226 * 3600,
                 'views' => 1356,
                 'subscribers' => 2441,
                 'unsubscribers' => 5,
@@ -311,7 +311,7 @@ class ChannelStatisticsController extends Controller
             ],
             'November' => [
                 'points' => 7840,
-                'watch_time' => 313,
+                'watch_time' => 313 * 3600,
                 'views' => 1878,
                 'subscribers' => 3125,
                 'unsubscribers' => 8,
@@ -321,7 +321,7 @@ class ChannelStatisticsController extends Controller
             ],
             'December' => [
                 'points' => 6275,
-                'watch_time' => 284,
+                'watch_time' => 284 * 3600,
                 'views' => 1704,
                 'subscribers' => 3714,
                 'unsubscribers' => 3,
@@ -421,7 +421,7 @@ class ChannelStatisticsController extends Controller
                     'unsubscribers_hero' => 0,
                     'unsubscribers_non_hero' => 0,
                     'unsubscribers_total' => rand(0, $rawData[$monthName]['unsubscribers']/15),
-                    'upload_videos_total' => rand(0, $rawData[$monthName]['uploads']/15),
+                    'upload_videos_total' => rand(0, $rawData[$monthName]['uploads']/3),
                 ];
             }
         }
