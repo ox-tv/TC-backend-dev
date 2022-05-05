@@ -71,7 +71,8 @@ class ChannelStatisticsController extends Controller
             return $query->where('date', '<=', $toFilter);
         });
 
-        if ($channel->slug == 'roberts-sloppy-media'){
+        dd($channel->slug);
+        if (in_array($channel->slug, ['roberts-sloppy-media', 'aahelali'])){
             return $this->makeFakeResult('total');
         }
 
@@ -101,7 +102,7 @@ class ChannelStatisticsController extends Controller
         $to = Arr::get($filters, 'to', (Carbon::now())->firstOfMonth());
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
-        if ($channel->slug == 'roberts-sloppy-media'){
+        if (in_array($channel->slug, ['roberts-sloppy-media', 'aahelali'])){
             return $this->makeFakeResult('monthly', $monthPeriods);
         }
 
@@ -154,7 +155,7 @@ class ChannelStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
         abort_unless(count($periods) <= 31, 400, 'timespan between from and to is more than 1 month');
 
-        if ($channel->slug == 'roberts-sloppy-media'){
+        if (in_array($channel->slug, ['roberts-sloppy-media', 'aahelali'])){
             return $this->makeFakeResult('daily', $periods);
         }
 
