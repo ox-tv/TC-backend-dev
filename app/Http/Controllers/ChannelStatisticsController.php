@@ -71,7 +71,6 @@ class ChannelStatisticsController extends Controller
             return $query->where('date', '<=', $toFilter);
         });
 
-        dd($channel->slug);
         if (in_array($channel->slug, ['roberts-sloppy-media', 'aahelali'])){
             return $this->makeFakeResult('total');
         }
@@ -400,29 +399,29 @@ class ChannelStatisticsController extends Controller
                 $monthName = $day->format("F");
                 $result[$date] = [
                     'date' => $date,
-                    'points' => intval($rawData[$monthName]['points']/$daysCount),
+                    'points' => rand(0, $rawData[$monthName]['points']/15),
                     'views_hero' => 0,
                     'views_non_hero' => 0,
-                    'views_total' => intval($rawData[$monthName]['views']/$daysCount),
+                    'views_total' => rand(0, $rawData[$monthName]['views']/15),
                     'likes_hero' => 0,
                     'likes_non_hero' => 0,
-                    'likes_total' => intval($rawData[$monthName]['likes']/$daysCount),
+                    'likes_total' => rand(0, $rawData[$monthName]['likes']/2),
                     'dislikes_hero' => 0,
                     'dislikes_non_hero' => 0,
-                    'dislikes_total' => intval($rawData[$monthName]['dislikes']/$daysCount),
+                    'dislikes_total' => rand(0, $rawData[$monthName]['dislikes']/15),
                     'comments_hero' => 0,
                     'comments_non_hero' => 0,
                     'comments_total' => 0,
                     'watch_time_hero' => 0,
                     'watch_time_non_hero' => 0,
-                    'watch_time_total' => intval($rawData[$monthName]['watch_time']/$daysCount),
+                    'watch_time_total' => rand(0, $rawData[$monthName]['watch_time']/15),
                     'subscribers_hero' => 0,
                     'subscribers_non_hero' => 0,
-                    'subscribers_total' => intval($rawData[$monthName]['subscribers']/$daysCount),
+                    'subscribers_total' => rand(0, $rawData[$monthName]['subscribers']/15),
                     'unsubscribers_hero' => 0,
                     'unsubscribers_non_hero' => 0,
-                    'unsubscribers_total' => intval($rawData[$monthName]['unsubscribers']/$daysCount),
-                    'upload_videos_total' => intval($rawData[$monthName]['uploads']/$daysCount),
+                    'unsubscribers_total' => rand(0, $rawData[$monthName]['unsubscribers']/15),
+                    'upload_videos_total' => rand(0, $rawData[$monthName]['uploads']/15),
                 ];
             }
         }
