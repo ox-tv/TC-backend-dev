@@ -362,16 +362,20 @@ class ChannelController extends Controller
                     'earning' => 328,
                 ],
                 'April' => [
-                    'points' => 13190,
+                    'points' => 13190 + 14243,
                     'earning' => 462,
                 ],
                 'May' => [
                     'points' => 0,
                     'earning' => 0,
                 ],
-                'June' => [
+                /*'June' => [
                     'points' => 12275,
                     'earning' => 448,
+                ],*/
+                'June' => [
+                    'points' => 0,
+                    'earning' => 0,
                 ],
                 'July' => [
                     'points' => 0,
