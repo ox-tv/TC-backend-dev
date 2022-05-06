@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 
 
-
+// TODO: Remove testing routes for broadcasting when front-end side finished
 Route::get('/event', function () {
     $data = \App\Models\Notification::latest()->first();
 

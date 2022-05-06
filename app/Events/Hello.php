@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class Hello implements ShouldBroadcast
 {
+    // TODO: Remove this file when front-end side finished
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $data;
