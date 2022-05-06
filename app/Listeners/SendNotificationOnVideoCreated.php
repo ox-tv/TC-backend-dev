@@ -8,8 +8,8 @@ use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
 use App\Models\Video;
-use App\Notifications\NewVideoPublished;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnVideoCreated
 {
@@ -27,15 +27,17 @@ class SendNotificationOnVideoCreated
 
         if ($video->status == Video::STATUS_PUBLISHED){
 
-            TCNotification::send($channel->subscribers, new NewVideoPublished(
+            TCNotification::Send($channel->subscribers, new GeneralNotification(
+                Notification::TYPE_NEW_VIDEO_PUBLISHED,
                 Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                 [
                     'video' => VideoResource::make($video),
                     'channel' => ChannelResource::make($channel),
                 ],
-                get_class($video),
-                $video->id
+                [
+                    'entity_type' => get_class($video),
+                    'entity_id' => $video->id,
+                ]
             ));
         }
 

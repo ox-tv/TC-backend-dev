@@ -41,6 +41,25 @@ class Notification extends Model
         self::SCOPE_USER => 'user',
     ];
 
+    // Type field values
+    const TYPE_CUSTOM_NOTIFICATION = 'CustomNotification';
+    const TYPE_NEW_VIDEO_PUBLISHED = 'NewVideoPublished';
+    const TYPE_DELETE_VIDEO = 'DeleteVideo';
+    const TYPE_HIDE_VIDEO = 'HideVideo';
+    const TYPE_UNHIDE_VIDEO = 'UnHideVideo';
+    const TYPE_FILL_CUSTOM_FEED_TAGS = 'FillCustomFeedTags';
+    const TYPE_NEW_IMPORT_REQUEST = 'NewImportRequest';
+    const TYPE_IMPORT_REQUEST_ACCEPTED = 'ImportRequestAccepted';
+    const TYPE_IMPORT_REQUEST_COMPLETED = 'ImportRequestCompleted';
+    const TYPE_NEW_MESSAGE = 'NewMessage';
+    const TYPE_REPLY_MESSAGE = 'ReplyMessage';
+    const TYPE_NEW_PUBLISHER_REQUEST = 'NewPublisherRequest';
+    const TYPE_PUBLISHER_APPROVED = 'PublisherApproved';
+    const TYPE_PUBLISHER_REJECTED = 'PublisherRejected';
+    const TYPE_REPORT_COMMENT = 'ReportComment';
+    const TYPE_REPORT_VIDEO = 'ReportVideo';
+    const TYPE_UPDATE_CHANNEL_STATUS = 'UpdateChannelStatus';
+
     protected static function booted()
     {
         static::addGlobalScope(new WherePublishedScope());
@@ -56,5 +75,14 @@ class Notification extends Model
 
     public function entity(){
         return $this->morphTo();
+    }
+
+    // Attributes and Mutators
+    public function getScopeTextAttribute(){
+        return self::SCOPE_TEXT[$this->scope]?? $this->scope;
+    }
+
+    public function getUserGroupTextAttribute(){
+        return self::USER_GROUP_TEXT[$this->user_group]?? $this->user_group;
     }
 }

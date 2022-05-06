@@ -6,8 +6,8 @@ use App\Events\Channels\ChannelUpdated;
 use App\Events\VideoViewed;
 use App\Models\Channel;
 use App\Models\Notification;
-use App\Notifications\TCNotification\TCNotification;
-use App\Notifications\UpdateChannelStatus;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnChannelUpdated
 {
@@ -24,15 +24,17 @@ class SendNotificationOnChannelUpdated
         $channel = $event->channel;
 
         if(request()->is('api/admin/*') && !empty($channel->status) && $oldChannel->status != $channel->status){
-            TCNotification::send(collect([$channel->owner]), new UpdateChannelStatus(
+            TCNotification::Send(collect([$channel->owner]), new GeneralNotification(
+                Notification::TYPE_UPDATE_CHANNEL_STATUS,
                 Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
                 [
                     'prev_status' => Channel::STATUS_TEXT[$oldChannel->status],
                     'current_status' => Channel::STATUS_TEXT[$channel->status],
                 ],
-                get_class($channel),
-                $channel->id
+                [
+                    'entity_type' => get_class($channel),
+                    'entity_id' => $channel->id,
+                ]
             ));
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\TCNotification;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -10,26 +10,27 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Hello implements ShouldBroadcast
+class BroadcastEvent implements ShouldBroadcast
 {
-    // TODO: Remove this file when front-end side finished
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $data;
+    private $user;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($user, $data)
     {
         $this->data = $data;
+        $this->user = $user;
     }
 
     public function broadcastAs()
     {
-        return 'notification.hello';
+        return 'notification';
     }
 
     /**
@@ -39,6 +40,6 @@ class Hello implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('MyChannel');
+        return new Channel('User.' . $this->user->id);
     }
 }

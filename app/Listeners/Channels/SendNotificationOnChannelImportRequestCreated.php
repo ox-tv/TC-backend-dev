@@ -7,8 +7,8 @@ use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Notification;
 use App\Models\User;
-use App\Notifications\NewImportRequest;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnChannelImportRequestCreated
 {
@@ -26,15 +26,17 @@ class SendNotificationOnChannelImportRequestCreated
 
         $admins = User::admins()->get();
 
-        TCNotification::send($admins, new NewImportRequest(
+        TCNotification::Send($admins, new GeneralNotification(
+            Notification::TYPE_NEW_IMPORT_REQUEST,
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
                 'youtube_url' => $user->channel->youtube_channel_url
             ],
-            get_class($message),
-            $message->id
+            [
+                'entity_type' => get_class($message),
+                'entity_id' => $message->id,
+            ]
         ));
 
         return true;

@@ -179,6 +179,7 @@ return [
         // Custom Service Providers...
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\FacadeServiceProvider::class,
+        App\Providers\ObserverServiceProvider::class,
 
     ],
 
@@ -231,6 +232,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+
+        'TCNotification' => \App\TCNotification\TCNotificationFacade::class,
     ],
 
 ];
