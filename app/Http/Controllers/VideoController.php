@@ -530,7 +530,7 @@ class VideoController extends Controller
         $comments = $video->comments()->paginate();
 
         $comments->load([
-            'user',
+            'user.channel',
             'PinnedBy'
         ])->append([
             'is_liked',

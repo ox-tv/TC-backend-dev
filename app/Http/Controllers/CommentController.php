@@ -47,7 +47,7 @@ class CommentController extends Controller
 
         $comments->load([
             'video',
-            'user',
+            'user.channel',
         ])->append([
             'is_liked',
             'is_disliked',
@@ -75,7 +75,7 @@ class CommentController extends Controller
         $comment->load([
             'video',
             'replies.user',
-            'user',
+            'user.channel',
         ])->append([
             'is_liked',
             'is_disliked',
