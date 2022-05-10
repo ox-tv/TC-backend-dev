@@ -350,56 +350,52 @@ class ChannelController extends Controller
         if (in_array($user->id, [4610, 4611])){
             $rawData = [
                 'January' => [
-                    'points' => 8620,
-                    'earning' => 249,
+                    'points' => 2958,
+                    'earning' => 98,
                 ],
                 'February' => [
-                    'points' => 11710,
-                    'earning' => 341,
+                    'points' => 3586,
+                    'earning' => 107,
                 ],
                 'March' => [
-                    'points' => 9395,
-                    'earning' => 328,
+                    'points' => 3971,
+                    'earning' => 124,
                 ],
                 'April' => [
-                    'points' => 13190 + 14243,
-                    'earning' => 462,
-                ],
-                'May' => [
-                    'points' => 0,
-                    'earning' => 0,
-                ],
-                /*'June' => [
-                    'points' => 12275,
-                    'earning' => 448,
-                ],*/
-                'June' => [
-                    'points' => 0,
-                    'earning' => 0,
-                ],
-                'July' => [
-                    'points' => 0,
-                    'earning' => 0,
-                ],
-                'August' => [
-                    'points' => 0,
-                    'earning' => 0,
-                ],
-                'September' => [
                     'points' => 3785,
                     'earning' => 114,
                 ],
-                'October' => [
+                'May' => [
                     'points' => 5215,
                     'earning' => 137,
                 ],
-                'November' => [
+                'June' => [
                     'points' => 7840,
                     'earning' => 182,
                 ],
-                'December' => [
+                'July' => [
                     'points' => 6275,
                     'earning' => 176,
+                ],
+                'August' => [
+                    'points' => 8620,
+                    'earning' => 249,
+                ],
+                'September' => [
+                    'points' => 11710,
+                    'earning' => 341,
+                ],
+                'October' => [
+                    'points' => 9395,
+                    'earning' => 328,
+                ],
+                'November' => [
+                    'points' => 13190,
+                    'earning' => 462,
+                ],
+                'December' => [
+                    'points' => 12275,
+                    'earning' => 448,
                 ],
             ];
 
