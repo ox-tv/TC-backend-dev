@@ -223,6 +223,8 @@ class ChannelController extends Controller
             $channel->subscribers()->attach(auth('api')->user());
         }
 
+        $channel->append(['is_subscribed']);
+
         event(new ChannelSubscribed(
             $channel,
             auth('api')->user(),
