@@ -92,6 +92,38 @@ class VideoController extends Controller
             $query->week();
         }
 
+        if($timeFilter){
+            switch ($timeFilter){
+                case 'week':{
+                    $query->week();
+                    break;
+                }
+                case '1h':{
+                    $query->oneHour();
+                    break;
+                }
+                case '1d':{
+                    $query->oneDay();
+                    break;
+                }
+                case '7d':{
+                    $query->week();
+                    break;
+                }
+                case '30d':{
+                    $query->month();
+                    break;
+                }
+                case '90d':{
+                    $query->oneSeason();
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
                 $query->where(function ($query) use ($searchFilter){
