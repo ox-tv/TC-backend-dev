@@ -59,6 +59,7 @@ class VideoController extends Controller
 
         $timeFilter = Arr::get($filters, 'time');
         $searchFilter = Arr::get($filters, 'search');
+        $mediaTypeFilter = Arr::get($filters, 'media_type');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
         $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
@@ -67,6 +68,10 @@ class VideoController extends Controller
         $playlistHash = Arr::get($filters, 'playlist_hash');
         $channelId = Arr::get($filters, 'channel');
         $channelSlug = Arr::get($filters, 'channel_slug');
+
+        if($mediaTypeFilter && !empty(array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter])){
+            $query->where('media_type', array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter]);
+        }
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->firstOrFail();
