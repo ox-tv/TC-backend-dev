@@ -123,6 +123,16 @@ class Video extends Model
         return $query;
     }
 
+    public function scopeTypeVideo($query){
+        $query->where('media_type', self::MEDIA_TYPE_VIDEO);
+        return $query;
+    }
+
+    public function scopeTypePodcast($query){
+        $query->where('media_type', self::MEDIA_TYPE_PODCAST);
+        return $query;
+    }
+
     public function scopePublishedOrMine($query){
         $query->where(function ($query) {
             $query->where('status', self::STATUS_PUBLISHED);
