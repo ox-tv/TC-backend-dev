@@ -98,24 +98,24 @@ class VideoController extends Controller
                     $query->week();
                     break;
                 }
-                case '1h':{
-                    $query->oneHour();
+                case 'last_hour':{
+                    $query->lastHour();
                     break;
                 }
-                case '1d':{
-                    $query->oneDay();
+                case 'last_day':{
+                    $query->lastDay();
                     break;
                 }
-                case '7d':{
-                    $query->week();
+                case 'last_week':{
+                    $query->lastweek();
                     break;
                 }
-                case '30d':{
-                    $query->month();
+                case 'last_month':{
+                    $query->lastMonth();
                     break;
                 }
-                case '90d':{
-                    $query->oneSeason();
+                case 'last_season':{
+                    $query->lastSeason();
                     break;
                 }
                 default:{
