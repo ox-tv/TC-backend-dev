@@ -153,6 +153,31 @@ class Video extends Model
 
     // filters by time
 
+    public function scopeLastHour($query){
+        $query->where('published_at', '>=', Carbon::now()->subHour());
+        return $query;
+    }
+
+    public function scopeLastDay($query){
+        $query->where('published_at', '>=', Carbon::now()->subDay());
+        return $query;
+    }
+
+    public function scopeLastWeek($query){
+        $query->where('published_at', '>=', Carbon::now()->subWeek());
+        return $query;
+    }
+
+    public function scopeLastMonth($query){
+        $query->where('published_at', '>=', Carbon::now()->subMonth());
+        return $query;
+    }
+
+    public function scopeLastSeason($query){
+        $query->where('published_at', '>=', Carbon::now()->subMonths(3));
+        return $query;
+    }
+
     public function scopeWeek($query){
         $query->whereBetween('published_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         return $query;
