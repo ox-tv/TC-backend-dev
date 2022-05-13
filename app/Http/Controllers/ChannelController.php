@@ -349,7 +349,7 @@ class ChannelController extends Controller
         }
 
 
-        if (in_array($user->id, [4610, 4611])){
+        if (in_array($user->id, [4610, 4611, 12])){
             $rawData = [
                 'January' => [
                     'points' => 8620,
