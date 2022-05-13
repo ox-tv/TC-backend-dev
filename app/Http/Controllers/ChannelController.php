@@ -352,52 +352,52 @@ class ChannelController extends Controller
         if (in_array($user->id, [4610, 4611])){
             $rawData = [
                 'January' => [
-                    'points' => 7840,
-                    'earning' => 182,
-                ],
-                'February' => [
-                    'points' => 6275,
-                    'earning' => 176,
-                ],
-                'March' => [
                     'points' => 8620,
                     'earning' => 249,
                 ],
-                'April' => [
+                'February' => [
                     'points' => 11710,
                     'earning' => 341,
                 ],
-                'May' => [
+                'March' => [
                     'points' => 9395,
                     'earning' => 328,
                 ],
-                'June' => [
+                'April' => [
                     'points' => 13190,
                     'earning' => 462,
                 ],
-                'July' => [
+                'May' => [
                     'points' => 12275,
                     'earning' => 448,
                 ],
-                'August' => [
+                'June' => [
                     'points' => 2958,
                     'earning' => 98,
                 ],
-                'September' => [
+                'July' => [
                     'points' => 3586,
                     'earning' => 107,
                 ],
-                'October' => [
+                'August' => [
                     'points' => 3971,
                     'earning' => 124,
                 ],
-                'November' => [
+                'September' => [
                     'points' => 3785,
                     'earning' => 114,
                 ],
-                'December' => [
+                'October' => [
                     'points' => 5215,
                     'earning' => 137,
+                ],
+                'November' => [
+                    'points' => 6275,
+                    'earning' => 176,
+                ],
+                'December' => [
+                    'points' => 7840,
+                    'earning' => 182,
                 ],
             ];
 

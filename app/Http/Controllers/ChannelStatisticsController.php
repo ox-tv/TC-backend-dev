@@ -210,26 +210,6 @@ class ChannelStatisticsController extends Controller
     {
         $rawData = [
             'January' => [
-                'points' => 7840,
-                'watch_time' => 313 * 3600,
-                'views' => 1878,
-                'subscribers' => 3125,
-                'unsubscribers' => 8,
-                'likes' => 597,
-                'dislikes' => 16,
-                'uploads' => 8,
-            ],
-            'February' => [
-                'points' => 6275,
-                'watch_time' => 284 * 3600,
-                'views' => 1704,
-                'subscribers' => 3714,
-                'unsubscribers' => 3,
-                'likes' => 482,
-                'dislikes' => 9,
-                'uploads' => 6,
-            ],
-            'March' => [
                 'points' => 8620,
                 'watch_time' => 387 * 3600,
                 'views' => 2322,
@@ -239,7 +219,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 17,
                 'uploads' => 10,
             ],
-            'April' => [
+            'February' => [
                 'points' => 11710,
                 'watch_time' => 459 * 3600,
                 'views' => 2754,
@@ -249,7 +229,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 5,
                 'uploads' => 10,
             ],
-            'May' => [
+            'March' => [
                 'points' => 9395,
                 'watch_time' => 406 * 3600,
                 'views' => 2436,
@@ -259,7 +239,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 14,
                 'uploads' => 11,
             ],
-            'June' => [
+            'April' => [
                 'points' => 13190,
                 'watch_time' => 614 * 3600,
                 'views' => 3684,
@@ -269,7 +249,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 8,
                 'uploads' => 10,
             ],
-            'July' => [
+            'May' => [
                 'points' => 12275,
                 'watch_time' => 581 * 3600,
                 'views' => 3486,
@@ -279,7 +259,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 19,
                 'uploads' => 12,
             ],
-            'August' => [
+            'June' => [
                 'points' => 2958,
                 'watch_time' => 113 * 3600,
                 'views' => 677,
@@ -289,7 +269,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 9,
                 'uploads' => 5,
             ],
-            'September' => [
+            'July' => [
                 'points' => 3586,
                 'watch_time' => 134 * 3600,
                 'views' => 796,
@@ -299,7 +279,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 10,
                 'uploads' => 7,
             ],
-            'October' => [
+            'August' => [
                 'points' => 3971,
                 'watch_time' => 179 * 3600,
                 'views' => 1048,
@@ -309,7 +289,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 7,
                 'uploads' => 6,
             ],
-            'November' => [
+            'September' => [
                 'points' => 3785,
                 'watch_time' => 146 * 3600,
                 'views' => 870,
@@ -319,7 +299,7 @@ class ChannelStatisticsController extends Controller
                 'dislikes' => 8,
                 'uploads' => 6,
             ],
-            'December' => [
+            'October' => [
                 'points' => 5215,
                 'watch_time' => 226 * 3600,
                 'views' => 1356,
@@ -327,6 +307,26 @@ class ChannelStatisticsController extends Controller
                 'unsubscribers' => 5,
                 'likes' => 471,
                 'dislikes' => 12,
+                'uploads' => 8,
+            ],
+            'November' => [
+                'points' => 6275,
+                'watch_time' => 284 * 3600,
+                'views' => 1704,
+                'subscribers' => 3714,
+                'unsubscribers' => 3,
+                'likes' => 482,
+                'dislikes' => 9,
+                'uploads' => 6,
+            ],
+            'December' => [
+                'points' => 7840,
+                'watch_time' => 313 * 3600,
+                'views' => 1878,
+                'subscribers' => 3125,
+                'unsubscribers' => 8,
+                'likes' => 597,
+                'dislikes' => 16,
                 'uploads' => 8,
             ],
         ];
