@@ -2,18 +2,12 @@
 
 namespace App\Listeners\Channels;
 
-use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\Channels\ChannelImportRequestCompleted;
-use App\Events\Channels\ChannelImportRequestCreated;
 use App\Events\VideoViewed;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\Message\MessageItem;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Models\Notification;
-use App\Models\User;
-use App\Notifications\ImportRequestAccepted;
-use App\Notifications\ImportRequestCompleted;
-use App\Notifications\NewImportRequest;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnChannelImportRequestCompleted
 {
@@ -28,14 +22,14 @@ class SendNotificationOnChannelImportRequestCompleted
     {
         $channel = $event->channel;
 
-        TCNotification::send(collect([$channel->owner]), new ImportRequestCompleted(
+        TCNotification::Send(collect([$channel->owner]), new GeneralNotification(
+            Notification::TYPE_IMPORT_REQUEST_COMPLETED,
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['channel' => ChannelResource::make($channel)],
             [
-                'channel' => ChannelMinimalItem::make($channel)
-            ],
-            get_class($channel),
-            $channel->id
+                'entity_type' => get_class($channel),
+                'entity_id' => $channel->id,
+            ]
         ));
 
         return true;

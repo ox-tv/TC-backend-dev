@@ -5,18 +5,14 @@ namespace App\Http\Controllers;
 use Amir\Permission\Models\Role;
 use App\Events\User\AccountDeleted;
 use App\Http\Requests\UserStore;
-use App\Http\Resources\Channel\ChannelSubscriberCollection;
-use App\Http\Resources\UserCollection;
-use App\Http\Resources\UserDetails;
-use App\Http\Resources\UserItem;
+use App\Http\Resources\Channel\ChannelResource;
+use App\Http\Resources\User\UserResource;
+use App\Http\Resources\Video\VideoResource;
 use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\AccountDeletion;
 use App\Models\Channel;
-use App\Models\Department;
-use App\Models\Message;
-use App\Models\MessageUser;
 use App\Models\Option;
 use App\Models\PasswordReset;
 use App\Models\Tag;
@@ -26,45 +22,33 @@ use App\Rules\CustomRule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return UserCollection
-     */
     public function index(Request $request)
     {
-        if ($request->is('api/admin/admins')){
-            $query = User::admins();
-        }elseif ($request->is('api/admin/publishers')){
-            $query = User::publishers();
-        }elseif ($request->is('api/admin/publisher-requests')){
-            /*$publisherApplicationDepartmentId = Department::firstOrCreate(['name' => 'Publisher Application'])->id;
+        $isAdminList = $request->is('api/admin/admins');
+        $isPublisherList = $request->is('api/admin/publishers');
+        $isPublisherRequestsList = $request->is('api/admin/publisher-requests');
 
-            $publisherRequestUserId = Message::where([
-                    'department_id' => $publisherApplicationDepartmentId,
-                ]
-            )->whereHas('users', function ($q){
-                $q->where('message_user.status', '!=', MessageUser::STATUS_CLOSE);
-            })->select('user_id')->get()->pluck('user_id')->unique()->filter(function ($value) { return !is_null($value); })->toArray();
-            $query = User::whereIn('id', $publisherRequestUserId);*/
+        if ($isAdminList){
+            $query = User::admins();
+        }elseif ($isPublisherList){
+            $query = User::publishers();
+        }elseif ($isPublisherRequestsList){
 
             $query = User::whereHas('meta', function ($q) use($request) {
+                $publisherRequestFilter = Arr::get($request->get('filters', []), 'status');
+
                 $q->where('key', UserMeta::PUBLISHER_REQUEST_STATUS);
-
-                $filters = $request->get('filters', []);
-                $publisherRequestFilter = Arr::get($filters, 'status');
-
                 if ($publisherRequestFilter){
                     $q->where('value', $publisherRequestFilter);
                 }
             })->whereNull('role_id');
+
         }else{
             $query = User::query();
         }
@@ -128,7 +112,27 @@ class UserController extends Controller
 
         $users = $query->paginate();
 
-        return \App\Http\Resources\User\UserItem::collection($users);
+        // Add Attributes
+        if ($isAdminList){
+            // Nothing
+        }elseif ($isPublisherList){
+            $users->load(['channel']);
+        }elseif ($isPublisherRequestsList){
+            $users->append([
+                'publisher_request',
+                'publisher_request_details',
+            ]);
+        }else{
+            $users->append([
+                'role_name',
+                'liked_videos_count',
+                'disliked_videos_count',
+                'comments_count',
+                'subscribed_channels_count',
+            ]);
+        }
+
+        return UserResource::collection($users);
     }
 
     /**
@@ -190,7 +194,7 @@ class UserController extends Controller
         Mail::to($user->email)
             ->queue(new PasswordResetMail($link));
 
-        return response()->json(new UserItem($user));
+        return VideoResource::make($user);
     }
 
     /**
@@ -201,7 +205,30 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return UserDetails::make($user);
+        $user->load([
+            'channel',
+            'subscribedChannels',
+            'referrer',
+            'referrals',
+            'meta',
+            'favoriteTags',
+            'favoriteCryptoCurrencies',
+            'bookmarkVideos',
+        ])->append([
+            'eth_address',
+            'role_name',
+            'liked_videos_count',
+            'disliked_videos_count',
+            'bookmarked_videos_count',
+            'comments_count',
+            'subscribed_channels_count',
+            'publisher_request',
+            'publisher_request_details',
+            'is_conversion',
+            'loyalty_points',
+        ]);
+
+        return UserResource::make($user);
     }
 
     public function usernameCheck(Request $request)
@@ -305,7 +332,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(new UserItem($user));
+        return UserResource::make($user);
 
     }
 
@@ -415,10 +442,29 @@ class UserController extends Controller
      */
     public function profile()
     {
-        $user = Auth::user();
+        $user = auth('api')->user();
 
-        return response()->json(new UserItem($user->load('role')));
+        $user->load([
+            'channel',
+            'referrer',
+            'meta',
+            'favoriteTags',
+            'favoriteCryptoCurrencies',
+        ])->append([
+            'eth_address',
+            'role_name',
+            'liked_videos_count',
+            'disliked_videos_count',
+            'bookmarked_videos_count',
+            'comments_count',
+            'subscribed_channels_count',
+            'publisher_request',
+            'publisher_request_details',
+            'is_conversion',
+            'loyalty_points',
+        ]);
 
+        return UserResource::make($user);
     }
 
     /**
@@ -474,7 +520,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(new UserItem($user));
+        return UserResource::make($user);
 
     }
 
@@ -534,6 +580,10 @@ class UserController extends Controller
     {
         $per_page = request()->get('per_page') ?: 15;
 
-        return ChannelSubscriberCollection::make(auth('api')->user()->subscribedChannels()->paginate($per_page));
+        $channels = auth('api')->user()->subscribedChannels()->paginate($per_page);
+
+        $channels->append(['is_subscribed', 'subscribers_count']);
+
+        return ChannelResource::collection($channels);
     }
 }

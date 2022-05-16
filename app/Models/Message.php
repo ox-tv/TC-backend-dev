@@ -11,6 +11,10 @@ class Message extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $casts = [
+        'files' => 'array'
+    ];
+
     // type field values
     const TYPE_WARNING = 1;
 
@@ -94,5 +98,10 @@ class Message extends Model
         $message_user = MessageUser::where("message_id", $message_id)->first();
 
         return $message_user->status?? null;
+    }
+
+    public function setFilesAttribute($value)
+    {
+        $this->attributes['files'] = json_encode($value);
     }
 }

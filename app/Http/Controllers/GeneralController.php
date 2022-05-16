@@ -44,27 +44,38 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelResource::collection($trendingChannels);
 
         // Trending Videos
-        $trendingVideoIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
+        $trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
             ->whereDate('date', '>=', (Carbon::now())->subDays(7)->format('Y-m-d'))
             ->groupBy('video_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('points', 'DESC')
-            ->take(15)
+            //->take(15)
             ->pluck('video_id')
             ->toArray();
 
-        $orderByTrendingvidoIds = implode(',', array_reverse($trendingVideoIds));
+        $orderByTrendingMediaIds = implode(',', array_reverse($trendingMediaIds));
 
-        $trendingVideos = Video::published()
+        $trendingVideos = Video::published()->typeVideo()
             ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingvidoIds), function ($q) use ($orderByTrendingvidoIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingvidoIds) DESC, Created_at DESC");
+            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
             })
             ->take(15)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
         $result['trending_videos'] = VideoResource::collection($trendingVideos);
+
+        $trendingPodcasts = Video::published()->typePodcast()
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
+            })
+            ->take(15)
+            ->with(['channel'])
+            ->get()
+            ->append(['is_bookmarked']);
+        $result['trending_podcasts'] = VideoResource::collection($trendingPodcasts);
 
         // Latest Videos On TC
         $latestVideos = Video::published()

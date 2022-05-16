@@ -4,10 +4,11 @@ namespace App\Listeners;
 
 use App\Events\VideoViewed;
 use App\Events\VideoWasUnHidden;
-use App\Http\Resources\Video\VideoMinimalItem;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
-use App\Notifications\TCNotification\TCNotification;
 use App\Notifications\UnHideVideo;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnVideoWasUnHidden
 {
@@ -22,14 +23,14 @@ class SendNotificationOnVideoWasUnHidden
     {
         $video = $event->video;
 
-        TCNotification::send(collect([$video->user]), new UnHideVideo(
+        TCNotification::Send(collect([$video->user]), new GeneralNotification(
+            Notification::TYPE_UNHIDE_VIDEO,
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['video' => VideoResource::make($video)],
             [
-                'video' => videoMinimalItem::make($video),
-            ],
-            get_class($video),
-            $video->id
+                'entity_type' => get_class($video),
+                'entity_id' => $video->id,
+            ]
         ));
 
         return true;

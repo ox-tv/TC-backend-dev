@@ -2,13 +2,11 @@
 
 namespace App\Listeners\Publisher;
 
-use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
 use App\Events\VideoViewed;
 use App\Models\Notification;
-use App\Notifications\PublisherApproved;
-use App\Notifications\PublisherRejected;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnPublisherRequestRejected
 {
@@ -25,15 +23,17 @@ class SendNotificationOnPublisherRequestRejected
         $reason = $event->reason;
         $parentMessage = $event->parentMessage;
 
-        TCNotification::send(collect([$user]), new PublisherRejected(
+        TCNotification::Send(collect([$user]), new GeneralNotification(
+            Notification::TYPE_PUBLISHER_REJECTED,
             Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message_id' => $parentMessage->id,
                 'reason' => $reason,
             ],
-            get_class($user),
-            $user->id
+            [
+                'entity_type' => get_class($user),
+                'entity_id' => $user->id,
+            ]
         ));
 
         return true;

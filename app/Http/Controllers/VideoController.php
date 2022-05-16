@@ -14,11 +14,10 @@ use App\Http\Requests\VideoComment;
 use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
-use App\Http\Resources\Video\VideoMinimalItem;
 use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
-use App\Http\Resources\VideoSummaryItem;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CryptoCurrency;
@@ -60,6 +59,7 @@ class VideoController extends Controller
 
         $timeFilter = Arr::get($filters, 'time');
         $searchFilter = Arr::get($filters, 'search');
+        $mediaTypeFilter = Arr::get($filters, 'media_type');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
         $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
@@ -68,6 +68,10 @@ class VideoController extends Controller
         $playlistHash = Arr::get($filters, 'playlist_hash');
         $channelId = Arr::get($filters, 'channel');
         $channelSlug = Arr::get($filters, 'channel_slug');
+
+        if($mediaTypeFilter && !empty(array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter])){
+            $query->where('media_type', array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter]);
+        }
 
         if($categorySlug){
             $category = Category::where('slug', $categorySlug)->firstOrFail();
@@ -86,6 +90,38 @@ class VideoController extends Controller
 
         if($timeFilter == 'week'){
             $query->week();
+        }
+
+        if($timeFilter){
+            switch ($timeFilter){
+                case 'week':{
+                    $query->week();
+                    break;
+                }
+                case 'last_hour':{
+                    $query->lastHour();
+                    break;
+                }
+                case 'last_day':{
+                    $query->lastDay();
+                    break;
+                }
+                case 'last_week':{
+                    $query->lastweek();
+                    break;
+                }
+                case 'last_month':{
+                    $query->lastMonth();
+                    break;
+                }
+                case 'last_season':{
+                    $query->lastSeason();
+                    break;
+                }
+                default:{
+
+                }
+            }
         }
 
         if($searchFilter){
@@ -150,7 +186,20 @@ class VideoController extends Controller
 
         $videos = $query->paginate($perPage);
 
-        $result = \App\Http\Resources\Video\VideoItem::collection($videos);
+        if ($publisherVideos) {
+            $relations = ['playlists', 'category'];
+            $attributes = ['comment_count', 'rating'];
+        }elseif ($adminVideos) {
+            $relations = ['channel', 'category'];
+            $attributes = ['comment_count', 'likes_count', 'reports_count'];
+        }else{
+            $relations = ['channel'];
+            $attributes = ['is_bookmarked'];
+        }
+
+        $videos->load($relations)->append($attributes);
+
+        $result = VideoResource::collection($videos);
 
         if($categorySlug){
             $result->additional([
@@ -215,6 +264,11 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        // media type
+        if($request->get('media_type')){
+            $video->media_type = array_flip(Video::MEDIA_TYPE_TEXT)[$request->get('media_type')];
+        }
+
         // duration
         if($request->get('duration')){
             $video->duration = $request->get('duration');
@@ -228,8 +282,6 @@ class VideoController extends Controller
         if($request->get('language')){
             $video->language_id = $request->get('language');
         }
-
-
 
 
         DB::transaction(function () use ($request, $video){
@@ -275,7 +327,7 @@ class VideoController extends Controller
 
         event(new VideoCreated($video));
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return new VideoResource($video);
     }
 
     /**
@@ -374,6 +426,10 @@ class VideoController extends Controller
             $video->status = array_flip(Video::STATUS_TEXT)[$request->get('status')];
         }
 
+        if($request->get('media_type')){
+            $video->media_type = array_flip(Video::MEDIA_TYPE_TEXT)[$request->get('media_type')];
+        }
+
         // adding main category
         if($request->get('category')){
             $video->category()->associate($request->get('category'));
@@ -429,16 +485,9 @@ class VideoController extends Controller
 
         event(new VideoUpdated($oldVideo, $video));
 
-        return new \App\Http\Resources\Video\VideoItem($video);
+        return new VideoResource($video);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Video $video
-     * @return \Illuminate\Http\JsonResponse | VideoSummaryItem
-     * @throws \Exception
-     */
     public function destroy(Request $request, Video $video)
     {
         if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
@@ -471,14 +520,18 @@ class VideoController extends Controller
 
         event(new VideoDeleted($video));
 
-        return new VideoSummaryItem($video);
+        return new VideoResource($video);
     }
 
     public function bookmarks()
     {
         $perPage = request()->get('per_page') ?: 15;
 
-        return \App\Http\Resources\Video\VideoItem::collection(auth('api')->user()->bookmarkVideos()->paginate($perPage));
+        $videos = auth('api')->user()->bookmarkVideos()->paginate($perPage);
+
+        $videos->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($videos);
     }
 
     /**
@@ -502,14 +555,33 @@ class VideoController extends Controller
 
         event(new VideoCommented($video, auth('api')->user()));
 
-        return new \App\Http\Resources\Comment\CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
-    public function comments($id_or_url_hash)
+    public function comments($idOrUrlHash)
     {
-        $video = Video::published()->where('id', $id_or_url_hash)->orWhere('url_hash', $id_or_url_hash)->firstOrFail();
+        $video = Video::published()
+            ->idOrUrlHash($idOrUrlHash)
+            ->firstOrFail();
 
-        return \App\Http\Resources\Comment\CommentItem::collection($video->comments()->with(["user", "replies"])->paginate());
+        $comments = $video->comments()->paginate();
+
+        $comments->load([
+            'user.channel',
+            'PinnedBy'
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count'
+        ]);
+
+        $comments->each(function ($item, $key) {
+            $item->user->append('is_publisher');
+        });
+
+        return CommentResource::collection($comments);
     }
 
     public function bulkDestroy(Request $request){
@@ -594,7 +666,7 @@ class VideoController extends Controller
 
         event(new VideoWasHidden($video));
 
-        return VideoMinimalItem::make($video);
+        return VideoResource::make($video);
     }
 
     public function unHide(Video $video)
@@ -606,7 +678,7 @@ class VideoController extends Controller
 
         event(new VideoWasUnHidden($video));
 
-        return VideoMinimalItem::make($video);
+        return VideoResource::make($video);
     }
 
     public function related_videos($id_or_url_hash)
@@ -615,14 +687,13 @@ class VideoController extends Controller
 
         abort_if(is_null($video), 404);
 
-
         $query = Video::published()->where("id", "!=", $video->id);
 
         $tags = $video->tags()->pluck('id')->toArray();
         $category = $video->category ? $video->category->id : null;
 
         if(!$category && !count($tags)){
-            return \App\Http\Resources\Video\VideoItem::collection(new Paginator([],15));
+            return VideoResource::collection(new Paginator([],15));
         }
 
         $query->where(function ($query) use ($tags, $category){
@@ -640,11 +711,16 @@ class VideoController extends Controller
             }
         });
 
-        return \App\Http\Resources\Video\VideoItem::collection($query->paginate());
+        $videos = $query->paginate();
+
+        $videos->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($videos);
     }
 
-    public function increase_view(Video $video)
+    public function increase_view($idOrUrlHash)
     {
+        $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
         $video->view_count++;
         $video->save();
 

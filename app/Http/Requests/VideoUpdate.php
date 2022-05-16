@@ -61,6 +61,7 @@ class VideoUpdate extends FormRequest
             'status' => Rule::in([Video::STATUS_TEXT[Video::STATUS_DRAFT], Video::STATUS_TEXT[Video::STATUS_PUBLISHED]]),
             'tags' => 'nullable|array',
             'tags.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
+            'media_type' => ['nullable', Rule::in(Video::MEDIA_TYPE_TEXT)],
         ];
     }
 

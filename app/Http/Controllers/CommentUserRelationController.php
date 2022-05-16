@@ -7,11 +7,14 @@ use App\Http\Requests\CommentDislike;
 use App\Http\Requests\CommentLike;
 use App\Models\Comment;
 use App\Models\CommentUser;
+use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Support\Facades\Auth;
 
 class CommentUserRelationController extends Controller
 {
-    public function like(Comment $comment){
+    public function like($id)
+    {
+        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
 
         $userId = Auth::id();
 
@@ -46,7 +49,9 @@ class CommentUserRelationController extends Controller
 
     }
 
-    public function dislike(Comment $comment){
+    public function dislike($id)
+    {
+        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
 
         $userId = Auth::id();
 

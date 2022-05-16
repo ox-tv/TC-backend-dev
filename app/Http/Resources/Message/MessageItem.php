@@ -39,7 +39,7 @@ class MessageItem extends JsonResource
             'id' => $this->id,
             'subject' => $this->subject,
             'message' => $this->message,
-            'image' => $this->image,
+            'files' => $this->files,
             'from' => $this->when($withFrom, $user),
             'to' => $this->when($withTo, $users),
             'type' => $this->type,

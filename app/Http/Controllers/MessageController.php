@@ -84,7 +84,7 @@ class MessageController extends Controller
         $message = new Message();
 
         $message->message = $request->get("message");
-        $message->image = $request->get("image");
+        $message->files = $request->get("files");
         $message->user_id = auth("api")->id();
         $message->subject = $request->get("subject");
         $message->can_reply = $request->get("can_reply");
@@ -146,7 +146,7 @@ class MessageController extends Controller
         $message_data = [
             'subject' => $request->get("subject"),
             'message' => $request->get("message"),
-            'image' => $request->get("image"),
+            'files' => $request->get("files"),
             'user_id' => auth("api")->id(),
             'can_reply' => true,
             'department_id' => $department_id,
@@ -167,7 +167,7 @@ class MessageController extends Controller
 
         $message->subject = $parent_message->subject;
         $message->message = $request->get("message");
-        $message->image = $request->get("image");
+        $message->files = $request->get("files");
         $message->user_id = auth("api")->id();
         $message->parent_id = $parent_message->id;
         $message->department_id = $parent_message->department_id;
@@ -195,7 +195,7 @@ class MessageController extends Controller
 
         $message->subject = $parent_message->subject;
         $message->message = $request->get("message");
-        $message->image = $request->get("image");
+        $message->files = $request->get("files");
         $message->user_id = $user->id;
 
         if ($parent_message->users()->count() > 1){

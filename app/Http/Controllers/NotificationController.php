@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Notification\NotificationItem;
 use App\Models\Notification;
 use App\Models\User;
-use App\Notifications\CustomNotification;
-use App\Notifications\TCNotification\TCNotification;
+use App\TCNotification\GeneralNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use TCNotification;
 
 class NotificationController extends Controller
 {
@@ -94,6 +95,7 @@ class NotificationController extends Controller
     public function store(Request $request, $scope)
     {
         $userGroupText = Notification::USER_GROUP_TEXT;
+        $scopeText = Notification::SCOPE_TEXT;
 
         $request->validate([
             'message' => 'required',
@@ -128,18 +130,30 @@ class NotificationController extends Controller
             $usersQuery = $usersQuery->whereIn('id', $request->get("user_ids", []));
         }
 
-        if($scope == 'publisher'){
+        if($scope == $scopeText[Notification::SCOPE_PUBLISHER]){
             $usersQuery = $usersQuery->publishers();
         }
 
-        $scope = $scope == 'user'? 'global' : $scope;
+        $scope = $scope == $scopeText[Notification::SCOPE_USER]?
+            $scopeText[Notification::SCOPE_GLOBAL] : $scope;
 
         $users = $usersQuery->get();
 
         $message = $request->get('message');
 
         //\Illuminate\Support\Facades\Notification::send($users, new CustomNotification($scope, $message));
-        TCNotification::send($users, new CustomNotification($scope, $userGroup, ['message' => $message]));
+        //TCNotification::send($users, new CustomNotification($scope, $userGroup, ['message' => $message]));
+
+        TCNotification::Send($users, new GeneralNotification(
+            Notification::TYPE_CUSTOM_NOTIFICATION,
+            $scope,
+            ['message' => $message],
+            [
+                'published_at' => Carbon::now(),
+                'from' => auth('api')->id(),
+                'user_group' => $userGroup,
+            ]
+        ));
 
         return response()->json(['message' => 'ok']);
     }

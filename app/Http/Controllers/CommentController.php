@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\VideoCommented;
 use App\Http\Requests\CommentReply;
-use App\Http\Resources\CommentCollection;
-use App\Http\Resources\CommentItem;
+use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use App\Models\Option;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,14 +14,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return CommentCollection
-     */
     public function index(Request $request)
     {
-        $query = Comment::whereNull('parent_id');
+        $query = Comment::query();
 
         if($request->is('api/publisher/comments')){
             $query->whereHas('video', function (Builder $query) {
@@ -51,7 +45,18 @@ class CommentController extends Controller
 
         $comments = $query->paginate();
 
-        return new CommentCollection($comments);
+        $comments->load([
+            'video',
+            'user.channel',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+        ]);
+
+        return CommentResource::collection($comments);
     }
 
     /**
@@ -65,15 +70,32 @@ class CommentController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function show(Comment $comment)
     {
-        return new CommentItem($comment);
+        $comment->load([
+            'video',
+            'replies.user',
+            'user.channel',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+        ]);
+
+        $comment->replies->each(function ($item, $key) {
+            $item->append([
+                'is_liked',
+                'is_disliked',
+                'likes_count',
+                'dislikes_count',
+            ]);
+
+            $item->user->append('is_publisher');
+        });
+
+        return CommentResource::make($comment);
     }
 
     /**
@@ -141,13 +163,9 @@ class CommentController extends Controller
 
         $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
 
-        return new CommentItem($reply);
+        return CommentResource::make($reply);
     }
 
-    /**
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function pin(Comment $comment)
     {
         Comment::where('video_id', $comment->video_id)->update([
@@ -159,19 +177,15 @@ class CommentController extends Controller
         $comment->pinned_by = auth()->id();
         $comment->save();
 
-        return new CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
-    /**
-     * @param Comment $comment
-     * @return CommentItem
-     */
     public function unpin(Comment $comment){
         $comment->is_pinned = false;
         $comment->pinned_by = null;
         $comment->save();
 
-        return new CommentItem($comment);
+        return CommentResource::make($comment);
     }
 
 }

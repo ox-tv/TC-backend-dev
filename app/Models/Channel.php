@@ -83,6 +83,27 @@ class Channel extends Model
         return $query;
     }
 
+    public function scopeIdOrSlug($query, $idOrSlug){
+        $query->where(function ($query) use ($idOrSlug){
+            $query->where('id', $idOrSlug)->orWhere('slug', $idOrSlug);
+        });
+        return $query;
+    }
+
+    public function scopeSearchTitle($query, $keyword){
+        $query->where('name', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
+    public function scopeSearchByOwner($query, $keyword){
+
+        $usersIds = User::where('username', 'LIKE', '%'.$keyword.'%')->orWhere('email', 'LIKE', '%'.$keyword.'%')->select('id')->pluck('id')->toArray();
+
+        $query->whereIn('user_id', $usersIds);
+
+        return $query;
+    }
+
     // filters by time
 
     public function scopeWeek($query){
@@ -97,22 +118,6 @@ class Channel extends Model
 
     public function scopeYear($query){
         $query->whereBetween('created_at', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()]);
-        return $query;
-    }
-
-    //  scopes
-
-    public function scopeSearchTitle($query, $keyword){
-        $query->where('name', 'LIKE', '%'.$keyword.'%');
-        return $query;
-    }
-
-    public function scopeSearchByOwner($query, $keyword){
-
-        $usersIds = User::where('username', 'LIKE', '%'.$keyword.'%')->orWhere('email', 'LIKE', '%'.$keyword.'%')->select('id')->pluck('id')->toArray();
-
-        $query->whereIn('user_id', $usersIds);
-
         return $query;
     }
 

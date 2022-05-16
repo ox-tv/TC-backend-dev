@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources\Report;
 
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\Video\VideoItem;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Video;

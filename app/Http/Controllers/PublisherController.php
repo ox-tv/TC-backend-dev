@@ -10,10 +10,9 @@ use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
 use App\Http\Requests\Message\BecomeAPublisherStore;
 use App\Http\Requests\PublisherRegister;
-use App\Http\Resources\ChannelSummaryCollection;
+use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Message\MessageItem;
-use App\Http\Resources\User\UserMinimalItem;
-use App\Http\Resources\UserItem;
+use App\Http\Resources\User\UserResource;
 use App\Mail\PublisherVerificationMail;
 use App\Models\Channel;
 use App\Models\Department;
@@ -23,10 +22,9 @@ use App\Models\Notification;
 use App\Models\Option;
 use App\Models\User;
 use App\Models\UserMeta;
-use App\Notifications\NewPublisherRequest;
-use App\Notifications\ReplyMessage;
-use App\Notifications\TCNotification\TCNotification;
+use TCNotification;
 use App\Repository\MessageRepositoryInterface;
+use App\TCNotification\GeneralNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -78,7 +76,16 @@ class PublisherController extends Controller
 
         $channels = $query->paginate(50);
 
-        return new ChannelSummaryCollection($channels);
+        $channels->append([
+            'uploads_count',
+            'total_views',
+            'total_likes',
+            'total_dislikes',
+            'subscribers_count',
+            'hero_subscribers_count',
+        ]);
+
+        return ChannelResource::collection($channels);
     }
 
     public function register(PublisherRegister $request){
@@ -141,29 +148,31 @@ class PublisherController extends Controller
 
             $message->users()->updateExistingPivot($user->id, ["status" => MessageUser::STATUS_REPLIED_BY_ADMIN]);
 
-            TCNotification::send(collect([$user]), new ReplyMessage(
+            TCNotification::Send(collect([$user]), new GeneralNotification(
+                Notification::TYPE_REPLY_MESSAGE,
                 Notification::SCOPE_TEXT[Notification::SCOPE_USER],
-                Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+                ['message' => MessageItem::make($replyMessage->load(['user', 'department']))],
                 [
-                    'message' => MessageItem::make($replyMessage->load(['user', 'department'])),
-                ],
-                get_class($replyMessage),
-                $replyMessage->id
+                    'entity_type' => get_class($replyMessage),
+                    'entity_id' => $replyMessage->id,
+                ]
             ));
         }
 
         $admins = User::admins()->get();
 
-        TCNotification::send($admins, new NewPublisherRequest(
+        TCNotification::Send($admins, new GeneralNotification(
+            Notification::TYPE_NEW_PUBLISHER_REQUEST,
             Notification::SCOPE_TEXT[Notification::SCOPE_ADMIN],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
             [
                 'message' => MessageItem::make($message->load(['user', 'department'])),
-                'user' => UserMinimalItem::make($user),
+                'user' => UserResource::make($user),
                 'channel_name' => $request->get('channel_name')
             ],
-            get_class($message),
-            $message->id
+            [
+                'entity_type' => get_class($message),
+                'entity_id' => $message->id,
+            ]
         ));
 
         return response()->json([
@@ -223,7 +232,7 @@ class PublisherController extends Controller
 
         event(new PublisherRequestApproved($user));
 
-        return UserItem::make($user);
+        return UserResource::make($user);
     }
 
     public function reject(Request $request, User $user)
@@ -252,7 +261,7 @@ class PublisherController extends Controller
         $reasons = $reasons? json_decode($reasons, true): [];
 
         if(($key = array_search($reason, array_column($reasons, 'key'))) !== false ){
-            $reason = $reasons[$key]->value;
+            $reason = $reasons[$key]['value'];
         }
 
         $message = new Message();
@@ -271,12 +280,12 @@ class PublisherController extends Controller
 
         event(new PublisherRequestRejected($user, $reason, $parent_message, $message));
 
-        return UserItem::make($user);
+        return UserResource::make($user);
     }
 
 
-    public function becomeAPublisher(BecomeAPublisherStore $request){
-
+    public function becomeAPublisher(BecomeAPublisherStore $request)
+    {
         $user = auth('api')->user();
 
         if ($user->meta()->where('key', UserMeta::PUBLISHER_REQUEST_STATUS)->exists()){

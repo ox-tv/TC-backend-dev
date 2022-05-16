@@ -2,23 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\VideoCreated;
-use App\Events\VideoDeleted;
 use App\Events\VideoViewed;
 use App\Events\VideoWasHidden;
-use App\Http\Resources\Channel\ChannelMinimalItem;
-use App\Http\Resources\Video\VideoMinimalItem;
-use App\Models\ChannelStatisticsDaily;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
-use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
-use App\Notifications\DeleteVideo;
-use App\Notifications\HideVideo;
-use App\Notifications\NewVideoPublished;
-use App\Notifications\TCNotification\TCNotification;
-use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\TCNotification\GeneralNotification;
+use TCNotification;
 
 class SendNotificationOnVideoWasHidden
 {
@@ -33,14 +22,16 @@ class SendNotificationOnVideoWasHidden
     {
         $video = $event->video;
 
-        TCNotification::send(collect([$video->user]), new HideVideo(
+        $video->append(['reason_key', 'reason_text']);
+
+        TCNotification::Send(collect([$video->user]), new GeneralNotification(
+            Notification::TYPE_HIDE_VIDEO,
             Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER],
-            Notification::USER_GROUP_TEXT[Notification::USER_GROUP_CUSTOM],
+            ['video' => VideoResource::make($video)],
             [
-                'video' => videoMinimalItem::make($video),
-            ],
-            get_class($video),
-            $video->id
+                'entity_type' => get_class($video),
+                'entity_id' => $video->id,
+            ]
         ));
 
         return true;

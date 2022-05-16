@@ -2,34 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Category\CategoryItem;
-use App\Http\Resources\Category\CategoryCollection;
+use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return CategoryCollection
-     */
     public function index()
     {
-
         $categories = Category::active()->get();
 
-        return new CategoryCollection($categories);
-
+        return CategoryResource::collection($categories);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return CategoryItem
-     */
     public function store(Request $request)
     {
         $category = new Category();
@@ -42,26 +28,18 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return new CategoryItem($category);
+        return CategoryResource::make($category);
     }
 
     public function show($idOrSlug)
     {
         $category = Category::where('id', $idOrSlug)->orWhere('slug', $idOrSlug)->firstOrFail();
 
-        return CategoryItem::make($category);
+        return CategoryResource::make($category);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param $category
-     * @return CategoryItem
-     */
     public function update(Request $request, Category $category)
     {
-
         $categoryName = $request->get('name');
 
         $category->name = $categoryName;
@@ -70,20 +48,13 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return new CategoryItem($category);
+        return CategoryResource::make($category);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Category $category
-     * @return CategoryItem
-     * @throws \Exception
-     */
     public function destroy(Category $category)
     {
         $category->delete();
 
-        return new CategoryItem($category);
+        return CategoryResource::make($category);
     }
 }
