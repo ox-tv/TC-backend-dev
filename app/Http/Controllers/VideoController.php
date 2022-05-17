@@ -88,10 +88,6 @@ class VideoController extends Controller
             $cryptoCurrencyId = $cryptoCurrency->id;
         }
 
-        if($timeFilter == 'week'){
-            $query->week();
-        }
-
         if($timeFilter){
             switch ($timeFilter){
                 case 'week':{

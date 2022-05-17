@@ -4,15 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
+use App\Models\Category;
 use App\Models\Channel;
+use App\Models\CryptoCurrency;
+use App\Models\Playlist;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class SearchController extends Controller
 {
-    public function index($keyword)
+    public function index(Request $request, $keyword)
     {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $filters = $request->get('filters', []);
+        $timeFilter = Arr::get($filters, 'time');
+        $mediaTypeFilter = Arr::get($filters, 'media_type');
+
+        $sort = $request->get('sort');
+
         // Get videos
         $videoQuery = Video::published();
 
@@ -23,6 +36,49 @@ class SearchController extends Controller
                 $query->SearchDescription($keyword);
             });
         });
+
+        // Check filters
+        if($mediaTypeFilter && !empty(array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter])){
+            $videoQuery->where('media_type', array_flip(Video::MEDIA_TYPE_TEXT)[$mediaTypeFilter]);
+        }
+
+        if($timeFilter){
+            switch ($timeFilter){
+                case 'last_hour':{
+                    $videoQuery->lastHour();
+                    break;
+                }
+                case 'last_day':{
+                    $videoQuery->lastDay();
+                    break;
+                }
+                case 'last_week':{
+                    $videoQuery->lastweek();
+                    break;
+                }
+                case 'last_month':{
+                    $videoQuery->lastMonth();
+                    break;
+                }
+                case 'last_season':{
+                    $videoQuery->lastSeason();
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+
+        if($sort === 'most_liked'){
+            $videoQuery->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
+        }elseif ($sort === 'most_viewed'){
+            $videoQuery->orderBy('view_count', 'desc');
+        }elseif ($sort === 'published_at'){
+            $videoQuery->orderBy('published_at', 'desc');
+        }elseif ($sort === 'most_commented'){
+            $videoQuery->withCount('comments')->orderBy('comments_count', 'desc');
+        }
 
         // Get channels
         $channelQuery = Channel::published();
@@ -61,7 +117,7 @@ class SearchController extends Controller
             $additionalData['suggested_videos'] = VideoResource::collection($suggestedResult);
         }
 
-        $searchResult = $videoQuery->paginate();
+        $searchResult = $videoQuery->paginate($perPage);
 
         $searchResult->load(['channel'])->append(['is_bookmarked']);
 
