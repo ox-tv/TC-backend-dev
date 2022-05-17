@@ -163,6 +163,18 @@ class CommentController extends Controller
 
         $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
 
+        $reply->load([
+            'video',
+            'replies.user',
+            'user.channel',
+        ])->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+            'replies_count',
+        ]);
+
         return CommentResource::make($reply);
     }
 
