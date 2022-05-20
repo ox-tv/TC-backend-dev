@@ -20,6 +20,8 @@ Route::group([], __DIR__.'/partial-routes/auth.php');
 
 Route::group([], __DIR__.'/partial-routes/category.php');
 
+Route::group([], __DIR__.'/partial-routes/feedback.php');
+
 Route::group([], __DIR__.'/partial-routes/tag.php');
 
 Route::group([], __DIR__.'/partial-routes/cryptocurrency.php');
