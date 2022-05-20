@@ -90,7 +90,7 @@ class SearchController extends Controller
         });
 
         $channels = $channelQuery->take(10)->get();
-        $channels->append(['is_subscribed']);
+        $channels->append(['is_subscribed', 'subscribers_count']);
 
         $additionalData = [
             'channels' => ChannelResource::collection($channels),
