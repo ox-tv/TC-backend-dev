@@ -77,13 +77,13 @@ class GeneralController extends Controller
             ->append(['is_bookmarked']);
         $result['trending_podcasts'] = VideoResource::collection($trendingPodcasts);
 
-        // Latest Videos On TC
-        $latestVideos = Video::published()
+        // Latest Media On TC
+        $latestMedia = Video::published()
             ->take(15)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
-        $result['latest_videos'] = VideoResource::collection($latestVideos);
+        $result['latest_media'] = VideoResource::collection($latestMedia);
 
 
         // Top Channels
