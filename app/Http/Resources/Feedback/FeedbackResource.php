@@ -23,6 +23,7 @@ class FeedbackResource extends JsonResource
             'value' => $this->value,
             'text' => $this->text,
             "user_id" => $this->user_id,
+            "origin" => $this->origin,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
 
