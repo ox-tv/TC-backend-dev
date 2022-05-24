@@ -51,6 +51,8 @@ class FeedbackController extends Controller
             $query->where('created_at', '<=', $toFilter);
         }
 
+        $query->orderBy('created_at','desc');
+
         $feedbacks = $query->paginate();
 
         $feedbacks->load(['user']);
