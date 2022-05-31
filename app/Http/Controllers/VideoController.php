@@ -480,20 +480,25 @@ class VideoController extends Controller
                 $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
             }
 
+
+
+            $pinnedComment = $video->pinned_comment;
+
             if($request->get('comment_text')){
-                if ($video->pinned_comment){
-                    $comment = $video->pinned_comment;
-                    $comment->text = $request->get('comment_text');
-                    $comment->save();
+                if ($pinnedComment){
+                    $pinnedComment->text = $request->get('comment_text');
+                    $pinnedComment->save();
                 }else{
                     $comment = new Comment();
-                    $comment->text = $request->get('comment_text');
+                    $comment->text = $request->get('comment_text')? : null;
                     $comment->user_id = $video->user_id;
                     $comment->is_pinned = Comment::COMMENT_PINNED;
                     $comment->pinned_by = $video->user_id;
                     $comment->video()->associate($video->id);
                     $comment->save();
                 }
+            }else if($pinnedComment){
+                $pinnedComment->delete();
             }
 
         });
