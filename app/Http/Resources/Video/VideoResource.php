@@ -65,7 +65,7 @@ class VideoResource extends JsonResource
             'is_disliked' => $this->whenAppended('is_disliked'),
             'is_bookmarked' => $this->whenAppended('is_bookmarked'),
             'layers' => $this->whenAppended('layers'),
-            'pinned_comment' => CommentResource::make($this->whenAppended('pinnedComment')),
+            'pinned_comment' => CommentResource::make($this->whenAppended('pinned_comment')),
 
             // Relations
             'user' => UserResource::make($this->whenLoaded('user')),

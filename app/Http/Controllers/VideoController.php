@@ -482,7 +482,9 @@ class VideoController extends Controller
 
             if($request->get('comment_text')){
                 if ($video->pinned_comment){
-                    $video->pinned_comment->text = $request->get('comment_text');
+                    $comment = $video->pinned_comment;
+                    $comment->text = $request->get('comment_text');
+                    $comment->save();
                 }else{
                     $comment = new Comment();
                     $comment->text = $request->get('comment_text');
