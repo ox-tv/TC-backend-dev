@@ -79,6 +79,7 @@ class VideoResource extends JsonResource
             'chapters' => ChapterResource::collection($this->whenLoaded('chapters')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
             'meta' => VideoMetaResource::collection($this->whenLoaded('meta')),
+            //'pinned_comment' => CommentResource::collection($this->whenLoaded('pinnedComment')),
 //            'overlays' => VideoMetaResource::make($this->whenLoaded('layers')),
 //            'overlays_draft' => VideoMetaResource::make($this->whenLoaded('layersDraft')),
         ];

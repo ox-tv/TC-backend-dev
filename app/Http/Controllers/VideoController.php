@@ -384,7 +384,7 @@ class VideoController extends Controller
             ]);
 
         if ($request->is('api/publisher/*') && !$video->published_at){
-            $video->load(['pinned_comment']);
+            $video->append(['pinned_comment']);
         }
 
         $video->channel->append(['is_subscribed', 'subscribers_count']);
