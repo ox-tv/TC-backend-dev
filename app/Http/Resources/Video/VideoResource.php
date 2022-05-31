@@ -5,6 +5,7 @@ namespace App\Http\Resources\Video;
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Chapter\ChapterResource;
+use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\Playlist\PlaylistResource;
@@ -64,6 +65,7 @@ class VideoResource extends JsonResource
             'is_disliked' => $this->whenAppended('is_disliked'),
             'is_bookmarked' => $this->whenAppended('is_bookmarked'),
             'layers' => $this->whenAppended('layers'),
+            'pinned_comment' => CommentResource::make($this->whenAppended('pinnedComment')),
 
             // Relations
             'user' => UserResource::make($this->whenLoaded('user')),

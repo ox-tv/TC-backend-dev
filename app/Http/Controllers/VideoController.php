@@ -383,6 +383,10 @@ class VideoController extends Controller
                 'layers',
             ]);
 
+        if ($request->is('api/publisher/*') && !$video->published_at){
+            $video->load(['pinned_comment']);
+        }
+
         $video->channel->append(['is_subscribed', 'subscribers_count']);
 
         return VideoResource::make($video);
@@ -437,8 +441,6 @@ class VideoController extends Controller
             $video->language_id = null;
         }
 
-        $video->save();
-
 
         DB::transaction(function () use ($request, $video){
 
@@ -477,6 +479,21 @@ class VideoController extends Controller
             if($request->get('playlists')){
                 $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
             }
+
+            if($request->get('comment_text')){
+                if ($video->pinned_comment){
+                    $video->pinned_comment->text = $request->get('comment_text');
+                }else{
+                    $comment = new Comment();
+                    $comment->text = $request->get('comment_text');
+                    $comment->user_id = $video->user_id;
+                    $comment->is_pinned = Comment::COMMENT_PINNED;
+                    $comment->pinned_by = $video->user_id;
+                    $comment->video()->associate($video->id);
+                    $comment->save();
+                }
+            }
+
         });
 
         event(new VideoUpdated($oldVideo, $video));
