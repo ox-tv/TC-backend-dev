@@ -71,7 +71,7 @@ class ChannelStatisticsController extends Controller
             return $query->where('date', '<=', $toFilter);
         });
 
-        if (in_array($channel->slug, ['roberts-sloppy-media', 'aahelali', 'roberts-channel'])){
+        if (in_array(($channel->slug?? null), ['roberts-sloppy-media', 'aahelali', 'roberts-channel'])){
             return $this->makeFakeResult('total');
         }
 
