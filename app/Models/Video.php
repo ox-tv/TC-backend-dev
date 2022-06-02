@@ -419,6 +419,11 @@ class Video extends Model
         return self::MEDIA_TYPE_TEXT[$this->media_type]?? $this->media_type;
     }
 
+    public function getPinnedCommentAttribute()
+    {
+        return $this->comments()->where('is_pinned', true)->first();
+    }
+
     public function getFileTypeAttribute()
     {
         $extention = strtolower(pathinfo($this->file_url, PATHINFO_EXTENSION));

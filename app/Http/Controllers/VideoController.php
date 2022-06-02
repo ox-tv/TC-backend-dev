@@ -88,10 +88,6 @@ class VideoController extends Controller
             $cryptoCurrencyId = $cryptoCurrency->id;
         }
 
-        if($timeFilter == 'week'){
-            $query->week();
-        }
-
         if($timeFilter){
             switch ($timeFilter){
                 case 'week':{
@@ -387,6 +383,10 @@ class VideoController extends Controller
                 'layers',
             ]);
 
+        if ($request->is('api/publisher/*') && !$video->published_at){
+            $video->append(['pinned_comment']);
+        }
+
         $video->channel->append(['is_subscribed', 'subscribers_count']);
 
         return VideoResource::make($video);
@@ -441,8 +441,6 @@ class VideoController extends Controller
             $video->language_id = null;
         }
 
-        $video->save();
-
 
         DB::transaction(function () use ($request, $video){
 
@@ -481,6 +479,29 @@ class VideoController extends Controller
             if($request->get('playlists')){
                 $video->playlists()->sync(Playlist::whereIn('id', $request->get('playlists'))->get());
             }
+
+
+            if (!$video->published_at){
+                $pinnedComment = $video->pinned_comment;
+
+                if($request->get('comment_text')){
+                    if ($pinnedComment){
+                        $pinnedComment->text = $request->get('comment_text');
+                        $pinnedComment->save();
+                    }else{
+                        $comment = new Comment();
+                        $comment->text = $request->get('comment_text')? : null;
+                        $comment->user_id = $video->user_id;
+                        $comment->is_pinned = Comment::COMMENT_PINNED;
+                        $comment->pinned_by = $video->user_id;
+                        $comment->video()->associate($video->id);
+                        $comment->save();
+                    }
+                }else if($pinnedComment){
+                    $pinnedComment->delete();
+                }
+            }
+
         });
 
         event(new VideoUpdated($oldVideo, $video));
