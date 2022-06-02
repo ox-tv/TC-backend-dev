@@ -27,7 +27,7 @@ class CommentController extends Controller
             $query->hasVideo();
         }
 
-        $perPage = $request->get('per_page')? : 15;
+        $perPage = $request->get('per_page')? max($request->get('per_page'), 200) : 15;
         $filters = $request->get('filters', []);
         $videosFilter = Arr::get($filters, 'videos');
         $timeFilter = Arr::get($filters, 'time');
