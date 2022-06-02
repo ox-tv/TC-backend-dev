@@ -7,6 +7,7 @@ use App\Http\Requests\CommentReply;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use App\Models\Option;
+use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -26,24 +27,54 @@ class CommentController extends Controller
             $query->hasVideo();
         }
 
+        $perPage = $request->get('per_page')? : 15;
         $filters = $request->get('filters', []);
+        $videosFilter = Arr::get($filters, 'videos');
+        $timeFilter = Arr::get($filters, 'time');
 
-        $videos = Arr::get($filters, 'videos');
+        if($videosFilter){
+            $videoIds = explode(',', $videosFilter);
+            $query->inVideos($videoIds);
+        }
 
-        if($videos){
-            $videos = explode(',', $videos);
-            $query->inVideos($videos);
+        switch ($timeFilter){
+            case 'last_hour':{
+                $query->lastHour();
+                break;
+            }
+            case 'last_day':{
+                $query->lastDay();
+                break;
+            }
+            case 'last_week':{
+                $query->lastweek();
+                break;
+            }
+            case 'last_month':{
+                $query->lastMonth();
+                break;
+            }
+            case 'last_season':{
+                $query->lastSeason();
+                break;
+            }
+            default:{
+
+            }
         }
 
         $sort = $request->get('sort');
-        if ($videos){
+        if (!empty($videoIds)){
             $query->orderBy('is_pinned','Desc');
         }
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }
+        if($sort === 'oldest'){
+            $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');
+        }
 
-        $comments = $query->paginate();
+        $comments = $query->paginate($perPage);
 
         $comments->load([
             'video',

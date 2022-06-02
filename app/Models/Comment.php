@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Scopes\WhereParentNullScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,6 +38,31 @@ class Comment extends Model
         if(is_array($videos) && count($videos)>0){
             return $query->whereIn('video_id', $videos);
         }
+        return $query;
+    }
+
+    public function scopeLastHour($query){
+        $query->where('created_at', '>=', Carbon::now()->subHour());
+        return $query;
+    }
+
+    public function scopeLastDay($query){
+        $query->where('created_at', '>=', Carbon::now()->subDay());
+        return $query;
+    }
+
+    public function scopeLastWeek($query){
+        $query->where('created_at', '>=', Carbon::now()->subWeek());
+        return $query;
+    }
+
+    public function scopeLastMonth($query){
+        $query->where('created_at', '>=', Carbon::now()->subMonth());
+        return $query;
+    }
+
+    public function scopeLastSeason($query){
+        $query->where('created_at', '>=', Carbon::now()->subMonths(3));
         return $query;
     }
 
