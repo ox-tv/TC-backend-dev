@@ -97,6 +97,10 @@ class Comment extends Model
         return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
     }
 
+    public function rememberedBy(){
+        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::REMEMBERED_RELATION);
+    }
+
     public function replies(){
         return $this->hasMany('App\Models\Comment', 'parent_id', 'id')->withoutGlobalScope(WhereParentNullScope::class);
     }
