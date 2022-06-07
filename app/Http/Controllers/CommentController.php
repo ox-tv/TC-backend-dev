@@ -31,6 +31,11 @@ class CommentController extends Controller
         $filters = $request->get('filters', []);
         $videosFilter = Arr::get($filters, 'videos');
         $timeFilter = Arr::get($filters, 'time');
+        $justRemembersFilter = Arr::get($filters, 'just_remembers');
+
+        if($justRemembersFilter){
+            $query->whereHas('rememberedBy');
+        }
 
         if($videosFilter){
             $videoIds = explode(',', $videosFilter);
