@@ -32,6 +32,7 @@ class CommentResource extends JsonResource
             // Custom attributes with query
             'is_liked' => $this->whenAppended('is_liked'),
             'is_disliked' => $this->whenAppended('is_disliked'),
+            'is_remembered' => $this->whenAppended('is_remembered'),
             'reports_count' => $this->whenAppended('reports_count'),
             'likes_count' => $this->whenAppended('likes_count'),
             'dislikes_count' => $this->whenAppended('dislikes_count'),
