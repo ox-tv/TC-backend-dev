@@ -88,9 +88,9 @@ class CommentUserRelationController extends Controller
     {
         $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
 
-        $userId = Auth::id();
+        $userId = auth('api')->id();
 
-        $isRemembered = $comment->rememberedBy()->find($userId);
+        $isRemembered = $comment->rememberedBy()->whereUserId($userId)->exists();
 
         if($isRemembered){
             $comment->rememberedBy()->detach($userId, ['relation' => CommentUser::REMEMBERED_RELATION]);
