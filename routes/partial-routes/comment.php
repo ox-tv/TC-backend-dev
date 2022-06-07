@@ -30,6 +30,7 @@ Route::group([
 ], function(){
 
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
+    Route::put('comments/{comment}/remember', '\App\Http\Controllers\CommentUserRelationController@remember');
 
 });
 

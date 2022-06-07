@@ -83,4 +83,23 @@ class CommentUserRelationController extends Controller
         ]);
 
     }
+
+    public function remember($id)
+    {
+        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
+
+        $userId = Auth::id();
+
+        $isRemembered = $comment->rememberedBy()->find($userId);
+
+        if($isRemembered){
+            $comment->rememberedBy()->detach($userId, ['relation' => CommentUser::REMEMBERED_RELATION]);
+        }else{
+            $comment->rememberedBy()->attach($userId, ['relation' => CommentUser::REMEMBERED_RELATION]);
+        }
+
+        return response()->json([
+            'is_remembered' => !$isRemembered,
+        ]);
+    }
 }
