@@ -131,6 +131,15 @@ class Comment extends Model
         return false;
     }
 
+    public function getIsRememberedAttribute()
+    {
+        if(auth('api')->check()){
+            return $this->rememberedBy()->whereUserId(auth('api')->id())->exists();
+        }
+
+        return false;
+    }
+
     public function getReportsCountAttribute(){
         return $this->reports()->count();
     }

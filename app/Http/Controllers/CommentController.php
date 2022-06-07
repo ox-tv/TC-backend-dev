@@ -87,6 +87,7 @@ class CommentController extends Controller
         ])->append([
             'is_liked',
             'is_disliked',
+            'is_remembered',
             'likes_count',
             'dislikes_count',
             'replies_count',
