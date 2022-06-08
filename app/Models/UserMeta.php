@@ -15,6 +15,7 @@ class UserMeta extends Model
     const NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY = 'new_eth_address_verification_code';
     const REQUESTED_CHANNEL_NAME = 'requested_channel_name';
     const PUBLISHER_REQUEST_STATUS = 'publisher_request_status';
+    const _2FA = '2fa_status';
 
     public function user(){
         return $this->belongsTo('App\Models\User');

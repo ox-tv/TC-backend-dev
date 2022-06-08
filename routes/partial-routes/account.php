@@ -38,6 +38,8 @@ Route::group([
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
 
+    Route::put('profile/2fa', '\App\Http\Controllers\UserController@set2FAStatus')->name('profile.2fa');
+
 });
 
 
@@ -49,5 +51,5 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
-
+    Route::put('profile/2fa', '\App\Http\Controllers\UserController@set2FAStatus')->name('profile.2fa');
 });

@@ -50,6 +50,7 @@ class UserResource extends JsonResource
             'request_details' => $this->whenAppended('publisher_request_details'),
             'is_conversion' => $this->whenAppended('is_conversion'),
             'loyalty_points' => $this->whenAppended('loyalty_points'),
+            '2fa_status' => $this->whenAppended('2fa_status'),
 
             // Relations
             'channel' => ChannelResource::make($this->whenLoaded('channel')),

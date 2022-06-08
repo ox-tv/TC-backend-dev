@@ -318,4 +318,11 @@ class User extends Authenticatable
     {
         return floatval($this->statistics()->sum('points'));
     }
+
+    public function get2FAStatusAttribute()
+    {
+        $result = $this->meta()->where('key', UserMeta::_2FA)->first();
+
+        return $result? $result->value : 'disable';
+    }
 }
