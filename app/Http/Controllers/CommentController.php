@@ -8,6 +8,7 @@ use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use App\Models\Option;
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -153,9 +154,10 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Comment $comment)
+    public function destroy(Request $request, $id)
     {
         $isAdmin = $request->is('api/admin/*');
+        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
 
         if (!$isAdmin && auth('api')->id() != $comment->user_id){
             return response()->json(["message" => "You do not have access to delete this comment"],403);
