@@ -181,6 +181,9 @@ return [
         App\Providers\FacadeServiceProvider::class,
         App\Providers\ObserverServiceProvider::class,
 
+        //captcha provider
+        Mews\Captcha\CaptchaServiceProvider::class,
+
     ],
 
     /*
