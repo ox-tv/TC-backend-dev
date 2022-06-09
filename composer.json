@@ -23,6 +23,7 @@
         "league/flysystem-aws-s3-v3": "~1.0",
         "maatwebsite/excel": "^3.1",
         "mantas-done/subtitles": "^0.3.10",
+        "mews/captcha": "^3.2",
         "php-ffmpeg/php-ffmpeg": "^0.17.0",
         "pusher/pusher-php-server": "~3.0",
         "spatie/db-dumper": "^2.21"
