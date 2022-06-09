@@ -65,3 +65,8 @@ Route::group([], __DIR__.'/partial-routes/user.php');
 Route::group([], __DIR__.'/partial-routes/video.php');
 
 
+// Utility API routes
+Route::group([], function(){
+    Route::get('captcha', '\App\Http\Controllers\CaptchaController@get');
+    Route::post('captcha', '\App\Http\Controllers\CaptchaController@verify');
+});
