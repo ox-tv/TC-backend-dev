@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.3|^8.0",
         "amir/laravel-permission": "^1.4",
+        "bacon/bacon-qr-code": "^2.0",
         "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.0",
         "fideloper/proxy": "^4.4",
@@ -25,6 +26,7 @@
         "mantas-done/subtitles": "^0.3.10",
         "mews/captcha": "^3.2",
         "php-ffmpeg/php-ffmpeg": "^0.17.0",
+        "pragmarx/google2fa": "^8.0",
         "pusher/pusher-php-server": "~3.0",
         "spatie/db-dumper": "^2.21"
     },

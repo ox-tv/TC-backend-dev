@@ -24,6 +24,10 @@ Route::group(['middleware' => 'auth:api'], function(){
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
 
+    Route::put('2fa/google/enable-request', '\App\Http\Controllers\Auth\_2FAController@Google2FAEnableRequest')->name('2fa.google.enable-request');
+    Route::put('2fa/google/enable', '\App\Http\Controllers\Auth\_2FAController@Google2FAEnable')->name('2fa.google.enable');
+    Route::put('2fa/google/disable', '\App\Http\Controllers\Auth\_2FAController@Google2FADisable')->name('2fa.google.disable');
+
 });
 
 
@@ -48,6 +52,5 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-
 
 });
