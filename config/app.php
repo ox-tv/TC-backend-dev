@@ -237,6 +237,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'TCNotification' => \App\TCNotification\TCNotificationFacade::class,
+
+        'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ],
 
 ];
