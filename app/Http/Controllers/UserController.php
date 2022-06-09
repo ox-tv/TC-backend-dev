@@ -586,21 +586,4 @@ class UserController extends Controller
 
         return ChannelResource::collection($channels);
     }
-
-    // 2FA
-    public function set2FAStatus(Request $request)
-    {
-        $request->validate([
-            '2fa_status' => 'required|in:disable,google',
-        ]);
-
-        $user = auth('api')->user();
-
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::_2FA],
-            ['value' => $request->get('2fa_status'),]
-        );
-
-        return response()->json(["message" => "ok"]);
-    }
 }
