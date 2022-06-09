@@ -4,45 +4,39 @@ namespace App\Http\Controllers\Auth;
 
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\UserMeta;
-use BaconQrCode\Encoder\QrCode;
+use App\Models\_2FA;
+use App\Rules\CustomRule;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Crypt;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
 
 class _2FAController extends Controller
 {
-    public function enable(Request $request, $type)
+    // GOOGLE 2FA
+    public function Google2FAEnableRequest()
     {
-        switch ($type){
-            case 'google':{
-                return $this->enableGoogle2FA();
-            }
-            default:{
-                throw new \Exception('Invalid 2fa type', '500');
-            }
-        }
-    }
-
-    // enables
-    private function enableGoogle2FA()
-    {
-        $google2fa = new Google2FA();
-
         $user = auth('api')->user();
+        $_2fa = $user->_2fa;
 
-        $user->google2fa_secret = $google2fa->generateSecretKey();
-        $user->save();
+        $google2FAClient = new Google2FA();
 
-        $qrCodeUrl = $google2fa->getQRCodeUrl(
-            config('app.name') ,
+        if (!$_2fa){
+            $_2fa = new _2FA();
+            $_2fa->user_id = $user->id;
+        }
+
+        $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
+        $_2fa->app_secret = $google2FAClient->generateSecretKey();
+        $_2fa->save();
+
+        // Create QRCode for Scan on App
+        $qrCodeUrl = $google2FAClient->getQRCodeUrl(
+            config('app.name'),
             $user->email,
-            $user->google2fa_secret
+            $_2fa->app_secret
         );
 
         $writer = new Writer(
@@ -57,26 +51,34 @@ class _2FAController extends Controller
         return response()->json(['qrcode' => $qrcode_image]);
     }
 
-    public function disable()
+    public function Google2FAEnable(Request $request)
     {
         $user = auth('api')->user();
+        $_2fa = $user->_2fa()->firstOrFail();
 
-        $user->google2fa_secret = null;
-        $user->save();
+        $request->validate([
+            '2fa_secret' => ['required', CustomRule::google2FA($_2fa->app_secret)],
+        ]);
 
-        response()->json(['status' => 'ok']);
+        $_2fa->app_status = _2FA::APP_STATUS_GOOGLE;
+        $_2fa->save();
+
+        return response()->json(['status' => 'ok']);
     }
 
-    public function verifyGoogle2FA(Request $request)
+    public function Google2FADisable(Request $request)
     {
-        $secret = $request->get('secret');
+        $user = auth('api')->user();
+        $_2fa = $user->_2fa()->firstOrFail();
 
-        $user = User::where('email', $request->get('email'))->firstOrFail();
+        $request->validate([
+            '2fa_secret' => ['required', CustomRule::google2Fa($_2fa->app_secret)],
+        ]);
 
-        $google2fa = new Google2FA();
+        $_2fa->app_secret = null;
+        $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
+        $_2fa->save();
 
-        $valid = $google2fa->verifyKey($user->google2fa_secret, $secret);
-
-        return $valid? response()->json(['status' => 'ok']) : response()->json(['message' => 'secret code is invalid'], 401);
+        return response()->json(['status' => 'ok']);
     }
 }

@@ -155,6 +155,10 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Channel', 'user_id');
     }
 
+    public function _2fa(){
+        return $this->hasOne('App\Models\_2FA', 'user_id');
+    }
+
     public function subscribedChannels(){
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id')->withTimestamps();
     }
@@ -317,12 +321,5 @@ class User extends Authenticatable
     public function getLoyaltyPointsAttribute()
     {
         return floatval($this->statistics()->sum('points'));
-    }
-
-    public function get2FAStatusAttribute()
-    {
-        $result = $this->meta()->where('key', UserMeta::_2FA)->first();
-
-        return $result? $result->value : 'disable';
     }
 }
