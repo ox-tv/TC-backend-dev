@@ -26,6 +26,8 @@ class _2FAController extends Controller
         if (!$_2fa){
             $_2fa = new _2FA();
             $_2fa->user_id = $user->id;
+        }else if ($_2fa->app_status == _2FA::APP_STATUS_GOOGLE){
+            return response()->json(['message' => 'Google 2FA has already been enabled'], 403);
         }
 
         $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
@@ -57,7 +59,7 @@ class _2FAController extends Controller
         $_2fa = $user->_2fa()->firstOrFail();
 
         $request->validate([
-            '2fa_secret' => ['required', CustomRule::google2FA($_2fa->app_secret)],
+            '_2fa_secret' => ['required', CustomRule::google2FA($_2fa->app_secret)],
         ]);
 
         $_2fa->app_status = _2FA::APP_STATUS_GOOGLE;
@@ -72,7 +74,7 @@ class _2FAController extends Controller
         $_2fa = $user->_2fa()->firstOrFail();
 
         $request->validate([
-            '2fa_secret' => ['required', CustomRule::google2Fa($_2fa->app_secret)],
+            '_2fa_secret' => ['required', CustomRule::google2Fa($_2fa->app_secret)],
         ]);
 
         $_2fa->app_secret = null;
