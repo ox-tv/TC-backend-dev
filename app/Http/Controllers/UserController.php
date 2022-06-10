@@ -450,6 +450,7 @@ class UserController extends Controller
             'meta',
             'favoriteTags',
             'favoriteCryptoCurrencies',
+            '_2fa',
         ])->append([
             'eth_address',
             'role_name',
@@ -519,6 +520,27 @@ class UserController extends Controller
         }
 
         $user->save();
+
+        $user->load([
+            'channel',
+            'referrer',
+            'meta',
+            'favoriteTags',
+            'favoriteCryptoCurrencies',
+            '_2fa',
+        ])->append([
+            'eth_address',
+            'role_name',
+            'liked_videos_count',
+            'disliked_videos_count',
+            'bookmarked_videos_count',
+            'comments_count',
+            'subscribed_channels_count',
+            'publisher_request',
+            'publisher_request_details',
+            'is_conversion',
+            'loyalty_points',
+        ]);
 
         return UserResource::make($user);
 
