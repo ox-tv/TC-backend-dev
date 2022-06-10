@@ -46,7 +46,7 @@ class _2FAController extends Controller
             )
         );
 
-        $qrcode_image = base64_encode($writer->writeString($qrCodeUrl));
+        $qrcode_image = 'data:image/png;base64,' . base64_encode($writer->writeString($qrCodeUrl));
 
         return response()->json(['qrcode' => $qrcode_image]);
     }
