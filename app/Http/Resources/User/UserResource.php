@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Http\Resources\_2FA\_2FAResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Tag\TagResource;
@@ -60,6 +61,7 @@ class UserResource extends JsonResource
             'favorite_tags' => TagResource::collection($this->whenLoaded('favoriteTags')),
             'favorite_crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('favoriteCryptoCurrencies')),
             'bookmark_videos' => VideoResource::collection($this->whenLoaded('bookmarkVideos')),
+            '2fa' => _2FAResource::make($this->whenLoaded('_2fa')),
         ];
     }
 }
