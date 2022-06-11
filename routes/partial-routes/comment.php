@@ -29,8 +29,9 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::delete('comments/unremember-all', '\App\Http\Controllers\CommentUserRelationController@unrememberAll')->name('comments.unremember-all');
+    Route::put('comments/{comment}/remember', '\App\Http\Controllers\CommentUserRelationController@remember')->name('comments.remember');
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
-    Route::put('comments/{comment}/remember', '\App\Http\Controllers\CommentUserRelationController@remember');
 
 });
 

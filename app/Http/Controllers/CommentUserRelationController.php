@@ -102,4 +102,15 @@ class CommentUserRelationController extends Controller
             'is_remembered' => !$isRemembered,
         ]);
     }
+
+    public function unrememberAll()
+    {
+        $user = auth('api')->user();
+
+        CommentUser::whereUserId($user->id)->where('relation', CommentUser::REMEMBERED_RELATION)->delete();
+
+        return response()->json([
+            'status' => 'ok',
+        ]);
+    }
 }
