@@ -14,8 +14,13 @@ class CustomRule
         return new ForbiddenWordsRule($forbiddenWords);
     }
 
-    public static function google2FA($user): Google2FARule
+    public static function google2FA($secret): Google2FARule
     {
-        return new Google2FARule($user);
+        return new Google2FARule($secret);
+    }
+
+    public static function email2FA($cacheKey): Email2FARule
+    {
+        return new Email2FARule($cacheKey);
     }
 }
