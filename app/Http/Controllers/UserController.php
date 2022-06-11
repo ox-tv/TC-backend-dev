@@ -542,6 +542,8 @@ class UserController extends Controller
             'loyalty_points',
         ]);
 
+        $user->channel->append(['subscribers_count']);
+
         return UserResource::make($user);
 
     }

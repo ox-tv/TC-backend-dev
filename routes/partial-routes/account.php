@@ -24,9 +24,13 @@ Route::group(['middleware' => 'auth:api'], function(){
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
 
-    Route::put('2fa/google/enable-request', '\App\Http\Controllers\Auth\_2FAController@Google2FAEnableRequest')->name('2fa.google.enable-request');
-    Route::put('2fa/google/enable', '\App\Http\Controllers\Auth\_2FAController@Google2FAEnable')->name('2fa.google.enable');
-    Route::put('2fa/google/disable', '\App\Http\Controllers\Auth\_2FAController@Google2FADisable')->name('2fa.google.disable');
+    Route::put('2fa/google/enable-request', '\App\Http\Controllers\Auth\_2FAController@google2FAEnableRequest')->name('2fa.google.enable-request');
+    Route::put('2fa/google/enable', '\App\Http\Controllers\Auth\_2FAController@google2FAEnable')->name('2fa.google.enable');
+    Route::put('2fa/google/disable', '\App\Http\Controllers\Auth\_2FAController@google2FADisable')->name('2fa.google.disable');
+    Route::put('2fa/email/enable-request', '\App\Http\Controllers\Auth\_2FAController@email2FAEnableRequest')->name('2fa.email.enable-request');
+    Route::put('2fa/email/enable', '\App\Http\Controllers\Auth\_2FAController@email2FAEnable')->name('2fa.google.enable');
+    Route::put('2fa/email/disable-request', '\App\Http\Controllers\Auth\_2FAController@email2FADisableRequest')->name('2fa.google.disable-request');
+    Route::put('2fa/email/disable', '\App\Http\Controllers\Auth\_2FAController@email2FADisable')->name('2fa.google.disable');
 
 });
 
