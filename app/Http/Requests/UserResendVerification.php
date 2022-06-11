@@ -35,6 +35,7 @@ class UserResendVerification extends FormRequest
                     $q->whereNull('role_id')->orWhere('role_id', $publisherRoleId);
                 })->whereNull('email_verified_at')
             ],
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ];
     }
 
