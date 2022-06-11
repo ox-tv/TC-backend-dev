@@ -73,6 +73,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'login' => 'required|string',
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ]);
 
         $login = $request->get('login');
@@ -175,6 +176,11 @@ class LoginController extends Controller
 
     public function send_password_reset_link(Request $request)
     {
+        $request->validate([
+            'email' => 'required|string',
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
+        ]);
+
         $scope = $request->get('scope');
 
         $userQuery = User::where("email", $request->get("email"));
