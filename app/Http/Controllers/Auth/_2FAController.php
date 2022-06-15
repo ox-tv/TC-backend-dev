@@ -2,77 +2,98 @@
 
 namespace App\Http\Controllers\Auth;
 
-
 use App\Http\Controllers\Controller;
-use App\Mail\PublisherVerificationMail;
 use App\Models\_2FA;
-use App\Rules\CustomRule;
+use App\Services\_2FAService;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Mail;
 use PragmaRX\Google2FA\Google2FA;
 
 class _2FAController extends Controller
 {
-    // Email 2FA
-    public function email2FAEnableRequest()
+    private $_2faService;
+
+    public function __construct(_2FAService $_2faService)
+    {
+        $this->_2faService = $_2faService;
+    }
+
+    // Verify
+    public function verify(Request $request)
     {
         $user = auth('api')->user();
-        $cacheKey = sha1('enable-2fa-email' . $user->id);
-        $code = rand(100000,999999);
 
-        Cache::put($cacheKey, $code, 5 * 60);
+        $data = [];
+        $mapKeys = [
+            'email_2fa_code' => 'email',
+            'app_2fa_secret' => 'app',
+        ];
+        foreach ($request->only(['email_2fa_code', 'app_2fa_secret']) as $k => $v){
+            $data[$mapKeys[$k]] = $v;
+        }
 
-        // Send code to user email
-        Mail::to($user->email)
-            ->queue(new PublisherVerificationMail($code));
+        $result = $this->_2faService->verify($user, $data);
+
+        $errors = [];
+        if (isset($result['app']) && !$result['app']){
+            $errors['app'] = 'Code is not correct';
+        }
+
+        if (isset($result['email']) && !$result['email']){
+            $errors['email'] = 'Code is not correct';
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'verify failed.',
+                'code' => '2fa.verify.fail',
+                'errors' => $errors
+            ], 422);
+        }
 
         return response()->json(['status' => 'ok']);
     }
 
-    public function email2FAEnable(Request $request)
+    // Email 2FA
+    public function sendEmail2FACode()
     {
         $user = auth('api')->user();
-        $_2fa = $user->_2fa()->firstOrFail();
 
-        $request->validate([
-            '_2fa_secret' => ['required', CustomRule::email2FA(sha1('enable-2fa-email' . $user->id))],
-        ]);
+        $this->_2faService->sendEmail2FACode($user);
 
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function enableEmail2FA(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $result = $this->_2faService->check2FA($user, ['email']);
+
+        if (!$result['email']){
+            return response()->json([
+                'message' => 'Please verify 2FA.',
+                'code' => '2fa.require',
+                'errors' => [
+                    'email' => 'Please verify email 2FA'
+                ]
+            ], 403);
+        }
+
+        $_2fa = $user->_2fa;
         $_2fa->email_status = _2FA::EMAIL_STATUS_ENABLE;
         $_2fa->save();
 
         return response()->json(['status' => 'ok']);
     }
 
-    public function email2FADisableRequest()
+    public function disableEmail2FA(Request $request)
     {
         $user = auth('api')->user();
-        $cacheKey = sha1('disable-2fa-email' . $user->id);
-        $code = rand(100000,999999);
-
-        Cache::put($cacheKey, $code, 5 * 60);
-
-        // Send code to user email
-        Mail::to($user->email)
-            ->queue(new PublisherVerificationMail($code));
-
-        return response()->json(['status' => 'ok']);
-    }
-
-    public function email2FADisable(Request $request)
-    {
-        $user = auth('api')->user();
-        $_2fa = $user->_2fa()->firstOrFail();
-
-        $request->validate([
-            '_2fa_secret' => ['required', CustomRule::email2FA(sha1('disable-2fa-email' . $user->id))],
-        ]);
+        $_2fa = $user->_2fa;
 
         $_2fa->email_status = _2FA::EMAIL_STATUS_DISABLE;
         $_2fa->save();
@@ -80,23 +101,24 @@ class _2FAController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-
     // GOOGLE 2FA
-    public function google2FAEnableRequest()
+    public function getApp2FAQrCode()
     {
         $user = auth('api')->user();
-        $_2fa = $user->_2fa;
-
         $google2FAClient = new Google2FA();
 
-        if (!$_2fa){
+        if (!($_2fa = $user->_2fa)){
             $_2fa = new _2FA();
             $_2fa->user_id = $user->id;
-        }else if ($_2fa->app_status == _2FA::APP_STATUS_GOOGLE){
-            return response()->json(['message' => 'Google 2FA has already been enabled'], 403);
+        }else if ($_2fa->app_status == _2FA::APP_STATUS_ENABLE && $_2fa->app_type == _2FA::APP_TYPE_GOOGLE){
+            return response()->json([
+                'message' => 'Google 2FA has already been enabled',
+                'code' => '2fa.google.already_enabled',
+            ], 400);
         }
 
         $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
+        $_2fa->app_type = _2FA::APP_TYPE_GOOGLE;
         $_2fa->app_secret = $google2FAClient->generateSecretKey();
         $_2fa->save();
 
@@ -119,32 +141,34 @@ class _2FAController extends Controller
         return response()->json(['qrcode' => $qrcode_image]);
     }
 
-    public function google2FAEnable(Request $request)
+    public function enableGoogle2FA(Request $request)
     {
         $user = auth('api')->user();
-        $_2fa = $user->_2fa()->firstOrFail();
 
-        $request->validate([
-            '_2fa_secret' => ['required', CustomRule::google2FA($_2fa->app_secret)],
-        ]);
+        $result = $this->_2faService->check2FA($user, ['app']);
 
-        $_2fa->app_status = _2FA::APP_STATUS_GOOGLE;
+        if (!$result['app']){
+            return response()->json([
+                'message' => 'Need to verify google 2FA.',
+                'code' => '2fa.google.require',
+            ], 403);
+        }
+
+        $_2fa = $user->_2fa;
+        $_2fa->app_status = _2FA::APP_STATUS_ENABLE;
         $_2fa->save();
 
         return response()->json(['status' => 'ok']);
     }
 
-    public function google2FADisable(Request $request)
+    public function disableGoogle2FA(Request $request)
     {
         $user = auth('api')->user();
-        $_2fa = $user->_2fa()->firstOrFail();
+        $_2fa = $user->_2fa;
 
-        $request->validate([
-            '_2fa_secret' => ['required', CustomRule::google2Fa($_2fa->app_secret)],
-        ]);
-
-        $_2fa->app_secret = null;
         $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
+        //$_2fa->app_type = null;
+        //$_2fa->app_secret = null;
         $_2fa->save();
 
         return response()->json(['status' => 'ok']);
