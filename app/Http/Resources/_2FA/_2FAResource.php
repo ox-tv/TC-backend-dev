@@ -18,13 +18,14 @@ class _2FAResource extends JsonResource
         return [
             // Main attributes
             'id' => $this->id,
+            'ip' => $this->ip,
             'app_enable' => (bool)$this->app_status,
             'email_enable' => (bool)$this->email_status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
             // Custom attributes without query
-            'app_type' => $this->app_status_text,
+            'app_type' => $this->app_type_text,
 
             // Custom attributes with query
 
