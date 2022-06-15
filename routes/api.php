@@ -18,6 +18,8 @@ Route::group([], __DIR__.'/partial-routes/general.php');
 
 Route::group([], __DIR__.'/partial-routes/auth.php');
 
+Route::group([], __DIR__.'/partial-routes/_2fa.php');
+
 Route::group([], __DIR__.'/partial-routes/category.php');
 
 Route::group([], __DIR__.'/partial-routes/feedback.php');

@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Services\_2FAService;
+use Carbon\Carbon;
+use Closure;
+use Illuminate\Http\Request;
+
+class Check2FA
+{
+    private $_2faService;
+
+    public function __construct(_2FAService $_2faService)
+    {
+        $this->_2faService = $_2faService;
+    }
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next, $level = 'soft')
+    {
+        if (!auth('api')->check()){
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $user = auth('api')->user();
+
+        $_2fa = $user->_2fa;
+
+        if (!$_2fa && $level == 'hard') {
+
+            return response()->json([
+                'message' => 'Please verify 2FA',
+                'code' => '2fa.require',
+            ], 403);
+
+        }else if (!$_2fa){
+
+            return $next($request);
+        }
+
+        $errors = [];
+        $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
+
+        if ($_2fa->app_status && !$_2faResult['app']){
+            $errors['app'] = 'Please verify app 2FA';
+        }
+
+        if ($_2fa->email_status && !$_2faResult['email']){
+            $errors['email'] = 'Please verify email 2FA';
+        }
+
+        if (!empty($errors)){
+            return response()->json([
+                'message' => 'Please verify 2FA',
+                'code' => '2fa.require',
+                'errors' => $errors
+            ], 403);
+        }
+
+        return $next($request);
+    }
+}

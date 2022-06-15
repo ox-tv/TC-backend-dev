@@ -14,26 +14,32 @@ class _2FA extends Model
         'app_secret',
     ];
 
-    const APP_STATUS_DISABLE = 0;
-    const APP_STATUS_GOOGLE = 1;
-
-    const APP_STATUS_TEXT = [
-        self::APP_STATUS_DISABLE => null,
-        self::APP_STATUS_GOOGLE => 'google',
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'app_verified_at' => 'datetime',
     ];
+
+    const APP_STATUS_DISABLE = 0;
+    const APP_STATUS_ENABLE = 1;
 
     const EMAIL_STATUS_DISABLE = 0;
     const EMAIL_STATUS_ENABLE = 1;
+
+    const APP_TYPE_GOOGLE = 1;
+
+    const APP_TYPE_TEXT = [
+        self::APP_TYPE_GOOGLE => 'google',
+    ];
 
 
     public function user(){
         return $this->belongsTo('App\Models\User', 'user_id');
     }
 
-    public function getAppStatusTextAttribute()
+    public function getAppTypeTextAttribute()
     {
-        return array_key_exists($this->app_status, self::APP_STATUS_TEXT)?
-            self::APP_STATUS_TEXT[$this->app_status]:
-            $this->app_status;
+        return array_key_exists($this->app_type, self::APP_TYPE_TEXT)?
+            self::APP_TYPE_TEXT[$this->app_type]:
+            $this->app_type;
     }
 }
