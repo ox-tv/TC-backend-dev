@@ -641,6 +641,11 @@ class VideoController extends Controller
         $videoIds = collect($request->get('videos'));
         $text = $request->get('text');
 
+        Comment::whereIn('video_id', $videoIds)->update([
+            'is_pinned' => false,
+            'pinned_by' => null,
+        ]);
+
         $videoIds->map(function ($videoId) use ($userId, $text){
             $comment = new Comment();
             $comment->text = $text;
