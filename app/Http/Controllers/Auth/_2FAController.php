@@ -149,8 +149,11 @@ class _2FAController extends Controller
 
         if (!$result['app']){
             return response()->json([
-                'message' => 'Need to verify google 2FA.',
-                'code' => '2fa.google.require',
+                'message' => 'Please verify 2FA.',
+                'code' => '2fa.require',
+                'errors' => [
+                    'app' => 'Please verify google 2FA'
+                ]
             ], 403);
         }
 
@@ -167,8 +170,8 @@ class _2FAController extends Controller
         $_2fa = $user->_2fa;
 
         $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
-        //$_2fa->app_type = null;
-        //$_2fa->app_secret = null;
+        $_2fa->app_type = null;
+        $_2fa->app_secret = null;
         $_2fa->save();
 
         return response()->json(['status' => 'ok']);
