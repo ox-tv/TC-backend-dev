@@ -3,11 +3,10 @@
 use Illuminate\Support\Facades\Route;
 
 
+Route::put('2fa/verify', '\App\Http\Controllers\Auth\_2FAController@verify')->name('2fa.verify');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
-
-    Route::put('2fa/verify', '\App\Http\Controllers\Auth\_2FAController@verify')->name('2fa.verify');
 
     // Email 2FA
     Route::put('2fa/email/send', '\App\Http\Controllers\Auth\_2FAController@sendEmail2FACode')->name('2fa.email.send');

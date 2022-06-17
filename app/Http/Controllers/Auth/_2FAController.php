@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\_2FA;
+use App\Models\User;
 use App\Services\_2FAService;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use PragmaRX\Google2FA\Google2FA;
 
 class _2FAController extends Controller
@@ -24,7 +26,31 @@ class _2FAController extends Controller
     // Verify
     public function verify(Request $request)
     {
-        $user = auth('api')->user();
+        if ($request->header('tc-auth-key')){
+            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }
+        $request->validate([
+            'auth-key' => [
+                'sometimes',
+                function ($attribute, $value, $fail) {
+                    if (!Cache::has($value)) {
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ],
+            'email_2fa_code' => ['sometimes'],
+            'app_2fa_secret' => ['sometimes'],
+        ]);
+        if ($request->get('auth-key')){
+            $userId = Cache::get($request->get('auth-key'));
+            $user = User::where('id', $userId)->firstOrFail();
+        }else if (auth('api')->check()){
+            $user = auth('api')->user();
+        }else{
+            return response()->json([
+                "message" => "Unauthenticated."
+            ], 401);
+        }
 
         $data = [];
         $mapKeys = [
