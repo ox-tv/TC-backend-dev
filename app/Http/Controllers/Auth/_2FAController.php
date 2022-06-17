@@ -122,6 +122,7 @@ class _2FAController extends Controller
         $_2fa = $user->_2fa;
 
         $_2fa->email_status = _2FA::EMAIL_STATUS_DISABLE;
+        $_2fa->email_verified_at = null;
         $_2fa->save();
 
         return response()->json(['status' => 'ok']);
@@ -196,6 +197,7 @@ class _2FAController extends Controller
         $_2fa = $user->_2fa;
 
         $_2fa->app_status = _2FA::APP_STATUS_DISABLE;
+        $_2fa->app_verified_at = null;
         $_2fa->app_type = null;
         $_2fa->app_secret = null;
         $_2fa->save();
