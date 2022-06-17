@@ -183,6 +183,32 @@ class LoginController extends Controller
             return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
         }
 
+        $_2fa = $user->_2fa;
+
+        if ($_2fa){
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
+
+            if ($_2fa->app_status && !$_2faResult['app']){
+                $errors['app'] = 'Please verify app 2FA';
+            }
+
+            if ($_2fa->email_status && !$_2faResult['email']){
+                $errors['email'] = 'Please verify email 2FA';
+            }
+
+            if (!empty($errors)){
+                $authKey = sha1('login.2fa.require.' . $user->id);
+                Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors
+                ], 403)->withHeaders(['tc-auth-key' => $authKey]);
+            }
+        }
+
         // login
         Auth::login($user);
 
