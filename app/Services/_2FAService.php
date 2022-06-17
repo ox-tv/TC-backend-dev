@@ -81,13 +81,13 @@ class _2FAService
     }
 
     // Checking 2FA
-    public function check2FA($user, $types, $minutes = 5)
+    public function check2FA($user, $types, $minutes = 1)
     {
         $_2fa = $user->_2fa;
         $result = [];
 
         foreach ($types as $type){
-            if ($_2fa && $_2fa->{"{$type}_verified_at"} > Carbon::now()->subMinutes($minutes - 1)) {
+            if ($_2fa && $_2fa->{"{$type}_verified_at"} > Carbon::now()->subMinutes($minutes)) {
                 $result[$type] = true;
             }else{
                 $result[$type] = false;
