@@ -450,7 +450,6 @@ class UserController extends Controller
             'meta',
             'favoriteTags',
             'favoriteCryptoCurrencies',
-            '_2fa',
         ])->append([
             'eth_address',
             'role_name',
@@ -531,7 +530,6 @@ class UserController extends Controller
             'meta',
             'favoriteTags',
             'favoriteCryptoCurrencies',
-            '_2fa',
         ])->append([
             'eth_address',
             'role_name',
