@@ -61,7 +61,6 @@ class UserResource extends JsonResource
             'favorite_tags' => TagResource::collection($this->whenLoaded('favoriteTags')),
             'favorite_crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('favoriteCryptoCurrencies')),
             'bookmark_videos' => VideoResource::collection($this->whenLoaded('bookmarkVideos')),
-            '_2fa' => _2FAResource::make($this->whenLoaded('_2fa')),
         ];
     }
 }
