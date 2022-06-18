@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Mail\_2FACodeMail;
 use App\Mail\PublisherVerificationMail;
 use App\Models\_2FA;
 use Carbon\Carbon;
@@ -22,7 +23,7 @@ class _2FAService
 
         // Send code to user email
         Mail::to($user->email)
-            ->queue(new PublisherVerificationMail($code));
+            ->queue(new _2FACodeMail($code));
 
         return true;
     }
