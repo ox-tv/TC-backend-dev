@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\_2FA\_2FAResource;
 use App\Models\_2FA;
 use App\Models\User;
 use App\Services\_2FAService;
@@ -21,6 +22,13 @@ class _2FAController extends Controller
     public function __construct(_2FAService $_2faService)
     {
         $this->_2faService = $_2faService;
+    }
+
+    public function user2FA()
+    {
+        $user =  auth('api')->user();
+
+        return _2FAResource::make($user->_2fa);
     }
 
     // Verify

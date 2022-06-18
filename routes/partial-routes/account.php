@@ -9,6 +9,7 @@ Route::delete('account/delete/{token}', '\App\Http\Controllers\UserController@de
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
+    Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
 
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
