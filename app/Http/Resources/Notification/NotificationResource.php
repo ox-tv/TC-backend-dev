@@ -33,6 +33,7 @@ class NotificationResource extends JsonResource
             'type' => $this->type,
             'payload' => $this->payload,
             'created_at' => $this->created_at,
+            'published_at' => $this->published_at,
             'read_at' => $this->read_at,
 
             // Custom attributes without query
@@ -48,6 +49,7 @@ class NotificationResource extends JsonResource
                 $this->resource->user_group == Notification::USER_GROUP_CUSTOM,
                 UserResource::collection($this->whenLoaded('users'))
             ),
+
         ];
     }
 

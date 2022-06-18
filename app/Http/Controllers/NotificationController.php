@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Notification\NotificationItem;
+use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Notification;
 use App\Models\User;
 use App\TCNotification\GeneralNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use TCNotification;
 
@@ -25,18 +27,27 @@ class NotificationController extends Controller
             $scope = Notification::SCOPE_PUBLISHER;
         }
 
-        $notifications = $user->notifications()->where(function ($query) use ($scope){
+        $filters = $request->get('filters', []);
+        $justUnreadFilter = Arr::get($filters, 'just_unread');
+
+        $query = $user->notifications()->where(function ($query) use ($scope){
             $query->where('scope', $scope)
                 ->orWhere('scope', Notification::SCOPE_GLOBAL);
         })->with([
             'entity' => function($q){ $q->withTrashed(); }
-        ])->paginate();
+        ]);
+
+        if ($justUnreadFilter){
+            $query->wherePivotNull('read_at');
+        }
+
+        $notifications = $query->paginate();
 
         foreach ($notifications as $notification){
             $notification->read_at = $notification->pivot->read_at;
         }
 
-        return NotificationItem::collection($notifications);
+        return NotificationResource::collection($notifications);
     }
 
     public function index_sent_by_admin(Request $request)
@@ -98,6 +109,7 @@ class NotificationController extends Controller
         $scopeText = Notification::SCOPE_TEXT;
 
         $request->validate([
+            'subject' => 'sometimes|string',
             'message' => 'required',
             'user_group' => [
                 'required',
@@ -139,6 +151,7 @@ class NotificationController extends Controller
 
         $users = $usersQuery->get();
 
+        $subject = $request->get('subject');
         $message = $request->get('message');
 
         //\Illuminate\Support\Facades\Notification::send($users, new CustomNotification($scope, $message));
@@ -147,7 +160,7 @@ class NotificationController extends Controller
         TCNotification::Send($users, new GeneralNotification(
             Notification::TYPE_CUSTOM_NOTIFICATION,
             $scope,
-            ['message' => $message],
+            ['message' => $message, 'subject' => $subject],
             [
                 'published_at' => Carbon::now(),
                 'from' => auth('api')->id(),
