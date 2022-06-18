@@ -173,7 +173,7 @@ class _2FAController extends Controller
 
         $qrcode_image = 'data:image/png;base64,' . base64_encode($writer->writeString($qrCodeUrl));
 
-        return response()->json(['qrcode' => $qrcode_image]);
+        return response()->json(['qrcode' => $qrcode_image, 'key' => $_2fa->app_secret]);
     }
 
     public function enableGoogle2FA(Request $request)
