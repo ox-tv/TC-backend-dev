@@ -49,6 +49,7 @@ class NotificationResource extends JsonResource
                 $this->resource->user_group == Notification::USER_GROUP_CUSTOM,
                 UserResource::collection($this->whenLoaded('users'))
             ),
+
         ];
     }
 
