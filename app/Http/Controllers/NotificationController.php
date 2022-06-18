@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\User;
 use App\TCNotification\GeneralNotification;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -52,10 +53,32 @@ class NotificationController extends Controller
 
     public function index_sent_by_admin(Request $request)
     {
-        $notifications = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
+        $userGroups = array_flip(Notification::USER_GROUP_TEXT);
+
+        $query = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
             'from' => function($q){ $q->withTrashed(); },
             'entity' => function($q){ $q->withTrashed(); }
-        ])->paginate();
+        ]);
+
+        $filters = $request->get('filters', []);
+        $userGroupFilter = Arr::get($filters, 'user_group');
+        $userIdFilter = Arr::get($filters, 'user_id');
+
+        if ($userGroupFilter && isset($userGroups[$userGroupFilter])){
+            $query->where('user_group', $userGroups[$userGroupFilter]);
+        }
+
+        if ($userGroupFilter && $userGroupFilter == Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER]){
+            $query->where('scope', Notification::SCOPE_PUBLISHER);
+        }
+
+        if ($userIdFilter){
+            $query->whereHas('users', function (Builder $query) use ($userIdFilter) {
+                $query->where('id', $userIdFilter);
+            });
+        }
+
+        $notifications = $query->paginate();
 
         return NotificationItem::collection($notifications);
     }
