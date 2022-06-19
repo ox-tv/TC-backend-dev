@@ -70,7 +70,8 @@ class LoginController extends Controller
                     return response()->json([
                         'message' => 'Please verify 2FA',
                         'code' => '2fa.require',
-                        'errors' => $errors
+                        'errors' => $errors,
+                        'auth_key' => $authKey
                     ], 403)->withHeaders(['tc-auth-key' => $authKey]);
                 }
             }
@@ -204,7 +205,8 @@ class LoginController extends Controller
                 return response()->json([
                     'message' => 'Please verify 2FA',
                     'code' => '2fa.require',
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'auth_key' => $authKey
                 ], 403)->withHeaders(['tc-auth-key' => $authKey]);
             }
         }
