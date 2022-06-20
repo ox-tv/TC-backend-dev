@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\_2FA\_2FAResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\_2FA;
 use App\Models\User;
 use App\Services\_2FAService;
@@ -86,6 +87,14 @@ class _2FAController extends Controller
                 'code' => '2fa.verify.fail',
                 'errors' => $errors
             ], 422);
+        }
+
+        if ($request->get('auth-key')){
+            return response()->json([
+                'status' => 'ok',
+                'profile' => UserResource::make($user->append('role_name')),
+                'token' =>  $user->createToken('access_token')->accessToken,
+            ]);
         }
 
         return response()->json(['status' => 'ok']);
