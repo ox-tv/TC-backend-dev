@@ -53,8 +53,6 @@ class NotificationController extends Controller
 
     public function index_sent_by_admin(Request $request)
     {
-        $userGroups = array_flip(Notification::USER_GROUP_TEXT);
-
         $query = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
             'from' => function($q){ $q->withTrashed(); },
             'entity' => function($q){ $q->withTrashed(); }
@@ -72,13 +70,16 @@ class NotificationController extends Controller
                         $query->where('scope', Notification::SCOPE_USER)
                             ->orWhere('scope', Notification::SCOPE_GLOBAL);
                     });
+                    break;
                 }
                 case 'publisher': {
                     $query->where('user_group', Notification::USER_GROUP_ALL);
                     $query->where('scope', Notification::SCOPE_PUBLISHER);
+                    break;
                 }
                 case 'custom': {
                     $query->where('user_group', Notification::USER_GROUP_CUSTOM);
+                    break;
                 }
             }
         }
