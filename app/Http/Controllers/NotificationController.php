@@ -64,12 +64,23 @@ class NotificationController extends Controller
         $userGroupFilter = Arr::get($filters, 'user_group');
         $userIdFilter = Arr::get($filters, 'user_id');
 
-        if ($userGroupFilter && isset($userGroups[$userGroupFilter])){
-            $query->where('user_group', $userGroups[$userGroupFilter]);
-        }
-
-        if ($userGroupFilter && $userGroupFilter == Notification::SCOPE_TEXT[Notification::SCOPE_PUBLISHER]){
-            $query->where('scope', Notification::SCOPE_PUBLISHER);
+        if ($userGroupFilter){
+            switch ($userGroupFilter){
+                case 'all': {
+                    $query->where('user_group', Notification::USER_GROUP_ALL);
+                    $query->where(function ($query) {
+                        $query->where('scope', Notification::SCOPE_USER)
+                            ->orWhere('scope', Notification::SCOPE_GLOBAL);
+                    });
+                }
+                case 'publisher': {
+                    $query->where('user_group', Notification::USER_GROUP_ALL);
+                    $query->where('scope', Notification::SCOPE_PUBLISHER);
+                }
+                case 'custom': {
+                    $query->where('user_group', Notification::USER_GROUP_CUSTOM);
+                }
+            }
         }
 
         if ($userIdFilter){
