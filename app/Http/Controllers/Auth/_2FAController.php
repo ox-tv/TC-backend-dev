@@ -29,7 +29,7 @@ class _2FAController extends Controller
     {
         $user =  auth('api')->user();
 
-        return _2FAResource::make($user->_2fa);
+        return $user->_2fa? _2FAResource::make($user->_2fa): null;
     }
 
     // Verify
