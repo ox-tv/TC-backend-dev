@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Models\Scopes\WherePublishedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\DatabaseNotification;
 
 class Notification extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $casts = [
         'payload' => 'array'
