@@ -44,4 +44,7 @@ Route::group([
         ->where('scope', 'publisher|user')->name('notifications.store');
 
 
+    Route::delete('notifications/{id}', '\App\Http\Controllers\NotificationController@destroy')->name('notifications.destroy');
+
+
 });

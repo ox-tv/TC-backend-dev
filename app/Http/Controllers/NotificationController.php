@@ -206,4 +206,13 @@ class NotificationController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
+    public function destroy($id)
+    {
+        $notification = Notification::where('id', $id)->firstOrFail();
+
+        $notification->delete();
+
+        return response()->json(['message' => 'ok']);
+    }
+
 }
