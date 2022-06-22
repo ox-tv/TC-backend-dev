@@ -45,6 +45,7 @@ Route::group([
 
 
     Route::delete('notifications/{id}', '\App\Http\Controllers\NotificationController@destroy')->name('notifications.destroy');
+    Route::put('notifications/{id}/restore', '\App\Http\Controllers\NotificationController@restore')->name('notifications.restore');
 
 
 });

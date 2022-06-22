@@ -61,6 +61,7 @@ class NotificationController extends Controller
         $filters = $request->get('filters', []);
         $userGroupFilter = Arr::get($filters, 'user_group');
         $userIdFilter = Arr::get($filters, 'user_id');
+        $justDeletedFilter = Arr::get($filters, 'just_deleted');
 
         if ($userGroupFilter){
             switch ($userGroupFilter){
@@ -88,6 +89,10 @@ class NotificationController extends Controller
             $query->whereHas('users', function (Builder $query) use ($userIdFilter) {
                 $query->where('id', $userIdFilter);
             });
+        }
+
+        if ($justDeletedFilter){
+            $query->onlyTrashed();
         }
 
         $notifications = $query->paginate();
@@ -211,6 +216,15 @@ class NotificationController extends Controller
         $notification = Notification::where('id', $id)->firstOrFail();
 
         $notification->delete();
+
+        return response()->json(['message' => 'ok']);
+    }
+
+    public function restore($id)
+    {
+        $notification = Notification::where('id', $id)->onlyTrashed()->firstOrFail();
+
+        $notification->restore();
 
         return response()->json(['message' => 'ok']);
     }
