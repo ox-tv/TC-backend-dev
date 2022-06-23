@@ -100,6 +100,19 @@ class NotificationController extends Controller
         return NotificationItem::collection($notifications);
     }
 
+    public function show($id)
+    {
+        $user = auth('api')->user();
+
+        $notification = $user->notifications()->where('id', $id)->with([
+            'entity' => function($q){ $q->withTrashed(); }
+        ])->firstOrFail();
+
+        $notification->read_at = $notification->pivot->read_at;
+
+        return NotificationResource::make($notification);
+    }
+
     public function markASRead($id)
     {
         $user = auth('api')->user();
