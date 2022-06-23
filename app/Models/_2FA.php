@@ -47,12 +47,12 @@ class _2FA extends Model
     public function getNeedToVerifyAppAttribute()
     {
         $allowMinutes = 5;
-        return $this->app_status && $this->app_verified_at > Carbon::now()->subMinutes($allowMinutes);
+        return $this->app_status && $this->app_verified_at < Carbon::now()->subMinutes($allowMinutes);
     }
 
     public function getNeedToVerifyEmailAttribute()
     {
         $allowMinutes = 5;
-        return $this->email_status && $this->email_verified_at > Carbon::now()->subMinutes($allowMinutes);
+        return $this->email_status && $this->email_verified_at < Carbon::now()->subMinutes($allowMinutes);
     }
 }

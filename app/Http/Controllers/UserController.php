@@ -572,44 +572,51 @@ class UserController extends Controller
 
         $_2fa = $user->_2fa;
 
-        $errors = [];
-        if ($_2fa){
-            $errors['app'] = 'Please verify app 2FA';
+        // Send change ETH confirmation link
+        if (!$_2fa || (!$_2fa->app_status && !$_2fa->email_status)){
+            // Add new value to user meta and send confirmation email
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
+                ['value' => $request->get('eth_address')]
+            );
+
+            $token = sha1($user->id . time());
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
+                ['value' => $token]
+            );
+
+            $link = (
+                $request->get('scope') == 'publisher'?
+                    config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
+                    : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
+                ) . $token;
+            Mail::to($user->email)
+                ->queue(new ETHAddressConfirmationMail($link));
+
+            return response()->json(['status' => 'ok', 'code' => 'eth_address.change.sent_confirmation_link']);
+        }else{
+            $errors = [];
+            if ($_2fa->need_to_verify_app){
+                $errors['app'] = 'Please verify app 2FA';
+            }
+            if ($_2fa->need_to_verify_email){
+                $errors['email'] = 'Please verify email 2FA';
+            }
+
+            if (!empty($errors)){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors,
+                ], 403);
+            }
+
+            $user->eth_address = $request->get('eth_address');
+            $user->save();
+
+            return response()->json(['status' => 'ok']);
         }
-
-        if ($_2fa->email_status && !$_2faResult['email']){
-            $errors['email'] = 'Please verify email 2FA';
-        }
-
-        if (!empty($errors)){
-            return response()->json([
-                'message' => 'Please verify 2FA',
-                'code' => '2fa.require',
-                'errors' => $errors
-            ], 403);
-        }
-
-        // Add new value to user meta and send confirmation email
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
-            ['value' => $request->get('eth_address')]
-        );
-
-        $token = sha1($user->id . time());
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
-            ['value' => $token]
-        );
-
-        $link = (
-            $request->get('scope') == 'publisher'?
-                config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
-                : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
-            ) . $token;
-        Mail::to($user->email)
-            ->queue(new ETHAddressConfirmationMail($link));
-
-        return response()->json(['status' => 'ok']);
     }
 
     public function changeETHAddressConfirmation($token)
