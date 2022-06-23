@@ -19,6 +19,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Rules\CustomRule;
+use App\Services\_2FAService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -28,6 +29,13 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    private $_2faService;
+
+    public function __construct(_2FAService $_2faService)
+    {
+        $this->_2faService = $_2faService;
+    }
+
     public function index(Request $request)
     {
         $isAdminList = $request->is('api/admin/admins');
@@ -561,6 +569,25 @@ class UserController extends Controller
         ]);
 
         $user = auth('api')->user();
+
+        $_2fa = $user->_2fa;
+
+        $errors = [];
+        if ($_2fa){
+            $errors['app'] = 'Please verify app 2FA';
+        }
+
+        if ($_2fa->email_status && !$_2faResult['email']){
+            $errors['email'] = 'Please verify email 2FA';
+        }
+
+        if (!empty($errors)){
+            return response()->json([
+                'message' => 'Please verify 2FA',
+                'code' => '2fa.require',
+                'errors' => $errors
+            ], 403);
+        }
 
         // Add new value to user meta and send confirmation email
         $user->meta()->updateOrCreate(

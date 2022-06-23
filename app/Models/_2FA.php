@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class _2FA extends Model
@@ -41,5 +42,17 @@ class _2FA extends Model
         return array_key_exists($this->app_type, self::APP_TYPE_TEXT)?
             self::APP_TYPE_TEXT[$this->app_type]:
             $this->app_type;
+    }
+
+    public function getNeedToVerifyAppAttribute()
+    {
+        $allowMinutes = 5;
+        return $this->app_status && $this->app_verified_at > Carbon::now()->subMinutes($allowMinutes);
+    }
+
+    public function getNeedToVerifyEmailAttribute()
+    {
+        $allowMinutes = 5;
+        return $this->email_status && $this->email_verified_at > Carbon::now()->subMinutes($allowMinutes);
     }
 }
