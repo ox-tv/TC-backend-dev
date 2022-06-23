@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'auth:api'], function(){
 
     Route::get('notifications', '\App\Http\Controllers\NotificationController@index');
+    Route::get('notifications/{id}', '\App\Http\Controllers\NotificationController@show');
     Route::get('notifications/{scope}/count', '\App\Http\Controllers\NotificationController@unReadNotificationsCount')
         ->where('scope', 'admin|publisher|user');
     Route::put('notifications/{scope}/read', '\App\Http\Controllers\NotificationController@allMarkASRead')
