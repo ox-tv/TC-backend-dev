@@ -14,6 +14,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
     Route::delete('profile', '\App\Http\Controllers\UserController@destroy')->name('profile.destroy');
+    Route::post('profile/password', '\App\Http\Controllers\UserController@changePassword')->middleware(['2fa']);
 
     Route::get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 

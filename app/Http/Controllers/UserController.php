@@ -560,6 +560,21 @@ class UserController extends Controller
 
     }
 
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string|password|required_with:new_password',
+            'new_password' => 'required|string|min:6|max:32|required_with:current_password',
+        ]);
+
+        $user = auth('api')->user();
+
+        $user->password = Hash::make($request->get('new_password'));
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function changeETHAddress(Request $request)
     {
         $request->validate([
