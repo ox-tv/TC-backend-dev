@@ -34,9 +34,16 @@ class CommentController extends Controller
         $videosFilter = Arr::get($filters, 'videos');
         $timeFilter = Arr::get($filters, 'time');
         $justRemembersFilter = Arr::get($filters, 'just_remembers');
+        $justMyMentionsFilter = Arr::get($filters, 'just_my_mentions');
 
         if($justRemembersFilter){
             $query->whereHas('rememberedBy');
+        }
+
+        if($justMyMentionsFilter){
+            $query->whereHas('mentions', function (Builder $query) {
+                $query->where('id', auth('api')->id());
+            });
         }
 
         if($videosFilter){
