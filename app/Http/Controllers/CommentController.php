@@ -6,6 +6,7 @@ use App\Events\VideoCommented;
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
+use App\Models\CommentUser;
 use App\Models\Option;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Scopes\WhereParentNullScope;
@@ -200,7 +201,16 @@ class CommentController extends Controller
         $reply->video_id = $comment->video_id;
         $reply->save();
 
-        $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
+        $comment->parent()->save($reply);
+
+        if (!empty($request->get('mentions'))){
+            foreach ($request->get('mentions') as $id){
+                $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
+            }
+            $comment->mentions()->attach($mentions);
+        }
+
+        event(new VideoCommented($comment->video, auth('api')->user()));
 
         $reply->load([
             'video',

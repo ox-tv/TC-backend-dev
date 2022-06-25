@@ -20,6 +20,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\CommentUser;
 use App\Models\CryptoCurrency;
 use App\Models\Option;
 use App\Models\Playlist;
@@ -573,6 +574,13 @@ class VideoController extends Controller
         $comment->user_id = $user->id;
         $comment->video()->associate($video);
         $comment->save();
+
+        if (!empty($request->get('mentions'))){
+            foreach ($request->get('mentions') as $id){
+                $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
+            }
+            $comment->mentions()->attach($mentions);
+        }
 
         event(new VideoCommented($video, auth('api')->user()));
 

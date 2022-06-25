@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class VideoComment extends FormRequest
 {
@@ -24,7 +25,9 @@ class VideoComment extends FormRequest
     public function rules()
     {
         return [
-            //
+            'text' => 'required',
+            'mentions' => ['sometimes', 'array'],
+            'mentions.*' => ['required', Rule::exists('users', 'id')]
         ];
     }
 }
