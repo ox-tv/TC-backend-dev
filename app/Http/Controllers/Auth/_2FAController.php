@@ -47,8 +47,8 @@ class _2FAController extends Controller
                     }
                 },
             ],
-            'email_2fa_code' => ['sometimes'],
-            'app_2fa_secret' => ['sometimes'],
+            'email_2fa_code' => ['required_without:app_2fa_secret'],
+            'app_2fa_secret' => ['required_without:email_2fa_code'],
         ]);
         if ($request->get('auth-key')){
             $userId = Cache::get($request->get('auth-key'));
