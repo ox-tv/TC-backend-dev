@@ -84,15 +84,18 @@ class _2FAService
     }
 
     // Checking 2FA
-    public function check2FA($user, $types, $minutes = 1)
+    public function check2FA($user, $options = [])
     {
+        $ip = $options['ip'] ?? null;
+        $minutes = $options['minutes'] ?? 5;
+
         $_2fa = $user->_2fa;
         $result = [
             'app' => false,
             'email' => false,
         ];
 
-        if (!$_2fa /*|| $_2fa->ip != request()->ip()*/){
+        if (!$_2fa || ($ip && $_2fa->ip != $ip)){
             return $result;
         }
 
