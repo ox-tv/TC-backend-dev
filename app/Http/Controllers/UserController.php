@@ -11,6 +11,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Mail\DeleteAccountMail;
 use App\Mail\ETHAddressConfirmationMail;
 use App\Mail\PasswordResetMail;
+use App\Models\_2FA;
 use App\Models\AccountDeletion;
 use App\Models\Channel;
 use App\Models\Option;

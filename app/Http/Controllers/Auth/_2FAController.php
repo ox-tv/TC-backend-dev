@@ -42,7 +42,7 @@ class _2FAController extends Controller
             'auth-key' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {
-                    if (!Cache::has($value)) {
+                    if ($value && !Cache::has($value)) {
                         $fail('The '.$attribute.' is invalid.');
                     }
                 },
@@ -73,11 +73,11 @@ class _2FAController extends Controller
         $result = $this->_2faService->verify($user, $data);
 
         $errors = [];
-        if (isset($result['app']) && !$result['app']){
+        if (!empty($data['app']) && !$result['app']){
             $errors['app'] = 'Code is not correct';
         }
 
-        if (isset($result['email']) && !$result['email']){
+        if (!empty($data['email']) && !$result['email']){
             $errors['email'] = 'Code is not correct';
         }
 
