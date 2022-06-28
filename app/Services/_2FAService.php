@@ -32,15 +32,30 @@ class _2FAService
     // Verify
     public function verify($user, $data)
     {
-        $result = [];
+        $result = [
+            'app' => false,
+            'email' => false,
+        ];
 
-        if (!empty($data['email'])){
-            $result['email'] = $this->verifyEmail2FA($user, $data['email']);
+        $_2fa = $user->_2fa;
+
+        if (!$_2fa){
+            return $result;
         }
 
-        if (!empty($data['app'])){
-            $result['app'] = $this->verifyApp2FA($user, $data['app']);
+        if (!empty($data['email']) && $this->verifyEmail2FA($user, $data['email'])){
+            $result['email'] = true;
+            $_2fa->email_verified_at = Carbon::now();
+            $_2fa->ip = request()->ip();
         }
+
+        if (!empty($data['app']) && $this->verifyApp2FA($user, $data['app'])){
+            $result['app'] = true;
+            $_2fa->app_verified_at = Carbon::now();
+            $_2fa->ip = request()->ip();
+        }
+
+        $_2fa->save();
 
         return $result;
     }
@@ -49,14 +64,7 @@ class _2FAService
     {
         $cacheKey = sha1('2fa-email' . $user->id);
 
-        if (!($_2fa = $user->_2fa)){
-            $_2fa = new _2FA();
-            $_2fa->user_id = $user->id;
-        }
-
         if (Cache::get($cacheKey) == $code){
-            $_2fa->email_verified_at = Carbon::now();
-            $_2fa->save();
             return true;
         }
 
@@ -66,15 +74,9 @@ class _2FAService
     private function verifyApp2FA($user, $secret)
     {
         $google2fa = new Google2FA();
-
-        if (!($_2fa = $user->_2fa)){
-            $_2fa = new _2FA();
-            $_2fa->user_id = $user->id;
-        }
+        $_2fa = $user->_2fa;
 
         if ($_2fa->app_secret && $google2fa->verifyKey($_2fa->app_secret, $secret)){
-            $_2fa->app_verified_at = Carbon::now();
-            $_2fa->save();
             return true;
         }
 
@@ -85,14 +87,21 @@ class _2FAService
     public function check2FA($user, $types, $minutes = 1)
     {
         $_2fa = $user->_2fa;
-        $result = [];
+        $result = [
+            'app' => false,
+            'email' => false,
+        ];
 
-        foreach ($types as $type){
-            if ($_2fa && $_2fa->{"{$type}_verified_at"} > Carbon::now()->subMinutes($minutes)) {
-                $result[$type] = true;
-            }else{
-                $result[$type] = false;
-            }
+        if (!$_2fa || $_2fa->ip != request()->ip()){
+            return $result;
+        }
+
+        if ($_2fa->app_verified_at > Carbon::now()->subMinutes($minutes)){
+            $result['app'] = true;
+        }
+
+        if ($_2fa->email_verified_at > Carbon::now()->subMinutes($minutes)){
+            $result['email'] = true;
         }
 
         return $result;
