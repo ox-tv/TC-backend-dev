@@ -32,14 +32,14 @@ class Check2FA
 
         $_2fa = $user->_2fa;
 
-        if (!$_2fa && $level == 'hard') {
+        if (!$_2fa) {
 
-            return response()->json([
-                'message' => 'Please verify 2FA',
-                'code' => '2fa.require',
-            ], 403);
-
-        }else if (!$_2fa){
+            if ($level == 'hard'){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                ], 403);
+            }
 
             return $next($request);
         }

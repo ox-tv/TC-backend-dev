@@ -612,10 +612,13 @@ class UserController extends Controller
             return response()->json(['status' => 'ok', 'code' => 'eth_address.change.sent_confirmation_link']);
         }else{
             $errors = [];
-            if ($_2fa->need_to_verify_app){
+            $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
+
+            if ($_2fa->app_status && !$_2faResult['app']){
                 $errors['app'] = 'Please verify app 2FA';
             }
-            if ($_2fa->need_to_verify_email){
+
+            if ($_2fa->email_status && !$_2faResult['email']){
                 $errors['email'] = 'Please verify email 2FA';
             }
 
@@ -623,7 +626,7 @@ class UserController extends Controller
                 return response()->json([
                     'message' => 'Please verify 2FA',
                     'code' => '2fa.require',
-                    'errors' => $errors,
+                    'errors' => $errors
                 ], 403);
             }
 

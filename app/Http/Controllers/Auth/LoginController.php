@@ -32,55 +32,13 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request, $scope = 'user')
     {
-        $login = $request->get('email')?:$request->get('login');
+        $login = $request->get('email')? : $request->get('login');
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
-
-        if(Auth::validate([$loginType => $login, 'password' => $request->get('password')])){
-
-            $user = Auth::getLastAttempted();
-
-            if($user->status == User::STATUS_INACTIVE) {
-
-                if (!$user->email_verified_at){
-                    auth()->emailVerification($user, $scope);
-                    return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
-                }
-
-                return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
-            }
-
-            $_2fa = $user->_2fa;
-
-            if ($_2fa){
-                $errors = [];
-                $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
-
-                if ($_2fa->app_status && !$_2faResult['app']){
-                    $errors['app'] = 'Please verify app 2FA';
-                }
-
-                if ($_2fa->email_status && !$_2faResult['email']){
-                    $errors['email'] = 'Please verify email 2FA';
-                }
-
-                if (!empty($errors)){
-                    $authKey = sha1('login.2fa.require.' . $user->id);
-                    Cache::put($authKey, $user->id, 24 * 60 * 60);
-
-                    return response()->json([
-                        'message' => 'Please verify 2FA',
-                        'code' => '2fa.require',
-                        'errors' => $errors,
-                        'auth_key' => $authKey
-                    ], 403)->withHeaders(['tc-auth-key' => $authKey]);
-                }
-            }
-        }
 
         $credentials = [
             $loginType => $login,
             'password' => $request->get('password'),
-            'status' => User::STATUS_ACTIVE
+            //'status' => User::STATUS_ACTIVE
         ];
 
         if($scope == 'publisher'){
@@ -93,16 +51,50 @@ class LoginController extends Controller
             $credentials['role_id'] = $publisherRoleId;
         }
 
-        $attempt = Auth::attempt($credentials);
-
-        if($attempt){
-            $user = Auth::user();
-            $result['profile'] = UserResource::make($user->append('role_name'));
-            $result['token'] =  $user->createToken('access_token')->accessToken;
-            return response()->json($result, '200');
+        if (!Auth::validate($credentials)){
+            return response()->json(['code'=> 401, 'message'=>__('auth.unauthorized')], 401);
         }
 
-        return response()->json(['code'=> 401, 'message'=>__('auth.unauthorized')], 401);
+        $user = Auth::getLastAttempted();
+
+        if($user->status == User::STATUS_INACTIVE) {
+
+            if (!$user->email_verified_at){
+                auth()->emailVerification($user, $scope);
+                return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
+            }
+
+            return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
+        }
+
+        if ($_2fa = $user->_2fa){
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
+
+            if ($_2fa->app_status && !$_2faResult['app']){
+                $errors['app'] = 'Please verify app 2FA';
+            }
+
+            if ($_2fa->email_status && !$_2faResult['email']){
+                $errors['email'] = 'Please verify email 2FA';
+            }
+
+            if (!empty($errors)){
+                $authKey = sha1('login.2fa.require.' . $user->id);
+                Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors,
+                    'auth_key' => $authKey
+                ], 403);
+            }
+        }
+
+        $result['profile'] = UserResource::make($user->append('role_name'));
+        $result['token'] =  $user->createToken('access_token')->accessToken;
+        return response()->json($result);
     }
 
     public function sendMagicLogin(Request $request, $scope = 'user')
@@ -184,9 +176,7 @@ class LoginController extends Controller
             return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
         }
 
-        $_2fa = $user->_2fa;
-
-        if ($_2fa){
+        if ($_2fa = $user->_2fa){
             $errors = [];
             $_2faResult = $this->_2faService->check2FA($user, ['app', 'email']);
 
@@ -207,16 +197,13 @@ class LoginController extends Controller
                     'code' => '2fa.require',
                     'errors' => $errors,
                     'auth_key' => $authKey
-                ], 403)->withHeaders(['tc-auth-key' => $authKey]);
+                ], 403);
             }
         }
 
-        // login
-        Auth::login($user);
-
         $result['profile'] = UserResource::make($user->append('role_name'));
         $result['token'] =  $user->createToken('access_token')->accessToken;
-        return response()->json($result, '200');
+        return response()->json($result);
     }
 
     /**
