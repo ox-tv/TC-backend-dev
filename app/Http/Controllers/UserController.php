@@ -19,6 +19,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Rules\CustomRule;
+use App\Services\_2FAService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -28,6 +29,13 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    private $_2faService;
+
+    public function __construct(_2FAService $_2faService)
+    {
+        $this->_2faService = $_2faService;
+    }
+
     public function index(Request $request)
     {
         $isAdminList = $request->is('api/admin/admins');
@@ -552,6 +560,21 @@ class UserController extends Controller
 
     }
 
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string|password|required_with:new_password',
+            'new_password' => 'required|string|min:6|max:32|required_with:current_password',
+        ]);
+
+        $user = auth('api')->user();
+
+        $user->password = Hash::make($request->get('new_password'));
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function changeETHAddress(Request $request)
     {
         $request->validate([
@@ -562,27 +585,53 @@ class UserController extends Controller
 
         $user = auth('api')->user();
 
-        // Add new value to user meta and send confirmation email
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
-            ['value' => $request->get('eth_address')]
-        );
+        $_2fa = $user->_2fa;
 
-        $token = sha1($user->id . time());
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
-            ['value' => $token]
-        );
+        // Send change ETH confirmation link
+        if (!$_2fa || (!$_2fa->app_status && !$_2fa->email_status)){
+            // Add new value to user meta and send confirmation email
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
+                ['value' => $request->get('eth_address')]
+            );
 
-        $link = (
-            $request->get('scope') == 'publisher'?
-                config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
-                : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
-            ) . $token;
-        Mail::to($user->email)
-            ->queue(new ETHAddressConfirmationMail($link));
+            $token = sha1($user->id . time());
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
+                ['value' => $token]
+            );
 
-        return response()->json(['status' => 'ok']);
+            $link = (
+                $request->get('scope') == 'publisher'?
+                    config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
+                    : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
+                ) . $token;
+            Mail::to($user->email)
+                ->queue(new ETHAddressConfirmationMail($link));
+
+            return response()->json(['status' => 'ok', 'code' => 'eth_address.change.sent_confirmation_link']);
+        }else{
+            $errors = [];
+            if ($_2fa->need_to_verify_app){
+                $errors['app'] = 'Please verify app 2FA';
+            }
+            if ($_2fa->need_to_verify_email){
+                $errors['email'] = 'Please verify email 2FA';
+            }
+
+            if (!empty($errors)){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors,
+                ], 403);
+            }
+
+            $user->eth_address = $request->get('eth_address');
+            $user->save();
+
+            return response()->json(['status' => 'ok']);
+        }
     }
 
     public function changeETHAddressConfirmation($token)
