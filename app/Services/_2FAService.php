@@ -95,7 +95,7 @@ class _2FAService
             'email' => false,
         ];
 
-        if (!$_2fa || ($ip && $_2fa->ip != $ip)){
+        if (!$_2fa /*|| ($ip && $_2fa->ip != $ip)*/){
             return $result;
         }
 
