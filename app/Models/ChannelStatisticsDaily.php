@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChannelStatisticsDaily extends Model
 {
+    protected $connection = 'mongodb';
+
     protected $fillable = ['channel_id','date'];
 
-    protected $table = 'channel_statistics_daily';
+    //protected $table = 'channel_statistics_daily';
+    protected $collection = 'channel_statistics_daily';
 
     protected $casts = [
         //
@@ -29,6 +32,6 @@ class ChannelStatisticsDaily extends Model
 
     // Relations
     public function channel(){
-        return $this->belongsTo('App\Models\Channel');
+        return $this->setConnection('mysql')->belongsTo('App\Models\Channel');
     }
 }

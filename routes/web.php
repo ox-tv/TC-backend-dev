@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $model = new \App\Models\ChannelStatisticsDaily();
+
+    $model->asdasd = '';
+
     return view('welcome');
 });
 
