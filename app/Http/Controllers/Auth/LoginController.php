@@ -164,7 +164,7 @@ class LoginController extends Controller
         ]);
     }
 
-    public function verifyMagicLogin($token)
+    public function verifyMagicLogin(Request $request, $token)
     {
         $magicLogin = MagicLogin::where('token', $token)
             ->where('expired_at', '>', Carbon::now())
@@ -178,7 +178,7 @@ class LoginController extends Controller
 
         if ($_2fa = $user->_2fa){
             $errors = [];
-            $_2faResult = $this->_2faService->check2FA($user);
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
             if ($_2fa->app_status && !$_2faResult['app']){
                 $errors['app'] = 'Please verify app 2FA';
