@@ -183,6 +183,7 @@ return [
 
         //captcha provider
         Mews\Captcha\CaptchaServiceProvider::class,
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
 
     ],
 
