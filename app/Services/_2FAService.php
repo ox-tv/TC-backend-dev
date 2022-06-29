@@ -87,7 +87,7 @@ class _2FAService
     public function check2FA($user, $options = [])
     {
         $ip = $options['ip'] ?? null;
-        $minutes = $options['minutes'] ?? 5;
+        $minutes = $options['minutes'] ?? 1;
 
         $_2fa = $user->_2fa;
         $result = [
