@@ -613,7 +613,7 @@ class UserController extends Controller
             return response()->json(['status' => 'ok', 'code' => 'eth_address.change.sent_confirmation_link']);
         }else{
             $errors = [];
-            $_2faResult = $this->_2faService->check2FA($user);
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
             if ($_2fa->app_status && !$_2faResult['app']){
                 $errors['app'] = 'Please verify app 2FA';

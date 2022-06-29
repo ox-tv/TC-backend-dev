@@ -45,7 +45,7 @@ class Check2FA
         }
 
         $errors = [];
-        $_2faResult = $this->_2faService->check2FA($user);
+        $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
         if ($_2fa->app_status && !$_2faResult['app']){
             $errors['app'] = 'Please verify app 2FA';

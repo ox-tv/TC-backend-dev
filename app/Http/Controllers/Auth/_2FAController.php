@@ -114,7 +114,7 @@ class _2FAController extends Controller
     {
         $user = auth('api')->user();
 
-        $result = $this->_2faService->check2FA($user);
+        $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
         if (!$result['email']){
             return response()->json([
@@ -189,7 +189,7 @@ class _2FAController extends Controller
     {
         $user = auth('api')->user();
 
-        $result = $this->_2faService->check2FA($user);
+        $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
         if (!$result['app']){
             return response()->json([
