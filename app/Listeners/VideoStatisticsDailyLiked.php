@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\VideoLiked;
 use App\Models\UserVideo;
 use App\Models\VideoStatisticsDaily;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -42,7 +43,7 @@ class VideoStatisticsDailyLiked
         $statistics = VideoStatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
 

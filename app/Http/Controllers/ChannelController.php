@@ -287,9 +287,9 @@ class ChannelController extends Controller
 
         // Calc total points
         $totalPoints = VideoStatisticsDaily::when($from, function ($q, $from){
-                $q->where('date', '>=', $from);
+                $q->where('date', '>=', Carbon::parse($from));
             })->when($to, function ($q, $to){
-                $q->where('date', '<=', $to);
+                $q->where('date', '<=', Carbon::parse($to));
             })->sum('points');
 
         $heroSubCounts = User::when($to, function ($q, $to){

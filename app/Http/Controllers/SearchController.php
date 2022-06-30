@@ -99,7 +99,7 @@ class SearchController extends Controller
         // Get Popular Videos if Search Result is Empty
         if ($videoQuery->count() == 0){
             $popularVideoIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-                ->whereDate('date', '>=', (Carbon::now())->subDays(30)->format('Y-m-d'))
+                ->where('date', '>=', Carbon::now()->subDays(30))
                 ->groupBy('video_id')
                 ->withoutGlobalScope('orderByDate')
                 ->orderBy('points', 'DESC')

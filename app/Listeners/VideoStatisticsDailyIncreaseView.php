@@ -36,7 +36,7 @@ class VideoStatisticsDailyIncreaseView
         $statistics = VideoStatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->views_total += 1;
