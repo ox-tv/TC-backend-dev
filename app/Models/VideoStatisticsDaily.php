@@ -41,7 +41,7 @@ class VideoStatisticsDaily extends Model
         'watch_time_non_hero' => 0,
         'watch_time_total' => 0,
         'points' => 0,
-        'point_details' => [],
+        'point_details' => "",
     ];
 
     public $timestamps = false;
