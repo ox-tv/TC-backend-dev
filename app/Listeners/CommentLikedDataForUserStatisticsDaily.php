@@ -7,6 +7,7 @@ use App\Events\VideoLiked;
 use App\Models\UserStatisticsDaily;
 use App\Models\UserVideo;
 use App\Models\VideoStatisticsDaily;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -37,7 +38,7 @@ class CommentLikedDataForUserStatisticsDaily
         // Data for $user
         $statistics = UserStatisticsDaily::firstOrNew([
             'user_id' => $user->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->comment_likes_count_total += $likeAmount;
@@ -56,7 +57,7 @@ class CommentLikedDataForUserStatisticsDaily
         // Data for $comment->user
         $statistics = UserStatisticsDaily::firstOrNew([
             'user_id' => $comment->user->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->comment_liked_count_total += $likeAmount;

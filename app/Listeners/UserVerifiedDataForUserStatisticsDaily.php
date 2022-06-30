@@ -42,7 +42,7 @@ class UserVerifiedDataForUserStatisticsDaily
         // Add +1 to user statistics
         $statistics = UserStatisticsDaily::firstOrNew([
             'user_id' => $referrer->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->referral_count_total += 1;
