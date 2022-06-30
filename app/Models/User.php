@@ -200,7 +200,7 @@ class User extends Authenticatable
     }
 
     public function statistics(){
-        return $this->hasMany('App\Models\UserStatisticsDaily');
+        return $this->setConnection('mongodb')->hasMany('App\Models\UserStatisticsDaily');
     }
 
 

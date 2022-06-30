@@ -37,7 +37,7 @@ class VideoViewedDataForUserStatisticsDaily
 
         $statistics = UserStatisticsDaily::firstOrNew([
             'user_id' => $user->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->video_views_count_total += 1;

@@ -7,14 +7,43 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserStatisticsDaily extends Model
 {
+    protected $connection = 'mongodb';
+
     protected $fillable = ['user_id','date'];
 
-    protected $table = 'user_statistics_daily';
+    //protected $table = 'user_statistics_daily';
+    protected $collection = 'user_statistics_daily';
 
     public $timestamps = false;
 
     protected $casts = [
         //
+    ];
+
+    protected $dates = [
+        'date'
+    ];
+
+    protected $attributes = [
+        'video_views_count_as_hero' => 0,
+        'video_views_count_as_non_hero' => 0,
+        'video_views_count_total' => 0,
+        'video_likes_count_as_hero' => 0,
+        'video_likes_count_as_non_hero' => 0,
+        'video_likes_count_total' => 0,
+        'comment_likes_count_as_hero' => 0,
+        'comment_likes_count_as_non_hero' => 0,
+        'comment_likes_count_total' => 0,
+        'comment_liked_count_as_hero' => 0,
+        'comment_liked_count_as_non_hero' => 0,
+        'comment_liked_count_total' => 0,
+        'referral_count_as_hero' => 0,
+        'referral_count_as_non_hero' => 0,
+        'referral_count_total' => 0,
+        'video_watch_count_as_hero' => 0,
+        'video_watch_count_as_non_hero' => 0,
+        'video_watch_count_total' => 0,
+        'points' => 0,
     ];
 
 
@@ -28,7 +57,7 @@ class UserStatisticsDaily extends Model
 
     // Relations
     public function user(){
-        return $this->belongsTo('App\Models\User');
+        return $this->setConnection('mysql')->belongsTo('App\Models\User');
     }
 
 
