@@ -66,7 +66,7 @@ class UserStatisticsDaily extends Model
     {
         $pointsPerWatchVideoAsHero = config('user.points.per_watch_video_as_hero');
         $pointsPerWatchVideoAsNonHero = config('user.points.per_watch_video_as_non_hero');
-        $pointsPerCommentLikedAsHero = config('useer.points.per_comment_liked_as_hero');
+        $pointsPerCommentLikedAsHero = config('user.points.per_comment_liked_as_hero');
         $pointsPerCommentLikedAsNonHero = config('user.points.per_comment_liked_as_non_hero');
         $pointsPerReferrerAsHero = config('user.points.per_referrer_as_hero');
         $pointsPerReferrerAsNonHero = config('user.points.per_referrer_as_non_hero');
