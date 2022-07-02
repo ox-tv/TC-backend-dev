@@ -110,6 +110,8 @@ class NotificationController extends Controller
 
         $notification->read_at = $notification->pivot->read_at;
 
+        $notification->append(['from', 'users']);
+
         return NotificationResource::make($notification);
     }
 
