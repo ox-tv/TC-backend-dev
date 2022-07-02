@@ -45,7 +45,7 @@ Route::group([
         ->where('scope', 'publisher|user')->name('notifications.store');
 
 
-    Route::get('notifications/{id}', '\App\Http\Controllers\NotificationController@show');
+    Route::get('notifications/{id}', '\App\Http\Controllers\NotificationController@show')->name('notifications.show');
     Route::delete('notifications/{id}', '\App\Http\Controllers\NotificationController@destroy')->name('notifications.destroy');
     Route::put('notifications/{id}/restore', '\App\Http\Controllers\NotificationController@restore')->name('notifications.restore');
 
