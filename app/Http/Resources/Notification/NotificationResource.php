@@ -34,6 +34,7 @@ class NotificationResource extends JsonResource
             'payload' => $this->payload,
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
+            'deleted_at' => $this->whenAppended('deleted_at'),
             'read_at' => $this->read_at,
 
             // Custom attributes without query

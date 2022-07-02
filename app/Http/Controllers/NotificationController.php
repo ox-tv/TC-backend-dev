@@ -112,6 +112,7 @@ class NotificationController extends Controller
 
         if ($request->is('api/admin/*')){
             $notification->load(['from', 'users']);
+            $notification->append(['deleted_at']);
         }
 
         return NotificationResource::make($notification);
