@@ -104,15 +104,26 @@ class NotificationController extends Controller
     {
         $user = auth('api')->user();
 
-        $notification = $user->notifications()->where('id', $id)->with([
-            'entity' => function($q){ $q->withTrashed(); }
-        ])->firstOrFail();
+        if ($request->is('api/admin/*')){
+            $query = Notification::where('id', $id)
+                ->with([
+                    'entity' => function($q){ $q->withTrashed(); }
+                ])->withTrashed();
+        }else{
+            $query = $user->notifications()
+                ->where('id', $id)
+                ->with([
+                    'entity' => function($q){ $q->withTrashed(); }
+                ]);
+        }
 
-        $notification->read_at = $notification->pivot->read_at;
+        $notification = $query->firstOrFail();
 
         if ($request->is('api/admin/*')){
             $notification->load(['from', 'users']);
             $notification->append(['deleted_at']);
+        }else{
+            $notification->read_at = $notification->pivot->read_at;
         }
 
         return NotificationResource::make($notification);
