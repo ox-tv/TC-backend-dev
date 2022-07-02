@@ -100,7 +100,7 @@ class NotificationController extends Controller
         return NotificationItem::collection($notifications);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $user = auth('api')->user();
 
@@ -110,7 +110,9 @@ class NotificationController extends Controller
 
         $notification->read_at = $notification->pivot->read_at;
 
-        $notification->append(['from', 'users']);
+        if ($request->is('api/admin/*')){
+            $notification->load(['from', 'users']);
+        }
 
         return NotificationResource::make($notification);
     }
