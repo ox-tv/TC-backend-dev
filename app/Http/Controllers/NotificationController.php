@@ -56,7 +56,8 @@ class NotificationController extends Controller
         $query = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
             'from' => function($q){ $q->withTrashed(); },
             'DeletedBy' => function($q){ $q->withTrashed(); },
-            'entity' => function($q){ $q->withTrashed(); }
+            'entity' => function($q){ $q->withTrashed(); },
+            'users' => function($q){ $q->withTrashed(); }
         ]);
 
         $filters = $request->get('filters', []);
