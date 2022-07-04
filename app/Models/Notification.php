@@ -75,6 +75,10 @@ class Notification extends Model
         return $this->belongsTo('App\Models\User', 'sender_id');
     }
 
+    public function DeletedBy(){
+        return $this->belongsTo('App\Models\User', 'deleted_by')->withTrashed();
+    }
+
     public function entity(){
         return $this->morphTo();
     }
