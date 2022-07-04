@@ -55,6 +55,7 @@ class NotificationController extends Controller
     {
         $query = Notification::whereNotNull('sender_id')->orderBy('created_at', 'DESC')->with([
             'from' => function($q){ $q->withTrashed(); },
+            'DeletedBy' => function($q){ $q->withTrashed(); },
             'entity' => function($q){ $q->withTrashed(); }
         ]);
 
@@ -97,7 +98,9 @@ class NotificationController extends Controller
 
         $notifications = $query->paginate();
 
-        return NotificationItem::collection($notifications);
+        $notifications->append(['deleted_at']);
+
+        return NotificationResource::collection($notifications);
     }
 
     public function show(Request $request, $id)
@@ -120,7 +123,7 @@ class NotificationController extends Controller
         $notification = $query->firstOrFail();
 
         if ($request->is('api/admin/*')){
-            $notification->load(['from', 'users']);
+            $notification->load(['from', 'users', 'DeletedBy']);
             $notification->append(['deleted_at']);
         }else{
             $notification->read_at = $notification->pivot->read_at;

@@ -44,6 +44,7 @@ class NotificationResource extends JsonResource
             // Custom attributes with query
 
             // Relations
+            'deleted_by' => UserResource::make($this->whenLoaded('DeletedBy')),
             'from' => UserResource::make($this->whenLoaded('from')),
             'entity' => $this->getEntity(),
             'to' => $this->when(
