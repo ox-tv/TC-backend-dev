@@ -10,6 +10,7 @@ use App\Models\CommentUser;
 use App\Models\Option;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Scopes\WhereParentNullScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -101,6 +102,10 @@ class CommentController extends Controller
             'dislikes_count',
             'replies_count',
         ]);
+
+        if($request->is('api/publisher/comments')){
+            $comments->append(['is_read_replies']);
+        }
 
         return CommentResource::collection($comments);
     }
@@ -254,6 +259,15 @@ class CommentController extends Controller
         $comment->save();
 
         return CommentResource::make($comment);
+    }
+
+    public function readAllReplies($id)
+    {
+        Comment::whereId($id)->where('user_id', auth('api')->id())->firstOrFail();
+
+        Comment::where('parent_id', $id)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => Carbon::now()]);
+
+        return response()->json(['status' => 'ok']);
     }
 
 }

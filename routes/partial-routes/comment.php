@@ -31,6 +31,7 @@ Route::group([
 
     Route::delete('comments/unremember-all', '\App\Http\Controllers\CommentUserRelationController@unrememberAll')->name('comments.unremember-all');
     Route::put('comments/{comment}/remember', '\App\Http\Controllers\CommentUserRelationController@remember')->name('comments.remember');
+    Route::put('comments/{comment}/read-all-replies', '\App\Http\Controllers\CommentController@readAllReplies')->name('comments.read-all-replies');
     Route::apiResource('comments', \App\Http\Controllers\CommentController::class)->only(['index']);
 
 });
