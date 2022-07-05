@@ -37,6 +37,7 @@ class CommentResource extends JsonResource
             'likes_count' => $this->whenAppended('likes_count'),
             'dislikes_count' => $this->whenAppended('dislikes_count'),
             'replies_count' => $this->whenAppended('replies_count'),
+            'is_read_replies' => $this->whenAppended('is_read_replies'),
 
             // Relations
             'pinned_by' => UserResource::make($this->whenLoaded('PinnedBy')),

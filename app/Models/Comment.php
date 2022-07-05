@@ -18,7 +18,8 @@ class Comment extends Model
     const COMMENT_NOT_PINNED = 0;
 
     protected $casts = [
-      'is_pinned' => 'boolean'
+      'is_pinned' => 'boolean',
+      'read_at' => 'datetime',
     ];
 
     protected static function booted()
@@ -144,23 +145,33 @@ class Comment extends Model
         return false;
     }
 
-    public function getReportsCountAttribute(){
+    public function getReportsCountAttribute()
+    {
         return $this->reports()->count();
     }
 
-    public function getLikesCountAttribute(){
+    public function getLikesCountAttribute()
+    {
         return $this->likedBy()->count();
     }
 
-    public function getDislikesCountAttribute(){
+    public function getDislikesCountAttribute()
+    {
         return $this->dislikedBy()->count();
     }
 
-    public function getRepliesCountAttribute(){
+    public function getRepliesCountAttribute()
+    {
         return $this->replies()->count();
     }
 
-    public function getIsPinnedAttribute($value){
+    public function getIsPinnedAttribute($value)
+    {
         return (bool) $value;
+    }
+
+    public function getIsReadRepliesAttribute(): bool
+    {
+        return !self::where('parent_id', $this->id)->withoutGlobalScope(WhereParentNullScope::class)->whereNull('read_at')->exists();
     }
 }
