@@ -121,7 +121,7 @@ class CommentController extends Controller
         //
     }
 
-    public function show(Comment $comment)
+    public function show(Request $request, Comment $comment)
     {
         $comment->load([
             'video',
@@ -145,6 +145,12 @@ class CommentController extends Controller
 
             $item->user->append('is_publisher');
         });
+
+        if($request->is('api/publisher/*')){
+            Comment::where('parent_id', $comment->id)
+                ->withoutGlobalScope(WhereParentNullScope::class)
+                ->update(['read_at' => Carbon::now()]);
+        }
 
         return CommentResource::make($comment);
     }
@@ -259,15 +265,6 @@ class CommentController extends Controller
         $comment->save();
 
         return CommentResource::make($comment);
-    }
-
-    public function readAllReplies($id)
-    {
-        Comment::whereId($id)->where('user_id', auth('api')->id())->firstOrFail();
-
-        Comment::where('parent_id', $id)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => Carbon::now()]);
-
-        return response()->json(['status' => 'ok']);
     }
 
 }
