@@ -276,4 +276,15 @@ class CommentController extends Controller
         return CommentResource::make($comment);
     }
 
+    public function markAllAsReadReplies()
+    {
+        $user = auth('api')->user();
+
+        Comment::whereHas('video', function ($q){
+            $q->where('user_id', auth('api')->id());
+        })->withoutGlobalScope(WhereParentNullScope::class)
+        ->update(['read_at' => Carbon::now()]);
+
+        return response()->json(['status' => 'ok']);
+    }
 }
