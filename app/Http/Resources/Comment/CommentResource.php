@@ -45,6 +45,7 @@ class CommentResource extends JsonResource
             'video' => VideoResource::make($this->whenLoaded('video')),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
+            'mentions' => UserResource::collection($this->whenLoaded('mentions')),
         ];
     }
 }
