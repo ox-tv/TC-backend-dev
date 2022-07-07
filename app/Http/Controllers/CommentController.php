@@ -36,6 +36,7 @@ class CommentController extends Controller
         $timeFilter = Arr::get($filters, 'time');
         $justRemembersFilter = Arr::get($filters, 'just_remembers');
         $justMyMentionsFilter = Arr::get($filters, 'just_my_mentions');
+        $justUnreadMentionsFilter = Arr::get($filters, 'just_unread_replies');
 
         if($justRemembersFilter){
             $query->whereHas('rememberedBy');
@@ -44,6 +45,12 @@ class CommentController extends Controller
         if($justMyMentionsFilter){
             $query->whereHas('mentions', function (Builder $query) {
                 $query->where('id', auth('api')->id());
+            });
+        }
+
+        if($justUnreadMentionsFilter){
+            $query->whereHas('replies', function ($q){
+                $q->whereNull('read_at');
             });
         }
 
