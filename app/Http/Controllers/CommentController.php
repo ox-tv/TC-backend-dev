@@ -232,7 +232,7 @@ class CommentController extends Controller
             foreach ($request->get('mentions') as $id){
                 $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
             }
-            $comment->mentions()->attach($mentions);
+            $reply->mentions()->attach($mentions);
         }
 
         event(new VideoCommented($comment->video, auth('api')->user()));
