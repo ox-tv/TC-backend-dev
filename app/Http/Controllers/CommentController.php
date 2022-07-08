@@ -153,9 +153,9 @@ class CommentController extends Controller
             $item->user->append('is_publisher');
         });
 
-        if($request->is('api/publisher/*')){
-            $comment->replies->load('mentions');
+        $comment->replies->load('mentions');
 
+        if($request->is('api/publisher/*')){
             Comment::where('parent_id', $comment->id)
                 ->withoutGlobalScope(WhereParentNullScope::class)
                 ->update(['read_at' => Carbon::now()]);
