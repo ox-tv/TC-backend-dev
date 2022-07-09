@@ -43,8 +43,13 @@ class CommentController extends Controller
         }
 
         if($justMyMentionsFilter){
-            $query->whereHas('mentions', function (Builder $query) {
+            /*$query->whereHas('mentions', function (Builder $query) {
                 $query->where('id', auth('api')->id());
+            });*/
+            $query->whereHas('replies', function (Builder $query) {
+                $query->whereHas('mentions', function (Builder $query) {
+                    $query->where('id', auth('api')->id());
+                });
             });
         }
 
