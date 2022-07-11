@@ -94,7 +94,7 @@ class MessageController extends Controller
         if($request->get("department_id")){
             $message->department_id = $request->get("department_id");
         }else{
-            $department = Department::firstOrCreate(['name' => 'Other']);
+            $department = Department::firstOrCreate(['name' => 'Other', 'scope' => Department::SCOPE_PUBLISHER]);
             $message->department_id = $department->id;
         }
 

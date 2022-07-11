@@ -9,7 +9,7 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'scope'];
 
     // Scope field values
     const SCOPE_GLOBAL = 1;
