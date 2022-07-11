@@ -48,7 +48,8 @@ class MessageStore extends FormRequest
                 Rule::requiredIf(function () {
                     return is_null($this->get("user_group"))
                         || $this->get("user_group") == Message::USER_GROUP_TEXT[Message::USER_GROUP_CUSTOM];
-                })
+                }),
+                'exists:users,id'
             ],
         ];
 
