@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\VideoCommented;
+use App\Events\Comments\CommentCreated;
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
@@ -226,7 +226,8 @@ class CommentController extends Controller
      * @param CommentReply $request
      * @param Comment $comment
      */
-    public function reply(CommentReply $request, Comment $comment){
+    public function reply(CommentReply $request, Comment $comment)
+    {
         $reply = new Comment();
         $reply->text = $request->get('text');
         $reply->user_id = Auth::user()->id;
@@ -242,7 +243,7 @@ class CommentController extends Controller
             $reply->mentions()->attach($mentions);
         }
 
-        event(new VideoCommented($comment->video, auth('api')->user()));
+        event(new CommentCreated($reply));
 
         $reply->load([
             'video',

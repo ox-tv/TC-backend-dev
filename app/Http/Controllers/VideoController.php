@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\VideoCommented;
+use App\Events\Comments\CommentCreated;
 use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
@@ -582,7 +582,7 @@ class VideoController extends Controller
             $comment->mentions()->attach($mentions);
         }
 
-        event(new VideoCommented($video, auth('api')->user()));
+        event(new CommentCreated($comment));
 
         return CommentResource::make($comment);
     }

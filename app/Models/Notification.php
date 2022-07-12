@@ -61,6 +61,7 @@ class Notification extends Model
     const TYPE_REPORT_COMMENT = 'ReportComment';
     const TYPE_REPORT_VIDEO = 'ReportVideo';
     const TYPE_UPDATE_CHANNEL_STATUS = 'UpdateChannelStatus';
+    const TYPE_MENTIONED_ON_COMMENT = 'MentionedOnComment';
 
     protected static function booted()
     {
