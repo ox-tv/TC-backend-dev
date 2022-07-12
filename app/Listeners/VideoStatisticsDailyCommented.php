@@ -2,12 +2,10 @@
 
 namespace App\Listeners;
 
-use App\Events\VideoCommented;
+use App\Events\Comments\CommentCreated;
 use App\Events\VideoViewed;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class VideoStatisticsDailyCommented
 {
@@ -17,10 +15,11 @@ class VideoStatisticsDailyCommented
      * @param  VideoViewed  $event
      * @return void
      */
-    public function handle(VideoCommented $event)
+    public function handle(CommentCreated $event)
     {
-        $user = $event->user;
-        $video = $event->video;
+        $comment = $event->comment;
+        $user = $comment->user()->first();
+        $video = $comment->video()->first();
         $channel = $video->channel;
 
         $statistics = VideoStatisticsDaily::firstOrNew([

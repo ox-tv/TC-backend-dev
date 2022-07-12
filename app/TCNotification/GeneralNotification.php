@@ -31,7 +31,6 @@ class GeneralNotification
 
     public function via()
     {
-        //return [];
         return ['broadcast'];
     }
 }
