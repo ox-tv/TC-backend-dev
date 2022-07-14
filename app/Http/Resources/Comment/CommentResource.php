@@ -23,6 +23,7 @@ class CommentResource extends JsonResource
             'text' => $this->text,
             'status' => $this->status,
             'created_at' => $this->created_at,
+            'last_mentioned_at' => $this->whenAppended('last_mentioned_at'),
             'reason_key' => $this->whenAppended('reason_key'),
             'reason_text' => $this->whenAppended('reason_text'),
 

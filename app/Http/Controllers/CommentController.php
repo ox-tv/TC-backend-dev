@@ -101,9 +101,8 @@ class CommentController extends Controller
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');
         }
         if($sort === 'newest_mentions'){
-            $query->withoutGlobalScope(OrderDescScope::class)->with(['commentUserMentions' => function ($q) {
-                $q->orderBy('created_at', 'DESC');
-            }]);
+            $query->withoutGlobalScope(OrderDescScope::class)
+                ->orderBy('last_mentioned_at', 'desc');
         }
 
         $comments = $query->paginate($perPage);
@@ -121,7 +120,7 @@ class CommentController extends Controller
         ]);
 
         if($request->is('api/publisher/comments')){
-            $comments->append(['is_read_replies']);
+            $comments->append(['is_read_replies', 'last_mentioned_at']);
         }
 
         return CommentResource::collection($comments);
@@ -237,15 +236,20 @@ class CommentController extends Controller
         $reply->text = $request->get('text');
         $reply->user_id = Auth::user()->id;
         $reply->video_id = $comment->video_id;
+        $reply->parent_id = $comment->id;
         $reply->save();
 
-        $comment->parent()->save($reply);
+        //$comment->parent()->save($reply);
 
         if (!empty($request->get('mentions'))){
             foreach ($request->get('mentions') as $id){
                 $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
             }
             $reply->mentions()->attach($mentions);
+
+            // update last_mentioned_at on parent row
+            $comment->last_mentioned_at = Carbon::now();
+            $comment->save();
         }
 
         event(new CommentCreated($reply));

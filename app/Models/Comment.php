@@ -106,10 +106,6 @@ class Comment extends Model
         return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::MENTION_RELATION);
     }
 
-    public function commentUserMentions(){
-        return $this->hasMany(CommentUser::class)->where('relation', CommentUser::MENTION_RELATION);
-    }
-
     public function replies(){
         return $this->hasMany('App\Models\Comment', 'parent_id', 'id')->withoutGlobalScope(WhereParentNullScope::class);
     }
