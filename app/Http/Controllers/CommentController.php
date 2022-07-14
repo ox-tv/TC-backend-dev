@@ -100,6 +100,11 @@ class CommentController extends Controller
         if($sort === 'oldest'){
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');
         }
+        if($sort === 'newest_mentions'){
+            $query->withoutGlobalScope(OrderDescScope::class)->with(['commentUserMentions' => function ($q) {
+                $q->orderBy('created_at', 'DESC');
+            }]);
+        }
 
         $comments = $query->paginate($perPage);
 
