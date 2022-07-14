@@ -9,7 +9,7 @@ class CommentUser extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    //public $timestamps = false;
 
     protected $table = 'comment_user';
 

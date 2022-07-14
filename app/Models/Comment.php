@@ -91,19 +91,19 @@ class Comment extends Model
     }
 
     public function likedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
     }
 
     public function dislikedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
     }
 
     public function rememberedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::REMEMBERED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::REMEMBERED_RELATION);
     }
 
     public function mentions(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::MENTION_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::MENTION_RELATION);
     }
 
     public function replies(){
