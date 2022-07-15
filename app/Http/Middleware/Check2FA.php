@@ -52,7 +52,7 @@ class Check2FA
             $errors['email'] = 'Please verify email 2FA';
         }*/
 
-        if (!$_2faResult['app'] || !$_2faResult['email']){
+        if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
             $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
             $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
         }
