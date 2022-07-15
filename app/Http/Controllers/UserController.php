@@ -615,11 +615,8 @@ class UserController extends Controller
             $errors = [];
             $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
-            if ($_2fa->app_status && !$_2faResult['app']){
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
                 $errors['app'] = 'Please verify app 2FA';
-            }
-
-            if ($_2fa->email_status && !$_2faResult['email']){
                 $errors['email'] = 'Please verify email 2FA';
             }
 

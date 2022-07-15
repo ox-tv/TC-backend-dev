@@ -182,6 +182,8 @@ class _2FAController extends Controller
 
         $qrcode_image = 'data:image/png;base64,' . base64_encode($writer->writeString($qrCodeUrl));
 
+        $this->_2faService->sendEmail2FACode($user);
+
         return response()->json(['qrcode' => $qrcode_image, 'key' => $_2fa->app_secret]);
     }
 
@@ -191,12 +193,13 @@ class _2FAController extends Controller
 
         $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
-        if (!$result['app']){
+        if (!$result['app'] || !$result['email']){
             return response()->json([
                 'message' => 'Please verify 2FA.',
                 'code' => '2fa.require',
                 'errors' => [
-                    'app' => 'Please verify google 2FA'
+                    'app' => 'Please verify google 2FA',
+                    'email' => 'Please verify email 2FA'
                 ]
             ], 403);
         }
