@@ -22,6 +22,7 @@ class SendNotificationOnCommentCreated
         $comment = $event->comment;
         $mentions = $comment->mentions()->get();
 
+        $comment->load('user');
 
         TCNotification::Send($mentions, new GeneralNotification(
             Notification::TYPE_MENTIONED_ON_COMMENT,
