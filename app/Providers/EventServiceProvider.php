@@ -32,6 +32,7 @@ use App\Listeners\Channels\SendNotificationOnChannelUpdated;
 use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\Comments\SendNotificationOnCommentCreated;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
@@ -120,6 +121,7 @@ class EventServiceProvider extends ServiceProvider
         // Comments
         CommentCreated::class => [
             VideoStatisticsDailyCommented::class,
+            SendNotificationOnCommentCreated::class,
         ],
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
