@@ -499,7 +499,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: left;"><span style="color:#FFFFFF">Here's your 2FA login code:</span><br>
+                                                    <div style="text-align: left;"><span style="color:#FFFFFF">Here's your 2FA code:</span><br>
                                                         &nbsp;</div>
 
                                                     <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">{{ $code }}</span></strong></span><br>
