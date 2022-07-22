@@ -302,4 +302,22 @@ class CommentController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
+
+    public function stats()
+    {
+        $result = [
+            'remembers' => 0,
+            'unread_mentions' => 0,
+        ];
+
+        $result['remembers'] = CommentUser::where('user_id', auth('api')->id())->where('relation', CommentUser::REMEMBERED_RELATION)->count();
+
+        $result['unread_mentions'] = Comment::whereHas('video', function (Builder $query) {
+                $query->where('user_id', auth('api')->id());
+            })->whereHas('replies', function ($q){
+                $q->whereNull('read_at');
+            })->count();
+
+        return $result;
+    }
 }

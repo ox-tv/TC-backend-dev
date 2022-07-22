@@ -29,6 +29,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::get('comments/stats', '\App\Http\Controllers\CommentController@stats');
     Route::delete('comments/unremember-all', '\App\Http\Controllers\CommentUserRelationController@unrememberAll')->name('comments.unremember-all');
     Route::put('comments/{comment}/remember', '\App\Http\Controllers\CommentUserRelationController@remember')->name('comments.remember');
     Route::put('comments/read-all-replies', '\App\Http\Controllers\CommentController@markAllAsReadReplies')->name('comments.read-all-replies');
