@@ -312,6 +312,7 @@ class MessageController extends Controller
         if ($is_admin){
             $message->users()
                 ->newPivotStatement()
+                ->where('message_id', $message->id)
                 ->update(['status' => $status]);
         }else{
             $message->users()->updateExistingPivot(auth("api")->id(), [
