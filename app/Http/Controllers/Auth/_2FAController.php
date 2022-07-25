@@ -101,9 +101,31 @@ class _2FAController extends Controller
     }
 
     // Email 2FA
-    public function sendEmail2FACode()
+    public function sendEmail2FACode(Request $request)
     {
-        $user = auth('api')->user();
+        if ($request->header('tc-auth-key')){
+            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }
+        $request->validate([
+            'auth-key' => [
+                'sometimes',
+                function ($attribute, $value, $fail) {
+                    if ($value && !Cache::has($value)) {
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ],
+        ]);
+        if ($request->get('auth-key')){
+            $userId = Cache::get($request->get('auth-key'));
+            $user = User::where('id', $userId)->firstOrFail();
+        }else if (auth('api')->check()){
+            $user = auth('api')->user();
+        }else{
+            return response()->json([
+                "message" => "Unauthenticated."
+            ], 401);
+        }
 
         $this->_2faService->sendEmail2FACode($user);
 
