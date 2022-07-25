@@ -151,20 +151,21 @@ class _2FAController extends Controller
     public function enableEmail2FA(Request $request)
     {
         $user = auth('api')->user();
+        $_2fa = $user->_2fa;
 
         $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
-        if (!$result['email']){
+        if (($_2fa->app_status && !$result['app']) || !$result['email']){
             return response()->json([
                 'message' => 'Please verify 2FA.',
                 'code' => '2fa.require',
                 'errors' => [
+                    'app' => $_2fa->app_status? 'Please verify app 2FA' : null,
                     'email' => 'Please verify email 2FA'
                 ]
             ], 403);
         }
 
-        $_2fa = $user->_2fa;
         $_2fa->email_status = _2FA::EMAIL_STATUS_ENABLE;
         $_2fa->save();
 
