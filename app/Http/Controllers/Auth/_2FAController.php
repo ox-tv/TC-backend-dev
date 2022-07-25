@@ -207,7 +207,7 @@ class _2FAController extends Controller
 
         // Create QRCode for Scan on App
         $qrCodeUrl = $google2FAClient->getQRCodeUrl(
-            config('app.name'),
+            config('general.SITE_NAME'),
             $user->email,
             $_2fa->app_secret
         );
