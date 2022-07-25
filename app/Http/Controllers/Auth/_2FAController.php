@@ -35,9 +35,11 @@ class _2FAController extends Controller
     // Verify
     public function verify(Request $request)
     {
+
         if ($request->header('tc-auth-key')){
             $request->merge(['auth-key' => $request->header('tc-auth-key')]);
         }
+
         $request->validate([
             'auth-key' => [
                 'sometimes',
@@ -47,9 +49,8 @@ class _2FAController extends Controller
                     }
                 },
             ],
-            'email_2fa_code' => ['required_without:app_2fa_secret'],
-            'app_2fa_secret' => ['required_without:email_2fa_code'],
         ]);
+
         if ($request->get('auth-key')){
             $userId = Cache::get($request->get('auth-key'));
             $user = User::where('id', $userId)->firstOrFail();
@@ -60,6 +61,21 @@ class _2FAController extends Controller
                 "message" => "Unauthenticated."
             ], 401);
         }
+
+        $_2fa = $user->_2fa;
+        $emailValidations = [];
+        $appValidations = [];
+        if ($_2fa && $_2fa->app_status){
+            $appValidations = ['required'];
+        }
+        if ($_2fa && $_2fa->email_status){
+            $emailValidations = ['required'];
+        }
+
+        $request->validate([
+            'email_2fa_code' => $emailValidations,
+            'app_2fa_secret' => $appValidations,
+        ]);
 
         $data = [];
         $mapKeys = [
