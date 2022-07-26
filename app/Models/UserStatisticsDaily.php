@@ -3,18 +3,48 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+//use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
 
 class UserStatisticsDaily extends Model
 {
+    protected $connection = 'mongodb';
+
     protected $fillable = ['user_id','date'];
 
-    protected $table = 'user_statistics_daily';
+    //protected $table = 'user_statistics_daily';
+    protected $collection = 'user_statistics_daily';
 
     public $timestamps = false;
 
     protected $casts = [
         //
+    ];
+
+    protected $dates = [
+        'date'
+    ];
+
+    protected $attributes = [
+        'video_views_count_as_hero' => 0,
+        'video_views_count_as_non_hero' => 0,
+        'video_views_count_total' => 0,
+        'video_likes_count_as_hero' => 0,
+        'video_likes_count_as_non_hero' => 0,
+        'video_likes_count_total' => 0,
+        'comment_likes_count_as_hero' => 0,
+        'comment_likes_count_as_non_hero' => 0,
+        'comment_likes_count_total' => 0,
+        'comment_liked_count_as_hero' => 0,
+        'comment_liked_count_as_non_hero' => 0,
+        'comment_liked_count_total' => 0,
+        'referral_count_as_hero' => 0,
+        'referral_count_as_non_hero' => 0,
+        'referral_count_total' => 0,
+        'video_watch_count_as_hero' => 0,
+        'video_watch_count_as_non_hero' => 0,
+        'video_watch_count_total' => 0,
+        'points' => 0,
     ];
 
 
@@ -28,7 +58,7 @@ class UserStatisticsDaily extends Model
 
     // Relations
     public function user(){
-        return $this->belongsTo('App\Models\User');
+        return $this->setConnection('mysql')->belongsTo('App\Models\User');
     }
 
 
@@ -36,7 +66,7 @@ class UserStatisticsDaily extends Model
     {
         $pointsPerWatchVideoAsHero = config('user.points.per_watch_video_as_hero');
         $pointsPerWatchVideoAsNonHero = config('user.points.per_watch_video_as_non_hero');
-        $pointsPerCommentLikedAsHero = config('useer.points.per_comment_liked_as_hero');
+        $pointsPerCommentLikedAsHero = config('user.points.per_comment_liked_as_hero');
         $pointsPerCommentLikedAsNonHero = config('user.points.per_comment_liked_as_non_hero');
         $pointsPerReferrerAsHero = config('user.points.per_referrer_as_hero');
         $pointsPerReferrerAsNonHero = config('user.points.per_referrer_as_non_hero');

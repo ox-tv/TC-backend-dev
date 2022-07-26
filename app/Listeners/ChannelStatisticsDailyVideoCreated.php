@@ -26,7 +26,7 @@ class ChannelStatisticsDailyVideoCreated
 
         $statistics = ChannelStatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->upload_videos_total += 1;

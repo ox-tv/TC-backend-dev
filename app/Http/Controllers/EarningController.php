@@ -242,8 +242,8 @@ class EarningController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $totalMonthPoints = VideoStatisticsDaily::whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day)
+            $totalMonthPoints = VideoStatisticsDaily::where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day))
                 ->sum('points');
 
             $heroSubCounts = User::whereHas('subscribedChannels', function ($q) use ($to_day){
@@ -266,8 +266,8 @@ class EarningController extends Controller
                 $channel = $publisher->channel;
 
                 $points = VideoStatisticsDaily::where('channel_id', $channel->id)
-                    ->whereDate('date', '>=', $from_day)
-                    ->whereDate('date', '<=', $to_day)
+                    ->where('date', '>=', Carbon::parse($from_day))
+                    ->whereDate('date', '<=', Carbon::parse($to_day))
                     ->sum('points');
 
                 $heroSubCounts = $channel->subscribers()->where(function ($q) use ($to_day){

@@ -33,6 +33,8 @@ class NotificationResource extends JsonResource
             'type' => $this->type,
             'payload' => $this->payload,
             'created_at' => $this->created_at,
+            'published_at' => $this->published_at,
+            'deleted_at' => $this->whenAppended('deleted_at'),
             'read_at' => $this->read_at,
 
             // Custom attributes without query
@@ -42,12 +44,14 @@ class NotificationResource extends JsonResource
             // Custom attributes with query
 
             // Relations
+            'deleted_by' => UserResource::make($this->whenLoaded('DeletedBy')),
             'from' => UserResource::make($this->whenLoaded('from')),
             'entity' => $this->getEntity(),
             'to' => $this->when(
                 $this->resource->user_group == Notification::USER_GROUP_CUSTOM,
                 UserResource::collection($this->whenLoaded('users'))
             ),
+
         ];
     }
 

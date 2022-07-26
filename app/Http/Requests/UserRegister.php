@@ -49,6 +49,7 @@ class UserRegister extends FormRequest
             ],
             'password' => ['required', 'string', 'min:8'],
             'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ];
     }
 }

@@ -4,16 +4,44 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+//use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
 
 class VideoStatisticsDaily extends Model
 {
+    protected $connection = 'mongodb';
+
     protected $fillable = ['video_id','channel_id','date'];
 
-    protected $table = 'video_statistics_daily';
+    //protected $table = 'video_statistics_daily';
+    protected $collection = 'video_statistics_daily';
 
     protected $casts = [
         'point_details' => 'array'
+    ];
+
+    protected $dates = [
+        'date'
+    ];
+
+    protected $attributes = [
+        'views_hero' => 0,
+        'views_non_hero' => 0,
+        'views_total' => 0,
+        'likes_hero' => 0,
+        'likes_non_hero' => 0,
+        'likes_total' => 0,
+        'dislikes_hero' => 0,
+        'dislikes_non_hero' => 0,
+        'dislikes_total' => 0,
+        'comments_hero' => 0,
+        'comments_non_hero' => 0,
+        'comments_total' => 0,
+        'watch_time_hero' => 0,
+        'watch_time_non_hero' => 0,
+        'watch_time_total' => 0,
+        'points' => 0,
+        'point_details' => "",
     ];
 
     public $timestamps = false;
@@ -53,11 +81,11 @@ class VideoStatisticsDaily extends Model
 
     // Relations
     public function video(){
-        return $this->belongsTo('App\Models\Video');
+        return $this->setConnection('mysql')->belongsTo('App\Models\Video');
     }
 
     public function channel(){
-        return $this->belongsTo('App\Models\Channel');
+        return $this->setConnection('mysql')->belongsTo('App\Models\Channel');
     }
 
     // attributes

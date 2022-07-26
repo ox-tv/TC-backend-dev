@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Http\Resources\_2FA\_2FAResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Tag\TagResource;

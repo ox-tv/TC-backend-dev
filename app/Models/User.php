@@ -155,6 +155,10 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Channel', 'user_id');
     }
 
+    public function _2fa(){
+        return $this->hasOne('App\Models\_2FA', 'user_id');
+    }
+
     public function subscribedChannels(){
         return $this->belongsToMany('App\Models\Channel', 'channel_user', 'user_id')->withTimestamps();
     }
@@ -196,7 +200,7 @@ class User extends Authenticatable
     }
 
     public function statistics(){
-        return $this->hasMany('App\Models\UserStatisticsDaily');
+        return $this->setConnection('mongodb')->hasMany('App\Models\UserStatisticsDaily');
     }
 
 

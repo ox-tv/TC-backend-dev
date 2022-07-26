@@ -106,7 +106,7 @@ class ReportController extends Controller
 
         if ($request->is("api/comments/{$idOrUrlHash}/report")){
             $option_key = Option::COMMENT_REPORT_REASONS;
-            $model = Comment::findOrFail($idOrUrlHash);
+            $model = Comment::withoutGlobalScope(WhereParentNullScope::class)->findOrFail($idOrUrlHash);
             $report->reported_user_id = $model->user_id;
         }
 

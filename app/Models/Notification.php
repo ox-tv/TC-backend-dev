@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Models\Scopes\WherePublishedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\DatabaseNotification;
 
 class Notification extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $casts = [
         'payload' => 'array'
@@ -59,6 +61,7 @@ class Notification extends Model
     const TYPE_REPORT_COMMENT = 'ReportComment';
     const TYPE_REPORT_VIDEO = 'ReportVideo';
     const TYPE_UPDATE_CHANNEL_STATUS = 'UpdateChannelStatus';
+    const TYPE_MENTIONED_ON_COMMENT = 'MentionedOnComment';
 
     protected static function booted()
     {
@@ -71,6 +74,10 @@ class Notification extends Model
 
     public function from(){
         return $this->belongsTo('App\Models\User', 'sender_id');
+    }
+
+    public function DeletedBy(){
+        return $this->belongsTo('App\Models\User', 'deleted_by')->withTrashed();
     }
 
     public function entity(){

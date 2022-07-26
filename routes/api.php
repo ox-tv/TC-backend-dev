@@ -18,6 +18,8 @@ Route::group([], __DIR__.'/partial-routes/general.php');
 
 Route::group([], __DIR__.'/partial-routes/auth.php');
 
+Route::group([], __DIR__.'/partial-routes/_2fa.php');
+
 Route::group([], __DIR__.'/partial-routes/category.php');
 
 Route::group([], __DIR__.'/partial-routes/feedback.php');
@@ -65,3 +67,8 @@ Route::group([], __DIR__.'/partial-routes/user.php');
 Route::group([], __DIR__.'/partial-routes/video.php');
 
 
+// Utility API routes
+Route::group([], function(){
+    Route::get('captcha', '\App\Http\Controllers\CaptchaController@get');
+    Route::post('captcha', '\App\Http\Controllers\CaptchaController@verify');
+});

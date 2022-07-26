@@ -21,7 +21,7 @@ class SendNotificationOnMessageCreatedByAdmin
     public function handle(MessageCreatedByAdmin $event)
     {
         $message = $event->message;
-        $users = $message->users;
+        $users = $message->users()->get();
 
         TCNotification::Send($users, new GeneralNotification(
             Notification::TYPE_NEW_MESSAGE,

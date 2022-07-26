@@ -23,11 +23,11 @@ class PointService
         $q = VideoStatisticsDaily::where('channel_id', $channel->id);
 
         if(!empty($from)){
-            $q->whereDate('date', '>=', $from);
+            $q->where('date', '>=', Carbon::parse($from));
         }
 
         if(!empty($to)){
-            $q->whereDate('date', '<=', $to);
+            $q->where('date', '<=', Carbon::parse($to));
         }
 
         $points += $q->sum('points');
@@ -61,11 +61,11 @@ class PointService
         $q = VideoStatisticsDaily::where('channel_id', $channel->id);
 
         if(!empty($from)){
-            $q->whereDate('date', '>=', $from);
+            $q->where('date', '>=', Carbon::parse($from));
         }
 
         if(!empty($to)){
-            $q->whereDate('date', '<=', $to);
+            $q->where('date', '<=', Carbon::parse($to));
         }
 
         $points += $q->sum('point_details->hero');
@@ -92,11 +92,11 @@ class PointService
         $q = VideoStatisticsDaily::where('channel_id', $channel->id);
 
         if(!empty($from)){
-            $q->whereDate('date', '>=', $from);
+            $q->where('date', '>=', Carbon::parse($from));
         }
 
         if(!empty($to)){
-            $q->whereDate('date', '<=', $to);
+            $q->where('date', '<=', Carbon::parse($to));
         }
 
         $points += $q->sum('point_details->non_hero');

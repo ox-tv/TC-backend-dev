@@ -8,43 +8,37 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Resources\User\UserResource;
 use App\Mail\MagicLoginMail;
 use App\Mail\PasswordResetMail;
+use App\Models\_2FA;
 use App\Models\MagicLogin;
 use App\Models\PasswordReset;
 use App\Models\User;
+use App\Services\_2FAService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class LoginController extends Controller
 {
+    private $_2faService;
+
+    public function __construct(_2FAService $_2faService)
+    {
+        $this->_2faService = $_2faService;
+    }
 
     public function login(LoginRequest $request, $scope = 'user')
     {
-        $login = $request->get('email')?:$request->get('login');
+        $login = $request->get('email')? : $request->get('login');
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)? 'email': 'username';
-
-        if(Auth::validate([$loginType => $login, 'password' => $request->get('password')])){
-
-            $user = Auth::getLastAttempted();
-
-            if($user->status == User::STATUS_INACTIVE) {
-
-                if (!$user->email_verified_at){
-                    auth()->emailVerification($user, $scope);
-                    return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
-                }
-
-                return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
-            }
-        }
 
         $credentials = [
             $loginType => $login,
             'password' => $request->get('password'),
-            'status' => User::STATUS_ACTIVE
+            //'status' => User::STATUS_ACTIVE
         ];
 
         if($scope == 'publisher'){
@@ -57,22 +51,54 @@ class LoginController extends Controller
             $credentials['role_id'] = $publisherRoleId;
         }
 
-        $attempt = Auth::attempt($credentials);
-
-        if($attempt){
-            $user = Auth::user();
-            $result['profile'] = UserResource::make($user->append('role_name'));
-            $result['token'] =  $user->createToken('access_token')->accessToken;
-            return response()->json($result, '200');
+        if (!Auth::validate($credentials)){
+            return response()->json(['code'=> 401, 'message'=>__('auth.unauthorized')], 401);
         }
 
-        return response()->json(['code'=>401, 'message'=>__('auth.unauthorized')], 401);
+        $user = Auth::getLastAttempted();
+
+        if($user->status == User::STATUS_INACTIVE) {
+
+            if (!$user->email_verified_at){
+                auth()->emailVerification($user, $scope);
+                return response()->json(['code'=> 'auth.email_verification_link_sent', 'message'=>__('auth.email_verification_link_sent')], 401);
+            }
+
+            return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
+        }
+
+        if ($_2fa = $user->_2fa){
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+            }
+
+            if (!empty($errors)){
+                $authKey = sha1('login.2fa.require.' . $user->id);
+                Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors,
+                    'auth_key' => $authKey
+                ], 403);
+            }
+        }
+
+        $result['profile'] = UserResource::make($user->append('role_name'));
+        $result['token'] =  $user->createToken('access_token')->accessToken;
+        return response()->json($result);
     }
 
     public function sendMagicLogin(Request $request, $scope = 'user')
     {
         $request->validate([
             'login' => 'required|string',
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ]);
 
         $login = $request->get('login');
@@ -135,7 +161,7 @@ class LoginController extends Controller
         ]);
     }
 
-    public function verifyMagicLogin($token)
+    public function verifyMagicLogin(Request $request, $token)
     {
         $magicLogin = MagicLogin::where('token', $token)
             ->where('expired_at', '>', Carbon::now())
@@ -147,12 +173,31 @@ class LoginController extends Controller
             return response()->json(['code'=>401, 'message'=>__('auth.inactive_account')], 401);
         }
 
-        // login
-        Auth::login($user);
+        if ($_2fa = $user->_2fa){
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+            }
+
+            if (!empty($errors)){
+                $authKey = sha1('login.2fa.require.' . $user->id);
+                Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors,
+                    'auth_key' => $authKey
+                ], 403);
+            }
+        }
 
         $result['profile'] = UserResource::make($user->append('role_name'));
         $result['token'] =  $user->createToken('access_token')->accessToken;
-        return response()->json($result, '200');
+        return response()->json($result);
     }
 
     /**
@@ -175,6 +220,11 @@ class LoginController extends Controller
 
     public function send_password_reset_link(Request $request)
     {
+        $request->validate([
+            'email' => 'required|string',
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
+        ]);
+
         $scope = $request->get('scope');
 
         $userQuery = User::where("email", $request->get("email"));

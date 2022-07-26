@@ -9,6 +9,7 @@ class TCBroadcastChannel
 {
     public function send($notifiables, $notificationResource)
     {
+        //dd($notifiables);
         try {
             foreach ($notifiables as $user){
                 broadcast(new BroadcastEvent($user, $notificationResource));

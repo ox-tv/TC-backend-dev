@@ -94,7 +94,7 @@ class MessageController extends Controller
         if($request->get("department_id")){
             $message->department_id = $request->get("department_id");
         }else{
-            $department = Department::firstOrCreate(['name' => 'Other']);
+            $department = Department::firstOrCreate(['name' => 'Other', 'scope' => Department::SCOPE_PUBLISHER]);
             $message->department_id = $department->id;
         }
 
@@ -295,19 +295,30 @@ class MessageController extends Controller
         if ($action == "close"){
             $status = MessageUser::STATUS_CLOSE;
         }elseif ($action == "seen"){
-            if($message_user->status == MessageUser::STATUS_NEW_BY_USER && $is_admin){
+            if($status == MessageUser::STATUS_NEW_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
-            }elseif($message_user->status == MessageUser::STATUS_NEW_BY_ADMIN && !$is_admin){
+            }elseif($status == MessageUser::STATUS_NEW_BY_ADMIN && !$is_admin){
                 $status = MessageUser::STATUS_SEEN;
-            }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
+            }elseif ($status == MessageUser::STATUS_REPLIED_BY_USER && $is_admin){
                 $status = MessageUser::STATUS_SEEN;
-            }elseif ($message_user->status == MessageUser::STATUS_REPLIED_BY_ADMIN && !$is_admin){
+            }elseif ($status == MessageUser::STATUS_REPLIED_BY_ADMIN && !$is_admin){
                 $status = MessageUser::STATUS_SEEN;
             }
         }
 
-        $message_user->status = $status;
-        $message_user->save();
+        //$message_user->status = $status;
+        //$message_user->save();
+
+        if ($is_admin){
+            $message->users()
+                ->newPivotStatement()
+                ->where('message_id', $message->id)
+                ->update(['status' => $status]);
+        }else{
+            $message->users()->updateExistingPivot(auth("api")->id(), [
+                "status" => $status,
+            ]);
+        }
 
         return response()->json(["status" => "ok"]);
     }

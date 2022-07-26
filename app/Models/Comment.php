@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Scopes\WhereParentNullScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +18,8 @@ class Comment extends Model
     const COMMENT_NOT_PINNED = 0;
 
     protected $casts = [
-      'is_pinned' => 'boolean'
+      'is_pinned' => 'boolean',
+      'read_at' => 'datetime',
     ];
 
     protected static function booted()
@@ -37,6 +39,31 @@ class Comment extends Model
         if(is_array($videos) && count($videos)>0){
             return $query->whereIn('video_id', $videos);
         }
+        return $query;
+    }
+
+    public function scopeLastHour($query){
+        $query->where('created_at', '>=', Carbon::now()->subHour());
+        return $query;
+    }
+
+    public function scopeLastDay($query){
+        $query->where('created_at', '>=', Carbon::now()->subDay());
+        return $query;
+    }
+
+    public function scopeLastWeek($query){
+        $query->where('created_at', '>=', Carbon::now()->subWeek());
+        return $query;
+    }
+
+    public function scopeLastMonth($query){
+        $query->where('created_at', '>=', Carbon::now()->subMonth());
+        return $query;
+    }
+
+    public function scopeLastSeason($query){
+        $query->where('created_at', '>=', Carbon::now()->subMonths(3));
         return $query;
     }
 
@@ -64,11 +91,19 @@ class Comment extends Model
     }
 
     public function likedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::LIKED_RELATION);
     }
 
     public function dislikedBy(){
-        return $this->belongsToMany('App\Models\User')->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::DISLIKED_RELATION);
+    }
+
+    public function rememberedBy(){
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::REMEMBERED_RELATION);
+    }
+
+    public function mentions(){
+        return $this->belongsToMany('App\Models\User')->withTimestamps()->withPivot('relation')->where('relation', CommentUser::MENTION_RELATION);
     }
 
     public function replies(){
@@ -101,23 +136,42 @@ class Comment extends Model
         return false;
     }
 
-    public function getReportsCountAttribute(){
+    public function getIsRememberedAttribute()
+    {
+        if(auth('api')->check()){
+            return $this->rememberedBy()->whereUserId(auth('api')->id())->exists();
+        }
+
+        return false;
+    }
+
+    public function getReportsCountAttribute()
+    {
         return $this->reports()->count();
     }
 
-    public function getLikesCountAttribute(){
+    public function getLikesCountAttribute()
+    {
         return $this->likedBy()->count();
     }
 
-    public function getDislikesCountAttribute(){
+    public function getDislikesCountAttribute()
+    {
         return $this->dislikedBy()->count();
     }
 
-    public function getRepliesCountAttribute(){
+    public function getRepliesCountAttribute()
+    {
         return $this->replies()->count();
     }
 
-    public function getIsPinnedAttribute($value){
+    public function getIsPinnedAttribute($value)
+    {
         return (bool) $value;
+    }
+
+    public function getIsReadRepliesAttribute(): bool
+    {
+        return !self::where('parent_id', $this->id)->withoutGlobalScope(WhereParentNullScope::class)->whereNull('read_at')->exists();
     }
 }

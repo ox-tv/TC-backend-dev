@@ -41,11 +41,11 @@ class VideoStatisticsController extends Controller
         $toFilter = Arr::get($filters, 'to');
 
         if($fromFilter){
-            $statisticsQuery->where('date', '>=', $fromFilter);
+            $statisticsQuery->where('date', '>=', Carbon::parse($fromFilter));
         }
 
         if($toFilter){
-            $statisticsQuery->where('date', '<=', $toFilter);
+            $statisticsQuery->where('date', '<=', Carbon::parse($toFilter));
         }
 
         $statistics = [];
@@ -86,8 +86,8 @@ class VideoStatisticsController extends Controller
             $videoStatisticsQuery = VideoStatisticsDaily::where([
                     'video_id' => $video->id
                 ])
-                ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day)->get();
+                ->where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day))->get();
 
             $statistics[$monthString] = $this->makeResult($videoStatisticsQuery, $monthString);
         }
@@ -119,11 +119,11 @@ class VideoStatisticsController extends Controller
         $toFilter = Arr::get($filters, 'to');
 
         if($fromFilter){
-            $statisticsQuery->where('date', '>=', $fromFilter);
+            $statisticsQuery->where('date', '>=', Carbon::parse($fromFilter));
         }
 
         if($toFilter){
-            $statisticsQuery->where('date', '<=', $toFilter);
+            $statisticsQuery->where('date', '<=', Carbon::parse($toFilter));
         }
 
         return response()->json($this->makeResult($statisticsQuery, ''));

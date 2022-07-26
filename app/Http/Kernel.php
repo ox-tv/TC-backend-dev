@@ -64,5 +64,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'user.unmute' => \App\Http\Middleware\EnsureUserIsUnMute::class,
         'channel.unfreeze' => \App\Http\Middleware\EnsureChannelIsUnFreeze::class,
+        '2fa' => \App\Http\Middleware\Check2FA::class,
     ];
 }

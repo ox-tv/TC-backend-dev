@@ -9,10 +9,12 @@ Route::delete('account/delete/{token}', '\App\Http\Controllers\UserController@de
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
+    Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
 
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
     Route::delete('profile', '\App\Http\Controllers\UserController@destroy')->name('profile.destroy');
+    Route::post('profile/password', '\App\Http\Controllers\UserController@changePassword')->middleware(['2fa']);
 
     Route::get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
@@ -23,7 +25,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
-
+    
 });
 
 
@@ -48,6 +50,5 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-
 
 });

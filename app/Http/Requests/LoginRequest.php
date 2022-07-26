@@ -29,6 +29,7 @@ class LoginRequest extends FormRequest
             'email' => 'required_without:login|string|email',
             'login' => 'required_without:email|string',
             'password' => ['required', 'string'],
+            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ];
     }
 

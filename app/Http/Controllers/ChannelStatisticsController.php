@@ -22,6 +22,11 @@ class ChannelStatisticsController extends Controller
 {
     public function total(Request $request, $idOrSlug = null)
     {
+        $request->validate([
+            'filters.from' => ['sometimes', 'date'],
+            'filters.to' => ['sometimes', 'date'],
+        ]);
+
         $channel = null;
 
         if ($request->is('api/admin/*')){
@@ -49,11 +54,11 @@ class ChannelStatisticsController extends Controller
 
         })->when($fromFilter, function ($query, $fromFilter) {
 
-            return $query->where('date', '>=', $fromFilter);
+            return $query->where('date', '>=', Carbon::parse($fromFilter));
 
         })->when($toFilter, function ($query, $toFilter) {
 
-            return $query->where('date', '<=', $toFilter);
+            return $query->where('date', '<=', Carbon::parse($toFilter));
         });
 
 
@@ -64,11 +69,11 @@ class ChannelStatisticsController extends Controller
 
         })->when($fromFilter, function ($query, $fromFilter) {
 
-            return $query->where('date', '>=', $fromFilter);
+            return $query->where('date', '>=', Carbon::parse($fromFilter));
 
         })->when($toFilter, function ($query, $toFilter) {
 
-            return $query->where('date', '<=', $toFilter);
+            return $query->where('date', '<=', Carbon::parse($toFilter));
         });
 
         if (in_array(($channel->slug?? null), ['roberts-sloppy-media', 'aahelali', 'roberts-channel'])){
@@ -113,14 +118,14 @@ class ChannelStatisticsController extends Controller
             $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day)->get();
+                ->where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day))->get();
 
             $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->whereDate('date', '>=', $from_day)
-                ->whereDate('date', '<=', $to_day)->get();
+                ->where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day))->get();
 
             $statistics[$monthString] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $monthString);
         }
@@ -163,12 +168,12 @@ class ChannelStatisticsController extends Controller
             $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->whereDate('date', $day->format('Y-m-d'))->get();
+                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->whereDate('date', $day->format('Y-m-d'))->get();
+                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $day->format('Y-m-d'));
         }

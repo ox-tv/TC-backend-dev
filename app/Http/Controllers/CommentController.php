@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\VideoCommented;
+use App\Events\Comments\CommentCreated;
 use App\Http\Requests\CommentReply;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
+use App\Models\CommentUser;
 use App\Models\Option;
+use App\Models\Scopes\OrderDescScope;
+use App\Models\Scopes\WhereParentNullScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -26,24 +30,82 @@ class CommentController extends Controller
             $query->hasVideo();
         }
 
+        $perPage = $request->get('per_page')? min($request->get('per_page'), 200) : 15;
         $filters = $request->get('filters', []);
+        $videosFilter = Arr::get($filters, 'videos');
+        $timeFilter = Arr::get($filters, 'time');
+        $justRemembersFilter = Arr::get($filters, 'just_remembers');
+        $justMyMentionsFilter = Arr::get($filters, 'just_my_mentions');
+        $justUnreadMentionsFilter = Arr::get($filters, 'just_unread_replies');
 
-        $videos = Arr::get($filters, 'videos');
+        if($justRemembersFilter){
+            $query->whereHas('rememberedBy');
+        }
 
-        if($videos){
-            $videos = explode(',', $videos);
-            $query->inVideos($videos);
+        if($justMyMentionsFilter){
+            /*$query->whereHas('mentions', function (Builder $query) {
+                $query->where('id', auth('api')->id());
+            });*/
+            $query->whereHas('replies', function (Builder $query) {
+                $query->whereHas('mentions', function (Builder $query) {
+                    $query->where('id', auth('api')->id());
+                });
+            });
+        }
+
+        if($justUnreadMentionsFilter){
+            $query->whereHas('replies', function ($q){
+                $q->whereNull('read_at');
+            });
+        }
+
+        if($videosFilter){
+            $videoIds = explode(',', $videosFilter);
+            $query->inVideos($videoIds);
+        }
+
+        switch ($timeFilter){
+            case 'last_hour':{
+                $query->lastHour();
+                break;
+            }
+            case 'last_day':{
+                $query->lastDay();
+                break;
+            }
+            case 'last_week':{
+                $query->lastweek();
+                break;
+            }
+            case 'last_month':{
+                $query->lastMonth();
+                break;
+            }
+            case 'last_season':{
+                $query->lastSeason();
+                break;
+            }
+            default:{
+
+            }
         }
 
         $sort = $request->get('sort');
-        if ($videos){
+        if (!empty($videoIds)){
             $query->orderBy('is_pinned','Desc');
         }
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }
+        if($sort === 'oldest'){
+            $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');
+        }
+        if($sort === 'newest_mentions'){
+            $query->withoutGlobalScope(OrderDescScope::class)
+                ->orderBy('last_mentioned_at', 'desc');
+        }
 
-        $comments = $query->paginate();
+        $comments = $query->paginate($perPage);
 
         $comments->load([
             'video',
@@ -51,10 +113,15 @@ class CommentController extends Controller
         ])->append([
             'is_liked',
             'is_disliked',
+            'is_remembered',
             'likes_count',
             'dislikes_count',
             'replies_count',
         ]);
+
+        if($request->is('api/publisher/comments')){
+            $comments->append(['is_read_replies', 'last_mentioned_at']);
+        }
 
         return CommentResource::collection($comments);
     }
@@ -70,7 +137,7 @@ class CommentController extends Controller
         //
     }
 
-    public function show(Comment $comment)
+    public function show(Request $request, Comment $comment)
     {
         $comment->load([
             'video',
@@ -84,16 +151,24 @@ class CommentController extends Controller
             'replies_count',
         ]);
 
-        $comment->replies->each(function ($item, $key) {
-            $item->append([
-                'is_liked',
-                'is_disliked',
-                'likes_count',
-                'dislikes_count',
-            ]);
+        $comment->replies->append([
+            'is_liked',
+            'is_disliked',
+            'likes_count',
+            'dislikes_count',
+        ]);
 
+        $comment->replies->each(function ($item, $key) {
             $item->user->append('is_publisher');
         });
+
+        $comment->replies->load('mentions');
+
+        if($request->is('api/publisher/*')){
+            Comment::where('parent_id', $comment->id)
+                ->withoutGlobalScope(WhereParentNullScope::class)
+                ->update(['read_at' => Carbon::now()]);
+        }
 
         return CommentResource::make($comment);
     }
@@ -116,9 +191,10 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Comment $comment)
+    public function destroy(Request $request, $id)
     {
         $isAdmin = $request->is('api/admin/*');
+        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
 
         if (!$isAdmin && auth('api')->id() != $comment->user_id){
             return response()->json(["message" => "You do not have access to delete this comment"],403);
@@ -154,14 +230,29 @@ class CommentController extends Controller
      * @param CommentReply $request
      * @param Comment $comment
      */
-    public function reply(CommentReply $request, Comment $comment){
+    public function reply(CommentReply $request, Comment $comment)
+    {
         $reply = new Comment();
         $reply->text = $request->get('text');
         $reply->user_id = Auth::user()->id;
         $reply->video_id = $comment->video_id;
+        $reply->parent_id = $comment->id;
         $reply->save();
 
-        $comment->parent()->save($reply);event(new VideoCommented($comment->video, auth('api')->user()));
+        //$comment->parent()->save($reply);
+
+        if (!empty($request->get('mentions'))){
+            foreach ($request->get('mentions') as $id){
+                $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
+            }
+            $reply->mentions()->attach($mentions);
+
+            // update last_mentioned_at on parent row
+            $comment->last_mentioned_at = Carbon::now();
+            $comment->save();
+        }
+
+        event(new CommentCreated($reply));
 
         $reply->load([
             'video',
@@ -200,4 +291,33 @@ class CommentController extends Controller
         return CommentResource::make($comment);
     }
 
+    public function markAllAsReadReplies()
+    {
+        $user = auth('api')->user();
+
+        Comment::whereHas('video', function ($q){
+            $q->where('user_id', auth('api')->id());
+        })->withoutGlobalScope(WhereParentNullScope::class)
+        ->update(['read_at' => Carbon::now()]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function stats()
+    {
+        $result = [
+            'remembers' => 0,
+            'unread_mentions' => 0,
+        ];
+
+        $result['remembers'] = CommentUser::where('user_id', auth('api')->id())->where('relation', CommentUser::REMEMBERED_RELATION)->count();
+
+        $result['unread_mentions'] = Comment::whereHas('video', function (Builder $query) {
+                $query->where('user_id', auth('api')->id());
+            })->whereHas('replies', function ($q){
+                $q->whereNull('read_at');
+            })->count();
+
+        return $result;
+    }
 }

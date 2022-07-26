@@ -181,6 +181,10 @@ return [
         App\Providers\FacadeServiceProvider::class,
         App\Providers\ObserverServiceProvider::class,
 
+        //captcha provider
+        Mews\Captcha\CaptchaServiceProvider::class,
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
+
     ],
 
     /*
@@ -234,6 +238,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'TCNotification' => \App\TCNotification\TCNotificationFacade::class,
+
+        'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ],
 
 ];

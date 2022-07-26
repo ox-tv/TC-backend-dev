@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\VideoCommented;
+use App\Events\Comments\CommentCreated;
 use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
 use App\Events\VideoUpdated;
@@ -20,6 +20,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\CommentUser;
 use App\Models\CryptoCurrency;
 use App\Models\Option;
 use App\Models\Playlist;
@@ -574,7 +575,14 @@ class VideoController extends Controller
         $comment->video()->associate($video);
         $comment->save();
 
-        event(new VideoCommented($video, auth('api')->user()));
+        if (!empty($request->get('mentions'))){
+            foreach ($request->get('mentions') as $id){
+                $mentions[$id] = ['relation' => CommentUser::MENTION_RELATION];
+            }
+            $comment->mentions()->attach($mentions);
+        }
+
+        event(new CommentCreated($comment));
 
         return CommentResource::make($comment);
     }
@@ -640,6 +648,11 @@ class VideoController extends Controller
         $userId = Auth::guard('api')->id();
         $videoIds = collect($request->get('videos'));
         $text = $request->get('text');
+
+        Comment::whereIn('video_id', $videoIds)->update([
+            'is_pinned' => false,
+            'pinned_by' => null,
+        ]);
 
         $videoIds->map(function ($videoId) use ($userId, $text){
             $comment = new Comment();

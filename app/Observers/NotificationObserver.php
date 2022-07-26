@@ -47,7 +47,8 @@ class NotificationObserver
      */
     public function deleted(Notification $notification)
     {
-        //
+        $notification->deleted_by = auth('api')->id();
+        $notification->save();
     }
 
     /**

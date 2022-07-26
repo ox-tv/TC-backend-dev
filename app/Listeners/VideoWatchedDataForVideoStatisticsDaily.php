@@ -6,6 +6,7 @@ use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\UserStatisticsDaily;
 use App\Models\VideoStatisticsDaily;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VideoWatchedDataForVideoStatisticsDaily
@@ -40,7 +41,7 @@ class VideoWatchedDataForVideoStatisticsDaily
         $statistics = VideoStatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
-            'date' => date('Y-m-d'),
+            'date' => Carbon::now()->startOfDay(),
         ]);
 
         $statistics->watch_time_total += $duration;

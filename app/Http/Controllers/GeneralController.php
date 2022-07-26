@@ -25,7 +25,7 @@ class GeneralController extends Controller
 
         // Trending Channels
         $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
-            ->whereDate('date', '>=', (Carbon::now())->subDays(30)->format('Y-m-d'))
+            ->where('date', '>=', (Carbon::now())->subDays(30))
             ->groupBy('channel_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('subscribers', 'DESC')
@@ -45,7 +45,7 @@ class GeneralController extends Controller
 
         // Trending Videos
         $trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-            ->whereDate('date', '>=', (Carbon::now())->subDays(7)->format('Y-m-d'))
+            ->where('date', '>=', Carbon::now()->subDays(7))
             ->groupBy('video_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('points', 'DESC')

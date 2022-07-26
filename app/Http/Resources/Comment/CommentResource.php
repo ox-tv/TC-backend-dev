@@ -23,6 +23,7 @@ class CommentResource extends JsonResource
             'text' => $this->text,
             'status' => $this->status,
             'created_at' => $this->created_at,
+            'last_mentioned_at' => $this->whenAppended('last_mentioned_at'),
             'reason_key' => $this->whenAppended('reason_key'),
             'reason_text' => $this->whenAppended('reason_text'),
 
@@ -32,10 +33,12 @@ class CommentResource extends JsonResource
             // Custom attributes with query
             'is_liked' => $this->whenAppended('is_liked'),
             'is_disliked' => $this->whenAppended('is_disliked'),
+            'is_remembered' => $this->whenAppended('is_remembered'),
             'reports_count' => $this->whenAppended('reports_count'),
             'likes_count' => $this->whenAppended('likes_count'),
             'dislikes_count' => $this->whenAppended('dislikes_count'),
             'replies_count' => $this->whenAppended('replies_count'),
+            'is_read_replies' => $this->whenAppended('is_read_replies'),
 
             // Relations
             'pinned_by' => UserResource::make($this->whenLoaded('PinnedBy')),
@@ -43,6 +46,7 @@ class CommentResource extends JsonResource
             'video' => VideoResource::make($this->whenLoaded('video')),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
             'reports' => ReportMinimalItem::collection($this->whenLoaded('reports')),
+            'mentions' => UserResource::collection($this->whenLoaded('mentions')),
         ];
     }
 }
