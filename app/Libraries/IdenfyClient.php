@@ -47,26 +47,26 @@ class IdenfyClient
             ])->post("{$this->apiUrl}/token", $args);
 
             $body = $response->json();
+
+            if(!$response->successful()){
+                throw new Exception( "{$body['identifier']} - {$body['message']}", $response->status() );
+            }
+
             $result['success'] = true;
             $result['data'] = $body;
             return $result;
 
-            if(!$response->successful()){
-                throw new Exception(
-                    empty( $body['error']['message'] ) ? '' : $body['error']['message'],
-                    $response->status()
-                );
-            }
-
-            $result['success'] = true;
-            $result['data'] = $body['data'];
-            return $result;
-
         }catch(Exception $e){
             $result['success'] = false;
-            $result['message'] = $e->getCode() . $e->getMessage();
-            Log::error($result['message']);
+            $result['http_code'] = $e->getCode();
+            $result['message'] = $e->getMessage();
+            Log::error(print_r($result, true));
             return $result;
         }
+    }
+
+    public function createWebUiUrl($authToken)
+    {
+        return "https://ivs.idenfy.com/api/v2/redirect?authToken={$authToken}";
     }
 }
