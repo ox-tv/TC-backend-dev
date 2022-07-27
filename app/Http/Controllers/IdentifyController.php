@@ -45,7 +45,7 @@ class IdentifyController extends Controller
         ]);
 
         if (!$response['success']){
-            return response()->json(['message' => $response['data']['message']], 400);
+            return response()->json(['message' => $response['message']], 400);
         }
 
         $url = $client->createWebUiUrl($response['data']['authToken']);
