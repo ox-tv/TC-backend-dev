@@ -27,7 +27,8 @@ class IdenfyClient
     public function ceateToken($clientId, $options = [])
     {
         $args = [
-            'clientId' => $clientId
+            'clientId' => $clientId,
+            'dummyStatus' => 'APPROVED'
         ];
 
         $args['firstName'] = $options['first_name'] ?? null;
