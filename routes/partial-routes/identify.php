@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::get('idenfy/redirect', '\App\Http\Controllers\IdenfyController@getRedirectUrl');
+    Route::get('identify/verification-url', '\App\Http\Controllers\IdentifyController@getWebUiUrl');
 
 });
 

@@ -20,7 +20,7 @@ Route::group([], __DIR__.'/partial-routes/auth.php');
 
 Route::group([], __DIR__.'/partial-routes/_2fa.php');
 
-Route::group([], __DIR__.'/partial-routes/idenfy.php');
+Route::group([], __DIR__.'/partial-routes/identify.php');
 
 Route::group([], __DIR__.'/partial-routes/category.php');
 
