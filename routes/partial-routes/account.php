@@ -7,7 +7,7 @@ Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@
 
 Route::delete('account/delete/{token}', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete");
 
-// For Login Users
+// For Logged in Users
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
 
