@@ -18,8 +18,15 @@ class CommentUserRelationController extends Controller
 
         $userId = Auth::id();
 
-        $isDisliked = $comment->dislikedBy()->find($userId);
-        $isLiked = $comment->likedBy()->find($userId);
+        $isDisliked = CommentUser::where('comment_id', $id)
+            ->where('user_id', $userId)
+            ->where('relation', CommentUser::DISLIKED_RELATION)
+            ->first();
+
+        $isLiked = CommentUser::where('comment_id', $id)
+            ->where('user_id', $userId)
+            ->where('relation', CommentUser::LIKED_RELATION)
+            ->first();
 
         if($isDisliked){
 
@@ -28,18 +35,19 @@ class CommentUserRelationController extends Controller
                 ->where('relation', CommentUser::DISLIKED_RELATION)
                 ->update(['relation' => CommentUser::LIKED_RELATION]);
 
-//            $comment->dislikedBy->wherePivot('relation', CommentUser::DISLIKED_RELATION)->sync([$userId => ['relation' => CommentUser::LIKED_RELATION]]);
-//            $comment->dislikedBy()->wherePivot('relation', CommentUser::DISLIKED_RELATION)->detach($userId);
-//            $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
-
         }else if($isLiked){
 
-            $comment->likedBy()->detach($userId, ['relation' => CommentUser::LIKED_RELATION]);
+            CommentUser::where('comment_id', $id)
+                ->where('user_id', $userId)
+                ->where('relation', CommentUser::LIKED_RELATION)
+                ->delete();
 
         }else{
-
-            $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
-
+            CommentUser::create([
+                'user_id' => $userId,
+                'comment_id' => $id,
+                'relation' => CommentUser::LIKED_RELATION
+            ]);
         }
 
         event(new CommentLiked($comment, auth('api')->user(), $isLiked?-1:1, $isDisliked?-1:0));
@@ -47,8 +55,8 @@ class CommentUserRelationController extends Controller
         return response()->json([
             'is_liked' => $comment->is_liked,
             'is_disliked' => $comment->is_disliked,
-            'likes_count' => $comment->likedBy()->count(),
-            'dislikes_count' => $comment->dislikedBy()->count(),
+            'likes_count' => CommentUser::where('comment_id', $id)->where('relation', CommentUser::LIKED_RELATION)->count(),
+            'dislikes_count' => CommentUser::where('comment_id', $id)->where('relation', CommentUser::DISLIKED_RELATION)->count(),
         ]);
 
     }
@@ -59,33 +67,45 @@ class CommentUserRelationController extends Controller
 
         $userId = Auth::id();
 
-        $isDisliked = $comment->dislikedBy()->find($userId);
-        $isLiked = $comment->likedBy()->find($userId);
+        $isDisliked = CommentUser::where('comment_id', $id)
+            ->where('user_id', $userId)
+            ->where('relation', CommentUser::DISLIKED_RELATION)
+            ->first();
+
+        $isLiked = CommentUser::where('comment_id', $id)
+            ->where('user_id', $userId)
+            ->where('relation', CommentUser::LIKED_RELATION)
+            ->first();
 
         if($isLiked){
 
-            $comment->likedBy()->detach($userId);
-            $comment->dislikedBy()->attach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
+            CommentUser::where('comment_id', $id)
+                ->where('user_id', $userId)
+                ->where('relation', CommentUser::LIKED_RELATION)
+                ->update(['relation' => CommentUser::DISLIKED_RELATION]);
 
         }else if($isDisliked){
 
-            $comment->dislikedBy()->detach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
-
-            $userRelation = null;
+            CommentUser::where('comment_id', $id)
+                ->where('user_id', $userId)
+                ->where('relation', CommentUser::DISLIKED_RELATION)
+                ->delete();
 
         }else{
 
-            $comment->dislikedBy()->attach($userId, ['relation' => CommentUser::DISLIKED_RELATION]);
-
+            CommentUser::create([
+                'user_id' => $userId,
+                'comment_id' => $id,
+                'relation' => CommentUser::DISLIKED_RELATION
+            ]);
         }
 
         return response()->json([
             'is_liked' => $comment->is_liked,
             'is_disliked' => $comment->is_disliked,
-            'likes_count' => $comment->likedBy()->count(),
-            'dislikes_count' => $comment->dislikedBy()->count(),
+            'likes_count' => CommentUser::where('comment_id', $id)->where('relation', CommentUser::LIKED_RELATION)->count(),
+            'dislikes_count' => CommentUser::where('comment_id', $id)->where('relation', CommentUser::DISLIKED_RELATION)->count(),
         ]);
-
     }
 
     public function remember($id)
@@ -94,12 +114,22 @@ class CommentUserRelationController extends Controller
 
         $userId = auth('api')->id();
 
-        $isRemembered = $comment->rememberedBy()->whereUserId($userId)->exists();
+        $isRemembered = CommentUser::where('comment_id', $id)
+            ->where('user_id', $userId)
+            ->where('relation', CommentUser::REMEMBERED_RELATION)
+            ->first();
 
         if($isRemembered){
-            $comment->rememberedBy()->detach($userId, ['relation' => CommentUser::REMEMBERED_RELATION]);
+            CommentUser::where('comment_id', $id)
+                ->where('user_id', $userId)
+                ->where('relation', CommentUser::REMEMBERED_RELATION)
+                ->delete();
         }else{
-            $comment->rememberedBy()->attach($userId, ['relation' => CommentUser::REMEMBERED_RELATION]);
+            CommentUser::create([
+                'user_id' => $userId,
+                'comment_id' => $id,
+                'relation' => CommentUser::REMEMBERED_RELATION
+            ]);
         }
 
         return response()->json([
@@ -109,9 +139,9 @@ class CommentUserRelationController extends Controller
 
     public function unrememberAll()
     {
-        $user = auth('api')->user();
+        $userId = auth('api')->id();
 
-        CommentUser::whereUserId($user->id)->where('relation', CommentUser::REMEMBERED_RELATION)->delete();
+        CommentUser::where('user_id', $userId)->where('relation', CommentUser::REMEMBERED_RELATION)->delete();
 
         return response()->json([
             'status' => 'ok',
