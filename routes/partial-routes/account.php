@@ -23,6 +23,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     Route::post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
 
+    Route::post('profile/payment-details', '\App\Http\Controllers\IdentifyController@storePaymentDetails')->name('profile.payment-details.store');
+
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
     
