@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-
+Route::post('identify/webhook-handler', '\App\Http\Controllers\IdentifyController@webHookHandler')->name('idenfy.webhook-handler');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
