@@ -121,7 +121,9 @@ class Comment extends Model
     public function getIsDislikedAttribute()
     {
         if(auth('api')->check()){
-            return $this->dislikedBy()->whereUserId(auth('api')->id())->exists();
+            return CommentUser::where('comment_id', $this->id)
+                ->where('user_id', auth('api')->id())
+                ->where('relation', CommentUser::DISLIKED_RELATION)->exists();
         }
 
         return false;
@@ -130,7 +132,9 @@ class Comment extends Model
     public function getIsLikedAttribute()
     {
         if(auth('api')->check()){
-            return $this->likedBy()->whereUserId(auth('api')->id())->exists();
+            return CommentUser::where('comment_id', $this->id)
+                ->where('user_id', auth('api')->id())
+                ->where('relation', CommentUser::LIKED_RELATION)->exists();
         }
 
         return false;
