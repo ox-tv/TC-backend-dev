@@ -23,7 +23,12 @@ class CommentUserRelationController extends Controller
 
         if($isDisliked){
 
-            $comment->dislikedBy()->wherePivot('relation', CommentUser::DISLIKED_RELATION)->sync([$userId => ['relation' => CommentUser::LIKED_RELATION]]);
+            CommentUser::where('comment_id', $id)
+                ->where('user_id', $userId)
+                ->where('relation', CommentUser::DISLIKED_RELATION)
+                ->update(['relation' => CommentUser::LIKED_RELATION]);
+
+//            $comment->dislikedBy->wherePivot('relation', CommentUser::DISLIKED_RELATION)->sync([$userId => ['relation' => CommentUser::LIKED_RELATION]]);
 //            $comment->dislikedBy()->wherePivot('relation', CommentUser::DISLIKED_RELATION)->detach($userId);
 //            $comment->likedBy()->attach($userId, ['relation' => CommentUser::LIKED_RELATION]);
 
