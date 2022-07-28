@@ -9,6 +9,7 @@ use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class IdentifyController extends Controller
@@ -31,6 +32,11 @@ class IdentifyController extends Controller
             ['key' => UserMeta::IDENTIFICATION_DETAILS],
             ['value' => json_encode($data)]
         );
+
+        if ($data['status']['overall'] == 'APPROVED'){
+            $user->identity_verified_at = Carbon::now();
+            $user->save();
+        }
 
         return response()->json(['status' => 'ok']);
     }
