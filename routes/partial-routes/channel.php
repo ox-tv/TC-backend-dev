@@ -30,7 +30,7 @@ Route::group([
 ], function(){
 
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
-    Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update')->middleware(['channel.unfreeze'/*, '2fa'*/]);
+    Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update')->middleware(['channel.unfreeze', '2fa']);
 
     Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
