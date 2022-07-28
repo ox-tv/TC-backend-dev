@@ -28,7 +28,7 @@ class IdenfyClient
     {
         $args = [
             'clientId' => $clientId,
-            'dummyStatus' => 'APPROVED'
+            //'dummyStatus' => 'APPROVED'
         ];
 
         $args['firstName'] = $options['first_name'] ?? null;
