@@ -10,12 +10,19 @@ use App\Http\Requests\UserResendVerification;
 use App\Mail\PublisherVerificationMail;
 use App\Mail\VerificationMail;
 use App\Models\User;
+use App\Services\EmailVerificationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
+    private $EmailVerificationService;
+
+    public function __construct(EmailVerificationService $EmailVerificationService)
+    {
+        $this->EmailVerificationService = $EmailVerificationService;
+    }
 
     public function register(UserRegister $request)
     {
@@ -59,17 +66,20 @@ class RegisterController extends Controller
 
 
         // Create verification token and send to user email
-        auth()->emailVerification($user, $scope);
+        //auth()->emailVerification($user, $scope);
+        $authKey = $this->EmailVerificationService->sendCode($user);
         
         return response()->json([
+            'auth_key' => $authKey,
+            'code' => 'email_verification.require',
             'email' => $request->input('email'),
-            'message' => __('auth.email_verification_link_sent'),
         ]);
     }
 
-    public function verify($token)
+    public function verify(): User
     {
-        $user = User::where("verification_code", $token)->firstOrFail();
+        //$user = User::where("verification_code", $token)->firstOrFail();
+        $user = auth('api')->user();
 
         if ($user->email_verified_at){
             return response()->json(['message' => __('auth.email_verified_already')]);
