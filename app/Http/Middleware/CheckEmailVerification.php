@@ -28,13 +28,16 @@ class CheckEmailVerification
      */
     public function handle(Request $request, Closure $next)
     {
+        if($request->header('tc-auth-key')) {
+            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }
+
         if (auth('api')->check()){
 
             $user = auth('api')->user();
 
-        }else if($request->header('tc-auth-key')) {
+        }else if($request->get('auth-key')) {
 
-            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
             $request->validate([
                 'auth-key' => [
                     'sometimes',
