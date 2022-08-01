@@ -24,7 +24,7 @@ class EmailVerificationService
         Mail::to($user->email)
             ->queue(new EmailVerificationCodeMail($code));
 
-        return $cacheKey;
+        return true;
     }
 
     public function verify($user, $code)
