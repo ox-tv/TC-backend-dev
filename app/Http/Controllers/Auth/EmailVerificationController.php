@@ -2,22 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\_2FA\_2FAResource;
-use App\Http\Resources\User\UserResource;
-use App\Mail\_2FACodeMail;
-use App\Models\_2FA;
 use App\Models\User;
-use App\Services\_2FAService;
 use App\Services\EmailVerificationService;
-use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use PragmaRX\Google2FA\Google2FA;
 
 class EmailVerificationController extends Controller
 {
@@ -30,17 +20,19 @@ class EmailVerificationController extends Controller
 
     public function sendCode(Request $request)
     {
+        if($request->header('tc-auth-key')) {
+            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }
+
         // Detect user
         if (auth('api')->check()){
 
             $user = auth('api')->user();
 
-        }else if($request->header('tc-auth-key')) {
-
-            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }else if($request->get('auth-key')) {
             $request->validate([
                 'auth-key' => [
-                    'sometimes',
+                    'required',
                     function ($attribute, $value, $fail) {
                         if ($value && !Cache::has($value)) {
                             $fail('The '.$attribute.' is invalid.');
@@ -60,22 +52,31 @@ class EmailVerificationController extends Controller
 
         $this->EmailVerificationService->sendCode($user);
 
-        return response()->json(['status' => 'ok']);
+        $authKey = sha1('email_verification.require.' . $user->id);
+        Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+        return response()->json([
+            'auth_key' => $authKey,
+            'status' => 'ok',
+        ]);
     }
 
     public function verify(Request $request)
     {
+        if($request->header('tc-auth-key')) {
+            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
+        }
+
         // Detect user
         if (auth('api')->check()){
 
             $user = auth('api')->user();
 
-        }else if($request->header('tc-auth-key')) {
+        }else if($request->get('auth-key')) {
 
-            $request->merge(['auth-key' => $request->header('tc-auth-key')]);
             $request->validate([
                 'auth-key' => [
-                    'sometimes',
+                    'required',
                     function ($attribute, $value, $fail) {
                         if ($value && !Cache::has($value)) {
                             $fail('The '.$attribute.' is invalid.');
@@ -98,7 +99,20 @@ class EmailVerificationController extends Controller
             'email_verification_code' => ['required', 'numeric', 'digits:6'],
         ]);
 
-        $this->EmailVerificationService->verify($user, $request->get('email_verification_code'));
+        if (!$this->EmailVerificationService->verify($user, $request->get('email_verification_code'))) {
+            return response()->json([
+                'message' => 'verify failed',
+                'code' => 'email_verification.verify.fail',
+            ], 422);
+        }
+
+        if (!$user->email_verified_at){
+            $user->email_verified_at = now();
+            $user->status = User::STATUS_ACTIVE;
+            $user->save();
+
+            event(new UserVerified($user));
+        }
 
         return response()->json(['status' => 'ok']);
     }
