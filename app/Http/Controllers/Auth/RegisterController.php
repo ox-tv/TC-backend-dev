@@ -3,24 +3,25 @@
 namespace App\Http\Controllers\Auth;
 
 use Amir\Permission\Models\Role;
-use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
-use App\Http\Requests\UserResendVerification;
-use App\Mail\PublisherVerificationMail;
-use App\Mail\VerificationMail;
 use App\Models\User;
+use App\Services\EmailVerificationService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
+    private $EmailVerificationService;
 
-    public function register(UserRegister $request)
+    public function __construct(EmailVerificationService $EmailVerificationService)
     {
-        $scope = $request->is('api/publisher/*')? 'publisher' : 'mwa';
+        $this->EmailVerificationService = $EmailVerificationService;
+    }
 
+    public function register(UserRegister $request): \Illuminate\Http\JsonResponse
+    {
         $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
 
         $duplicateEmail = User::where('email', $request->get('email'))
@@ -57,50 +58,14 @@ class RegisterController extends Controller
 
         $user->save();
 
-
-        // Create verification token and send to user email
-        auth()->emailVerification($user, $scope);
+        $this->EmailVerificationService->sendCode($user);
+        $authKey = sha1('email_verification.require.' . $user->id);
+        Cache::put($authKey, $user->id, 24 * 60 * 60);
         
         return response()->json([
+            'auth_key' => $authKey,
+            'code' => 'email_verification.require',
             'email' => $request->input('email'),
-            'message' => __('auth.email_verification_link_sent'),
-        ]);
-    }
-
-    public function verify($token)
-    {
-        $user = User::where("verification_code", $token)->firstOrFail();
-
-        if ($user->email_verified_at){
-            return response()->json(['message' => __('auth.email_verified_already')]);
-        }
-
-        $user->email_verified_at = now();
-        $user->status = User::STATUS_ACTIVE;
-        $user->save();
-
-        event(new UserVerified($user));
-
-        return response()->json(['message' => __('auth.email_verified_successfully')]);
-    }
-
-    public function resend(UserResendVerification $request, $scope = 'user')
-    {
-        $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
-
-        $user = User::where("email", $request->get("email"))
-            ->where(function($q) use($publisherRoleId) {
-                $q->whereNull('role_id')
-                    ->orWhere('role_id', $publisherRoleId);
-            })
-            ->whereNull('email_verified_at')
-            ->firstOrFail();
-
-        auth()->emailVerification($user, $scope);
-
-        return response()->json([
-            'email' => $request->get("email"),
-            'message' => __('auth.email_verification_link_resent'),
         ]);
     }
 
