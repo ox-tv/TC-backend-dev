@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('confirm-eth-address/{token}', '\App\Http\Controllers\UserController@changeETHAddressConfirmation')->name('confirm-eth-address');
-
 Route::delete('account/delete/{token}', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete");
 
 // For Logged in Users
