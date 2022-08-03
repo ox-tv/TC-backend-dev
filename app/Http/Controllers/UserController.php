@@ -573,10 +573,46 @@ class UserController extends Controller
 
         $user = auth('api')->user();
 
-        $user->password = Hash::make($request->get('new_password'));
-        $user->save();
+        $_2fa = $user->_2fa;
 
-        return response()->json(['status' => 'ok']);
+        if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
+            // 2FA verification
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+            }
+
+            if (!empty($errors)){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors
+                ], 403);
+            }
+
+            $user->password = Hash::make($request->get('new_password'));
+            $user->save();
+
+            return response()->json(['status' => 'ok']);
+
+        }else{
+            // Email Verification
+            if (!$this->EmailVerificationService->check($user)){
+                $this->EmailVerificationService->sendCode($user);
+                return response()->json([
+                    'message' => 'Please pass email verification',
+                    'code' => 'email_verification.require',
+                ], 403);
+            }
+
+            $user->password = Hash::make($request->get('new_password'));
+            $user->save();
+
+            return response()->json(['status' => 'ok']);
+        }
     }
 
     public function changeETHAddress(Request $request)
