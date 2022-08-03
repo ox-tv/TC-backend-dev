@@ -617,6 +617,7 @@ class UserController extends Controller
         }else{
             // Email Verification
             if (!$this->EmailVerificationService->check($user)){
+                $this->EmailVerificationService->sendCode($user);
                 return response()->json([
                     'message' => 'Please pass email verification',
                     'code' => 'email_verification.require',
