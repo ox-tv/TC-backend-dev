@@ -16,6 +16,8 @@ use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\User;
 use App\Models\VideoStatisticsDaily;
+use App\Services\_2FAService;
+use App\Services\EmailVerificationService;
 use App\Services\PointService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -27,6 +29,14 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ChannelController extends Controller
 {
+    private $_2faService;
+    private $EmailVerificationService;
+
+    public function __construct(_2FAService $_2faService, EmailVerificationService $EmailVerificationService)
+    {
+        $this->_2faService = $_2faService;
+        $this->EmailVerificationService = $EmailVerificationService;
+    }
 
     public function index(Request $request)
     {
@@ -156,6 +166,39 @@ class ChannelController extends Controller
 
     public function update(ChannelUpdate $request, Channel $channel)
     {
+        if(!$request->is('api/admin/channels/*')){
+            $user = auth('api')->user();
+
+            $_2fa = $user->_2fa;
+
+            if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
+                // 2FA verification
+                $errors = [];
+                $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+                if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                    $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                    $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+                }
+
+                if (!empty($errors)){
+                    return response()->json([
+                        'message' => 'Please verify 2FA',
+                        'code' => '2fa.require',
+                        'errors' => $errors
+                    ], 403);
+                }
+
+            }else if (!$this->EmailVerificationService->check($user)){
+                // Email Verification
+                $this->EmailVerificationService->sendCode($user);
+                return response()->json([
+                    'message' => 'Please pass email verification',
+                    'code' => 'email_verification.require',
+                ], 403);
+            }
+        }
+
         if(is_null($request->route('channel'))){
             $channel = auth('api')->user()->channel;
         }
