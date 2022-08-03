@@ -103,6 +103,7 @@ class EmailVerificationController extends Controller
             return response()->json([
                 'message' => 'verify failed',
                 'code' => 'email_verification.verify.fail',
+                'errors' => ['email' => 'Code is not correct'],
             ], 422);
         }
 
