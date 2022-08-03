@@ -631,25 +631,6 @@ class UserController extends Controller
         }
     }
 
-    public function changeETHAddressConfirmation($token)
-    {
-        $meta = UserMeta::where([
-            'key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY,
-            'value' => $token,
-        ])->firstOrFail();
-
-        $user = $meta->user;
-        $newETHAddress = $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->firstOrFail();
-
-        $user->eth_address = $newETHAddress->value;
-        $user->save();
-
-        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->delete();
-        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY)->delete();
-
-        return response()->json(['status' => 'ok']);
-    }
-
     public function subscribedChannels()
     {
         $per_page = request()->get('per_page') ?: 15;
