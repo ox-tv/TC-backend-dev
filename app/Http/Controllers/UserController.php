@@ -593,26 +593,19 @@ class UserController extends Controller
                 ], 403);
             }
 
-            $user->password = Hash::make($request->get('new_password'));
-            $user->save();
-
-            return response()->json(['status' => 'ok']);
-
-        }else{
+        }else if (!$this->EmailVerificationService->check($user)){
             // Email Verification
-            if (!$this->EmailVerificationService->check($user)){
-                $this->EmailVerificationService->sendCode($user);
-                return response()->json([
-                    'message' => 'Please pass email verification',
-                    'code' => 'email_verification.require',
-                ], 403);
-            }
-
-            $user->password = Hash::make($request->get('new_password'));
-            $user->save();
-
-            return response()->json(['status' => 'ok']);
+            $this->EmailVerificationService->sendCode($user);
+            return response()->json([
+                'message' => 'Please pass email verification',
+                'code' => 'email_verification.require',
+            ], 403);
         }
+
+        $user->password = Hash::make($request->get('new_password'));
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function changeETHAddress(Request $request)
@@ -645,26 +638,19 @@ class UserController extends Controller
                 ], 403);
             }
 
-            $user->eth_address = $request->get('eth_address');
-            $user->save();
-
-            return response()->json(['status' => 'ok']);
-
-        }else{
+        }else if (!$this->EmailVerificationService->check($user)){
             // Email Verification
-            if (!$this->EmailVerificationService->check($user)){
-                $this->EmailVerificationService->sendCode($user);
-                return response()->json([
-                    'message' => 'Please pass email verification',
-                    'code' => 'email_verification.require',
-                ], 403);
-            }
-
-            $user->eth_address = $request->get('eth_address');
-            $user->save();
-
-            return response()->json(['status' => 'ok']);
+            $this->EmailVerificationService->sendCode($user);
+            return response()->json([
+                'message' => 'Please pass email verification',
+                'code' => 'email_verification.require',
+            ], 403);
         }
+
+        $user->eth_address = $request->get('eth_address');
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function subscribedChannels()
