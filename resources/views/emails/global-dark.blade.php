@@ -499,8 +499,8 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: left;color:#FFFFFF;">
-                                                        {!! nl2br($text) !!}
+                                                    <div style="text-align: left;">
+                                                        {{ $text }}
                                                     </div>
 
                                                 </td>
