@@ -62,7 +62,7 @@ class FormController extends Controller
         $form->user_id = auth('api')->id();
         $form->save();
 
-        Mail::to('help@todayscrypto.com')
+        Mail::to(/*'help@todayscrypto.com'*/ 'aahelali@gmail.com')
             ->queue(new GlobalMail('Contact Us', "First name: {$validatedData['first_name']} <br/> Last name: {$validatedData['last_name']} <br/> Email: {$validatedData['email']} <br/> Subject: {$validatedData['subject']} <br/> Message: {$validatedData['message']}"));
 
         return FormResource::make($form);
