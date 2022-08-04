@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Form\FormResource;
+use App\Mail\GlobalMail;
 use App\Models\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Mail;
 
 class FormController extends Controller
 {
@@ -59,6 +61,9 @@ class FormController extends Controller
         $form->data = $validatedData;
         $form->user_id = auth('api')->id();
         $form->save();
+
+        Mail::to('help@todayscrypto.com')
+            ->queue(new GlobalMail('Contact Us', "First name: {$validatedData['first_name']} <br/> Last name: {$validatedData['last_name']} <br/> Email: {$validatedData['email']} <br/> Subject: {$validatedData['subject']} <br/> Message: {$validatedData['message']}"));
 
         return FormResource::make($form);
     }
