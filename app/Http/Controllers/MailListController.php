@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Tag\TagStore;
 use App\Http\Requests\Tag\TagUpdate;
+use App\Http\Resources\MailList\MailListResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\MailList;
 use App\Models\Tag;
@@ -24,7 +25,7 @@ class MailListController extends Controller
             $query->location($locationFilter);
         }
 
-        return $query->paginate();
+        return MailListResource::collection($query->paginate());
     }
 
     public function store(Request $request)
