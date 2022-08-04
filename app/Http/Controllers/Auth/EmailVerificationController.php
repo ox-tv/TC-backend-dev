@@ -96,16 +96,14 @@ class EmailVerificationController extends Controller
 
         // Checking Code
         $request->validate([
-            'email_verification_code' => ['required', 'numeric', 'digits:6'],
+            'email_verification_code' => [
+                'required', 'numeric', 'digits:6', function ($attribute, $value, $fail) use($user) {
+                    if (!$this->EmailVerificationService->verify($user, $value)) {
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ],
         ]);
-
-        if (!$this->EmailVerificationService->verify($user, $request->get('email_verification_code'))) {
-            return response()->json([
-                'message' => 'verify failed',
-                'code' => 'email_verification.verify.fail',
-                'errors' => ['email' => 'Code is not correct'],
-            ], 422);
-        }
 
         if (!$user->email_verified_at){
             $user->email_verified_at = now();
