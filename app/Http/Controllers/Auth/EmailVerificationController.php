@@ -99,7 +99,7 @@ class EmailVerificationController extends Controller
             'email_verification_code' => [
                 'required', 'numeric', 'digits:6', function ($attribute, $value, $fail) use($user) {
                     if (!$this->EmailVerificationService->verify($user, $value)) {
-                        $fail('The '.$attribute.' is invalid.');
+                        $fail('The code is invalid.');
                     }
                 },
             ],
