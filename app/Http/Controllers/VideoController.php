@@ -538,6 +538,8 @@ class VideoController extends Controller
             $video->save();
         }
 
+        $video->comments()->delete();
+
         $video->delete();
 
         event(new VideoDeleted($video));
