@@ -219,8 +219,6 @@ class CommentController extends Controller
             $comment->save();
         }
 
-        $comment->replies()->delete();
-
         $comment->delete();
 
         return response()->json(["message" => "ok"]);
