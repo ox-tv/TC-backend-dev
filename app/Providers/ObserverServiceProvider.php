@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Comment;
 use App\Models\Notification;
 use App\Observers\NotificationObserver;
+use App\Observers\CommentObserver;
 use Illuminate\Support\ServiceProvider;
 
 class ObserverServiceProvider extends ServiceProvider
@@ -26,5 +28,6 @@ class ObserverServiceProvider extends ServiceProvider
     public function boot()
     {
         Notification::observe(NotificationObserver::class);
+        Comment::observe(CommentObserver::class);
     }
 }
