@@ -26,6 +26,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Repository\Eloquent\VideoRepository;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
@@ -36,6 +37,13 @@ use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
+    private $videoRepository;
+
+    public function __construct(VideoRepository $videoRepository)
+    {
+        $this->videoRepository = $videoRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -512,11 +520,14 @@ class VideoController extends Controller
 
     public function destroy(Request $request, Video $video)
     {
-        if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
+        if(!(request()->is('api/admin/videos/*') || $video->user_id === Auth::guard('api')->id())){
             return response()->json([
                 'general.not_authorized'
             ], 403);
         }
+
+        $reasonKey = null;
+        $reasonText = null;
 
         if(request()->is('api/admin/videos/*')){
             $request->validate([
@@ -528,19 +539,15 @@ class VideoController extends Controller
 
 
             if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
-                $video->reason_key = $request->get('reason');
-                $video->reason_text = $reasons[$key]->value;
+                $reasonKey = $request->get('reason');
+                $reasonText = $reasons[$key]->value;
             }else{
-                $video->reason_key = 'other';
-                $video->reason_text = $request->get('reason');
+                $reasonKey = 'other';
+                $reasonText = $request->get('reason');
             }
-
-            $video->save();
         }
 
-        $video->comments()->delete();
-
-        $video->delete();
+        $this->videoRepository->destroy($video->id, ['reason_key' => $reasonKey, 'reason_text' => $reasonText]);
 
         event(new VideoDeleted($video));
 
