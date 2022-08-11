@@ -10,6 +10,7 @@ use App\Models\CommentUser;
 use App\Models\Option;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Scopes\WhereParentNullScope;
+use App\Repository\Eloquent\CommentRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    private $commentRepository;
+
+    public function __construct(CommentRepository $commentRepository)
+    {
+        $this->commentRepository = $commentRepository;
+    }
+
     public function index(Request $request)
     {
         $query = Comment::query();
@@ -200,6 +208,9 @@ class CommentController extends Controller
             return response()->json(["message" => "You do not have access to delete this comment"],403);
         }
 
+        $reasonKey = null;
+        $reasonText = null;
+
         if ($isAdmin){
             $request->validate([
                 'reason' => 'required'
@@ -209,17 +220,15 @@ class CommentController extends Controller
             $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
             if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
-                $comment->reason_key = $request->get('reason');
-                $comment->reason_text = $reasons[$key]->value;
+                $reasonKey = $request->get('reason');
+                $reasonText = $reasons[$key]->value;
             }else{
-                $comment->reason_key = 'other';
-                $comment->reason_text = $request->get('reason');
+                $reasonKey = 'other';
+                $reasonText = $request->get('reason');
             }
-
-            $comment->save();
         }
 
-        $comment->delete();
+        $this->commentRepository->destroy($id, ['reason_key' => $reasonKey, 'reason_text' => $reasonText]);
 
         return response()->json(["message" => "ok"]);
     }
