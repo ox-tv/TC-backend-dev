@@ -30,8 +30,6 @@ class DeleteAccountMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - Delete Account")->view('emails.delete-account-dark');
+        return $this->subject('Delete Account')->view('emails.delete-account-dark');
     }
 }

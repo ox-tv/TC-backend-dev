@@ -30,8 +30,6 @@ class EmailVerificationCodeMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - Verification Code")->view('emails.email-verification-code-dark');
+        return $this->subject('Verification Code')->view('emails.email-verification-code-dark');
     }
 }
