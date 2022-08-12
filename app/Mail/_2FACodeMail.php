@@ -30,8 +30,6 @@ class _2FACodeMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - 2FA Code")->view('emails.email-2fa-code-dark');
+        return $this->subject('2FA Code')->view('emails.email-2fa-code-dark');
     }
 }
