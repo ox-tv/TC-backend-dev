@@ -26,6 +26,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Repository\Eloquent\TagRepository;
 use App\Repository\Eloquent\VideoRepository;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -38,10 +39,15 @@ use Illuminate\Support\Str;
 class VideoController extends Controller
 {
     private $videoRepository;
+    private $tagRepository;
 
-    public function __construct(VideoRepository $videoRepository)
+    public function __construct(
+        VideoRepository $videoRepository,
+        TagRepository $tagRepository
+    )
     {
         $this->videoRepository = $videoRepository;
+        $this->tagRepository = $tagRepository;
     }
 
     /**
@@ -308,8 +314,10 @@ class VideoController extends Controller
                 $tags = collect($request->get('tags', []));
 
                 $tags->map(function ($tag) use ($video){
-                    $video->tags()->save(Tag::firstOrCreate([
-                        'name' => $tag
+                    $video->tags()->save($this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_USER,
                     ]));
                 });
             }
@@ -474,12 +482,15 @@ class VideoController extends Controller
                 $tags = collect($request->get('tags', []));
 
                 $tagIds = $tags->map(function ($tag){
-                    return Tag::firstOrCreate([
-                        'name' => $tag
-                    ])->id;
+                    $tag = $this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_USER,
+                    ]);
+                    return $tag->id;
                 });
 
-                $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+                $video->tags()->sync($tagIds);
             }else{
                 $video->tags()->sync([]);
             }

@@ -19,6 +19,7 @@ use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Repository\Eloquent\TagRepository;
 use App\Rules\CustomRule;
 use App\Services\_2FAService;
 use App\Services\EmailVerificationService;
@@ -33,11 +34,17 @@ class UserController extends Controller
 {
     private $_2faService;
     private $EmailVerificationService;
+    private $tagRepository;
 
-    public function __construct(_2FAService $_2faService, EmailVerificationService $EmailVerificationService)
+    public function __construct(
+        _2FAService $_2faService,
+        EmailVerificationService $EmailVerificationService,
+        TagRepository $tagRepository
+    )
     {
         $this->_2faService = $_2faService;
         $this->EmailVerificationService = $EmailVerificationService;
+        $this->tagRepository = $tagRepository;
     }
 
     public function index(Request $request)
@@ -524,10 +531,11 @@ class UserController extends Controller
         if(is_array($request->input('tag_names'))){
             $tagIds = [];
             foreach ($request->get('tag_names') as $tagName){
-                $tag = Tag::firstOrCreate(
-                    ['name' => $tagName],
-                    ['status' => Tag::STATUS_PUBLISHED, 'creation_scope' => Tag::CREATION_SCOPE_USER]
-                );
+                $tag = $this->tagRepository->store([
+                    'name' => $tagName,
+                    'status' => Tag::STATUS_PUBLISHED,
+                    'creation_scope' => Tag::CREATION_SCOPE_USER,
+                ]);
 
                 $tagIds[] = $tag->id;
             }

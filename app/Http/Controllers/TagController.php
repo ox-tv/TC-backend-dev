@@ -7,11 +7,19 @@ use App\Http\Requests\Tag\TagStore;
 use App\Http\Requests\Tag\TagUpdate;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Tag;
+use App\Repository\Eloquent\TagRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class TagController extends Controller
 {
+    private $tagRepository;
+
+    public function __construct(TagRepository $tagRepository)
+    {
+        $this->tagRepository = $tagRepository;
+    }
+
     public function index(Request $request)
     {
         $isAdmin = $request->is('api/admin/*');
@@ -61,13 +69,11 @@ class TagController extends Controller
         return TagResource::collection($tags);
     }
 
-    public function show(Request $request, $tag_id)
+    public function show(Request $request, $tagId)
     {
-        $isAdmin = $request->is('api/admin/*');
+        $tag = $this->tagRepository->getById($tagId);
 
-        $tag = Tag::findorFail($tag_id);
-
-        if ($isAdmin){
+        if ($request->is('api/admin/*')){
             $tag->append(['favorited_by_users_count', 'videos_count']);
         }
 
@@ -76,35 +82,29 @@ class TagController extends Controller
 
     public function store(TagStore $request)
     {
-        $tag = new Tag();
-        $tag->name = $request->get('name');
-        $tag->status = array_flip(Tag::STATUS_TEXT)[$request->get('status')]?? Tag::STATUS_PUBLISHED;
-        $tag->creation_scope = Tag::CREATION_SCOPE_ADMIN;
-        $tag->save();
+        $tag = $this->tagRepository->store([
+            'name' => $request->get('name'),
+            'status' => array_flip(Tag::STATUS_TEXT)[$request->get('status')]?? Tag::STATUS_PUBLISHED,
+            'creation_scope' => Tag::CREATION_SCOPE_ADMIN,
+        ]);
 
         return new TagResource($tag);
     }
 
-    public function update(TagUpdate $request, $tag_id)
+    public function update(TagUpdate $request, $tagId)
     {
-        $tag = Tag::findorFail($tag_id);
-        $tag->name = $request->get('name');
-        $tag->status = array_flip(Tag::STATUS_TEXT)[$request->get('status')]?? Tag::STATUS_PUBLISHED;
-        $tag->save();
+        $tag = $this->tagRepository->update($tagId, [
+            'name' => $request->get('name'),
+            'status' => array_flip(Tag::STATUS_TEXT)[$request->get('status')]?? null,
+        ]);
 
         return new TagResource($tag);
     }
 
-    public function destroy($tag_id)
+    public function destroy($tagId)
     {
-        $tag = Tag::findorFail($tag_id);
+        $result = $this->tagRepository->destroy($tagId);
 
-        // remove tag relations
-        $tag->videos()->sync([]);
-        $tag->favoritedByUsers()->sync([]);
-
-        $tag->delete();
-
-        return response()->json(['message' => 'ok']);
+        return $result? response()->json(['message' => 'ok']) : abort(500, 'Somethins is wrong.');
     }
 }
