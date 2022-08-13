@@ -17,7 +17,7 @@ class CommentRepository
             $reasonText = $options['reason_text'] ?? null;
 
             if ($reasonKey && $reasonText){
-                Comment::where('id', $commentId)
+                Comment::where('id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)
                     ->update([
                         'reason_key' => $reasonKey,
                         'reason_text' => $reasonText,
@@ -25,7 +25,7 @@ class CommentRepository
             }
 
             // Remove Replies
-            Comment::where('parent_id', $commentId)->delete();
+            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->delete();
 
             // Remove CommentUser mention and remembers for comment and replies
             CommentUser::whereExists(function ($query) use ($commentId) {
@@ -39,7 +39,7 @@ class CommentRepository
                 ->whereIn('relation', [CommentUser::REMEMBERED_RELATION, CommentUser::MENTION_RELATION])
                 ->delete();
 
-            Comment::where('id', $commentId)->delete();
+            Comment::where('id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->delete();
         });
 
         return true;
