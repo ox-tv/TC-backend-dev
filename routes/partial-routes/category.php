@@ -33,6 +33,6 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
-    Route::apiResource('categories', \App\Http\Controllers\VideoController::class)->only(['store', 'update', 'destroy']);
+    Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['store', 'update', 'destroy']);
 
 });
