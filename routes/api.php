@@ -24,6 +24,10 @@ Route::group([], __DIR__.'/partial-routes/category.php');
 
 Route::group([], __DIR__.'/partial-routes/feedback.php');
 
+Route::group([], __DIR__.'/partial-routes/form.php');
+
+Route::group([], __DIR__.'/partial-routes/maillist.php');
+
 Route::group([], __DIR__.'/partial-routes/tag.php');
 
 Route::group([], __DIR__.'/partial-routes/cryptocurrency.php');
