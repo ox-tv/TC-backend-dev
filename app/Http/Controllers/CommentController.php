@@ -312,6 +312,19 @@ class CommentController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function toggleReadReplies($commentId)
+    {
+        $haveUnread = Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->whereNull('read_at')->exists();
+
+        if ($haveUnread){
+            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => Carbon::now()]);
+        }else{
+            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => null]);
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function stats()
     {
         $result = [
