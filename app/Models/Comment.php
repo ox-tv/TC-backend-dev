@@ -25,10 +25,15 @@ class Comment extends Model
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
-        static::addGlobalScope(new WhereParentNullScope);
+        //static::addGlobalScope(new WhereParentNullScope);
     }
 
     // scopes
+
+    public function scopeOnlyParent($query){
+        $query->whereNull('parent_id');
+        return $query;
+    }
 
     public function scopeHasVideo($query){
         $query->whereHas('video');

@@ -613,7 +613,7 @@ class VideoController extends Controller
             ->idOrUrlHash($idOrUrlHash)
             ->firstOrFail();
 
-        $comments = $video->comments()->paginate();
+        $comments = $video->comments()->onlyParent()->paginate();
 
         $comments->load([
             'user.channel',
