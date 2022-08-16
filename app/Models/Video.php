@@ -419,7 +419,7 @@ class Video extends Model
 
     public function getPinnedCommentAttribute()
     {
-        return $this->comments()->onlyParent()->where('is_pinned', true)->first();
+        return $this->comments()->where('is_pinned', true)->first();
     }
 
     public function getFileTypeAttribute()
