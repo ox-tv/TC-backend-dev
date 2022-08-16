@@ -532,7 +532,7 @@ class VideoController extends Controller
 
     public function changeStatusToPublished($id)
     {
-        $beforeUpdate = Video::where('id', $id)->firstOrFail();
+        $beforeUpdate = Video::where('id', $id)->where('user_id', auth('api')->id())->firstOrFail();
 
         $validator = Validator::make([
             'title' => $beforeUpdate->title,
