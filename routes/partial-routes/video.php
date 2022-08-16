@@ -51,6 +51,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+    Route::put('videos/{video}/status/published', '\App\Http\Controllers\VideoController@changeStatusToPublished')->name('videos.change-status-to.published')->middleware('channel.unfreeze');
     Route::delete('videos', '\App\Http\Controllers\VideoController@bulkDestroy')->name('videos.bulkDestroy')->middleware('channel.unfreeze');
     Route::post('videos/bulk-pin', '\App\Http\Controllers\VideoController@bulkPinMessage')->name('videos.bulkPin')->middleware('user.unmute');
     Route::apiResource('videos', \App\Http\Controllers\VideoController::class)->only(['index','show']);
