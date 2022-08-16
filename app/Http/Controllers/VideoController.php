@@ -643,19 +643,20 @@ class VideoController extends Controller
 
         $owners = $videos->select('user_id')->get()->pluck('user_id')->unique()->toArray();
 
-        if(count($owners) == 1 && in_array(Auth::guard('api')->id(), $owners)){
-
-            $videos->delete();
+        if(count($owners) != 1 || !in_array(Auth::guard('api')->id(), $owners)){
 
             return response()->json([
-                'message' => 'general.successful'
-            ]);
+                'message' => 'general.not_authorized'
+            ], 403);
+        }
 
+        foreach ($request->get('videos') as $videoId){
+            $this->videoRepository->destroy($videoId);
         }
 
         return response()->json([
-            'message' => 'general.not_authorized'
-        ], 403);
+            'message' => 'general.successful'
+        ]);
 
     }
 
