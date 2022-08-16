@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
-use App\Models\Scopes\WhereParentNullScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Video extends Model
@@ -342,7 +340,7 @@ class Video extends Model
     }
 
     public function getCommentCountAttribute(){
-        return $this->comments()->withoutGlobalScope(WhereParentNullScope::class)->count();
+        return $this->comments()->count();
     }
 
     public function getLikesCountAttribute(){
@@ -421,7 +419,7 @@ class Video extends Model
 
     public function getPinnedCommentAttribute()
     {
-        return $this->comments()->where('is_pinned', true)->first();
+        return $this->comments()->onlyParent()->where('is_pinned', true)->first();
     }
 
     public function getFileTypeAttribute()

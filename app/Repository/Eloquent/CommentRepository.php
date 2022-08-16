@@ -4,7 +4,6 @@ namespace App\Repository\Eloquent;
 
 use App\Models\Comment;
 use App\Models\CommentUser;
-use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Support\Facades\DB;
 
 class CommentRepository
@@ -17,7 +16,7 @@ class CommentRepository
             $reasonText = $options['reason_text'] ?? null;
 
             if ($reasonKey && $reasonText){
-                Comment::where('id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)
+                Comment::where('id', $commentId)
                     ->update([
                         'reason_key' => $reasonKey,
                         'reason_text' => $reasonText,
@@ -25,7 +24,7 @@ class CommentRepository
             }
 
             // Remove Replies
-            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->delete();
+            Comment::where('parent_id', $commentId)->delete();
 
             // Remove CommentUser mention and remembers for comment and replies
             CommentUser::whereExists(function ($query) use ($commentId) {
@@ -39,7 +38,7 @@ class CommentRepository
                 ->whereIn('relation', [CommentUser::REMEMBERED_RELATION, CommentUser::MENTION_RELATION])
                 ->delete();
 
-            Comment::where('id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->delete();
+            Comment::where('id', $commentId)->delete();
         });
 
         return true;
@@ -71,7 +70,7 @@ class CommentRepository
                 ->delete();
 
             // Remove Comments and Replies together (using video id)
-            Comment::where('video_id', $videoId)->withoutGlobalScope(WhereParentNullScope::class)->delete();
+            Comment::where('video_id', $videoId)->delete();
         });
 
         return true;
