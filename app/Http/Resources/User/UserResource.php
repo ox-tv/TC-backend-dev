@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'muted_until' => $this->muted_until,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'identity_verified_at' => $this->identity_verified_at,
             'watch_time' => $this->watch_time,
             'referral_code' => $this->referral_code,
 

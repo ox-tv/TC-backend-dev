@@ -11,7 +11,7 @@ class Category extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'slug'];
+    protected $fillable = ['name', 'slug', 'status'];
 
     const STATUS_INACTIVE = 1;
     const STATUS_ACTIVE = 2;

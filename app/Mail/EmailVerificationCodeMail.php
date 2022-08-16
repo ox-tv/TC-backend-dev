@@ -7,20 +7,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordResetMail extends Mailable
+class EmailVerificationCodeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $link;
+    public $code;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($link)
+    public function __construct($code)
     {
-        $this->link = $link;
+        $this->code = $code;
     }
 
     /**
@@ -30,6 +30,6 @@ class PasswordResetMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Password Reset')->view('emails.password-reset-dark');
+        return $this->subject('Verification Code')->view('emails.email-verification-code-dark');
     }
 }

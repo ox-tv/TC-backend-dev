@@ -26,16 +26,31 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Repository\Eloquent\TagRepository;
+use App\Repository\Eloquent\VideoRepository;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
+    private $videoRepository;
+    private $tagRepository;
+
+    public function __construct(
+        VideoRepository $videoRepository,
+        TagRepository $tagRepository
+    )
+    {
+        $this->videoRepository = $videoRepository;
+        $this->tagRepository = $tagRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -300,8 +315,10 @@ class VideoController extends Controller
                 $tags = collect($request->get('tags', []));
 
                 $tags->map(function ($tag) use ($video){
-                    $video->tags()->save(Tag::firstOrCreate([
-                        'name' => $tag
+                    $video->tags()->save($this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_USER,
                     ]));
                 });
             }
@@ -466,12 +483,15 @@ class VideoController extends Controller
                 $tags = collect($request->get('tags', []));
 
                 $tagIds = $tags->map(function ($tag){
-                    return Tag::firstOrCreate([
-                        'name' => $tag
-                    ])->id;
+                    $tag = $this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_USER,
+                    ]);
+                    return $tag->id;
                 });
 
-                $video->tags()->sync(Tag::whereIn('id', $tagIds)->get());
+                $video->tags()->sync($tagIds);
             }else{
                 $video->tags()->sync([]);
             }
@@ -510,13 +530,47 @@ class VideoController extends Controller
         return new VideoResource($video);
     }
 
+    public function changeStatusToPublished($id)
+    {
+        $beforeUpdate = Video::where('id', $id)->where('user_id', auth('api')->id())->firstOrFail();
+
+        $validator = Validator::make([
+            'title' => $beforeUpdate->title,
+            'thumbnail' => $beforeUpdate->thumbnail_url,
+            'category' => $beforeUpdate->category_id,
+            'language' => $beforeUpdate->language_id,
+        ], [
+            'title' => 'required',
+            'thumbnail' => 'required',
+            'category' => 'required',
+            'language' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Video is not ready to get published.', 'errors' => $validator->errors()], 422);
+        }
+
+        $this->videoRepository->update($id, [
+            'status' =>Video::STATUS_PUBLISHED
+        ]);
+
+        $afterUpdate = Video::where('id', $id)->first();
+
+        event(new VideoUpdated($beforeUpdate, $afterUpdate));
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function destroy(Request $request, Video $video)
     {
-        if(!(request()->is('api/admin/videos/*') || $video->user->id === Auth::guard('api')->id())){
+        if(!(request()->is('api/admin/videos/*') || $video->user_id === Auth::guard('api')->id())){
             return response()->json([
                 'general.not_authorized'
             ], 403);
         }
+
+        $reasonKey = null;
+        $reasonText = null;
 
         if(request()->is('api/admin/videos/*')){
             $request->validate([
@@ -528,17 +582,15 @@ class VideoController extends Controller
 
 
             if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
-                $video->reason_key = $request->get('reason');
-                $video->reason_text = $reasons[$key]->value;
+                $reasonKey = $request->get('reason');
+                $reasonText = $reasons[$key]->value;
             }else{
-                $video->reason_key = 'other';
-                $video->reason_text = $request->get('reason');
+                $reasonKey = 'other';
+                $reasonText = $request->get('reason');
             }
-
-            $video->save();
         }
 
-        $video->delete();
+        $this->videoRepository->destroy($video->id, ['reason_key' => $reasonKey, 'reason_text' => $reasonText]);
 
         event(new VideoDeleted($video));
 
@@ -593,7 +645,7 @@ class VideoController extends Controller
             ->idOrUrlHash($idOrUrlHash)
             ->firstOrFail();
 
-        $comments = $video->comments()->paginate();
+        $comments = $video->comments()->onlyParent()->paginate();
 
         $comments->load([
             'user.channel',
@@ -623,19 +675,20 @@ class VideoController extends Controller
 
         $owners = $videos->select('user_id')->get()->pluck('user_id')->unique()->toArray();
 
-        if(count($owners) == 1 && in_array(Auth::guard('api')->id(), $owners)){
-
-            $videos->delete();
+        if(count($owners) != 1 || !in_array(Auth::guard('api')->id(), $owners)){
 
             return response()->json([
-                'message' => 'general.successful'
-            ]);
+                'message' => 'general.not_authorized'
+            ], 403);
+        }
 
+        foreach ($request->get('videos') as $videoId){
+            $this->videoRepository->destroy($videoId);
         }
 
         return response()->json([
-            'message' => 'general.not_authorized'
-        ], 403);
+            'message' => 'general.successful'
+        ]);
 
     }
 
@@ -649,7 +702,7 @@ class VideoController extends Controller
         $videoIds = collect($request->get('videos'));
         $text = $request->get('text');
 
-        Comment::whereIn('video_id', $videoIds)->update([
+        Comment::whereIn('video_id', $videoIds)->onlyParent()->update([
             'is_pinned' => false,
             'pinned_by' => null,
         ]);

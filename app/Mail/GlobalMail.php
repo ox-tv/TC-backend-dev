@@ -32,8 +32,6 @@ class GlobalMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - {$this->subject}")->view('emails.global-dark');
+        return $this->subject($this->subject)->view('emails.global-dark');
     }
 }

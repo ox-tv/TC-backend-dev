@@ -20,6 +20,10 @@ Route::group([], __DIR__.'/partial-routes/auth.php');
 
 Route::group([], __DIR__.'/partial-routes/_2fa.php');
 
+Route::group([], __DIR__.'/partial-routes/email-verification.php');
+
+Route::group([], __DIR__.'/partial-routes/identify.php');
+
 Route::group([], __DIR__.'/partial-routes/category.php');
 
 Route::group([], __DIR__.'/partial-routes/feedback.php');

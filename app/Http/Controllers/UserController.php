@@ -19,8 +19,10 @@ use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Repository\Eloquent\TagRepository;
 use App\Rules\CustomRule;
 use App\Services\_2FAService;
+use App\Services\EmailVerificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -31,10 +33,18 @@ use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
     private $_2faService;
+    private $EmailVerificationService;
+    private $tagRepository;
 
-    public function __construct(_2FAService $_2faService)
+    public function __construct(
+        _2FAService $_2faService,
+        EmailVerificationService $EmailVerificationService,
+        TagRepository $tagRepository
+    )
     {
         $this->_2faService = $_2faService;
+        $this->EmailVerificationService = $EmailVerificationService;
+        $this->tagRepository = $tagRepository;
     }
 
     public function index(Request $request)
@@ -521,10 +531,11 @@ class UserController extends Controller
         if(is_array($request->input('tag_names'))){
             $tagIds = [];
             foreach ($request->get('tag_names') as $tagName){
-                $tag = Tag::firstOrCreate(
-                    ['name' => $tagName],
-                    ['status' => Tag::STATUS_PUBLISHED, 'creation_scope' => Tag::CREATION_SCOPE_USER]
-                );
+                $tag = $this->tagRepository->store([
+                    'name' => $tagName,
+                    'status' => Tag::STATUS_PUBLISHED,
+                    'creation_scope' => Tag::CREATION_SCOPE_USER,
+                ]);
 
                 $tagIds[] = $tag->id;
             }
@@ -570,6 +581,35 @@ class UserController extends Controller
 
         $user = auth('api')->user();
 
+        $_2fa = $user->_2fa;
+
+        if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
+            // 2FA verification
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+            }
+
+            if (!empty($errors)){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors
+                ], 403);
+            }
+
+        }else if (!$this->EmailVerificationService->check($user)){
+            // Email Verification
+            $this->EmailVerificationService->sendCode($user);
+            return response()->json([
+                'message' => 'Please pass email verification',
+                'code' => 'email_verification.require',
+            ], 403);
+        }
+
         $user->password = Hash::make($request->get('new_password'));
         $user->save();
 
@@ -588,30 +628,8 @@ class UserController extends Controller
 
         $_2fa = $user->_2fa;
 
-        // Send change ETH confirmation link
-        if (!$_2fa || (!$_2fa->app_status && !$_2fa->email_status)){
-            // Add new value to user meta and send confirmation email
-            $user->meta()->updateOrCreate(
-                ['key' => UserMeta::NEW_ETH_ADDRESS_KEY],
-                ['value' => $request->get('eth_address')]
-            );
-
-            $token = sha1($user->id . time());
-            $user->meta()->updateOrCreate(
-                ['key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY],
-                ['value' => $token]
-            );
-
-            $link = (
-                $request->get('scope') == 'publisher'?
-                    config('general.PUBLISHER_ETH_ADDRESS_CONFIRMATION_URL')
-                    : config('general.MWA_ETH_ADDRESS_CONFIRMATION_URL')
-                ) . $token;
-            Mail::to($user->email)
-                ->queue(new ETHAddressConfirmationMail($link));
-
-            return response()->json(['status' => 'ok', 'code' => 'eth_address.change.sent_confirmation_link']);
-        }else{
+        if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
+            // 2FA verification
             $errors = [];
             $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
@@ -628,28 +646,17 @@ class UserController extends Controller
                 ], 403);
             }
 
-            $user->eth_address = $request->get('eth_address');
-            $user->save();
-
-            return response()->json(['status' => 'ok']);
+        }else if (!$this->EmailVerificationService->check($user)){
+            // Email Verification
+            $this->EmailVerificationService->sendCode($user);
+            return response()->json([
+                'message' => 'Please pass email verification',
+                'code' => 'email_verification.require',
+            ], 403);
         }
-    }
 
-    public function changeETHAddressConfirmation($token)
-    {
-        $meta = UserMeta::where([
-            'key' => UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY,
-            'value' => $token,
-        ])->firstOrFail();
-
-        $user = $meta->user;
-        $newETHAddress = $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->firstOrFail();
-
-        $user->eth_address = $newETHAddress->value;
+        $user->eth_address = $request->get('eth_address');
         $user->save();
-
-        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_KEY)->delete();
-        $user->meta()->where('key', UserMeta::NEW_ETH_ADDRESS_VERIFICATION_CODE_KEY)->delete();
 
         return response()->json(['status' => 'ok']);
     }

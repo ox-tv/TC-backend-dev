@@ -40,7 +40,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:api',
+            /*'throttle:api',*/
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'user.unmute' => \App\Http\Middleware\EnsureUserIsUnMute::class,
         'channel.unfreeze' => \App\Http\Middleware\EnsureChannelIsUnFreeze::class,
         '2fa' => \App\Http\Middleware\Check2FA::class,
+        'email.verify' => \App\Http\Middleware\CheckEmailVerification::class,
     ];
 }

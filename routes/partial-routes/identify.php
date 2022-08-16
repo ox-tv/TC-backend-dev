@@ -1,15 +1,13 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::apiResource('categories', CategoryController::class)->only(['index']);
-Route::get('categories/{idOrSlug}', '\App\Http\Controllers\CategoryController@show');
-
+Route::post('identify/webhook-handler', '\App\Http\Controllers\IdentifyController@webHookHandler')->name('idenfy.webhook-handler');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
+
+    Route::get('identify/verification-url', '\App\Http\Controllers\IdentifyController@getWebUiUrl');
 
 });
 
@@ -22,6 +20,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+
 });
 
 
@@ -32,7 +31,5 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-
-    Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['store', 'update', 'destroy']);
 
 });

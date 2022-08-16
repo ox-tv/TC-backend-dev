@@ -9,7 +9,7 @@ use App\Models\Comment;
 use App\Models\CommentUser;
 use App\Models\Option;
 use App\Models\Scopes\OrderDescScope;
-use App\Models\Scopes\WhereParentNullScope;
+use App\Repository\Eloquent\CommentRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -18,9 +18,16 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    private $commentRepository;
+
+    public function __construct(CommentRepository $commentRepository)
+    {
+        $this->commentRepository = $commentRepository;
+    }
+
     public function index(Request $request)
     {
-        $query = Comment::query();
+        $query = Comment::onlyParent();
 
         if($request->is('api/publisher/comments')){
             $query->whereHas('video', function (Builder $query) {
@@ -166,7 +173,6 @@ class CommentController extends Controller
 
         if($request->is('api/publisher/*')){
             Comment::where('parent_id', $comment->id)
-                ->withoutGlobalScope(WhereParentNullScope::class)
                 ->update(['read_at' => Carbon::now()]);
         }
 
@@ -194,11 +200,14 @@ class CommentController extends Controller
     public function destroy(Request $request, $id)
     {
         $isAdmin = $request->is('api/admin/*');
-        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
+        $comment = Comment::whereId($id)->firstOrFail();
 
         if (!$isAdmin && auth('api')->id() != $comment->user_id){
             return response()->json(["message" => "You do not have access to delete this comment"],403);
         }
+
+        $reasonKey = null;
+        $reasonText = null;
 
         if ($isAdmin){
             $request->validate([
@@ -209,17 +218,15 @@ class CommentController extends Controller
             $reasons = json_decode(Option::where("key", $option_key)->first()->value) ?? abort(404);
 
             if(($key = array_search($request->get('reason'), array_column($reasons, 'key'))) !== false ){
-                $comment->reason_key = $request->get('reason');
-                $comment->reason_text = $reasons[$key]->value;
+                $reasonKey = $request->get('reason');
+                $reasonText = $reasons[$key]->value;
             }else{
-                $comment->reason_key = 'other';
-                $comment->reason_text = $request->get('reason');
+                $reasonKey = 'other';
+                $reasonText = $request->get('reason');
             }
-
-            $comment->save();
         }
 
-        $comment->delete();
+        $this->commentRepository->destroy($id, ['reason_key' => $reasonKey, 'reason_text' => $reasonText]);
 
         return response()->json(["message" => "ok"]);
     }
@@ -271,7 +278,7 @@ class CommentController extends Controller
 
     public function pin(Comment $comment)
     {
-        Comment::where('video_id', $comment->video_id)->update([
+        Comment::where('video_id', $comment->video_id)->onlyParent()->update([
             'is_pinned' => false,
             'pinned_by' => null,
         ]);
@@ -297,8 +304,20 @@ class CommentController extends Controller
 
         Comment::whereHas('video', function ($q){
             $q->where('user_id', auth('api')->id());
-        })->withoutGlobalScope(WhereParentNullScope::class)
-        ->update(['read_at' => Carbon::now()]);
+        })->update(['read_at' => Carbon::now()]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function toggleReadReplies($commentId)
+    {
+        $haveUnread = Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->whereNull('read_at')->exists();
+
+        if ($haveUnread){
+            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => Carbon::now()]);
+        }else{
+            Comment::where('parent_id', $commentId)->withoutGlobalScope(WhereParentNullScope::class)->update(['read_at' => null]);
+        }
 
         return response()->json(['status' => 'ok']);
     }
@@ -316,7 +335,7 @@ class CommentController extends Controller
                 $query->where('user_id', auth('api')->id());
             })->whereHas('replies', function ($q){
                 $q->whereNull('read_at');
-            })->count();
+            })->onlyParent()->count();
 
         return $result;
     }

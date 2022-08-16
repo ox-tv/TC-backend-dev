@@ -1,15 +1,14 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::apiResource('categories', CategoryController::class)->only(['index']);
-Route::get('categories/{idOrSlug}', '\App\Http\Controllers\CategoryController@show');
-
+Route::put('email/verify', '\App\Http\Controllers\Auth\EmailVerificationController@verify');
+Route::put('email/send-code', '\App\Http\Controllers\Auth\EmailVerificationController@sendCode');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
+
 
 });
 
@@ -22,6 +21,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
 
+
 });
 
 
@@ -32,7 +32,5 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
-
-    Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['store', 'update', 'destroy']);
 
 });

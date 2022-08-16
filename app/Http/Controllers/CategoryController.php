@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
+use App\Repository\Eloquent\CategoryRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    private $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
     public function index()
     {
         $categories = Category::active()->get();
@@ -18,43 +26,37 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $category = new Category();
-
-        $categoryName = $request->get('name');
-
-        $category->name = $categoryName;
-        $category->slug = Str::slug($categoryName);
-        $category->status = $request->get('status', Category::STATUS_ACTIVE);
-
-        $category->save();
+        $category = $this->categoryRepository->store([
+            'name' => $request->get('name'),
+            'slug' => Str::slug($request->get('name')),
+            'status' => $request->get('status', Category::STATUS_ACTIVE),
+        ]);
 
         return CategoryResource::make($category);
     }
 
-    public function show($idOrSlug)
+    public function show($idOrSlug): CategoryResource
     {
-        $category = Category::where('id', $idOrSlug)->orWhere('slug', $idOrSlug)->firstOrFail();
+        $category = $this->categoryRepository->getByIdOrSlug($idOrSlug);
 
         return CategoryResource::make($category);
     }
 
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        $categoryName = $request->get('name');
-
-        $category->name = $categoryName;
-        $category->slug = Str::slug($categoryName);
-        $category->status = $request->get('status', $category->status);
-
-        $category->save();
+        $category = $this->categoryRepository->update($id, [
+            'name' => $request->get('name'),
+            'slug' => Str::slug($request->get('name')),
+            'status' => $request->get('status'),
+        ]);
 
         return CategoryResource::make($category);
     }
 
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        $category->delete();
+        $result = $this->categoryRepository->destroy($id);
 
-        return CategoryResource::make($category);
+        return $result? response()->json(['message' => 'ok']) : abort(500, 'Somethins is wrong.');
     }
 }

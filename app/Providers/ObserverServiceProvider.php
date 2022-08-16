@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Comment;
 use App\Models\Notification;
+use App\Models\Video;
 use App\Observers\NotificationObserver;
 use Illuminate\Support\ServiceProvider;
 

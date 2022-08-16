@@ -10,7 +10,6 @@ use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
 use App\Models\Option;
 use App\Models\Report;
-use App\Models\Scopes\WhereParentNullScope;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -27,7 +26,7 @@ class ReportController extends Controller
         }
 
         if ($is_comment){
-            $query = Comment::withoutGlobalScope(WhereParentNullScope::class);
+            $query = Comment::query();
         }
 
         // filters
@@ -106,7 +105,7 @@ class ReportController extends Controller
 
         if ($request->is("api/comments/{$idOrUrlHash}/report")){
             $option_key = Option::COMMENT_REPORT_REASONS;
-            $model = Comment::withoutGlobalScope(WhereParentNullScope::class)->findOrFail($idOrUrlHash);
+            $model = Comment::findOrFail($idOrUrlHash);
             $report->reported_user_id = $model->user_id;
         }
 

@@ -30,8 +30,6 @@ class MagicLoginMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - Magic Login")->view('emails.magic-login-dark');
+        return $this->subject('Magic Login')->view('emails.magic-login-dark');
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
-use App\Models\Scopes\WhereParentNullScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,10 +24,14 @@ class Comment extends Model
     protected static function booted()
     {
         static::addGlobalScope(new OrderDescScope);
-        static::addGlobalScope(new WhereParentNullScope);
     }
 
     // scopes
+
+    public function scopeOnlyParent($query){
+        $query->whereNull('parent_id');
+        return $query;
+    }
 
     public function scopeHasVideo($query){
         $query->whereHas('video');
@@ -107,7 +110,7 @@ class Comment extends Model
     }
 
     public function replies(){
-        return $this->hasMany('App\Models\Comment', 'parent_id', 'id')->withoutGlobalScope(WhereParentNullScope::class);
+        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
     }
 
 
@@ -121,7 +124,9 @@ class Comment extends Model
     public function getIsDislikedAttribute()
     {
         if(auth('api')->check()){
-            return $this->dislikedBy()->whereUserId(auth('api')->id())->exists();
+            return CommentUser::where('comment_id', $this->id)
+                ->where('user_id', auth('api')->id())
+                ->where('relation', CommentUser::DISLIKED_RELATION)->exists();
         }
 
         return false;
@@ -130,7 +135,9 @@ class Comment extends Model
     public function getIsLikedAttribute()
     {
         if(auth('api')->check()){
-            return $this->likedBy()->whereUserId(auth('api')->id())->exists();
+            return CommentUser::where('comment_id', $this->id)
+                ->where('user_id', auth('api')->id())
+                ->where('relation', CommentUser::LIKED_RELATION)->exists();
         }
 
         return false;
@@ -172,6 +179,6 @@ class Comment extends Model
 
     public function getIsReadRepliesAttribute(): bool
     {
-        return !self::where('parent_id', $this->id)->withoutGlobalScope(WhereParentNullScope::class)->whereNull('read_at')->exists();
+        return !self::where('parent_id', $this->id)->whereNull('read_at')->exists();
     }
 }

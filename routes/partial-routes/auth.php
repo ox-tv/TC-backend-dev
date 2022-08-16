@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register');
-Route::post('publisher/register', '\App\Http\Controllers\Auth\RegisterController@register');
 
 Route::post('login/magic/{scope?}', '\App\Http\Controllers\Auth\LoginController@sendMagicLogin')->where('scope', 'admin|publisher');
 Route::post('login/magic/{token}', '\App\Http\Controllers\Auth\LoginController@verifyMagicLogin');
@@ -12,9 +11,6 @@ Route::post('login/{scope?}', '\App\Http\Controllers\Auth\LoginController@login'
 Route::post('password/send', '\App\Http\Controllers\Auth\LoginController@send_password_reset_link');
 Route::get('password/verify/{token}', '\App\Http\Controllers\Auth\LoginController@verify_password_reset_token');
 Route::put('password/reset', '\App\Http\Controllers\Auth\LoginController@reset_password');
-
-Route::get('users/verify/{token}', '\App\Http\Controllers\Auth\RegisterController@verify')->name("users.verification.verify");
-Route::post('users/resend/{scope?}', '\App\Http\Controllers\Auth\RegisterController@resend')->name("users.verification.resend");
 
 
 // For Login Users

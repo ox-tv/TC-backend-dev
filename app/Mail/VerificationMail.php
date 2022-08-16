@@ -30,8 +30,6 @@ class VerificationMail extends Mailable
      */
     public function build()
     {
-        $app_name = config("general.SITE_NAME");
-
-        return $this->subject( "{$app_name} - Email verification")->view('emails.email-verification-dark');
+        return $this->subject('Email verification')->view('emails.email-verification-dark');
     }
 }
