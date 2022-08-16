@@ -3,18 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Events\CommentLiked;
-use App\Http\Requests\CommentDislike;
-use App\Http\Requests\CommentLike;
 use App\Models\Comment;
 use App\Models\CommentUser;
-use App\Models\Scopes\WhereParentNullScope;
 use Illuminate\Support\Facades\Auth;
 
 class CommentUserRelationController extends Controller
 {
     public function like($id)
     {
-        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
+        $comment = Comment::whereId($id)->firstOrFail();
 
         $userId = Auth::id();
 
@@ -63,7 +60,7 @@ class CommentUserRelationController extends Controller
 
     public function dislike($id)
     {
-        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
+        $comment = Comment::whereId($id)->firstOrFail();
 
         $userId = Auth::id();
 
@@ -110,7 +107,7 @@ class CommentUserRelationController extends Controller
 
     public function remember($id)
     {
-        $comment = Comment::whereId($id)->withoutGlobalScope(WhereParentNullScope::class)->firstOrFail();
+        $comment = Comment::whereId($id)->firstOrFail();
 
         $userId = auth('api')->id();
 

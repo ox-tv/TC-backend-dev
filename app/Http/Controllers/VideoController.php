@@ -613,7 +613,7 @@ class VideoController extends Controller
             ->idOrUrlHash($idOrUrlHash)
             ->firstOrFail();
 
-        $comments = $video->comments()->paginate();
+        $comments = $video->comments()->onlyParent()->paginate();
 
         $comments->load([
             'user.channel',
@@ -669,7 +669,7 @@ class VideoController extends Controller
         $videoIds = collect($request->get('videos'));
         $text = $request->get('text');
 
-        Comment::whereIn('video_id', $videoIds)->update([
+        Comment::whereIn('video_id', $videoIds)->onlyParent()->update([
             'is_pinned' => false,
             'pinned_by' => null,
         ]);
