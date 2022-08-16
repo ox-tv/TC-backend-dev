@@ -34,6 +34,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class VideoController extends Controller
@@ -527,6 +528,37 @@ class VideoController extends Controller
         event(new VideoUpdated($oldVideo, $video));
 
         return new VideoResource($video);
+    }
+
+    public function changeStatusToPublished($id)
+    {
+        $beforeUpdate = Video::where('id', $id)->where('user_id', auth('api')->id())->firstOrFail();
+
+        $validator = Validator::make([
+            'title' => $beforeUpdate->title,
+            'thumbnail' => $beforeUpdate->thumbnail_url,
+            'category' => $beforeUpdate->category_id,
+            'language' => $beforeUpdate->language_id,
+        ], [
+            'title' => 'required',
+            'thumbnail' => 'required',
+            'category' => 'required',
+            'language' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Video is not ready to get published.', 'errors' => $validator->errors()], 422);
+        }
+
+        $this->videoRepository->update($id, [
+            'status' =>Video::STATUS_PUBLISHED
+        ]);
+
+        $afterUpdate = Video::where('id', $id)->first();
+
+        event(new VideoUpdated($beforeUpdate, $afterUpdate));
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function destroy(Request $request, Video $video)

@@ -5,6 +5,7 @@ namespace App\Repository\Eloquent;
 use App\Models\UserVideo;
 use App\Models\Video;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class VideoRepository
 {
@@ -42,5 +43,34 @@ class VideoRepository
         });
 
         return true;
+    }
+
+    public function update($videoId, $data = [])
+    {
+        $allowedKeys = [
+            'media_type',
+            'status',
+            'url_hash',
+            'title',
+            'slug',
+            'file_url',
+            'thumbnail_url',
+            'user_id',
+            'category_id',
+            'language_id',
+            'channel_id',
+            'description',
+            'published_at',
+            'duration',
+            'view_count',
+            'watch_time',
+            'reason_key',
+            'reason_text',
+        ];
+        $updateData = array_filter($data, function($v, $k) use ($allowedKeys) {
+            return in_array($k, $allowedKeys);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        return Video::where('id', $videoId)->update($updateData);
     }
 }
