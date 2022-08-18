@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('upload', '\App\Http\Controllers\UploadController@UploadToS3');
+    Route::post('upload', '\App\Http\Controllers\UploadController@uploadToR2');
+    //Route::post('upload', '\App\Http\Controllers\UploadController@UploadToS3');
 
 });
 

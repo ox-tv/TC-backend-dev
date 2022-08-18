@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -26,6 +27,69 @@ class UploadController extends Controller
 
             return response()->json([
                 'file' => $uploadedFile
+            ]);
+
+        }catch (Exception $e){
+            return response()->json([
+                'message'=> $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function uploadToR2(Request $request)
+    {
+        $request->validate([
+            'file' => [
+                'required',
+                'file',
+            ],
+        ]);
+
+        try{
+            $imageManager = new ImageManager();
+            $s3 = Storage::disk('r2');
+
+            $directory = 'files';
+            $file = $request->file('file');
+            $isImage = false;
+
+            if(substr($file->getMimeType(), 0, 5) == 'image') {
+                $isImage = true;
+            }
+
+            $originalFilePath = $s3->putFile($directory, $file);
+            $url = $s3->temporaryUrl($originalFilePath, now()->addDay());
+
+            $urls = [];
+            $urls['original'] = $url;
+
+            // Create multiple sizes
+            if ($isImage){
+                $sizes = config('upload.thumbnail_sizes');
+
+                $originalImage = $imageManager->make($url);
+                $fileName = explode('?', pathinfo($url, PATHINFO_BASENAME))[0];
+
+                foreach ($sizes as $size){
+                    $image = clone $originalImage;
+                    $key = ($size['w']?:'auto') . '_' . ($size['h']?:'auto');
+                    $filePath = $directory . "/{$key}/" . $fileName;
+
+                    $image->resize($size['w'], $size['h'], function ($constraint) use ($size) {
+                        if (empty($size['w']) || empty($size['h'])){
+                            $constraint->aspectRatio();
+                        }
+                    });
+
+                    $s3->put($filePath, $image->stream());
+
+                    $urls[$key] = $s3->temporaryUrl($filePath, now()->addDay());
+                }
+            }
+
+            return response()->json([
+                'file' => $url,
+                'all' => $urls
             ]);
 
         }catch (Exception $e){
