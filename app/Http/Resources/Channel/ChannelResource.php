@@ -23,10 +23,8 @@ class ChannelResource extends JsonResource
             'description' => $this->description,
             'slug' => $this->slug,
             'url_hash' => $this->url_hash,
-            'cover' => $this->cover_url? :$this->cover,
-            'cover_thumbnails' => $this->cover_url? getThumbnails($this->cover_url):[],
-            'avatar' => $this->avatar_url? :$this->avatar,
-            'avatar_thumbnails' => $this->avatar_url? getThumbnails($this->avatar_url):[],
+            'cover' => $this->cover,
+            'avatar' => $this->avatar,
             "instagram" => $this->instagram,
             "facebook" => $this->facebook,
             "twitter" => $this->twitter,
@@ -40,6 +38,8 @@ class ChannelResource extends JsonResource
 
             // Custom attributes without query
             'status' => $this->status_text,
+            'avatar_thumbnails' => $this->avatar_thumbnails,
+            'cover_thumbnails' => $this->cover_thumbnails,
 
             // Custom attributes with query
             'uploads_count' => $this->whenAppended('uploads_count'),
