@@ -404,12 +404,20 @@ class Video extends Model
 
     public function getThumbnailUrlAttribute($value)
     {
-        return $value? :$this->thumbnail;
+        return $value? getR2TempraroryUrl($value) :$this->thumbnail;
     }
 
     public function getThumbnailsAttribute()
     {
-        return $this->thumbnail_url? getThumbnails($this->thumbnail_url):[];
+        if (!$this->attributes['thumbnail_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['thumbnail_url']) as $key => $value){
+            $urls[$key] = getR2TempraroryUrl($value);
+        }
+
+        return $urls;
     }
 
     public function getMediaTypeTextAttribute()
@@ -429,6 +437,13 @@ class Video extends Model
         return in_array($extention, ['mp4', 'mov', 'webm'])?
             self::FILE_TYPE_VIDEO:
             self::FILE_TYPE_AUDIO;
+    }
+
+
+    // Mutators
+    public function setThumbnailUrlAttribute($value)
+    {
+        $this->attributes['thumbnail_url'] = explode('?', $value)[0];
     }
 
 }

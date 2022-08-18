@@ -201,9 +201,51 @@ class Channel extends Model
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
+    public function getAvatarAttribute($value)
+    {
+        return $this->avatar_url? getR2TempraroryUrl($this->avatar_url) : $value;
+    }
 
+    public function getAvatarThumbnailsAttribute()
+    {
+        if (!$this->attributes['avatar_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
+            $urls[$key] = getR2TempraroryUrl($value);
+        }
+
+        return $urls;
+    }
+
+    public function getCoverAttribute($value)
+    {
+        return $this->cover_url? getR2TempraroryUrl($this->cover_url) : $value;
+    }
+
+    public function getCoverThumbnailsAttribute()
+    {
+        if (!$this->attributes['cover_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['cover_url']) as $key => $value){
+            $urls[$key] = getR2TempraroryUrl($value);
+        }
+
+        return $urls;
+    }
+
+
+    // Mutators
     public function setAvatarUrlAttribute($value)
     {
         $this->attributes['avatar_url'] = explode('?', $value)[0];
+    }
+
+    public function setCoverUrlAttribute($value)
+    {
+        $this->attributes['Cover_url'] = explode('?', $value)[0];
     }
 }
