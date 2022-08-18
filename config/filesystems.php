@@ -65,6 +65,17 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
         ],
 
+        'r2' => [
+            'driver' => 'r2',
+            'account_id' => env('R2_ACCOUNT_ID'),
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => env('R2_DEFAULT_REGION', 'auto'),
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'version' => env('R2_VERSION', 'latest'),
+        ],
+
         'videos' => [
             'driver' => 'local',
             'root' => storage_path('app/public/videos'),
