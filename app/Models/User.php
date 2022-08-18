@@ -322,4 +322,9 @@ class User extends Authenticatable
     {
         return floatval($this->statistics()->sum('points'));
     }
+
+    public function setAvatarUrlAttribute($value)
+    {
+        $this->attributes['avatar_url'] = explode('?', $value)[0];
+    }
 }

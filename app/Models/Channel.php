@@ -200,4 +200,10 @@ class Channel extends Model
     public function getStatusTextAttribute(){
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
+
+
+    public function setAvatarUrlAttribute($value)
+    {
+        $this->attributes['avatar_url'] = explode('?', $value)[0];
+    }
 }
