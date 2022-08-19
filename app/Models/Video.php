@@ -404,7 +404,7 @@ class Video extends Model
 
     public function getThumbnailUrlAttribute($value)
     {
-        return $value? getR2TempraroryUrl($value) :$this->thumbnail;
+        return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :$this->thumbnail;
     }
 
     public function getThumbnailsAttribute()
@@ -414,7 +414,7 @@ class Video extends Model
         }
 
         foreach ($urls = getThumbnails($this->attributes['thumbnail_url']) as $key => $value){
-            $urls[$key] = getR2TempraroryUrl($value);
+            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value;
         }
 
         return $urls;
