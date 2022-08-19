@@ -166,7 +166,7 @@ class ChannelController extends Controller
 
     public function update(ChannelUpdate $request, Channel $channel)
     {
-        if(0 && !$request->is('api/admin/channels/*')){
+        if(!$request->is('api/admin/channels/*')){
             $user = auth('api')->user();
 
             $_2fa = $user->_2fa;
