@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 
