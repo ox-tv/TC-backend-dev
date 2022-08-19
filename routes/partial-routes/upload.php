@@ -23,6 +23,9 @@ Route::group([
     Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')
         ->name('videos.s3.upload.pre_signed_url')->middleware('channel.unfreeze');
 
+    Route::get('r2/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForR2')
+        ->name('videos.s3.upload.pre_signed_url')->middleware('channel.unfreeze');
+
 });
 
 
