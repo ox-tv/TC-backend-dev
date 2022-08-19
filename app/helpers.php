@@ -43,12 +43,12 @@ if(!function_exists('get_thumbnails')){
         return $result;
     }
 }
-if(!function_exists('getR2TempraroryUrl')){
+if(!function_exists('getR2TemporaryUrl')){
     /**
      * @param $filePath
      * @return mixed|null
      */
-    function getR2TempraroryUrl($fileUrl){
+    function getR2TemporaryUrl($fileUrl){
         $s3 = Storage::disk('r2');
         $config = config('filesystems.disks.r2');
 
