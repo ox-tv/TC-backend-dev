@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Channel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Storage;
 
 class S3Controller extends Controller
 {
@@ -58,13 +58,13 @@ class S3Controller extends Controller
             $channel = $user->channel()->firstOrfail();
         }
 
-        $s3 = \Storage::disk('r2');
+        $s3 = Storage::disk('r2');
         $client = $s3->getDriver()->getAdapter()->getClient();
         $expiry = "+1 hour";
 
         $command = $client->getCommand('PutObject', [
-            'Bucket' => config('filesystems.disks.r2.bucket'),
-            'Key'    => "channel/{$channel->id}/videos/{$fileName}.{$extention}",
+            'Bucket' => config('filesystems.disks.r2.account_id'),
+            'Key'    => config('filesystems.disks.r2.bucket') . "/channel/{$channel->id}/videos/{$fileName}.{$extention}",
         ]);
 
         $req = $client->createPresignedRequest($command, $expiry);
