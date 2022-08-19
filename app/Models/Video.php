@@ -399,7 +399,7 @@ class Video extends Model
 
     public function getFileUrlAttribute($value)
     {
-        return $value? : Storage::disk('videos')->url($this->file_path);
+        return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :Storage::disk('videos')->url($this->file_path);
     }
 
     public function getThumbnailUrlAttribute($value)
@@ -444,6 +444,10 @@ class Video extends Model
     public function setThumbnailUrlAttribute($value)
     {
         $this->attributes['thumbnail_url'] = explode('?', $value)[0];
+    }
+    public function setFileUrlAttribute($value)
+    {
+        $this->attributes['file_url'] = explode('?', $value)[0];
     }
 
 }
