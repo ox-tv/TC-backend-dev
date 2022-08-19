@@ -230,12 +230,20 @@ class User extends Authenticatable
 
     public function getAvatarAttribute($value)
     {
-        return $this->avatar_url? :$value;
+        return $this->avatar_url? getR2TempraroryUrl($this->avatar_url) : $value;
     }
 
-    public function getAvatarThumbnilsAttribute($value)
+    public function getAvatarThumbnailsAttribute()
     {
-        return $this->avatar_url? getThumbnails($this->avatar_url):[];
+        if (!$this->attributes['avatar_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
+            $urls[$key] = getR2TempraroryUrl($value);
+        }
+
+        return $urls;
     }
 
     public function getLikedVideosCountAttribute()
@@ -321,5 +329,12 @@ class User extends Authenticatable
     public function getLoyaltyPointsAttribute()
     {
         return floatval($this->statistics()->sum('points'));
+    }
+
+
+    // Mutators
+    public function setAvatarUrlAttribute($value)
+    {
+        $this->attributes['avatar_url'] = explode('?', $value)[0];
     }
 }

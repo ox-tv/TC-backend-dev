@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('upload', '\App\Http\Controllers\UploadController@UploadToS3');
+    Route::post('upload', '\App\Http\Controllers\UploadController@uploadToR2');
+    //Route::post('upload', '\App\Http\Controllers\UploadController@UploadToS3');
 
 });
 
@@ -20,6 +21,9 @@ Route::group([
 ], function(){
 
     Route::get('s3/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForUploadVideo')
+        ->name('videos.s3.upload.pre_signed_url')->middleware('channel.unfreeze');
+
+    Route::get('r2/pre-signed-url-for-upload-video', '\App\Http\Controllers\S3Controller@getPreSignedURLForR2')
         ->name('videos.s3.upload.pre_signed_url')->middleware('channel.unfreeze');
 
 });
