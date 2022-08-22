@@ -563,6 +563,12 @@ class VideoController extends Controller
             'status' =>Video::STATUS_PUBLISHED
         ]);
 
+        $studioDraftData = $beforeUpdate->meta()->where('key', VideoMeta::VIDEO_STUDIO_DRAFT)->first();
+        $studioDraftData && $beforeUpdate->meta()->updateOrCreate(
+            ['key' => VideoMeta::VIDEO_STUDIO],
+            ['value' => $studioDraftData->value? json_encode($studioDraftData->value): $studioDraftData->value]
+        );
+
         $afterUpdate = Video::where('id', $id)->first();
 
         event(new VideoUpdated($beforeUpdate, $afterUpdate));
