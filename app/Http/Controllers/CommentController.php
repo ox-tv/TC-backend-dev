@@ -101,6 +101,9 @@ class CommentController extends Controller
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }
+        if($sort === 'most_replies'){
+            $query->withCount('replies')->orderBy('replies_count', 'desc');
+        }
         if($sort === 'oldest'){
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');
         }
