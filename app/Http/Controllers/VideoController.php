@@ -26,6 +26,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Tag;
 use App\Models\Video;
+use App\Models\VideoMeta;
 use App\Repository\Eloquent\TagRepository;
 use App\Repository\Eloquent\VideoRepository;
 use Illuminate\Http\Request;
@@ -463,6 +464,14 @@ class VideoController extends Controller
         DB::transaction(function () use ($request, $video){
 
             $video->save();
+
+            if ($video->status == Video::STATUS_PUBLISHED){
+                $studioDraftData = $video->meta()->where('key', VideoMeta::VIDEO_STUDIO_DRAFT)->first();
+                $studioDraftData && $video->meta()->updateOrCreate(
+                    ['key' => VideoMeta::VIDEO_STUDIO],
+                    ['value' => $studioDraftData->value? json_encode($studioDraftData->value): $studioDraftData->value]
+                );
+            }
 
             // updating categories
             if($request->get('categories')){
