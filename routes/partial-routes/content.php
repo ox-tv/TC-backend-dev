@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('contents/{idOrPage}', '\App\Http\Controllers\ContentController@show')->name('contents.show');
+Route::apiResource('contents', \App\Http\Controllers\ContentController::class)->only(['show']);
 
 
 // For Login Users
@@ -31,6 +31,6 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
-    Route::apiResource('contents', \App\Http\Controllers\ContentController::class)->only(['index', 'store']);
+    Route::apiResource('contents', \App\Http\Controllers\ContentController::class);
 
 });
