@@ -30,6 +30,8 @@ Route::group([], __DIR__.'/partial-routes/feedback.php');
 
 Route::group([], __DIR__.'/partial-routes/form.php');
 
+Route::group([], __DIR__.'/partial-routes/content.php');
+
 Route::group([], __DIR__.'/partial-routes/maillist.php');
 
 Route::group([], __DIR__.'/partial-routes/tag.php');
