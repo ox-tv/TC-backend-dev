@@ -3,9 +3,6 @@
 namespace App\Repository\Eloquent;
 
 use App\Models\Feedback;
-use App\Models\Tag;
-use App\Models\TagUser;
-use App\Models\TagVideo;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -41,17 +38,12 @@ class FeedbackRepository
         return $feedback;
     }
 
-    public function destroy($tagId): bool
+    public function destroy($feedbackId): bool
     {
         try {
             DB::beginTransaction();
 
-            // Remove tag relations
-            TagVideo::where('tag_id', $tagId)->delete();
-            TagUser::where('tag_id', $tagId)->delete();
-
-            // Remove tag
-            Tag::where('id', $tagId)->delete();
+            // Remove Code
 
             DB::commit();
             return true;
@@ -65,7 +57,7 @@ class FeedbackRepository
 
     public function getById($feedbackId, $throwOnFail = true): Feedback
     {
-        return $throwOnFail? Feedback::findOrFail($feedbackId) : Tag::find($feedbackId);
+        return $throwOnFail? Feedback::findOrFail($feedbackId) : Feedback::find($feedbackId);
     }
 
     private function filterData($data): array
