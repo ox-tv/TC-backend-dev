@@ -17,6 +17,16 @@ class Channel extends Model
       'name', 'user_id'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'youtube_last_scraped_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'import_request_status' => self::IMPORT_STATUS_OFF,
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_PUBLISHED = 2;
     const STATUS_FREEZE= 5;
@@ -30,15 +40,14 @@ class Channel extends Model
 
     const IMPORT_STATUS_REQUESTED = 1;
     const IMPORT_STATUS_COMPLETED = 2;
+    const IMPORT_STATUS_OFF = 3;
+    const IMPORT_STATUS_SYNC = 4;
 
     const IMPORT_STATUS_TEXT = [
         self::IMPORT_STATUS_REQUESTED => 'requested',
         self::IMPORT_STATUS_COMPLETED => 'completed',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        self::IMPORT_STATUS_OFF => 'off',
+        self::IMPORT_STATUS_SYNC => 'sync',
     ];
 
 
