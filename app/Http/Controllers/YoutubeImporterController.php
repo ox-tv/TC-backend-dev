@@ -57,4 +57,15 @@ class YoutubeImporterController extends Controller
         ], 400);
     }
 
+    public function updateChannel(Channel $channel, Request $request)
+    {
+        $request->validate([
+            'youtube_last_scraped_at' => ['sometimes', 'date']
+        ]);
+
+        $channel->youtube_last_scraped_at = $request->get('youtube_last_scraped_at');
+        $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
 }

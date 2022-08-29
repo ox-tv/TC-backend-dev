@@ -65,6 +65,8 @@ Route::group([
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channels/{channel}/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
 
+    Route::put('yi/channels/{channel}', '\App\Http\Controllers\YoutubeImporterController@updateChannel')->name("yi.channels.update");
+
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
 });
