@@ -39,6 +39,9 @@ Route::group([
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')
         ->name("channels.request-import")->middleware('channel.unfreeze');
 
+    Route::put('yi/channels/sync-request', '\App\Http\Controllers\YoutubeImporterController@syncRequest')->name("yi.channels.sync-request");
+    Route::get('yi/channels/import-stats', '\App\Http\Controllers\YoutubeImporterController@importStats')->name("yi.channels.import-stats");
+
 });
 
 
@@ -64,6 +67,8 @@ Route::group([
     Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channels/{channel}/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
+
+    Route::put('yi/channels/{channel}', '\App\Http\Controllers\YoutubeImporterController@updateChannel')->name("yi.channels.update");
 
     Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 

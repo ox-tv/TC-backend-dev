@@ -6,8 +6,11 @@ use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\Channels\ChannelImportRequestCompleted;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
+use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class YoutubeImporterController extends Controller
 {
@@ -57,4 +60,69 @@ class YoutubeImporterController extends Controller
         ], 400);
     }
 
+    public function updateChannel(Channel $channel, Request $request)
+    {
+        $request->validate([
+            'youtube_last_scraped_at' => ['sometimes', 'date']
+        ]);
+
+        $channel->youtube_last_scraped_at = $request->get('youtube_last_scraped_at');
+        $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function storeVideo(Request $request)
+    {
+        $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['sometimes'],
+            'published_at' => ['sometimes'],
+            'file_url' => ['required'],
+            'thumbnail' => ['required'],
+            'user_id' => ['required'],
+        ]);
+
+        $video = new Video();
+
+        $video->title = $request->get('title');
+        $video->slug = Str::slug($request->get('title'));
+        $video->description = $request->get('description');
+        $video->published_at = $request->get('published_at');
+        $video->file_url = $request->get('file_url');
+        $video->thumbnail_url = $request->get('thumbnail');
+        $video->user_id = $request->get('user_id');
+        $video->status = Video::STATUS_DRAFT;
+        $video->media_type = Video::MEDIA_TYPE_VIDEO;
+
+        $video->save();
+
+        return VideoResource::make($video);
+    }
+
+    public function syncRequest(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
+        if (!$channel){
+            return response()->json(['message' => 'Channel is not found for this user'], 404);
+        }
+
+        if (!$channel->youtube_last_scraped_at){
+            return response()->json(['message' => 'you must '], 403);
+        }
+
+        $channel->import_request_status = Channel::IMPORT_STATUS_SYNC;
+        $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function importStats(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth('api')->user();
+
+        return response()->json(['total' => 5, 'synced' => 3, 'status' => 'syncing']);
+    }
 }

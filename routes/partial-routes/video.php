@@ -82,6 +82,7 @@ Route::group([
 
     Route::get('videos', '\App\Http\Controllers\VideoController@index')->name('videos');
     Route::post('videos', '\App\Http\Controllers\VideoController@store')->name("videos.store");
+    Route::post('yi/videos', '\App\Http\Controllers\YoutubeImporterController@storeVideo')->name("yi.videos.store");
 
     Route::get('videos/{video}', '\App\Http\Controllers\VideoController@show')->name('videos.show');
     Route::delete('videos/{video}', '\App\Http\Controllers\VideoController@destroy')->name('videos.delete');
