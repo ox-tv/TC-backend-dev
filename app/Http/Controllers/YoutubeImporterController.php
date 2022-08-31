@@ -99,4 +99,30 @@ class YoutubeImporterController extends Controller
 
         return VideoResource::make($video);
     }
+
+    public function syncRequest(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
+        if (!$channel){
+            return response()->json(['message' => 'Channel is not found for this user'], 404);
+        }
+
+        if (!$channel->youtube_last_scraped_at){
+            return response()->json(['message' => 'you must '], 403);
+        }
+
+        $channel->import_request_status = Channel::IMPORT_STATUS_SYNC;
+        $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function importStats(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth('api')->user();
+
+        return response()->json(['total' => 5, 'synced' => 3, 'status' => 'syncing']);
+    }
 }

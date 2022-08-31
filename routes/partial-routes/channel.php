@@ -39,6 +39,9 @@ Route::group([
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')
         ->name("channels.request-import")->middleware('channel.unfreeze');
 
+    Route::put('yi/channels/sync-request', '\App\Http\Controllers\YoutubeImporterController@syncRequest')->name("yi.channels.sync-request");
+    Route::get('yi/channels/import-stats', '\App\Http\Controllers\YoutubeImporterController@importStats')->name("yi.channels.import-stats");
+
 });
 
 
