@@ -6,8 +6,11 @@ use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\Channels\ChannelImportRequestCompleted;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
+use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class YoutubeImporterController extends Controller
 {
@@ -67,5 +70,33 @@ class YoutubeImporterController extends Controller
         $channel->save();
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function storeVideo(Request $request)
+    {
+        $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['sometimes'],
+            'published_at' => ['sometimes'],
+            'file_url' => ['required'],
+            'thumbnail' => ['required'],
+            'user_id' => ['required'],
+        ]);
+
+        $video = new Video();
+
+        $video->title = $request->get('title');
+        $video->slug = Str::slug($request->get('title'));
+        $video->description = $request->get('description');
+        $video->published_at = $request->get('published_at');
+        $video->file_url = $request->get('file_url');
+        $video->thumbnail_url = $request->get('thumbnail');
+        $video->user_id = $request->get('user_id');
+        $video->status = Video::STATUS_DRAFT;
+        $video->media_type = Video::MEDIA_TYPE_VIDEO;
+
+        $video->save();
+
+        return VideoResource::make($video);
     }
 }
