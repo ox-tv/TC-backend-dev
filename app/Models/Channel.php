@@ -210,6 +210,10 @@ class Channel extends Model
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
+    public function getImportRequestStatusTextAttribute(){
+        return self::IMPORT_STATUS_TEXT[$this->import_request_status]?? $this->import_request_status;
+    }
+
     public function getAvatarAttribute($value)
     {
         return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
