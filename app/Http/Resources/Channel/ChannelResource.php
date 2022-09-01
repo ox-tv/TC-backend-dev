@@ -32,12 +32,13 @@ class ChannelResource extends JsonResource
             "slogan" => $this->slogan,
             "user_id" => $this->user_id,
             'points' => $this->points,
-            "import_request_status" => Channel::IMPORT_STATUS_TEXT[$this->import_request_status]?? null,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
+            "youtube_last_scraped_at" => $this->youtube_last_scraped_at,
 
             // Custom attributes without query
             'status' => $this->status_text,
+            "import_request_status" => $this->import_request_status_text,
             'avatar_thumbnails' => $this->avatar_thumbnails,
             'cover_thumbnails' => $this->cover_thumbnails,
 
