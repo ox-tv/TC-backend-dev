@@ -7,6 +7,7 @@ use App\Events\Channels\ChannelImportRequestCompleted;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
+use App\Libraries\YIClient;
 use App\Models\Channel;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -67,6 +68,7 @@ class YoutubeImporterController extends Controller
         ]);
 
         $channel->youtube_last_scraped_at = $request->get('youtube_last_scraped_at');
+        $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
         return response()->json(['status' => 'ok']);
@@ -92,7 +94,7 @@ class YoutubeImporterController extends Controller
         $video->file_url = $request->get('file_url');
         $video->thumbnail_url = $request->get('thumbnail');
         $video->user_id = $request->get('user_id');
-        $video->status = Video::STATUS_DRAFT;
+        $video->status = Video::STATUS_DRAFT_YI;
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
 
         $video->save();
@@ -122,7 +124,21 @@ class YoutubeImporterController extends Controller
     public function importStats(): \Illuminate\Http\JsonResponse
     {
         $user = auth('api')->user();
+        $channel = $user->channel;
+        $result = [
+            'status' => $channel->import_request_status_text
+        ];
 
-        return response()->json(['total' => 5, 'synced' => 3, 'status' => 'syncing']);
+        if (in_array($channel->import_request_status, [Channel::IMPORT_STATUS_REQUESTED, Channel::IMPORT_STATUS_SYNC])){
+            $YIClient = new YIClient();
+            $response = $YIClient->getImportStats($channel->id);
+
+            if ($response['success']){
+                $result['total'] = $response['data']['total'];
+                $result['synced'] = $response['data']['synced'];
+            }
+        }
+
+        return response()->json($result);
     }
 }

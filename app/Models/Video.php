@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class Video extends Model
 {
     const STATUS_DRAFT = 1;
+    const STATUS_DRAFT_YI = 6;
     const STATUS_PUBLISHED = 2;
     const STATUS_ARCHIVED = 3;
     const STATUS_SUSPENDED = 4;
@@ -19,6 +20,7 @@ class Video extends Model
 
     const STATUS_TEXT = [
         self::STATUS_DRAFT => 'draft',
+        self::STATUS_DRAFT_YI => 'draft-yi',
         self::STATUS_PUBLISHED => 'published',
         self::STATUS_ARCHIVED => 'archived',
         self::STATUS_SUSPENDED => 'suspended',
