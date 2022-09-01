@@ -68,6 +68,7 @@ class YoutubeImporterController extends Controller
         ]);
 
         $channel->youtube_last_scraped_at = $request->get('youtube_last_scraped_at');
+        $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
         $channel->save();
 
         return response()->json(['status' => 'ok']);
@@ -93,7 +94,7 @@ class YoutubeImporterController extends Controller
         $video->file_url = $request->get('file_url');
         $video->thumbnail_url = $request->get('thumbnail');
         $video->user_id = $request->get('user_id');
-        $video->status = Video::STATUS_DRAFT;
+        $video->status = Video::STATUS_DRAFT_YI;
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
 
         $video->save();
