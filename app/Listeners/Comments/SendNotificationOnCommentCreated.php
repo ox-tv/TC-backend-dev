@@ -6,6 +6,7 @@ use Amir\Permission\Models\Role;
 use App\Events\Comments\CommentCreated;
 use App\Events\VideoViewed;
 use App\Http\Resources\Comment\CommentResource;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
 use App\Models\User;
 use App\TCNotification\GeneralNotification;
@@ -24,6 +25,7 @@ class SendNotificationOnCommentCreated
         $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
 
         $comment = $event->comment;
+        $video = $comment->video;
         $mentions = $comment->mentions()->where('role_id', '!=', $publisherRoleId)->get();
 
         $comment->load('user');
@@ -34,6 +36,7 @@ class SendNotificationOnCommentCreated
                 Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
                 [
                     'comment' => CommentResource::make($comment),
+                    'video' => VideoResource::make($video),
                 ]
             ));
         }
