@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class LoginRequest extends FormRequest
 {
@@ -29,7 +30,7 @@ class LoginRequest extends FormRequest
             'email' => 'required_without:login|string|email',
             'login' => 'required_without:email|string',
             'password' => ['required', 'string'],
-            'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
+            'captcha' => [Rule::requiredIf(request()->get('email') != config('yi.account')), 'captcha_api:' . request('captcha_key') . ',math']
         ];
     }
 

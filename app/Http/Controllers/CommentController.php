@@ -29,35 +29,32 @@ class CommentController extends Controller
     {
         $query = Comment::onlyParent();
 
-        if($request->is('api/publisher/comments')){
-            $query->whereHas('video', function (Builder $query) {
-                $query->where('user_id', auth('api')->id());
-            });
-        }else{
-            $query->hasVideo();
-        }
-
         $perPage = $request->get('per_page')? min($request->get('per_page'), 200) : 15;
         $filters = $request->get('filters', []);
         $videosFilter = Arr::get($filters, 'videos');
         $timeFilter = Arr::get($filters, 'time');
-        $justRemembersFilter = Arr::get($filters, 'just_remembers');
-        $justMyMentionsFilter = Arr::get($filters, 'just_my_mentions');
-        $justUnreadMentionsFilter = Arr::get($filters, 'just_unread_replies');
-
-        if($justRemembersFilter){
-            $query->whereHas('rememberedBy');
-        }
+        $justRemembersFilter = Arr::get($filters, 'only_remembers');
+        $justMyMentionsFilter = Arr::get($filters, 'only_my_mentions');
+        $justUnreadMentionsFilter = Arr::get($filters, 'only_unread_replies');
 
         if($justMyMentionsFilter){
-            /*$query->whereHas('mentions', function (Builder $query) {
-                $query->where('id', auth('api')->id());
-            });*/
             $query->whereHas('replies', function (Builder $query) {
                 $query->whereHas('mentions', function (Builder $query) {
                     $query->where('id', auth('api')->id());
                 });
             });
+        }else{
+            if($request->is('api/publisher/comments')){
+                $query->whereHas('video', function (Builder $query) {
+                    $query->where('user_id', auth('api')->id());
+                });
+            }else{
+                $query->hasVideo();
+            }
+        }
+
+        if($justRemembersFilter){
+            $query->whereHas('rememberedBy');
         }
 
         if($justUnreadMentionsFilter){
@@ -103,6 +100,9 @@ class CommentController extends Controller
         }
         if($sort === 'most_liked'){
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
+        }
+        if($sort === 'most_replies'){
+            $query->withCount('replies')->orderBy('replies_count', 'desc');
         }
         if($sort === 'oldest'){
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('created_at');

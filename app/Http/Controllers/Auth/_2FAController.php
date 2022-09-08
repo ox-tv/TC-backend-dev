@@ -91,11 +91,11 @@ class _2FAController extends Controller
 
         $errors = [];
         if (!empty($data['app']) && !$result['app']){
-            $errors['app'] = 'Code is not correct';
+            $errors['app_2fa_secret'] = 'Invalid/ expired code.';
         }
 
         if (!empty($data['email']) && !$result['email']){
-            $errors['email'] = 'Code is not correct';
+            $errors['email_2fa_code'] = 'Invalid/ expired code.';
         }
 
         if (!empty($errors)) {

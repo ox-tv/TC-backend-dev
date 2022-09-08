@@ -39,6 +39,9 @@ Route::group([
     Route::post('channels/request-import', '\App\Http\Controllers\MessageController@channelImportRequest')
         ->name("channels.request-import")->middleware('channel.unfreeze');
 
+    Route::put('yi/channels/sync-request', '\App\Http\Controllers\YoutubeImporterController@syncRequest')->name("yi.channels.sync-request");
+    Route::get('yi/channels/import-stats', '\App\Http\Controllers\YoutubeImporterController@importStats')->name("yi.channels.import-stats");
+
 });
 
 
@@ -57,12 +60,16 @@ Route::group([
     Route::get('users/{user}/performance/total', '\App\Http\Controllers\ChannelController@performanceTotal')->name('channels.performance');
     Route::get('users/{user}/performance/monthly', '\App\Http\Controllers\ChannelController@performanceMonthly')->name('channels.monthly-performance');
 
-    Route::get('channels/import-requests', '\App\Http\Controllers\ChannelController@importRequests')->name("channels.import_requests");
-    Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\ChannelController@importCompleted')->name("channels.import_completed");
-    Route::put('channels/{channel}/import-request', '\App\Http\Controllers\ChannelController@importRequest')->name("channels.import_request");
-    Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
+    Route::get('channels/import-requests', '\App\Http\Controllers\YoutubeImporterController@index')->name("channels.import_requests");
+    Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\YoutubeImporterController@importCompleted')->name("channels.import_completed");
+    Route::put('channels/{channel}/import-request', '\App\Http\Controllers\YoutubeImporterController@importRequest')->name("channels.import_request");
+
     Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channels/{channel}/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
+
+    Route::put('yi/channels/{channel}', '\App\Http\Controllers\YoutubeImporterController@updateChannel')->name("yi.channels.update");
+
+    Route::apiResource('channels', \App\Http\Controllers\ChannelController::class);
 
 });

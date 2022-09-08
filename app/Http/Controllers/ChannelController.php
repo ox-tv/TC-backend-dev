@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Channels\ChannelImportRequestAccepted;
-use App\Events\Channels\ChannelImportRequestCompleted;
 use App\Events\Channels\ChannelUpdated;
 use App\Events\ChannelSubscribed;
 use App\Exports\PublisherEarningsExport;
-use App\Http\Requests\ChannelImportRequest;
 use App\Http\Requests\ChannelStore;
 use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\Channel\ImportRequestsCollection;
 use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\User;
@@ -275,38 +271,6 @@ class ChannelController extends Controller
             $subscribedBefore?1:0));
 
         return ChannelResource::make($channel);
-    }
-
-    public function importRequest(ChannelImportRequest $request, Channel $channel){
-
-        $channel->import_request_status = Channel::IMPORT_STATUS_REQUESTED;
-        $channel->youtube_channel_id = $request->get("youtube_channel_id");
-        $channel->save();
-
-        event(new ChannelImportRequestAccepted($channel));
-
-        return response()->json([
-            'message' => __('channel.messages.import_request_submitted'),
-        ]);
-    }
-
-    public function importRequests()
-    {
-        $requests = Channel::where('import_request_status', Channel::IMPORT_STATUS_REQUESTED)->get();
-
-        return ImportRequestsCollection::make($requests);
-    }
-
-    public function importCompleted(Channel $channel)
-    {
-        $channel->import_request_status = Channel::IMPORT_STATUS_COMPLETED;
-        $channel->save();
-
-        event(new ChannelImportRequestCompleted($channel));
-
-        return response()->json([
-            'message' => __('channel.messages.import_completed'),
-        ]);
     }
 
     public function performanceTotal(Request $request,PointService $pointService, User $user = null)

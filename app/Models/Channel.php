@@ -17,6 +17,16 @@ class Channel extends Model
       'name', 'user_id'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'youtube_last_scraped_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'import_request_status' => self::IMPORT_STATUS_OFF,
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_PUBLISHED = 2;
     const STATUS_FREEZE= 5;
@@ -30,15 +40,14 @@ class Channel extends Model
 
     const IMPORT_STATUS_REQUESTED = 1;
     const IMPORT_STATUS_COMPLETED = 2;
+    const IMPORT_STATUS_OFF = 3;
+    const IMPORT_STATUS_SYNC = 4;
 
     const IMPORT_STATUS_TEXT = [
         self::IMPORT_STATUS_REQUESTED => 'requested',
         self::IMPORT_STATUS_COMPLETED => 'completed',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        self::IMPORT_STATUS_OFF => 'off',
+        self::IMPORT_STATUS_SYNC => 'sync',
     ];
 
 
@@ -199,5 +208,57 @@ class Channel extends Model
 
     public function getStatusTextAttribute(){
         return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
+
+    public function getImportRequestStatusTextAttribute(){
+        return self::IMPORT_STATUS_TEXT[$this->import_request_status]?? $this->import_request_status;
+    }
+
+    public function getAvatarAttribute($value)
+    {
+        return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
+    }
+
+    public function getAvatarThumbnailsAttribute()
+    {
+        if (!$this->attributes['avatar_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
+            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
+        }
+
+        return $urls;
+    }
+
+    public function getCoverAttribute($value)
+    {
+        return $this->cover_url? (strpos($this->cover_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->cover_url) : $this->cover_url) : $value;
+    }
+
+    public function getCoverThumbnailsAttribute()
+    {
+        if (!$this->attributes['cover_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['cover_url']) as $key => $value){
+            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
+        }
+
+        return $urls;
+    }
+
+
+    // Mutators
+    public function setAvatarUrlAttribute($value)
+    {
+        $this->attributes['avatar_url'] = explode('?', $value)[0];
+    }
+
+    public function setCoverUrlAttribute($value)
+    {
+        $this->attributes['Cover_url'] = explode('?', $value)[0];
     }
 }

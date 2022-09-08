@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class Video extends Model
 {
     const STATUS_DRAFT = 1;
+    const STATUS_DRAFT_YI = 6;
     const STATUS_PUBLISHED = 2;
     const STATUS_ARCHIVED = 3;
     const STATUS_SUSPENDED = 4;
@@ -19,6 +20,7 @@ class Video extends Model
 
     const STATUS_TEXT = [
         self::STATUS_DRAFT => 'draft',
+        self::STATUS_DRAFT_YI => 'draft_yi',
         self::STATUS_PUBLISHED => 'published',
         self::STATUS_ARCHIVED => 'archived',
         self::STATUS_SUSPENDED => 'suspended',
@@ -399,17 +401,25 @@ class Video extends Model
 
     public function getFileUrlAttribute($value)
     {
-        return $value? : Storage::disk('videos')->url($this->file_path);
+        return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :Storage::disk('videos')->url($this->file_path);
     }
 
     public function getThumbnailUrlAttribute($value)
     {
-        return $value? :$this->thumbnail;
+        return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :$this->thumbnail;
     }
 
     public function getThumbnailsAttribute()
     {
-        return $this->thumbnail_url? getThumbnails($this->thumbnail_url):[];
+        if (!$this->attributes['thumbnail_url']){
+            return [];
+        }
+
+        foreach ($urls = getThumbnails($this->attributes['thumbnail_url']) as $key => $value){
+            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value;
+        }
+
+        return $urls;
     }
 
     public function getMediaTypeTextAttribute()
@@ -429,6 +439,17 @@ class Video extends Model
         return in_array($extention, ['mp4', 'mov', 'webm'])?
             self::FILE_TYPE_VIDEO:
             self::FILE_TYPE_AUDIO;
+    }
+
+
+    // Mutators
+    public function setThumbnailUrlAttribute($value)
+    {
+        $this->attributes['thumbnail_url'] = explode('?', $value)[0];
+    }
+    public function setFileUrlAttribute($value)
+    {
+        $this->attributes['file_url'] = explode('?', $value)[0];
     }
 
 }
