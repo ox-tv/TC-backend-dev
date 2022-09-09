@@ -81,6 +81,8 @@ class GeneralController extends Controller
         $latestMedia = Video::published()
             ->take(15)
             ->with(['channel'])
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->orderBy('published_at', 'desc')
             ->get()
             ->append(['is_bookmarked']);
         $result['latest_media'] = VideoResource::collection($latestMedia);
@@ -138,6 +140,8 @@ class GeneralController extends Controller
                 })
                 ->take(15)
                 ->with(['channel'])
+                ->withoutGlobalScope(OrderDescScope::class)
+                ->orderBy('published_at', 'desc')
                 ->get()
                 ->append(['is_bookmarked']);
 
