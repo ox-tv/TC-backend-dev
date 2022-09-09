@@ -22,6 +22,7 @@ use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CommentUser;
 use App\Models\CryptoCurrency;
+use App\Models\Language;
 use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Scopes\OrderDescScope;
@@ -438,10 +439,14 @@ class VideoController extends Controller
             $video->slug = Str::slug($request->get('slug'));
         }
 
-        $video->description = $request->get('description');
+        if($request->get('description')){
+            $video->description = $request->get('description');
+        }
 
         // thumbnail
-        $video->thumbnail_url = $request->get('thumbnail');
+        if ($request->get('thumbnail')){
+            $video->thumbnail_url = $request->get('thumbnail');
+        }
 
         // status
         if($request->get('status') && $oldVideo->status != Video::STATUS_HIDDEN){
@@ -460,7 +465,7 @@ class VideoController extends Controller
         if($request->get('language')){
             $video->language_id = $request->get('language');
         }else{
-            $video->language_id = null;
+            $video->language_id = Language::where('code', 'en')->first()->id ?? null;
         }
 
 
