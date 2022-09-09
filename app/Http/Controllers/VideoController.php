@@ -196,7 +196,7 @@ class VideoController extends Controller
             $query->orderBy('published_at', 'desc');
         }elseif ($sort === 'most_commented'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
-        }elseif ($channelId && $request->is('api/videos')){
+        }elseif (($channelId || $channelSlug) && $request->is('api/videos')){
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
         }
 
