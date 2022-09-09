@@ -24,6 +24,7 @@ use App\Models\CommentUser;
 use App\Models\CryptoCurrency;
 use App\Models\Option;
 use App\Models\Playlist;
+use App\Models\Scopes\OrderDescScope;
 use App\Models\Tag;
 use App\Models\Video;
 use App\Models\VideoMeta;
@@ -159,17 +160,6 @@ class VideoController extends Controller
             $query->inPlaylist($playlistId);
         }
 
-        $sort = $request->get('sort');
-        if($sort === 'most_liked'){
-            $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
-        }elseif ($sort === 'most_viewed'){
-            $query->orderBy('view_count', 'desc');
-        }elseif ($sort === 'published_at'){
-            $query->orderBy('published_at', 'desc');
-        }elseif ($sort === 'most_commented'){
-            $query->withCount('comments')->orderBy('comments_count', 'desc');
-        }
-
         $excludedVideos = [];
 
         $excludePlaylistsId = $request->get('exclude_playlist');
@@ -195,6 +185,19 @@ class VideoController extends Controller
             $query->whereHas('channel', function($q) use ($channelSlug){
                 return $q->where('slug', $channelSlug);
             });
+        }
+
+        $sort = $request->get('sort');
+        if($sort === 'most_liked'){
+            $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
+        }elseif ($sort === 'most_viewed'){
+            $query->orderBy('view_count', 'desc');
+        }elseif ($sort === 'published_at'){
+            $query->orderBy('published_at', 'desc');
+        }elseif ($sort === 'most_commented'){
+            $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }elseif ($channelId && $request->is('api/videos')){
+            $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
         }
 
         $videos = $query->paginate($perPage);
