@@ -33,7 +33,11 @@ class VideoUpdate extends FormRequest
         $video = $this->route('video');
 
         return [
-            'title' => 'required|string',
+            'title' => [
+                Rule::requiredIf(function () use($video) {
+                    return !$video->title;
+                }), 'string'
+            ],
             'thumbnail' => [
                 Rule::requiredIf(function () use($video) {
                     $status = request()->get('status');
