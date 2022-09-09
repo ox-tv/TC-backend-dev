@@ -30,30 +30,31 @@ class VideoUpdate extends FormRequest
     {
         $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
+        $video = $this->route('video');
 
         return [
-            'title' => 'required|string',
+            'title' => [
+                Rule::requiredIf(function () use($video) {
+                    return !$video->title;
+                }), 'string'
+            ],
             'thumbnail' => [
-                Rule::requiredIf(function () {
+                Rule::requiredIf(function () use($video) {
                     $status = request()->get('status');
-                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
+                    return !$video->thumbnail_url && $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
                 })
             ],
             'categories.*.id' => 'exists:categories,id',
             'crypto_currencies.*' => 'exists:crypto_currencies,id',
             'category' => [
                 'exists:categories,id',
-                Rule::requiredIf(function () {
+                Rule::requiredIf(function () use($video) {
                     $status = request()->get('status');
-                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
+                    return !$video->category_id && $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
                 })
             ],
             'language' => [
                 'nullable','exists:languages,id',
-                Rule::requiredIf(function () {
-                    $status = request()->get('status');
-                    return $status && Video::STATUS_TEXT[Video::STATUS_PUBLISHED] == $status;
-                })
             ],
             'video' => 'nullable|file',
             'file_url' => 'nullable|url',
