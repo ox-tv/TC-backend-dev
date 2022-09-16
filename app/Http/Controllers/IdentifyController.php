@@ -80,13 +80,46 @@ class IdentifyController extends Controller
             'country' => ['required'],
             'company_name' => ['nullable'],
             'vat_number' => ['nullable'],
+            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
         ]);
 
         $user = auth('api')->user();
 
+        $_2fa = $user->_2fa;
+
+        if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
+            // 2FA verification
+            $errors = [];
+            $_2faResult = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
+
+            if (($_2fa->app_status && !$_2faResult['app']) || ($_2fa->email_status && !$_2faResult['email'])){
+                $errors['app'] = $_2fa->app_status? 'Please verify app 2FA' : null;
+                $errors['email'] = $_2fa->email_status? 'Please verify email 2FA' : null;
+            }
+
+            if (!empty($errors)){
+                return response()->json([
+                    'message' => 'Please verify 2FA',
+                    'code' => '2fa.require',
+                    'errors' => $errors
+                ], 403);
+            }
+
+        }else if (!$this->EmailVerificationService->check($user)){
+            // Email Verification
+            $this->EmailVerificationService->sendCode($user);
+            return response()->json([
+                'message' => 'Please pass email verification',
+                'code' => 'email_verification.require',
+            ], 403);
+        }
+
+        $user->eth_address = $request->get('eth_address');
+        $user->save();
+
         $user->meta()->updateOrCreate(
             ['key' => UserMeta::PAYMENT_DETAILS],
-            ['value' => json_encode($validatedData)]
+            ['value' => json_encode($request->except(['eth_address']))]
         );
 
         return response()->json(['status' => 'ok']);
