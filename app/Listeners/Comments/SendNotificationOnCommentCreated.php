@@ -26,7 +26,7 @@ class SendNotificationOnCommentCreated
 
         $comment = $event->comment;
         $video = $comment->video()->first();
-        $mentions = $comment->mentions()->where('role_id', '!=', $publisherRoleId)->get();
+        $mentions = $comment->mentions()->notPublishers()->get();
 
         $comment->load('user');
 
