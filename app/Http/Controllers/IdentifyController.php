@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Libraries\IdenfyClient;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Repository\Eloquent\TagRepository;
+use App\Services\_2FAService;
+use App\Services\EmailVerificationService;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -14,6 +17,18 @@ use Illuminate\Http\Request;
 
 class IdentifyController extends Controller
 {
+    private $_2faService;
+    private $EmailVerificationService;
+
+    public function __construct(
+        _2FAService $_2faService,
+        EmailVerificationService $EmailVerificationService
+    )
+    {
+        $this->_2faService = $_2faService;
+        $this->EmailVerificationService = $EmailVerificationService;
+    }
+
     public function webHookHandler(Request $request)
     {
         $data = $request->all();
