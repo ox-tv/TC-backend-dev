@@ -113,8 +113,10 @@ class User extends Authenticatable
     }
 
     public function scopeNotPublishers($query){
-        $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
-        $query->where('role_id', "<>", $publisherRoleId);
+        $query->where(function ($q){
+            $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+            $q->whereNull('role_id')->orWhere('role_id', "<>", $publisherRoleId);
+        });
         return $query;
     }
 
