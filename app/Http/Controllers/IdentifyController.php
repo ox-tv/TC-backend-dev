@@ -100,7 +100,7 @@ class IdentifyController extends Controller
 
         $user = auth('api')->user();
 
-        $_2fa = $user->_2fa;
+        /*$_2fa = $user->_2fa;
 
         if ($_2fa && ($_2fa->app_status || $_2fa->email_status)){
             // 2FA verification
@@ -127,7 +127,7 @@ class IdentifyController extends Controller
                 'message' => 'Please pass email verification',
                 'code' => 'email_verification.require',
             ], 403);
-        }
+        }*/
 
         $user->eth_address = $request->get('eth_address');
         $user->save();
