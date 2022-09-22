@@ -24,6 +24,8 @@ Route::group([], __DIR__.'/partial-routes/email-verification.php');
 
 Route::group([], __DIR__.'/partial-routes/identify.php');
 
+Route::group([], __DIR__.'/partial-routes/payment_details.php');
+
 Route::group([], __DIR__.'/partial-routes/category.php');
 
 Route::group([], __DIR__.'/partial-routes/feedback.php');
