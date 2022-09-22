@@ -28,9 +28,23 @@ class PaymentDetailsController extends Controller
 
         $filters = $request->get('filters', []);
         $onlyArchivedFilter = Arr::get($filters, 'only_archived');
+        $statusFilter = Arr::get($filters, 'status');
+        $searchFilter = Arr::get($filters, 'search');
 
         if ($onlyArchivedFilter){
             $query->archived();
+        }else{
+            $query->nonArchived();
+        }
+
+        if ($statusFilter){
+            $query->status($statusFilter);
+        }
+
+        if ($searchFilter){
+            $query->whereHas('user', function ($q) use($searchFilter){
+                $q->searchUsername($searchFilter);
+            });
         }
 
         $paymentDetails = $query->paginate();
