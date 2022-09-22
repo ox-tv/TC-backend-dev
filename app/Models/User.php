@@ -145,6 +145,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\UserMeta');
     }
 
+    public function paymentDetails(){
+        return $this->hasMany('App\Models\PaymentDetails');
+    }
+
     public function notifications(){
         return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
     }
