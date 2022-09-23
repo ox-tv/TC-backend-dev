@@ -38,7 +38,7 @@ class PaymentDetailsController extends Controller
         }
 
         if ($statusFilter){
-            $query->status($statusFilter);
+            $query->statusText($statusFilter);
         }
 
         if ($searchFilter){
@@ -54,11 +54,24 @@ class PaymentDetailsController extends Controller
         return PaymentDetailsResource::collection($paymentDetails);
     }
 
+    public function addressHistory(Request $request, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $paymentDetails = $user->paymentDetails()->verified()->latest()->paginate();
+
+        $paymentDetails->append('eth_address');
+
+        return PaymentDetailsResource::collection($paymentDetails);
+    }
+
     public function store(Request $request)
     {
         $user = auth('api')->user();
 
-        if ($user->paymentDetails()->hasOnGoing()->count() > 0){
+        if ($user->paymentDetails()->onGoing()->count() > 0){
             return response()->json(['message' => 'You already have ongoing request.'], 422);
         }
 
@@ -102,5 +115,76 @@ class PaymentDetailsController extends Controller
         return $newPaymentDetails;
     }
 
+    public function verifyPaymentDetails(Request $request)
+    {
+        $user = auth('api')->user();
+        $paymentDetails = $user->paymentDetails()->status(PaymentDetails::STATUS_CODE_SENT)->firstOrFail();
 
+        $request->validate([
+            'proof_code' => [
+                'required', 'string', 'size:16',
+                function ($attribute, $value, $fail) use($paymentDetails) {
+                    if ($value && strlen($value) == 16 && $paymentDetails->proof_code != $value) {
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ]
+        ]);
+
+        $paymentDetails->status = PaymentDetails::STATUS_VERIFIED;
+        $paymentDetails->last_status_at = Carbon::now();
+        $paymentDetails->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $request->validate([
+            'status' => ['required',Rule::in(PaymentDetails::STATUS_TEXT)],
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        $updateData = [
+            'status' => array_flip(PaymentDetails::STATUS_TEXT)[$request->get('status')],
+            'last_status_at' => Carbon::now()
+        ];
+
+        if ($updateData['status'] == PaymentDetails::STATUS_CODE_SENT){
+            $updateData['code_sent_at'] = Carbon::now();
+        }
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update($updateData);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function markAsArchive(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update([
+            'is_archive' => true,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function markAsNonArchive(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update([
+            'is_archive' => false,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
 }

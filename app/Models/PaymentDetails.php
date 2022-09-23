@@ -35,8 +35,13 @@ class PaymentDetails extends Model
         self::STATUS_CANCELED => 'canceled',
     ];
 
-    public function scopeStatus($query, $statusText){
+    public function scopeStatusText($query, $statusText){
         $query->where('status', array_flip(self::STATUS_TEXT)[$statusText]);
+        return $query;
+    }
+
+    public function scopeStatus($query, $status){
+        $query->where('status', $status);
         return $query;
     }
 
@@ -55,7 +60,7 @@ class PaymentDetails extends Model
         return $query;
     }
 
-    public function scopeHasOnGoing($query){
+    public function scopeOnGoing($query){
         $query->whereIN('status', [static::STATUS_NEW, static::STATUS_CODE_SENT]);
         return $query;
     }
