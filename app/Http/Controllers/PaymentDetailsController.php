@@ -113,8 +113,9 @@ class PaymentDetailsController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    public function show(PaymentDetails $paymentDetails)
+    public function show($id)
     {
+        $paymentDetails = PaymentDetails::findOrFail($id);
         $paymentDetails->load(['user'])->append(['proof_code', 'eth_address']);
 
         return PaymentDetailsResource::make($paymentDetails);
