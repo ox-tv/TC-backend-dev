@@ -138,18 +138,24 @@ class PaymentDetailsController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    public function markAsSent(Request $request)
+    public function changeStatus(Request $request)
     {
         $request->validate([
+            'status' => ['required',Rule::in(PaymentDetails::STATUS_TEXT)],
             'ids' => ['required'],
             'ids.*' => ['required', Rule::exists('payment_details','id')]
         ]);
 
-        PaymentDetails::whereIn('id', $request->get('ids'))->update([
-            'status' => PaymentDetails::STATUS_CODE_SENT,
-            'last_status_at' => Carbon::now(),
-            'code_sent_at' => Carbon::now()
-        ]);
+        $updateData = [
+            'status' => array_flip(PaymentDetails::STATUS_TEXT)[$request->get('status')],
+            'last_status_at' => Carbon::now()
+        ];
+
+        if ($updateData['status'] == PaymentDetails::STATUS_CODE_SENT){
+            $updateData['code_sent_at'] = Carbon::now();
+        }
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update($updateData);
 
         return response()->json(['status' => 'ok']);
     }
