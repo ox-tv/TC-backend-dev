@@ -119,7 +119,7 @@ class PaymentDetailsController extends Controller
 
         $newPaymentDetails->save();
 
-        return $newPaymentDetails;
+        return response()->json(['status' => 'ok']);
     }
 
     public function verifyPaymentDetails(Request $request)
