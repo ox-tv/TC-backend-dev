@@ -3,17 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
-use App\Libraries\IdenfyClient;
 use App\Models\PaymentDetails;
 use App\Models\User;
-use App\Models\UserMeta;
-use App\Repository\Eloquent\TagRepository;
-use App\Services\_2FAService;
-use App\Services\EmailVerificationService;
-use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
