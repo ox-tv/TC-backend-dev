@@ -153,4 +153,32 @@ class PaymentDetailsController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
+
+    public function markAsArchive(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update([
+            'is_archive' => true,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function markAsNonArchive(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update([
+            'is_archive' => false,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
 }

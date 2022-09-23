@@ -31,6 +31,8 @@ Route::group([
     'prefix' => 'admin',
     'role' => 'admin'
 ], function(){
+    Route::post('payment-details/mark-as-archive', '\App\Http\Controllers\PaymentDetailsController@markAsArchive')->name('payment-details.mark-as-archive');
+    Route::post('payment-details/mark-as-non-archive', '\App\Http\Controllers\PaymentDetailsController@markAsNonArchive')->name('payment-details.mark-as-non-archive');
     Route::post('payment-details/mark-as-sent', '\App\Http\Controllers\PaymentDetailsController@markAsSent')->name('payment-details.mark-as-sent');
     Route::get('payment-details', '\App\Http\Controllers\PaymentDetailsController@index')->name('payment-details.index');
     Route::get('users/{user}/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
