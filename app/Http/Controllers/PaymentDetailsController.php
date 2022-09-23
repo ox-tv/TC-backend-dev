@@ -38,7 +38,7 @@ class PaymentDetailsController extends Controller
         }
 
         if ($statusFilter){
-            $query->status($statusFilter);
+            $query->statusText($statusFilter);
         }
 
         if ($searchFilter){
@@ -115,5 +115,42 @@ class PaymentDetailsController extends Controller
         return $newPaymentDetails;
     }
 
+    public function verifyPaymentDetails(Request $request)
+    {
+        $user = auth('api')->user();
+        $paymentDetails = $user->paymentDetails()->status(PaymentDetails::STATUS_CODE_SENT)->firstOrFail();
 
+        $request->validate([
+            'proof_code' => [
+                'required', 'string', 'size:16',
+                function ($attribute, $value, $fail) use($paymentDetails) {
+                    if (!$value || $paymentDetails->proof_code != $value) {
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ]
+        ]);
+
+        $paymentDetails->status = PaymentDetails::STATUS_VERIFIED;
+        $paymentDetails->last_status_at = Carbon::now();
+        $paymentDetails->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function markAsSent(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required'],
+            'ids.*' => ['required', Rule::exists('payment_details','id')]
+        ]);
+
+        PaymentDetails::whereIn('id', $request->get('ids'))->update([
+            'status' => PaymentDetails::STATUS_CODE_SENT,
+            'last_status_at' => Carbon::now(),
+            'code_sent_at' => Carbon::now()
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
 }

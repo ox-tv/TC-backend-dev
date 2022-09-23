@@ -35,8 +35,13 @@ class PaymentDetails extends Model
         self::STATUS_CANCELED => 'canceled',
     ];
 
-    public function scopeStatus($query, $statusText){
+    public function scopeStatusText($query, $statusText){
         $query->where('status', array_flip(self::STATUS_TEXT)[$statusText]);
+        return $query;
+    }
+
+    public function scopeStatus($query, $status){
+        $query->where('status', $status);
         return $query;
     }
 
