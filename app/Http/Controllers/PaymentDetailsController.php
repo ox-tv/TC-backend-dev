@@ -124,7 +124,7 @@ class PaymentDetailsController extends Controller
             'proof_code' => [
                 'required', 'string', 'size:16',
                 function ($attribute, $value, $fail) use($paymentDetails) {
-                    if (!$value || $paymentDetails->proof_code != $value) {
+                    if ($value && strlen($value) == 16 && $paymentDetails->proof_code != $value) {
                         $fail('The '.$attribute.' is invalid.');
                     }
                 },
