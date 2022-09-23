@@ -19,7 +19,7 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
-
+    Route::get('profile/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
 });
 
 
@@ -31,4 +31,5 @@ Route::group([
     'role' => 'admin'
 ], function(){
     Route::get('payment-details', '\App\Http\Controllers\PaymentDetailsController@index')->name('payment-details.index');
+    Route::get('users/{user}/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
 });

@@ -54,11 +54,24 @@ class PaymentDetailsController extends Controller
         return PaymentDetailsResource::collection($paymentDetails);
     }
 
+    public function addressHistory(Request $request, User $user = null)
+    {
+        if (!$request->is('api/admin/*')){
+            $user = auth('api')->user();
+        }
+
+        $paymentDetails = $user->paymentDetails()->verified()->latest()->paginate();
+
+        $paymentDetails->append('eth_address');
+
+        return PaymentDetailsResource::collection($paymentDetails);
+    }
+
     public function store(Request $request)
     {
         $user = auth('api')->user();
 
-        if ($user->paymentDetails()->hasOnGoing()->count() > 0){
+        if ($user->paymentDetails()->onGoing()->count() > 0){
             return response()->json(['message' => 'You already have ongoing request.'], 422);
         }
 

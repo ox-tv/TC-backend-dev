@@ -55,7 +55,7 @@ class PaymentDetails extends Model
         return $query;
     }
 
-    public function scopeHasOnGoing($query){
+    public function scopeOnGoing($query){
         $query->whereIN('status', [static::STATUS_NEW, static::STATUS_CODE_SENT]);
         return $query;
     }
