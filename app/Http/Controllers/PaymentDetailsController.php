@@ -113,6 +113,13 @@ class PaymentDetailsController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function show(PaymentDetails $paymentDetails)
+    {
+        $paymentDetails->load(['user'])->append(['proof_code', 'eth_address']);
+
+        return PaymentDetailsResource::make($paymentDetails);
+    }
+
     public function verifyPaymentDetails(Request $request)
     {
         $user = auth('api')->user();

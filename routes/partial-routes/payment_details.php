@@ -34,6 +34,7 @@ Route::group([
     Route::post('payment-details/mark-as-archive', '\App\Http\Controllers\PaymentDetailsController@markAsArchive')->name('payment-details.mark-as-archive');
     Route::post('payment-details/mark-as-non-archive', '\App\Http\Controllers\PaymentDetailsController@markAsNonArchive')->name('payment-details.mark-as-non-archive');
     Route::post('payment-details/change-status', '\App\Http\Controllers\PaymentDetailsController@changeStatus')->name('payment-details.change-status');
+    Route::get('payment-details/{id}', '\App\Http\Controllers\PaymentDetailsController@show')->name('payment-details.show');
     Route::get('payment-details', '\App\Http\Controllers\PaymentDetailsController@index')->name('payment-details.index');
 
     Route::get('users/{user}/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
