@@ -47,6 +47,13 @@ class PaymentDetailsController extends Controller
             });
         }
 
+        $sort = $request->get('sort');
+        if ($sort == 'oldest'){
+            $query->orderBy('created_at', 'ASC');
+        }else{
+            $query->orderBy('created_at', 'DESC');
+        }
+
         $paymentDetails = $query->paginate();
 
         $paymentDetails->load(['user'])->append(['proof_code', 'eth_address']);
