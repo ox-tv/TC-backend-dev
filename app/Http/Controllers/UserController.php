@@ -469,6 +469,8 @@ class UserController extends Controller
             'meta',
             'favoriteTags',
             'favoriteCryptoCurrencies',
+            'verifiedPaymentDetails',
+            'lastPaymentDetails',
         ])->append([
             'eth_address',
             'role_name',

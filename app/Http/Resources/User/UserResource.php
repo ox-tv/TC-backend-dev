@@ -5,8 +5,10 @@ namespace App\Http\Resources\User;
 use App\Http\Resources\_2FA\_2FAResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
+use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Http\Resources\Video\VideoResource;
+use App\Models\PaymentDetails;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -62,6 +64,8 @@ class UserResource extends JsonResource
             'favorite_tags' => TagResource::collection($this->whenLoaded('favoriteTags')),
             'favorite_crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('favoriteCryptoCurrencies')),
             'bookmark_videos' => VideoResource::collection($this->whenLoaded('bookmarkVideos')),
+            'verified_payment_details' => PaymentDetailsResource::make($this->whenLoaded('verifiedPaymentDetails')),
+            'last_payment_details' => PaymentDetailsResource::make($this->whenLoaded('lastPaymentDetails')),
         ];
     }
 }

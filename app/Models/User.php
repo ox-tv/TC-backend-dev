@@ -149,6 +149,14 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\PaymentDetails');
     }
 
+    public function verifiedPaymentDetails(){
+        return $this->hasOne('App\Models\PaymentDetails')->status(PaymentDetails::STATUS_VERIFIED)->orderBy('last_status_at', 'DESC');
+    }
+
+    public function lastPaymentDetails(){
+        return $this->hasOne('App\Models\PaymentDetails')->nonArchived()->orderBy('created_at', 'DESC');
+    }
+
     public function notifications(){
         return $this->belongsToMany('App\Models\Notification')->orderBy('notifications.created_at', 'desc')->withPivot(["read_at"]);
     }
