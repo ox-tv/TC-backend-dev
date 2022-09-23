@@ -71,7 +71,7 @@ class PaymentDetailsController extends Controller
     {
         $user = auth('api')->user();
 
-        if ($user->paymentDetails()->onGoing()->count() > 0){
+        if ($user->paymentDetails()->nonArchived()->onGoing()->count() > 0){
             return response()->json(['message' => 'You already have ongoing request.'], 422);
         }
 
@@ -118,7 +118,7 @@ class PaymentDetailsController extends Controller
     public function verifyPaymentDetails(Request $request)
     {
         $user = auth('api')->user();
-        $paymentDetails = $user->paymentDetails()->status(PaymentDetails::STATUS_CODE_SENT)->firstOrFail();
+        $paymentDetails = $user->paymentDetails()->nonArchived()->status(PaymentDetails::STATUS_CODE_SENT)->firstOrFail();
 
         $request->validate([
             'proof_code' => [
