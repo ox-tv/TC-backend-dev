@@ -21,6 +21,7 @@ class PaymentDetailsController extends Controller
         $onlyArchivedFilter = Arr::get($filters, 'only_archived');
         $statusFilter = Arr::get($filters, 'status');
         $searchFilter = Arr::get($filters, 'search');
+        $searchPublisherId = Arr::get($filters, 'publisher_id');
 
         if ($onlyArchivedFilter){
             $query->archived();
@@ -36,6 +37,10 @@ class PaymentDetailsController extends Controller
             $query->whereHas('user', function ($q) use($searchFilter){
                 $q->searchUsername($searchFilter);
             });
+        }
+
+        if ($searchPublisherId){
+            $query->publisherId($searchPublisherId);
         }
 
         $sort = $request->get('sort');
