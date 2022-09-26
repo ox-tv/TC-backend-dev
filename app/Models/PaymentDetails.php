@@ -60,6 +60,11 @@ class PaymentDetails extends Model
         return $query;
     }
 
+    public function scopePublisherId($query, $publisherId){
+        $query->where('user_id', $publisherId);
+        return $query;
+    }
+
     public function scopeOnGoing($query){
         $query->whereIN('status', [static::STATUS_NEW, static::STATUS_CODE_SENT]);
         return $query;
