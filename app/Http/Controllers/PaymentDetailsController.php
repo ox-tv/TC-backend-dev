@@ -116,7 +116,7 @@ class PaymentDetailsController extends Controller
     public function show($id)
     {
         $paymentDetails = PaymentDetails::findOrFail($id);
-        $paymentDetails->load(['user'])->append(['proof_code', 'eth_address']);
+        $paymentDetails->load(['user'])->append(['proof_code', 'eth_address', 'is_archive']);
 
         return PaymentDetailsResource::make($paymentDetails);
     }
