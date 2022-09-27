@@ -37,5 +37,5 @@ Route::group([
     Route::get('payment-details/{id}', '\App\Http\Controllers\PaymentDetailsController@show')->name('payment-details.show');
     Route::get('payment-details', '\App\Http\Controllers\PaymentDetailsController@index')->name('payment-details.index');
 
-    Route::get('users/{user}/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
+    Route::get('channels/{channel}/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('users.address-history');
 });

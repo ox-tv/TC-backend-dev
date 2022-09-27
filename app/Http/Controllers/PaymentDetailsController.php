@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
+use App\Models\Channel;
 use App\Models\PaymentDetails;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -57,8 +57,9 @@ class PaymentDetailsController extends Controller
         return PaymentDetailsResource::collection($paymentDetails);
     }
 
-    public function addressHistory(Request $request, User $user = null)
+    public function addressHistory(Request $request, Channel $channel = null)
     {
+        $user = $channel->owner()->firstOrFail();
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
         }
