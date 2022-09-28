@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Channel;
 use App\Models\CryptoCurrency;
 use App\Models\Playlist;
+use App\Models\Scopes\OrderDescScope;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
@@ -77,7 +78,7 @@ class SearchController extends Controller
         }elseif ($sort === 'most_commented'){
             $videoQuery->withCount('comments')->orderBy('comments_count', 'desc');
         }else{
-            $videoQuery->orderBy('published_at', 'desc');
+            $videoQuery->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
         }
 
         // Get channels
