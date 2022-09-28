@@ -193,11 +193,11 @@ class VideoController extends Controller
             $query->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }elseif ($sort === 'most_viewed'){
             $query->orderBy('view_count', 'desc');
-        }elseif ($sort === 'published_at'){
-            $query->orderBy('published_at', 'desc');
         }elseif ($sort === 'most_commented'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
         }elseif (($channelId || $channelSlug) && $request->is('api/videos')){
+            $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
+        }else{
             $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
         }
 
@@ -821,7 +821,7 @@ class VideoController extends Controller
             }
         });
 
-        $videos = $query->paginate();
+        $videos = $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc')->paginate();
 
         $videos->load(['channel'])->append(['is_bookmarked']);
 
