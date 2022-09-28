@@ -45,7 +45,7 @@ class GeneralController extends Controller
 
         // Trending Videos
         $trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-            ->where('date', '>=', Carbon::now()->subDays(7))
+            ->where('date', '>=', Carbon::now()->subDays(3))
             ->groupBy('video_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('points', 'DESC')

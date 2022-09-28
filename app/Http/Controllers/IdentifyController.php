@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\IdenfyClient;
+use App\Models\PaymentDetails;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Repository\Eloquent\TagRepository;
+use App\Services\_2FAService;
+use App\Services\EmailVerificationService;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class IdentifyController extends Controller
 {
@@ -66,29 +71,5 @@ class IdentifyController extends Controller
         $qrcodeImage = 'data:image/png;base64,' . base64_encode($writer->writeString($url));
 
         return response()->json(['url' => $url, 'qrcode' => $qrcodeImage]);
-    }
-
-    public function storePaymentDetails(Request $request)
-    {
-        $validatedData = $request->validate([
-            'first_name' => ['required'],
-            'last_name' => ['required'],
-            'street_address' => ['required'],
-            'street_number' => ['required'],
-            'postal_code' => ['required'],
-            'city' => ['required'],
-            'country' => ['required'],
-            'company_name' => ['nullable'],
-            'vat_number' => ['nullable'],
-        ]);
-
-        $user = auth('api')->user();
-
-        $user->meta()->updateOrCreate(
-            ['key' => UserMeta::PAYMENT_DETAILS],
-            ['value' => json_encode($validatedData)]
-        );
-
-        return response()->json(['status' => 'ok']);
     }
 }

@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'channel.unfreeze' => \App\Http\Middleware\EnsureChannelIsUnFreeze::class,
         '2fa' => \App\Http\Middleware\Check2FA::class,
         'email.verify' => \App\Http\Middleware\CheckEmailVerification::class,
+        '2fa.or.email-verification' => \App\Http\Middleware\Check2FAorEmailVerification::class,
     ];
 }

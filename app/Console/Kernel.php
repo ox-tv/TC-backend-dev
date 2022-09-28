@@ -3,6 +3,8 @@
 namespace App\Console;
 
 use App\Console\Commands\AddCryptoCurrenciesFromCoinMarketCapAPI;
+use App\Console\Commands\CheckArchivePaymentDetails;
+use App\Console\Commands\CheckExpiredPaymentDetails;
 use App\Console\Commands\DumpNotifications;
 use App\Console\Commands\UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI;
 use Illuminate\Console\Scheduling\Schedule;
@@ -18,7 +20,9 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         AddCryptoCurrenciesFromCoinMarketCapAPI::class,
         UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI::class,
-        DumpNotifications::class
+        DumpNotifications::class,
+        CheckExpiredPaymentDetails::class,
+        CheckArchivePaymentDetails::class,
     ];
 
     /**
@@ -34,6 +38,9 @@ class Kernel extends ConsoleKernel
 
         $keep = config('general.notifications.keep');
         $schedule->command("notifications:dump --keep={$keep}")->runInBackground()->monthly();
+
+        $schedule->command('tc:payment-details:check-expired')->runInBackground()->daily();
+        $schedule->command('tc:payment-details:check-archive')->runInBackground()->daily();
     }
 
     /**

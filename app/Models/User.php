@@ -113,8 +113,10 @@ class User extends Authenticatable
     }
 
     public function scopeNotPublishers($query){
-        $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
-        $query->where('role_id', "<>", $publisherRoleId);
+        $query->where(function ($q){
+            $publisherRoleId = Role::firstOrCreate(['name' => self::PUBLISHER_ROLE])->id;
+            $q->whereNull('role_id')->orWhere('role_id', "<>", $publisherRoleId);
+        });
         return $query;
     }
 
@@ -141,6 +143,18 @@ class User extends Authenticatable
 
     public function meta(){
         return $this->hasMany('App\Models\UserMeta');
+    }
+
+    public function paymentDetails(){
+        return $this->hasMany('App\Models\PaymentDetails');
+    }
+
+    public function verifiedPaymentDetails(){
+        return $this->hasOne('App\Models\PaymentDetails')->status(PaymentDetails::STATUS_VERIFIED)->orderBy('last_status_at', 'DESC');
+    }
+
+    public function lastPaymentDetails(){
+        return $this->hasOne('App\Models\PaymentDetails')->nonArchived()->orderBy('created_at', 'DESC');
     }
 
     public function notifications(){
