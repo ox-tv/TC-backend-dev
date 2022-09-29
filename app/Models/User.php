@@ -244,7 +244,8 @@ class User extends Authenticatable
 
     public function getAvatarAttribute($value)
     {
-        return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
+        return $this->avatar_url? : $value;
+        //return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
     }
 
     public function getAvatarThumbnailsAttribute()
@@ -254,7 +255,8 @@ class User extends Authenticatable
         }
 
         foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
-            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value;
+            $urls[$key] = $value;
+            //$urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value;
         }
 
         return $urls;
