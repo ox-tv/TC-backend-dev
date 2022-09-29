@@ -216,7 +216,8 @@ class Channel extends Model
 
     public function getAvatarAttribute($value)
     {
-        return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
+        return $this->avatar_url? : $value;
+        //return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
     }
 
     public function getAvatarThumbnailsAttribute()
@@ -226,7 +227,8 @@ class Channel extends Model
         }
 
         foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
-            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
+            $urls[$key] = $value;
+            //$urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
         }
 
         return $urls;
@@ -234,7 +236,8 @@ class Channel extends Model
 
     public function getCoverAttribute($value)
     {
-        return $this->cover_url? (strpos($this->cover_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->cover_url) : $this->cover_url) : $value;
+        return $this->cover_url? : $value;
+        //return $this->cover_url? (strpos($this->cover_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->cover_url) : $this->cover_url) : $value;
     }
 
     public function getCoverThumbnailsAttribute()
@@ -244,7 +247,8 @@ class Channel extends Model
         }
 
         foreach ($urls = getThumbnails($this->attributes['cover_url']) as $key => $value){
-            $urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
+            $urls[$key] = $value;
+            //$urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value) : $value;
         }
 
         return $urls;
