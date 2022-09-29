@@ -46,6 +46,7 @@ class UploadController extends Controller
         try{
             $imageManager = new ImageManager();
             $s3 = Storage::disk('r2');
+            $publicEndpoint = config('filesystems.disks.r2.public_endpoint');
 
             $directory = 'files';
             $file = $request->file('file');
@@ -56,7 +57,7 @@ class UploadController extends Controller
             }
 
             $originalFilePath = $s3->putFile($directory, $file);
-            $url = $s3->temporaryUrl($originalFilePath, now()->addDay());
+            $url = $publicEndpoint . $originalFilePath;
 
             $urls = [];
             $urls['original'] = $url;
@@ -80,8 +81,7 @@ class UploadController extends Controller
                     });
 
                     $s3->put($filePath, $image->stream());
-
-                    $urls[$key] = $s3->temporaryUrl($filePath, now()->addDay());
+                    $urls[$key] = $publicEndpoint . $filePath;
                 }
             }
 
