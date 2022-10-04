@@ -66,6 +66,8 @@ class ChannelController extends Controller
             $query->orderBy('points', 'desc');
         }elseif ($sort === 'most_comments'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }else{
+            $query->orderBy('created_at', 'desc');
         }
 
         $channels = $query->paginate($perPage);

@@ -127,6 +127,8 @@ class UserController extends Controller
             $query->orderBy('email');
         }elseif ($sort === 'username'){
             $query->orderBy('username');
+        }else{
+            $query->orderBy('created_at', 'desc');
         }
 
         $users = $query->paginate();
