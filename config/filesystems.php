@@ -73,6 +73,7 @@ return [
             'region' => env('R2_DEFAULT_REGION', 'auto'),
             'bucket' => env('R2_BUCKET'),
             'endpoint' => env('R2_ENDPOINT'),
+            'public_endpoint' => env('R2_PUBLIC_ENDPOINT'),
             'version' => env('R2_VERSION', 'latest'),
         ],
 

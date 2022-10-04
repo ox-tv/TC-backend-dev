@@ -142,6 +142,10 @@ class ChannelController extends Controller
         $channel->instagram = $request->get('instagram', $channel->instagram);
         $channel->facebook = $request->get('facebook', $channel->facebook);
         $channel->twitter = $request->get('twitter', $channel->twitter);
+        $channel->telegram = $request->get('telegram', $channel->telegram);
+        $channel->reddit = $request->get('reddit', $channel->reddit);
+        $channel->linkedin = $request->get('linkedin', $channel->linkedin);
+        $channel->tiktok = $request->get('tiktok', $channel->tiktok);
 
 
         if($request->is('api/admin/channels') && $request->get('status')){
@@ -223,6 +227,10 @@ class ChannelController extends Controller
         $channel->instagram = $request->get('instagram', $channel->instagram);
         $channel->facebook = $request->get('facebook', $channel->facebook);
         $channel->twitter = $request->get('twitter', $channel->twitter);
+        $channel->telegram = $request->get('telegram', $channel->telegram);
+        $channel->reddit = $request->get('reddit', $channel->reddit);
+        $channel->linkedin = $request->get('linkedin', $channel->linkedin);
+        $channel->tiktok = $request->get('tiktok', $channel->tiktok);
 
 
         if($request->is('api/admin/channels/*') && $request->get('status')){

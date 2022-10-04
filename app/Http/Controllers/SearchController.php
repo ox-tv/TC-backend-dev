@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Channel;
 use App\Models\CryptoCurrency;
 use App\Models\Playlist;
+use App\Models\Scopes\OrderDescScope;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
@@ -74,10 +75,10 @@ class SearchController extends Controller
             $videoQuery->withCount(['likedBy', 'dislikedBy'])->orderByRaw('(liked_by_count - disliked_by_count) DESC');
         }elseif ($sort === 'most_viewed'){
             $videoQuery->orderBy('view_count', 'desc');
-        }elseif ($sort === 'published_at'){
-            $videoQuery->orderBy('published_at', 'desc');
         }elseif ($sort === 'most_commented'){
             $videoQuery->withCount('comments')->orderBy('comments_count', 'desc');
+        }else{
+            $videoQuery->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc');
         }
 
         // Get channels
