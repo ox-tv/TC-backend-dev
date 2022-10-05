@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Earning\EarningItem;
+use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Http\Resources\PaymentMethod\PaymentMethodItem;
 use App\Http\Resources\Plan\PlanItem;
 use App\Http\Resources\Pricing\PricingItem;
@@ -283,11 +284,18 @@ class EarningController extends Controller
                 $earningAmount = $points * $monthRate;
                 $earningAmount = ($earningAmount > 0)? $earningAmount: 0;
 
+                $paymentDetails = $publisher->verifiedPaymentDetails;
+
+                if (!$paymentDetails){
+                    continue;
+                }
+
                 $earning = Earning::where('user_id', $publisher->id)
                     ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
-                    ->firstOr(function () use ($publisher, $month) {
+                    ->firstOr(function () use ($publisher, $month, $paymentDetails) {
                         $e = new Earning();
                         $e->user_id = $publisher->id;
+                        $e->client_information = PaymentDetailsResource::make($paymentDetails->append('eth_address'));
                         $e->date = $month->startOfMonth()->format("Y-m-d");
                         return $e;
                     });
@@ -347,5 +355,10 @@ class EarningController extends Controller
         });
 
         return response()->json(["status" => "ok"]);
+    }
+
+    public function exportEarningAsPDF($earningId)
+    {
+        return "fuck you";
     }
 }
