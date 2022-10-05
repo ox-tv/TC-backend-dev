@@ -24,7 +24,7 @@ Route::group([
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
     Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
     Route::get('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@getTotalDistributedMoney')->name('earnings.total_distributed_money');
-
+    Route::get('earnings/{earning}/export-as-pdf', '\App\Http\Controllers\EarningController@exportEarningAsPDF')->name('earnings.export-as-pdf');
 });
 
 
@@ -43,7 +43,6 @@ Route::group([
     Route::put('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@setTotalDistributedMoney')->name('earnings.store_total_distributed_money');
     Route::post('earnings/calc', '\App\Http\Controllers\EarningController@calcEarnings')->name('earnings.calc');
     Route::put('earnings/{earning}/paid', '\App\Http\Controllers\EarningController@setToPaid')->name('earnings.paid');
-    Route::get('earnings/{earning}/export-as-pdf', '\App\Http\Controllers\EarningController@exportEarningAsPDF')->name('earnings.export-as-pdf');
     Route::get('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@getTotalDistributedMoney')->name('earnings.total_distributed_money');
 
 });
