@@ -18,6 +18,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\VideoStatisticsDaily;
 use App\Repository\PricingRepositoryInterface;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Exception;
@@ -359,10 +360,8 @@ class EarningController extends Controller
 
     public function exportEarningAsPDF($earningId)
     {
-        $filename = "payout-{$earningId}.pdf";
-        $tempfile = tempnam(sys_get_temp_dir(), $filename);
-        copy('https://pub-f160b2b892d94caabd00af55972f75f2.r2.dev/files/RmX3dJe65nQkZGn7pnhOvHvnR0Wqn82WGJBOIRGK.pdf', $tempfile);
-
-        return response()->download($tempfile, $filename);
+        $earning = Earning::find($earningId);
+        $pdf = Pdf::loadView('export-layouts.earning', ['earning' => $earning]);
+        return $pdf->download("payout-{$earningId}.pdf");
     }
 }
