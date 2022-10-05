@@ -10,17 +10,34 @@
         }
 
         .header {
-            align-items: center;
             background: #2c2d34;
             color: white;
-            display: flex;
-            justify-content: space-between;
             border-radius: 20px;
             padding: 0 30px;
         }
 
+        table {
+            width: 100%;
+        }
+
+        header table td:last-child {
+            text-align: end;
+        }
+
+        .details header table td:nth-child(2) {
+            display: block;
+            margin-left: -250px;
+        }
+
+        @media print {
+            .details header table td:nth-child(2) {
+                display: block;
+                margin-left: -100px;
+            }
+        }
+
         .addressTable {
-            display: flex;
+
             margin: 100px 0;
         }
 
@@ -34,23 +51,14 @@
         }
 
         .details header {
-            align-items: center;
             background: #2c2d34;
             color: white;
-            display: flex;
-            justify-content: space-between;
             border-radius: 20px;
             padding: 15px;
         }
 
         .details header span:nth-child(2) {
             margin-left: -350px;
-        }
-
-        @media print {
-            .details header span:nth-child(2) {
-                margin-left: -150px;
-            }
         }
 
         .details p {
@@ -64,7 +72,7 @@
             color: white;
             display: flex;
             justify-content: space-between;
-            margin-top: 80px;
+            margin-top: 70px;
             padding: 15px;
         }
 
@@ -72,42 +80,77 @@
 </head>
 <body>
 <header class="header">
-    <h1>INVOICE</h1>
-    <span>Payment date</span>
+    <table>
+        <thead>
+        <tr>
+            <td>
+                <h1>INVOICE</h1>
+
+            </td>
+            <td>
+                <span>Payment date</span>
+
+            </td>
+        </tr>
+        </thead>
+    </table>
 </header>
 <div class="addressTable">
-    <div>
-        <h2>Invoice Recipient</h2>
-        <p>
-            BlockBeast AB <br>
-            (todayscrypto.com) <br>
-            VAT no: SE559355317401 <br>
-            Org no: 559355-3174 <br>
-            Transportvägen 12 <br>
-            SE-246 42, Löddeköpinge <br>
-            SWEDEN
-        </p>
-    </div>
-    <div>
-        <h2>Client</h2>
-        <p>
-            Publishers first and last name <br>
-            Company name <br>
+    <table>
+        <thead>
+        <tr>
+            <td>
+                <div>
+                    <h2>Invoice Recipient</h2>
+                    <p>
+                        BlockBeast AB <br>
+                        (todayscrypto.com) <br>
+                        VAT no: SE559355317401 <br>
+                        Org no: 559355-3174 <br>
+                        Transportvägen 12 <br>
+                        SE-246 42, Löddeköpinge <br>
+                        SWEDEN
+                    </p>
+                </div>
 
-            Street address and street no <br>
-            Postal code and city <br>
-            Country <br>
-            VAT number
-        </p>
-    </div>
+            </td>
+            <td>
+                <div>
+                    <h2>Client</h2>
+                    <p>
+                        Publishers first and last name <br>
+                        Company name <br>
+
+                        Street address and street no <br>
+                        Postal code and city <br>
+                        Country <br>
+                        VAT number
+                    </p>
+                </div>
+            </td>
+        </tr>
+        </thead>
+    </table>
 </div>
 
 <div class="details">
     <h2>Details</h2>
     <header>
-        <span>Content Monetization</span>
-        <span>Month</span>
-        <span>Amount in USDC</span>
+        <table>
+            <thead>
+            <tr>
+                <td>
+                    <span>Content Monetization</span>
+                </td>
+                <td>
+                    <span>Month</span>
+                </td>
+                <td>
+                    <span>Amount in USDC</span>
+                </td>
+            </tr>
+            </thead>
+        </table>
     </header>
     <p>
         The amount (USDC) is sent to client over the Ethereum blockchain to address: <br>
