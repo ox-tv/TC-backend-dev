@@ -20,20 +20,20 @@
             width: 100%;
         }
 
-        header table td:last-child {
-            text-align: end;
+        header.header table td:first-child {
+            text-align: left;
         }
 
-        .details header table td:nth-child(2) {
-            display: block;
-            margin-left: -250px;
+        header.header table td:nth-child(2) {
+            text-align: right;
         }
 
-        @media print {
-            .details header table td:nth-child(2) {
-                display: block;
-                margin-left: -100px;
-            }
+        .details header table td:nth-child(1) {
+            width: 30%;
+        }
+
+        .details header table td:nth-child(3) {
+            text-align: right;
         }
 
         .addressTable {
@@ -57,21 +57,14 @@
             padding: 15px;
         }
 
-        .details header span:nth-child(2) {
-            margin-left: -350px;
-        }
-
         .details p {
             margin-top: 50px;
         }
 
         .question {
-            align-items: center;
             border-radius: 20px;
             background: #2c2d34;
             color: white;
-            display: flex;
-            justify-content: space-between;
             margin-top: 70px;
             padding: 15px;
         }
