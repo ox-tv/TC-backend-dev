@@ -11,4 +11,6 @@ return [
         ['w' => 48, 'h' => null],
     ],
 
+    'presign_url_type' => env('PRESIGN_URL_TYPE', 's3'),
+
 ];
