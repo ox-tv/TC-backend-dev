@@ -359,6 +359,10 @@ class EarningController extends Controller
 
     public function exportEarningAsPDF($earningId)
     {
-        return "fuck you";
+        $filename = "payout-{$earningId}.pdf";
+        $tempfile = tempnam(sys_get_temp_dir(), $filename);
+        copy('https://pub-f160b2b892d94caabd00af55972f75f2.r2.dev/files/RmX3dJe65nQkZGn7pnhOvHvnR0Wqn82WGJBOIRGK.pdf', $tempfile);
+
+        return response()->download($tempfile, $filename);
     }
 }
