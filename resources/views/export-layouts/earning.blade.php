@@ -44,10 +44,16 @@
         h2 {
             font-size: 16px;
             margin-bottom: 40px;
+            margin-top: 0;
         }
 
         .addressTable > div {
             width: 50%;
+        }
+
+        .addressTable h2 {
+            display: inline-block;
+            margin-bottom: 20px;
         }
 
         .details header {
@@ -81,7 +87,7 @@
 
             </td>
             <td>
-                <span>Payment date</span>
+                <span>{{ $earning->transaction->updated_at }}</span>
 
             </td>
         </tr>
@@ -111,13 +117,18 @@
                 <div>
                     <h2>Client</h2>
                     <p>
-                        Publishers first and last name <br>
-                        Company name <br>
+                        {{ $earning->client_information['first_name'] }} {{ $earning->client_information['last_name'] }}<br>
 
-                        Street address and street no <br>
-                        Postal code and city <br>
-                        Country <br>
-                        VAT number
+                        @if(!empty($earning->client_information['company_name']))
+                        {{ $earning->client_information['company_name'] }} <br>
+                        @endif
+
+                        {{ $earning->client_information['street_address'] }} {{ $earning->client_information['street_number'] }} <br>
+                        {{ $earning->client_information['postal_code'] }}, {{ $earning->client_information['city'] }} <br>
+                        {{ strtoupper($earning->client_information['country']) }} <br>
+                        @if(!empty($earning->client_information['vat_number']))
+                            VAT no: {{ $earning->client_information['vat_number'] }} <br>
+                        @endif
                     </p>
                 </div>
             </td>
@@ -136,10 +147,10 @@
                     <span>Content Monetization</span>
                 </td>
                 <td>
-                    <span>Month</span>
+                    <span>{{ $earning->date }}</span>
                 </td>
                 <td>
-                    <span>Amount in USDC</span>
+                    <span>{{ $earning->amount }} USDC</span>
                 </td>
             </tr>
             </thead>
@@ -147,7 +158,7 @@
     </header>
     <p>
         The amount (USDC) is sent to client over the Ethereum blockchain to address: <br>
-        publisher wallet address
+        {{ $earning->client_information['eth_address'] }}
     </p>
 </div>
 
