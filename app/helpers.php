@@ -88,6 +88,9 @@ if(!function_exists('uploadFileToR2ByUrl'))
 
             unlink($filePath);
 
+            $s3FilePath = str_replace('https://todayscrypto-videos-storage.s3.eu-north-1.amazonaws.com/', '', $fileUrl);
+            Storage::disk('s3')->delete($s3FilePath);
+
             return $url;
 
         } catch (Exception $exception){
