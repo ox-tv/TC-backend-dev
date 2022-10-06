@@ -9,7 +9,18 @@ use Storage;
 
 class S3Controller extends Controller
 {
-    public function getPreSignedURLForUploadVideo(Request $request, $channelIdOrSlug = null)
+    public function getPreSignedURLForUploadVideos(Request $request, $channelIdOrSlug = null): \Illuminate\Http\JsonResponse
+    {
+        $preSignUrlType = config('upload.presign_url_type');
+
+        if ($preSignUrlType == 'r2'){
+            return $this->getPreSignedURLForR2($request, $channelIdOrSlug);
+        }else{
+            return $this->getPreSignedURLForS3($request, $channelIdOrSlug);
+        }
+    }
+
+    public function getPreSignedURLForS3(Request $request, $channelIdOrSlug = null)
     {
         $request->validate([
             'file_name' => 'required',

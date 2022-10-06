@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 // Get Video Duration
@@ -43,12 +45,10 @@ if(!function_exists('get_thumbnails')){
         return $result;
     }
 }
-if(!function_exists('getR2TemporaryUrl')){
-    /**
-     * @param $filePath
-     * @return mixed|null
-     */
-    function getR2TemporaryUrl($fileUrl){
+if(!function_exists('getR2TemporaryUrl'))
+{
+    function getR2TemporaryUrl($fileUrl)
+    {
         $s3 = Storage::disk('r2');
         $config = config('filesystems.disks.r2');
 
@@ -56,6 +56,46 @@ if(!function_exists('getR2TemporaryUrl')){
 
         $filePath = str_replace($r2EndPoint, '', $fileUrl);
         return $s3->temporaryUrl($filePath, now()->addDay());
+    }
+}
+
+if(!function_exists('uploadFileToR2ByUrl'))
+{
+    function uploadFileToR2ByUrl($fileUrl, $destinationDirectory)
+    {
+        try {
+            $directory = "downloadedVideosFromS3";
+            Storage::makeDirectory($directory);
+            $fileName = basename($fileUrl);
+
+            $filePath = storage_path("app/{$directory}/{$fileName}");
+
+            $response = Http::withOptions([
+                'verify' => false,
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36.',
+                ],
+                'sink' => $filePath
+            ])->get($fileUrl);
+
+            if (!$response->ok()){
+                return $fileUrl;
+            }
+
+            // Upload to R2
+            $originalFilePath = Storage::disk('r2')->putFileAs($destinationDirectory, new File($filePath), $fileName);
+            $url = Storage::disk('r2')->temporaryUrl($originalFilePath, now()->addDay());
+
+            unlink($filePath);
+
+            $s3FilePath = str_replace('https://todayscrypto-videos-storage.s3.eu-north-1.amazonaws.com/', '', $fileUrl);
+            Storage::disk('s3')->delete($s3FilePath);
+
+            return $url;
+
+        } catch (Exception $exception){
+            return $fileUrl;
+        }
     }
 }
 

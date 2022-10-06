@@ -25,6 +25,10 @@ class Earning extends Model
         'currency' => 'USD',
     ];
 
+    protected $casts = [
+        'client_information' => 'array'
+    ];
+
 
     // Relations
 

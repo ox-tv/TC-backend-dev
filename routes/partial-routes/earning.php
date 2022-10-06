@@ -24,7 +24,7 @@ Route::group([
     Route::get('earnings/total', '\App\Http\Controllers\EarningController@total')->name('earnings.report-total');
     Route::get('earnings/monthly', '\App\Http\Controllers\EarningController@monthly')->name('earnings.report-monthly');
     Route::get('earnings/total-distributed-money', '\App\Http\Controllers\EarningController@getTotalDistributedMoney')->name('earnings.total_distributed_money');
-
+    Route::get('earnings/{earning}/export-as-pdf', '\App\Http\Controllers\EarningController@exportEarningAsPDF')->name('earnings.export-as-pdf');
 });
 
 
