@@ -37,23 +37,17 @@
         }
 
         .addressTable {
-
             margin: 100px 0;
+        }
+
+        .addressTable td {
+            vertical-align: top;
         }
 
         h2 {
             font-size: 16px;
             margin-bottom: 40px;
             margin-top: 0;
-        }
-
-        .addressTable > div {
-            width: 50%;
-        }
-
-        .addressTable h2 {
-            display: inline-block;
-            margin-bottom: 20px;
         }
 
         .details header {
