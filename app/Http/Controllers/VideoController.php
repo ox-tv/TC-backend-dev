@@ -27,6 +27,7 @@ use App\Models\Option;
 use App\Models\Playlist;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Tag;
+use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoMeta;
 use App\Repository\Eloquent\TagRepository;
@@ -247,6 +248,13 @@ class VideoController extends Controller
         $video->description = $request->get('description');
         $video->published_at = $request->get('published_at');
 
+        // adding user to video
+        if($request->is('api/admin/videos')){
+            $video->user_id = $request->get('user_id');
+        }else{
+            $video->user_id = auth('api')->user()->id;
+        }
+
         if($request->is('api/admin/videos')){
 
             $video->file_path = $request->get('video_name');
@@ -262,15 +270,11 @@ class VideoController extends Controller
             $video->file_path = $videoFile;
 
         }elseif($request->get('file_url')){ // adding file to video
-
-            $video->file_url = $request->get('file_url');
-        }
-
-        // adding user to video
-        if($request->is('api/admin/videos')){
-            $video->user_id = $request->get('user_id');
-        }else{
-            $video->user_id = auth('api')->user()->id;
+            $user = User::find($video->user_id);
+            $channel = $user->channel;
+            $directory = "channel/{$channel->id}/videos";
+            $r2Url = uploadFileToR2ByUrl($request->get('file_url'), $directory);
+            $video->file_url = $r2Url;
         }
 
         // thumbnail
