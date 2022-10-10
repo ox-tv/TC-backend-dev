@@ -347,6 +347,15 @@ class User extends Authenticatable
         return floatval($this->statistics()->sum('points'));
     }
 
+    public function getIdenfyNameDataAttribute(){
+        $meta = $this->meta()->where('key', UserMeta::IDENTIFICATION_DETAILS)->first();
+
+        return [
+            'name' => $meta->value['data']['docFirstName'],
+            'last_name' => $meta->value['data']['docLastName']
+        ];
+    }
+
 
     // Mutators
     public function setAvatarUrlAttribute($value)
