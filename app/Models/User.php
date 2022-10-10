@@ -350,10 +350,10 @@ class User extends Authenticatable
     public function getIdenfyNameDataAttribute(){
         $meta = $this->meta()->where('key', UserMeta::IDENTIFICATION_DETAILS)->first();
 
-        return [
+        return $meta ? [
             'name' => $meta->value['data']['docFirstName'],
             'last_name' => $meta->value['data']['docLastName']
-        ];
+        ] : null;
     }
 
 
