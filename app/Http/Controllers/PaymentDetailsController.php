@@ -115,6 +115,21 @@ class PaymentDetailsController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function storeEthAddress(Request $request){
+
+        $request->validate([
+        'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
+        ]);
+
+        $user = auth('api')->user();
+
+        $user->eth_address = $request->get('eth_address');
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
+
+    }
+
     public function show($id)
     {
         $paymentDetails = PaymentDetails::findOrFail($id);
