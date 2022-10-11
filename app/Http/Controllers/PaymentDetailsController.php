@@ -91,11 +91,7 @@ class PaymentDetailsController extends Controller
             'country' => ['required'],
             'company_name' => ['nullable'],
             'vat_number' => ['nullable'],
-            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
         ]);
-
-        $user->eth_address = $request->get('eth_address');
-        $user->save();
 
         $newPaymentDetails = new PaymentDetails();
         $newPaymentDetails->user_id = $user->id;
