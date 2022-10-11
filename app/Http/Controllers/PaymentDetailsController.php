@@ -108,7 +108,7 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->country = $request->get('country');
         $newPaymentDetails->company_name = $request->get('company_name');
         $newPaymentDetails->vat_number = $request->get('vat_number');
-        $newPaymentDetails->eth_address = $request->get('eth_address');
+        //$newPaymentDetails->eth_address = $request->get('eth_address');
 
         $newPaymentDetails->save();
 
