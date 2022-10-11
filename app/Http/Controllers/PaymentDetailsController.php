@@ -82,8 +82,8 @@ class PaymentDetailsController extends Controller
         $lastPaymentDetails = $user->paymentDetails()->verified()->latest()->first();
 
         $request->validate([
-            'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
-            'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
+            //'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
+            //'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
             'street_address' => ['required'],
             'street_number' => ['required'],
             'postal_code' => ['required'],
