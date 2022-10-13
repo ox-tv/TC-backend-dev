@@ -327,9 +327,9 @@ class ChannelController extends Controller
         $result = [
             //'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
             //'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
-            'points_total' => floatval($totalPoints),
-            'points_channel' => $pointService->calcPoint($user,['from' => $from, 'to' => $to]),
-            'earning_channel' => floatval($earningAmount),
+            'points_total' => intval($totalPoints),
+            'points_channel' => intval($pointService->calcPoint($user,['from' => $from, 'to' => $to])),
+            'earning_channel' => intval($earningAmount),
         ];
 
         return response()->json($result);
@@ -358,9 +358,9 @@ class ChannelController extends Controller
 
             $result[$month->format("Y-m")] = [
                 'date' => $month->format("Y-m"),
-                'points_hero' => $pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day]),
-                'points_total' => $pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day]),
+                'points_hero' => intval($pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
+                'points_non_hero' => intval($pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
+                'points_total' => intval($pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day])),
                 'earning' => floatval($earningAmount),
             ];
         }
