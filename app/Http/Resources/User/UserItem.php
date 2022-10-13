@@ -67,7 +67,7 @@ class UserItem extends JsonResource
             'updated_at' => $this->updated_at,
             'watch_time' => $this->watch_time,
 
-            'loyalty_points' => floatval($this->statistics()->sum('points')),
+            'loyalty_points' => intval($this->statistics()->sum('points')),
 
             //'role' => $this->when($withRole, $role),
             'role' => $this->role_name,

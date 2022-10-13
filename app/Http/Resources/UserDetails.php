@@ -49,7 +49,7 @@ class UserDetails extends JsonResource
             'updated_at' => $this->updated_at,
             'publisher_request' => $publisher_request,
 
-            'loyalty_points' => floatval($this->statistics()->sum('points')),
+            'loyalty_points' => intval($this->statistics()->sum('points')),
         ];
     }
 }
