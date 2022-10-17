@@ -361,7 +361,7 @@ class ChannelController extends Controller
                 'points_hero' => intval($pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
                 'points_non_hero' => intval($pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
                 'points_total' => intval($pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day])),
-                'earning' => floatval($earningAmount),
+                'earning' => intval($earningAmount),
             ];
         }
 

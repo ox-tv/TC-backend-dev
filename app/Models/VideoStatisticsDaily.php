@@ -91,6 +91,6 @@ class VideoStatisticsDaily extends Model
     // attributes
     public function getPointsAttribute($value)
     {
-        return floatval($value);
+        return intval($value);
     }
 }
