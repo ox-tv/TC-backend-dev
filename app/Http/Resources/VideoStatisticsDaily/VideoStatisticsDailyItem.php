@@ -41,7 +41,7 @@ class VideoStatisticsDailyItem extends JsonResource
             'watch_time_hero' => $this->watch_time_hero,
             'watch_time_non_hero' => $this->watch_time_non_hero,
             'watch_time_total' => $this->watch_time_total,
-            'points' => $this->points,
+            'points' => intval($this->points),
             'video' => $this->when($withVideo, $video),
         ];
     }

@@ -82,8 +82,8 @@ class PaymentDetailsController extends Controller
         $lastPaymentDetails = $user->paymentDetails()->verified()->latest()->first();
 
         $request->validate([
-            'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
-            'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
+            //'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
+            //'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
             'street_address' => ['required'],
             'street_number' => ['required'],
             'postal_code' => ['required'],
@@ -91,11 +91,7 @@ class PaymentDetailsController extends Controller
             'country' => ['required'],
             'company_name' => ['nullable'],
             'vat_number' => ['nullable'],
-            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
         ]);
-
-        $user->eth_address = $request->get('eth_address');
-        $user->save();
 
         $newPaymentDetails = new PaymentDetails();
         $newPaymentDetails->user_id = $user->id;
@@ -112,11 +108,26 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->country = $request->get('country');
         $newPaymentDetails->company_name = $request->get('company_name');
         $newPaymentDetails->vat_number = $request->get('vat_number');
-        $newPaymentDetails->eth_address = $request->get('eth_address');
+        //$newPaymentDetails->eth_address = $request->get('eth_address');
 
         $newPaymentDetails->save();
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function storeEthAddress(Request $request){
+
+        $request->validate([
+        'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
+        ]);
+
+        $user = auth('api')->user();
+
+        $user->eth_address = $request->get('eth_address');
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
+
     }
 
     public function show($id)

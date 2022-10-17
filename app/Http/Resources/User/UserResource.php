@@ -39,6 +39,7 @@ class UserResource extends JsonResource
             'is_hero' => $this->is_hero,
             'is_mute' => $this->is_mute,
             'avatar_thumbnails' => $this->avatar_thumbnails,
+            'idenfy_name_data' => $this->idenfy_name_data,
 
             // Custom attributes with query
             'username' => $this->username,

@@ -19,6 +19,7 @@ Route::group([
 
     Route::post('profile/payment-details/verify', '\App\Http\Controllers\PaymentDetailsController@verifyPaymentDetails')->name('profile.payment-details.verify');
     Route::post('profile/payment-details', '\App\Http\Controllers\PaymentDetailsController@store')->name('profile.payment-details.store')/*->middleware(['2fa.or.email-verification'])*/;
+    Route::post('profile/eth-address', '\App\Http\Controllers\PaymentDetailsController@storeEthAddress')->name('profile.payment-details.store-eth')/*->middleware(['2fa.or.email-verification'])*/;
 
     Route::get('profile/address-history', '\App\Http\Controllers\PaymentDetailsController@addressHistory')->name('profile.address-history');
 });

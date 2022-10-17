@@ -19,6 +19,8 @@ Route::group([
 
     Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
 
+    Route::get('dashboard', '\App\Http\Controllers\GeneralController@publisherDashboard')->name('dashboard');
+
 });
 
 
