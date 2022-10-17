@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Models\Channel;
 use App\Models\PaymentDetails;
+use App\Models\UserMeta;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -99,8 +100,16 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->last_status_at = Carbon::now();
         $newPaymentDetails->proof_code = Str::upper(Str::random(16));
 
-        $newPaymentDetails->first_name = $lastPaymentDetails->first_name?? $request->get('first_name');
-        $newPaymentDetails->last_name = $lastPaymentDetails->last_name?? $request->get('last_name');
+        $meta = $user->meta()->where('key', UserMeta::IDENTIFICATION_DETAILS)->first();
+
+        if ($meta){
+            $newPaymentDetails->first_name = $meta->value['data']['docFirstName'];
+            $newPaymentDetails->last_name = $meta->value['data']['docLastName'];
+        }else{
+            $newPaymentDetails->first_name = $lastPaymentDetails->first_name?? $request->get('first_name');
+            $newPaymentDetails->last_name = $lastPaymentDetails->last_name?? $request->get('last_name');
+        }
+
         $newPaymentDetails->street_address = $request->get('street_address');
         $newPaymentDetails->street_number = $request->get('street_number');
         $newPaymentDetails->postal_code = $request->get('postal_code');
