@@ -344,7 +344,7 @@ class User extends Authenticatable
 
     public function getLoyaltyPointsAttribute()
     {
-        return floatval($this->statistics()->sum('points'));
+        return intval($this->statistics()->sum('points'));
     }
 
     public function getIdenfyNameDataAttribute(){

@@ -9,8 +9,12 @@ use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Libraries\YIClient;
 use App\Models\Channel;
+use App\Models\Language;
+use App\Models\Subtitle;
 use App\Models\Video;
+use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class YoutubeImporterController extends Controller
@@ -83,6 +87,7 @@ class YoutubeImporterController extends Controller
             'file_url' => ['required'],
             'thumbnail' => ['required'],
             'user_id' => ['required'],
+            'subtitles' => ['sometimes'],
         ]);
 
         $video = new Video();
@@ -98,6 +103,35 @@ class YoutubeImporterController extends Controller
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
 
         $video->save();
+
+        if (!empty($request->get('subtitles'))){
+            foreach ($request->get('subtitles') as $subtitle){
+                $language = Language::where('code', $subtitle['language_code'])->firstOr(function () use ($subtitle) {
+                    $language = new Language();
+                    $language->code = $subtitle['language_code'];
+                    $language->display_name = $subtitle['language_name'];
+                    $language->save();
+                    return $language;
+                });
+
+                $folder = "subtitles/{$video->url_hash}";
+                if (!Storage::disk('public')->exists($folder)) {
+                    Storage::disk('public')->makeDirectory($folder);
+                }
+                $path = "{$folder}/{$subtitle['language_code']}.vtt";
+                $subtitles = Subtitles::load($subtitle['text'], 'srt');
+                $subtitles->save(Storage::disk('public')->path($path));
+
+                Subtitle::UpdateOrCreate([
+                    'video_id' => $video->id,
+                    'language_id' => $language->id
+                ],[
+                        'file_path' => $path,
+                        'original_path' => null
+                    ]
+                );
+            }
+        }
 
         return VideoResource::make($video);
     }
