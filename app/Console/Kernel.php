@@ -18,7 +18,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        AddCryptoCurrenciesFromCoinMarketCapAPI::class,
         UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI::class,
         DumpNotifications::class,
         CheckExpiredPaymentDetails::class,
@@ -33,7 +32,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('crypto_currencies:add')->runInBackground()->daily();
         $schedule->command('crypto_currencies:update')->runInBackground()->everyMinute();
 
         $keep = config('general.notifications.keep');
