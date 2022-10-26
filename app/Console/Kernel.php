@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\AddCryptoCurrenciesFromCoinMarketCapAPI;
 use App\Console\Commands\CheckArchivePaymentDetails;
 use App\Console\Commands\CheckExpiredPaymentDetails;
 use App\Console\Commands\DumpNotifications;

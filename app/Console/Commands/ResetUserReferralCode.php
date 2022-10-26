@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CoinMarketCapClient;
-use App\Models\CryptoCurrency;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
