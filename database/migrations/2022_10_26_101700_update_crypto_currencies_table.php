@@ -14,7 +14,9 @@ class UpdateCryptoCurrenciesTable extends Migration
     public function up()
     {
         Schema::table('crypto_currencies', function (Blueprint $table) {
+            $table->dropUnique(['coinmarketcap_id']);
             $table->dropColumn("coinmarketcap_id");
+            $table->unique('slug');
             $table->unsignedInteger('order')->default(1000000)->change();
         });
     }
@@ -29,6 +31,8 @@ class UpdateCryptoCurrenciesTable extends Migration
         Schema::table('crypto_currencies', function (Blueprint $table) {
             $table->unsignedBigInteger('coinmarketcap_id');
             $table->unsignedInteger('order')->default(100000)->change();
+            $table->dropUnique(['slug']);
+            $table->unique('coinmarketcap_id');
         });
     }
 }
