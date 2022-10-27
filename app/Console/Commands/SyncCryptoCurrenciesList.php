@@ -6,21 +6,21 @@ use App\Libraries\CoinGeckoClient;
 use App\Models\CryptoCurrency;
 use Illuminate\Console\Command;
 
-class AddCryptoCurrenciesFromCoinGeckoAPI extends Command
+class SyncCryptoCurrenciesList extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'crypto_currencies:add';
+    protected $signature = 'crypto_currencies:sync';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'add crypto currencies from CoinGecko API';
+    protected $description = 'Sync crypto currencies list';
 
     /**
      * Create a new command instance.
