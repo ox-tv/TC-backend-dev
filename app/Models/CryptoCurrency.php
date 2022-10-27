@@ -63,9 +63,7 @@ class CryptoCurrency extends Model
     }
 
     public function getThumbnailsAttribute(){
-        return [
-            'small' => "https://s2.coinmarketcap.com/static/img/coins/64x64/{$this->coinmarketcap_id}.png"
-        ];
+        return $this->metadata['image']?? '';
     }
 
     public function getIsFavoriteAttribute($isFavorite)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
+use App\Libraries\CoinGeckoClient;
 use App\Libraries\CoinMarketCapClient;
 use App\Models\CryptoCurrency;
 use Carbon\Carbon;
@@ -42,19 +43,12 @@ class CryptoCurrencyController extends Controller
 
         $data->append(['is_favorite']);
 
-        // check need prices
-        $isMarket = $request->is('api/market/cryptocurrencies');
+        // Fill MetaData if empty
+        $this->FillMetaDataColumn($data);
 
-        if ($isMarket){
-            $needToGetPrices = [];
-            foreach($data as $crypto_currency){
-                if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
-                    $needToGetPrices[] = $crypto_currency;
-                }
-            }
-            if (!empty($needToGetPrices)){
-                $this->updatePrices($needToGetPrices);
-            }
+        // Update prices
+        if ($request->is('api/market/cryptocurrencies')){
+            $this->keepPricesUpdated($data);
         }
 
         return CryptoCurrencyResource::collection($data);
@@ -68,15 +62,8 @@ class CryptoCurrencyController extends Controller
             ->get()
         ->append(['is_favorite']);
 
-        $needToGetPrices = [];
-        foreach($cryptoCurrencies as $crypto_currency){
-            if(empty($crypto_currency->prices) || $crypto_currency->updated_at < Carbon::now()->subMinutes(10)){
-                $needToGetPrices[] = $crypto_currency;
-            }
-        }
-        if (!empty($needToGetPrices)){
-            $this->updatePrices($needToGetPrices);
-        }
+        $this->FillMetaDataColumn($cryptoCurrencies);
+        $this->keepPricesUpdated($cryptoCurrencies);
 
         // Set is_favorite True on the fly without run any DB query
         $cryptoCurrencies->each(function ($crypto_currency, $key){
@@ -117,7 +104,6 @@ class CryptoCurrencyController extends Controller
     private function updatePrices($crypto_currencies): void
     {
         $client = new CoinMarketCapClient();
-
         $ids = array_column($crypto_currencies, 'coinmarketcap_id');
 
         $resPrices = $client->GetPrices($ids);
@@ -130,5 +116,81 @@ class CryptoCurrencyController extends Controller
             $crypto_currency->prices = $resPrices['data'][$crypto_currency->coinmarketcap_id]??  null;
             $crypto_currency->save();
         }
+    }
+
+    private function keepPricesUpdated($cryptoCurrencies): bool
+    {
+        $client = new CoinGeckoClient();
+        $slugs = [];
+
+        foreach($cryptoCurrencies as $cryptoCurrency){
+            if(empty($cryptoCurrency->prices) || $cryptoCurrency->updated_at < Carbon::now()->subMinutes(5)){
+                $slugs[] = $cryptoCurrency->slug;
+            }
+        }
+
+        if (empty($slugs)){
+            return false;
+        }
+
+        $response = $client->GetMarketData(['slugs' => $slugs]);
+
+        if (!$response['success']){
+            return false;
+        }
+
+        foreach ($response['data'] as $value){
+
+            $cryptoCurrency = $cryptoCurrencies->where('slug', $value['id'])->first();
+
+            $cryptoCurrency->prices = [
+                "market_cap" => $value['market_cap'],
+                "total_volume" => $value['total_volume'],
+                "fully_diluted_valuation" => $value['fully_diluted_valuation'],
+                "last_updated" => $value['last_updated'],
+
+                "price"=> $value['current_price'],
+                "high_24h" => $value['high_24h'],
+                "low_24h" => $value['low_24h'],
+
+                "price_change_24h" => $value['price_change_24h'],
+                "percent_change_24h" => $value['price_change_percentage_24h_in_currency'],
+
+                "percent_change_1h" => $value['price_change_percentage_1h_in_currency'],
+                "percent_change_7d" => $value['price_change_percentage_7d_in_currency'],
+                "percent_change_14d" => $value['price_change_percentage_14d_in_currency'],
+                "percent_change_30d" => $value['price_change_percentage_30d_in_currency'],
+                "percent_change_200d" => $value['price_change_percentage_200d_in_currency'],
+                "percent_change_1y" => $value['price_change_percentage_1y_in_currency'],
+            ];
+
+            $cryptoCurrency->save();
+        }
+
+        return true;
+    }
+
+    private function FillMetaDataColumn($cryptoCurrencies): bool
+    {
+        $client = new CoinGeckoClient();
+
+        foreach($cryptoCurrencies as $crypto_currency){
+            if(empty($crypto_currency->metadata)){
+                $response = $client->GetCoinDetails($crypto_currency->slug);
+
+                if (!$response['success']){
+                    continue;
+                }
+
+                $crypto_currency->metadata = [
+                    'image' => $response['data']['image'],
+                    'links' => $response['data']['links'],
+                    'description' => $response['data']['description']['en'],
+                ];
+                $crypto_currency->save();
+            }
+        }
+
+        return true;
     }
 }
