@@ -5,7 +5,7 @@ namespace App\Console;
 use App\Console\Commands\CheckArchivePaymentDetails;
 use App\Console\Commands\CheckExpiredPaymentDetails;
 use App\Console\Commands\DumpNotifications;
-use App\Console\Commands\UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI;
+use App\Console\Commands\UpdateCryptoCurrenciesPrices;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        UpdateCryptoCurrenciesPricesFromCoinMarketCapAPI::class,
+        UpdateCryptoCurrenciesPrices::class,
         DumpNotifications::class,
         CheckExpiredPaymentDetails::class,
         CheckArchivePaymentDetails::class,
