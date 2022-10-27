@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+
+    Artisan::call('crypto_currencies:sync');
     return view('welcome');
 });
 
