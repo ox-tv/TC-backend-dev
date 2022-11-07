@@ -2,14 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\CoinMarketCapClient;
-use App\Models\CryptoCurrency;
-use App\Models\User;
 use App\Models\Video;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 
 class UploadVideosOldThumbnailToS3 extends Command

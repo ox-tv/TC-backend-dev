@@ -108,6 +108,14 @@ return [
             'days' => 14,
             'permission' => 0644,
         ],
+
+        'coingecko' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/coingecko/api.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'permission' => 0644,
+        ],
     ],
 
 ];

@@ -21,7 +21,7 @@ class CryptoCurrencyResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'symbol' => $this->symbol,
+            'symbol' => strtoupper($this->symbol),
             'ratio' => $this->prices,
             'metadata' => $this->metadata,
 
