@@ -71,6 +71,8 @@ class EarningController extends Controller
             $earningQuery->where('created_at', '<=', $toFilter);
         }
 
+        $earningQuery->orderByDesc('date');
+
         $earnings = $earningQuery->paginate();
 
         return EarningItem::collection($earnings);
