@@ -47,7 +47,9 @@ class VideoStatisticsDailyIncreaseView
             $statistics->views_non_hero += 1;
         }
 
-        $statistics->points += $pointsPerView;
+        if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
+            $statistics->points += $pointsPerView;
+        }
 
         $statistics->point_details = $statistics->calcPointDetails();
 

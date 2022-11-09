@@ -71,6 +71,8 @@ class EarningController extends Controller
             $earningQuery->where('created_at', '<=', $toFilter);
         }
 
+        $earningQuery->orderByDesc('date');
+
         $earnings = $earningQuery->paginate();
 
         return EarningItem::collection($earnings);
@@ -212,7 +214,7 @@ class EarningController extends Controller
             'month' => 'nullable|date',
         ]);
 
-        $publishers = User::whereHas('channel')->get();
+        $channels = Channel::whereNotNull('monetization_qualified_at')->where('monetization_qualified_at', '<', Carbon::now())->get();
 
         $pointPerHeroSub = config('general.points.per_subscribe_hero');
         $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
@@ -263,9 +265,9 @@ class EarningController extends Controller
 
             $monthRate = $totalMonthPoints > 0 ? $totalAmount / $totalMonthPoints : 0;
 
-            foreach ($publishers as $publisher){
+            foreach ($channels as $channel){
 
-                $channel = $publisher->channel;
+                $publisher = $channel->owner;
 
                 $points = VideoStatisticsDaily::where('channel_id', $channel->id)
                     ->where('date', '>=', Carbon::parse($from_day))

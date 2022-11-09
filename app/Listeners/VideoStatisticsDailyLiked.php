@@ -53,13 +53,19 @@ class VideoStatisticsDailyLiked
         if($user && $user->is_hero){
             $statistics->likes_hero += $likeAmount;
             $statistics->dislikes_hero += $dislikeAmount;
-            $statistics->points += ($pointsPerLikeHero * $likeAmount);
-            $statistics->points += (-1 * $pointsPerDisLikeHero * $dislikeAmount);
+
+            if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
+                $statistics->points += ($pointsPerLikeHero * $likeAmount);
+                $statistics->points += (-1 * $pointsPerDisLikeHero * $dislikeAmount);
+            }
         }else{
             $statistics->likes_non_hero += $likeAmount;
             $statistics->dislikes_non_hero += $dislikeAmount;
-            $statistics->points += ($pointsPerLikeNonHero * $likeAmount);
-            $statistics->points += (-1 * $pointsPerDisLikeNonHero * $dislikeAmount);
+
+            if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
+                $statistics->points += ($pointsPerLikeNonHero * $likeAmount);
+                $statistics->points += (-1 * $pointsPerDisLikeNonHero * $dislikeAmount);
+            }
         }
 
         $statistics->point_details = $statistics->calcPointDetails();
