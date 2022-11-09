@@ -21,6 +21,7 @@ class Channel extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'youtube_last_scraped_at' => 'datetime',
+        'monetization_qualified_at' => 'datetime',
     ];
 
     protected $attributes = [
