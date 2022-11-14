@@ -80,4 +80,9 @@ class CryptoCurrency extends Model
         return $isFavorite;
     }
 
+    public function getOrderAttribute($order)
+    {
+        return $order < 1000000? $order : null;
+    }
+
 }
