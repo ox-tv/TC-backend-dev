@@ -40,6 +40,8 @@ class UserResource extends JsonResource
             'is_mute' => $this->is_mute,
             'avatar_thumbnails' => $this->avatar_thumbnails,
             'idenfy_name_data' => $this->idenfy_name_data,
+            'deletion_feedback' => $this->whenAppended('deletion_feedback'),
+            'deleted_at' => $this->whenAppended('deleted_at'),
 
             // Custom attributes with query
             'username' => $this->username,
