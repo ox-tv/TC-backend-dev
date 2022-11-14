@@ -77,16 +77,12 @@ class UserController extends Controller
         }
 
         $filters = $request->get('filters', []);
-
         $searchFilter = Arr::get($filters, 'search');
-
         $usernameFilter = Arr::get($filters, 'username');
-
         $emailFilter = Arr::get($filters, 'email');
-
         $isHeroFilter = Arr::get($filters, 'is_hero');
-
         $isPublisherFilter = Arr::get($filters, 'is_publisher');
+        $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -108,6 +104,10 @@ class UserController extends Controller
 
         if($emailFilter){
             $query->SearchEmail($emailFilter);
+        }
+
+        if($onlyDeletedFilter){
+            $query->onlyTrashed();
         }
 
         if($isHeroFilter == "yes"){
@@ -155,6 +155,10 @@ class UserController extends Controller
                 'comments_count',
                 'subscribed_channels_count',
             ]);
+        }
+
+        if($onlyDeletedFilter){
+            $users->append(['deletion_feedback', 'deleted_at']);
         }
 
         return UserResource::collection($users);
