@@ -31,7 +31,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('crypto_currencies:update')->runInBackground()->everyMinute();
+        $schedule->command("crypto_currencies:update --updateOnlyFirst250=true")->runInBackground()->everyMinute();
+        $schedule->command("crypto_currencies:update --updateOnlyFirst250=false")->runInBackground()->everyTenMinutes();
 
         $schedule->command('tc:channels:check-monetization-qualification')->runInBackground()->hourly();
 
