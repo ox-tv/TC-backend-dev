@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Libraries\CoinGeckoClient;
 use App\Models\CryptoCurrency;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ class UpdateCryptoCurrenciesPrices extends Command
      *
      * @var string
      */
-    protected $signature = 'crypto_currencies:update';
+    protected $signature = 'crypto_currencies:update {--updateOnlyFirst250= : true/false}';
 
     /**
      * The console command description.
@@ -38,12 +39,45 @@ class UpdateCryptoCurrenciesPrices extends Command
      *
      * @return int
      */
+
+    private $listedCoins = [];
+
     public function handle()
     {
-        $client = new CoinGeckoClient();
+        $updateOnlyFirst250 = filter_var($this->option('updateOnlyFirst250'), FILTER_VALIDATE_BOOLEAN);
 
-        $page = 1;
-        $perPage = 250;
+        if ($updateOnlyFirst250){
+
+            $startTime = time();
+            while(time() - $startTime < 59){
+                if (!$this->updateCoins()){
+                    break;
+                }
+                sleep(5);
+            }
+
+        }else{
+            $page = 1;
+            $maxPages = 20;
+            while ($page <= $maxPages){
+                if (!$this->updateCoins($page)){
+                    break;
+                }
+                $page++;
+            }
+
+            // Update orders without touch updated_at
+            DB::table('crypto_currencies')->whereNotIn('slug', $this->listedCoins)->update([
+                'order' => 1000000,
+            ]);
+        }
+
+        return 0;
+    }
+
+    private function updateCoins($page = 1, $perPage = 250)
+    {
+        $client = new CoinGeckoClient();
 
         $response = $client->GetMarketData([
             'per_page' => $perPage,
@@ -51,12 +85,18 @@ class UpdateCryptoCurrenciesPrices extends Command
         ]);
 
         if(!$response['success']){
-            return 0;
+            return false;
         }
 
         $data = [];
-        $listed_coins = [];
+        $hasUnRankCoin = false;
         foreach ($response['data'] as $value){
+
+            if (!$value['market_cap_rank']){
+                $hasUnRankCoin = true;
+                break;
+            }
+
             $data[] = [
                 'status' => CryptoCurrency::STATUS_LIST,
                 'symbol' => $value['symbol'],
@@ -85,16 +125,11 @@ class UpdateCryptoCurrenciesPrices extends Command
                 ]),
             ];
 
-            $listed_coins[] = $value['id'];
+            $this->listedCoins[] = $value['id'];
         }
 
         CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
 
-        // Update orders without touch updated_at
-        DB::table('crypto_currencies')->whereNotIn('slug', $listed_coins)->update([
-            'order' => 1000000,
-        ]);
-
-        return 0;
+        return !$hasUnRankCoin;
     }
 }
