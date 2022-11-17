@@ -15,8 +15,6 @@ class AccountDeletion extends Model
 
     protected $primaryKey = 'user_id';
 
-    protected $fillable = ['user_id','token', 'created_at', 'expired_at'];
-
     protected $casts = [
         'expired_at' => 'datetime'
     ];

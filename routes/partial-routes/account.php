@@ -19,9 +19,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
 
     // Delete account
-    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")/*->middleware(['2fa.or.email-verification'])*/;
-    
+    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")->middleware(['2fa.or.email-verification']);
+
 });
+
+
+Route::get('account/restore/{token}', '\App\Http\Controllers\UserController@restoreAccount')->name("account.restore");
 
 
 // For Publishers

@@ -6,6 +6,7 @@ use App\Models\UserVideo;
 use App\Models\Video;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 class VideoRepository
 {
@@ -43,6 +44,26 @@ class VideoRepository
         });
 
         return true;
+    }
+
+    public function restore($videoId)
+    {
+        try {
+            DB::beginTransaction();
+
+            Video::withTrashed()->where('id', $videoId)->restore();
+
+            if (!$this->commentRepository->restoreByVideoId($videoId)){
+                throw new \Exception();
+            }
+
+            DB::commit();
+            return true;
+
+        } catch (Throwable $e) {
+            DB::rollback();
+            return false;
+        }
     }
 
     public function update($videoId, $data = [])

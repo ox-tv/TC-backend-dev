@@ -500,9 +500,9 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">Welcome!</span></strong><br>
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">Your channel deletion is complete!</span></strong><br>
 <br>
-<span style="font-size:14px">We are happy to have you aboard, and we hope you will gain lots of valuable insights into the crypto market. Click the button below to verify your email. Once you have done this, you are all set!</span></p></div>
+<span style="font-size:14px">Your channel and content have been removed from the platform and will not be visible to any users. You can restore your channel within 180 days by clicking on the restoration link in this email.</span></p></div>
 
                                                 </td>
                                             </tr>
@@ -544,7 +544,7 @@
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Helvetica Neue, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 12px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $deleteAccountLink }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF; text-transform: uppercase;">Verify Email</a>
+                                                    <a class="mcnButton " title="Verify Email" href="{{ $deleteAccountLink }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF; text-transform: uppercase;">Restore Account</a>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -552,7 +552,66 @@
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table></td>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock" style="min-width:100%;">
+                                <tbody class="mcnDividerBlockOuter">
+                                <tr>
+                                    <td class="mcnDividerBlockInner" style="min-width: 100%; padding: 10px 18px;">
+                                        <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width: 100%;border-top: 2px none #EAEAEA;">
+                                            <tbody><tr>
+                                                <td>
+                                                    <span></span>
+                                                </td>
+                                            </tr>
+                                            </tbody></table>
+                                        <!--
+                                                        <td class="mcnDividerBlockInner" style="padding: 18px;">
+                                                        <hr class="mcnDividerContent" style="border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;" />
+                                        -->
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                                <tbody class="mcnTextBlockOuter">
+                                <tr>
+                                    <td valign="top" class="mcnTextBlockInner" style="padding-top:9px;">
+                                        <!--[if mso]>
+                                        <table align="left" border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+                                            <tr>
+                                        <![endif]-->
+
+                                        <!--[if mso]>
+                                        <td valign="top" width="600" style="width:600px;">
+                                        <![endif]-->
+                                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="max-width:100%; min-width:100%;" width="100%" class="mcnTextContentContainer">
+                                            <tbody><tr>
+
+                                                <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
+
+                                                    <div style="text-align: center;"><p style="color:#FFFFFF">
+                                                            <span style="font-size:14px">It has been a pleasure having you on Today’s Crypto, and we hope to see you again in the future.</span>
+                                                            <br><br>
+                                                            <span style="font-size:14px">Best regards,</span><br>
+                                                            <span style="font-size:14px">Team Today’s Crypto</span>
+                                                        </p></div>
+
+                                                </td>
+                                            </tr>
+                                            </tbody></table>
+                                        <!--[if mso]>
+                                        </td>
+                                        <![endif]-->
+
+                                        <!--[if mso]>
+                                        </tr>
+                                        </table>
+                                        <![endif]-->
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
                     <tr>
                         <td valign="top" id="templateFooter"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">

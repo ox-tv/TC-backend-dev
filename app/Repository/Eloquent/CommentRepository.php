@@ -5,6 +5,7 @@ namespace App\Repository\Eloquent;
 use App\Models\Comment;
 use App\Models\CommentUser;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class CommentRepository
 {
@@ -74,5 +75,22 @@ class CommentRepository
         });
 
         return true;
+    }
+
+    public function restoreByVideoId($videoId)
+    {
+        try {
+            DB::beginTransaction();
+
+            Comment::withTrashed()->where('video_id', $videoId)->restore();
+
+            DB::commit();
+            return true;
+
+        } catch (Throwable $e) {
+
+            DB::rollback();
+            return false;
+        }
     }
 }
