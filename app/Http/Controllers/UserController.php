@@ -403,11 +403,44 @@ class UserController extends Controller
         $user->deletion_feedback = $request->get('feedback');
         $user->delete();
 
+        $token = sha1($user->id . time());
+
+        $accountDeletion = new AccountDeletion();
+        $accountDeletion->user_id = $user->id;
+        $accountDeletion->token = $token;
+        $accountDeletion->expired_at = Carbon::now()->addDays(180);
+        $accountDeletion->save();
+
+        $link = route('account.restore', ['token' => $token]);
+
+        Mail::to($user->email)
+            ->queue(new DeleteAccountMail($link));
+
+
         event(new AccountDeleted($user));
 
         return response()->json([
             'status' => 'ok',
         ]);
+    }
+
+    public function restoreAccount($token)
+    {
+        $accountDeletion = AccountDeletion::where('token', $token)->where('expired_at', '>', Carbon::now())->firstOrFail();
+
+        $user = $accountDeletion->user()->onlyTrashed()->firstOrFail();
+
+        $user->restore();
+
+        $channel = $user->channel()->onlyTrashed()->first();
+        if ($channel){
+            $this->channelRepository->Restore($channel->id);
+        }
+
+        $accountDeletion->delete();
+
+        return response()->json(['status' => 'ok']);
+        return response()->redirectTo('https://todayscrypto.com');
     }
 
     public function restoreUser($id)

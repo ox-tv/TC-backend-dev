@@ -20,8 +20,11 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")/*->middleware(['2fa.or.email-verification'])*/;
-    
+
 });
+
+
+Route::get('account/restore/{token}', '\App\Http\Controllers\UserController@restoreAccount')->name("account.restore");
 
 
 // For Publishers
