@@ -40,4 +40,28 @@ class ChannelRepository
         }
     }
 
+    public function restore($channelId)
+    {
+        try {
+            DB::beginTransaction();
+
+            Channel::withTrashed()->where('id', $channelId)->restore();
+
+            // Remove Videos
+            $videos = Video::withTrashed()->where('channel_id', $channelId)->get();
+            foreach ($videos as $video){
+                $this->videoRepository->destroy($video->id);
+            }
+
+            // Remove Channel
+
+            DB::commit();
+            return true;
+
+        } catch (Throwable $e) {
+
+            DB::rollback();
+            return false;
+        }
+    }
 }
