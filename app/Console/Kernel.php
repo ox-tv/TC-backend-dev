@@ -41,6 +41,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('tc:payment-details:check-expired')->runInBackground()->daily();
         $schedule->command('tc:payment-details:check-archive')->runInBackground()->daily();
+
+        $schedule->command('telescope:prune')->daily();
+
     }
 
     /**
