@@ -15,6 +15,8 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('videos/bookmarks', '\App\Http\Controllers\VideoController@bookmarks')->name("videos.bookmarks");
     Route::put('videos/{video}/bookmark', '\App\Http\Controllers\UserVideoRelationController@bookmark');
 
+    Route::get('videos/subscribed-channels', '\App\Http\Controllers\VideoController@subscribedChannelsVideos')->name("videos.subscribed-channels");
+
     // -- add video to playlist
     Route::put('playlists/{playlist}/add/{video}', '\App\Http\Controllers\PlaylistController@add');
     // -- remove video from playlist
