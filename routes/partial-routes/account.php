@@ -2,9 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
-Route::delete('account/delete/{token}', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete");
-
 // For Logged in Users
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
@@ -22,9 +19,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
 
     // Delete account
-    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
-    
+    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")->middleware(['2fa.or.email-verification']);
+
 });
+
+
+Route::get('account/restore/{token}', '\App\Http\Controllers\UserController@restoreAccount')->name("account.restore");
 
 
 // For Publishers
@@ -36,7 +36,7 @@ Route::group([
 ], function(){
 
     // Delete account
-    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccountRequest')->name("account.delete-request");
+    Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")->middleware(['2fa.or.email-verification']);
 
 });
 

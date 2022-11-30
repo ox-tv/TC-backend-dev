@@ -5,10 +5,7 @@ namespace App\Listeners;
 use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\UserStatisticsDaily;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
 
 class VideoWatchedDataForUserStatisticsDaily

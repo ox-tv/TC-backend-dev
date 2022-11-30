@@ -4,10 +4,7 @@ namespace App\Listeners;
 
 use App\Events\VideoViewed;
 use App\Models\UserStatisticsDaily;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class VideoViewedDataForUserStatisticsDaily
 {

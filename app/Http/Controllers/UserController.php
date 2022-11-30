@@ -19,6 +19,7 @@ use App\Models\PasswordReset;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Repository\Eloquent\ChannelRepository;
 use App\Repository\Eloquent\TagRepository;
 use App\Rules\CustomRule;
 use App\Services\_2FAService;
@@ -35,16 +36,19 @@ class UserController extends Controller
     private $_2faService;
     private $EmailVerificationService;
     private $tagRepository;
+    private $channelRepository;
 
     public function __construct(
         _2FAService $_2faService,
         EmailVerificationService $EmailVerificationService,
-        TagRepository $tagRepository
+        TagRepository $tagRepository,
+        ChannelRepository $channelRepository
     )
     {
         $this->_2faService = $_2faService;
         $this->EmailVerificationService = $EmailVerificationService;
         $this->tagRepository = $tagRepository;
+        $this->channelRepository = $channelRepository;
     }
 
     public function index(Request $request)
@@ -73,16 +77,12 @@ class UserController extends Controller
         }
 
         $filters = $request->get('filters', []);
-
         $searchFilter = Arr::get($filters, 'search');
-
         $usernameFilter = Arr::get($filters, 'username');
-
         $emailFilter = Arr::get($filters, 'email');
-
         $isHeroFilter = Arr::get($filters, 'is_hero');
-
         $isPublisherFilter = Arr::get($filters, 'is_publisher');
+        $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -104,6 +104,10 @@ class UserController extends Controller
 
         if($emailFilter){
             $query->SearchEmail($emailFilter);
+        }
+
+        if($onlyDeletedFilter){
+            $query->onlyTrashed();
         }
 
         if($isHeroFilter == "yes"){
@@ -151,6 +155,10 @@ class UserController extends Controller
                 'comments_count',
                 'subscribed_channels_count',
             ]);
+        }
+
+        if($onlyDeletedFilter){
+            $users->append(['deletion_feedback', 'deleted_at']);
         }
 
         return UserResource::collection($users);
@@ -379,63 +387,60 @@ class UserController extends Controller
         ]);
     }
 
-    public function deleteAccountRequest(Request $request)
+    public function deleteAccount(Request $request)
     {
+        $request->validate([
+            'feedback' => ['sometimes', 'string']
+        ]);
+
         $user = auth('api')->user();
+
+        $channel = $user->channel()->first();
+        if ($channel){
+            $this->channelRepository->softDelete($channel->id);
+        }
+
+        $user->deletion_feedback = $request->get('feedback');
+        $user->delete();
 
         $token = sha1($user->id . time());
 
+        $accountDeletion = new AccountDeletion();
+        $accountDeletion->user_id = $user->id;
+        $accountDeletion->token = $token;
+        $accountDeletion->expired_at = Carbon::now()->addDays(180);
+        $accountDeletion->save();
 
-        $accountDeletion = AccountDeletion::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'token' => $token,
-                'created_at' => Carbon::now(),
-                'expired_at' => Carbon::now()->addMinutes(45)
-            ],
-        );
-
-        if ($request->is('api/publisher/*')){
-            $link = config('general.PUBLISHER_ACCOUNT_DELETION_URL') . $token;
-        }else{
-            $link = config('general.MWA_ACCOUNT_DELETION_URL') . $token;
-        }
+        $link = route('account.restore', ['token' => $token]);
 
         Mail::to($user->email)
             ->queue(new DeleteAccountMail($link));
 
-        return response()->json([
-            'status' => 'ok',
-            'email' => $user->email,
-            'message' => __('account.account_deletion_link_sent'),
-        ]);
-    }
-
-    public function deleteAccount($token)
-    {
-        $accountDeletion = AccountDeletion::where('token', $token)
-            ->where('expired_at', '>', Carbon::now())
-            ->firstOrFail();
-
-        $user = User::findOrFail($accountDeletion->user_id);
-
-        $channel = $user->channel()->first();
-        if ($channel){
-            $channel->status = Channel::STATUS_FREEZE;
-            $channel->save();
-        }
-
-        $user->delete();
-
-        $accountDeletion->expired_at = now();
-        $accountDeletion->save();
 
         event(new AccountDeleted($user));
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'general.successful'
         ]);
+    }
+
+    public function restoreAccount($token)
+    {
+        $accountDeletion = AccountDeletion::where('token', $token)->where('expired_at', '>', Carbon::now())->firstOrFail();
+
+        $user = $accountDeletion->user()->onlyTrashed()->firstOrFail();
+
+        $user->restore();
+
+        $channel = $user->channel()->onlyTrashed()->first();
+        if ($channel){
+            $this->channelRepository->Restore($channel->id);
+        }
+
+        $accountDeletion->delete();
+
+        return response()->json(['status' => 'ok']);
+        return response()->redirectTo('https://todayscrypto.com');
     }
 
     public function restoreUser($id)
