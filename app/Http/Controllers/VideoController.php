@@ -19,6 +19,7 @@ use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Models\Category;
+use App\Models\ChannelUser;
 use App\Models\Comment;
 use App\Models\CommentUser;
 use App\Models\CryptoCurrency;
@@ -628,7 +629,24 @@ class VideoController extends Controller
     {
         $perPage = request()->get('per_page') ?: 15;
 
-        $videos = auth('api')->user()->bookmarkVideos()->paginate($perPage);
+        $videos = auth('api')->user()->bookmarkVideos()
+            ->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc')
+            ->paginate($perPage);
+
+        $videos->load(['channel'])->append(['is_bookmarked']);
+
+        return VideoResource::collection($videos);
+    }
+
+    public function subscribedChannelsVideos(Request $request)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $subscribedChannelIds = ChannelUser::where('user_id', auth('api')->id())->pluck('channel_id')->toArray();
+
+        $videos = Video::whereIn('channel_id', $subscribedChannelIds)
+            ->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc')
+            ->paginate($perPage);
 
         $videos->load(['channel'])->append(['is_bookmarked']);
 
