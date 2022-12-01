@@ -77,11 +77,14 @@ class UserStatisticsDaily extends Model
         $result += ($pointsPerWatchVideoAsNonHero * $this->video_watch_count_as_non_hero);
 
         $result += ($pointsPerCommentLikedAsHero * $this->comment_liked_count_as_hero);
+
         $result += ($pointsPerCommentLikedAsNonHero * $this->comment_liked_count_as_non_hero);
 
         $result += ($pointsPerReferrerAsHero * $this->referral_count_as_hero);
         $result += ($pointsPerReferrerAsNonHero * $this->referral_count_as_non_hero);
 
-        return $this->points = $result;
+        $this->points = $result;
+
+        return $this->points;
     }
 }
