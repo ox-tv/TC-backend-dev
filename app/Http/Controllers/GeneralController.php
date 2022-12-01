@@ -60,9 +60,9 @@ class GeneralController extends Controller
         $trendingVideos = Video::published()->typeVideo()
             ->withoutGlobalScope(OrderDescScope::class)
             ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
+                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
             })
-            ->take(15)
+            ->take(12)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -71,9 +71,9 @@ class GeneralController extends Controller
         $trendingPodcasts = Video::published()->typePodcast()
             ->withoutGlobalScope(OrderDescScope::class)
             ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
+                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
             })
-            ->take(15)
+            ->take(12)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -81,7 +81,7 @@ class GeneralController extends Controller
 
         // Latest Media On TC
         $latestMedia = Video::published()
-            ->take(15)
+            ->take(12)
             ->with(['channel'])
             ->withoutGlobalScope(OrderDescScope::class)
             ->orderBy('published_at', 'desc')
@@ -140,7 +140,7 @@ class GeneralController extends Controller
                         $query->whereIn('id', $userFavoriteTagIds);
                     });
                 })
-                ->take(15)
+                ->take(12)
                 ->with(['channel'])
                 ->withoutGlobalScope(OrderDescScope::class)
                 ->orderBy('published_at', 'desc')
@@ -153,8 +153,9 @@ class GeneralController extends Controller
             $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
             $mySubscriptionsVideos = Video::published()
                 ->whereIn('channel_id', $subscriptionsChannelIds)
-                ->take(15)
+                ->take(12)
                 ->with(['channel'])
+                ->orderBy('published_at', 'desc')
                 ->get()
                 ->append(['is_bookmarked']);
             $result['my_subscriptions_videos'] = VideoResource::collection($mySubscriptionsVideos);
