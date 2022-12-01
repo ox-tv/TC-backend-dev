@@ -62,7 +62,7 @@ class GeneralController extends Controller
             ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
                 $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
             })
-            ->take(8)
+            ->take(12)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -73,7 +73,7 @@ class GeneralController extends Controller
             ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
                 $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, Created_at DESC");
             })
-            ->take(8)
+            ->take(12)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -81,7 +81,7 @@ class GeneralController extends Controller
 
         // Latest Media On TC
         $latestMedia = Video::published()
-            ->take(8)
+            ->take(12)
             ->with(['channel'])
             ->withoutGlobalScope(OrderDescScope::class)
             ->orderBy('published_at', 'desc')
@@ -140,7 +140,7 @@ class GeneralController extends Controller
                         $query->whereIn('id', $userFavoriteTagIds);
                     });
                 })
-                ->take(8)
+                ->take(12)
                 ->with(['channel'])
                 ->withoutGlobalScope(OrderDescScope::class)
                 ->orderBy('published_at', 'desc')
@@ -153,7 +153,7 @@ class GeneralController extends Controller
             $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
             $mySubscriptionsVideos = Video::published()
                 ->whereIn('channel_id', $subscriptionsChannelIds)
-                ->take(8)
+                ->take(12)
                 ->with(['channel'])
                 ->get()
                 ->append(['is_bookmarked']);
