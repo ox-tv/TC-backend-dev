@@ -40,7 +40,8 @@ class _2FAService
         $_2fa = $user->_2fa;
 
         if (!$_2fa){
-            return $result;
+            $_2fa = new _2FA();
+            $_2fa->user_id = $user->id;
         }
 
         if (!empty($data['email']) && $this->verifyEmail2FA($user, $data['email'])){
