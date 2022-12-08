@@ -161,7 +161,7 @@ class _2FAController extends Controller
 
         $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
-        if (($_2fa->app_status && !$result['app']) || !$result['email']){
+        if (($_2fa && $_2fa->app_status && !$result['app']) || !$result['email']){
             return response()->json([
                 'message' => 'Please verify 2FA.',
                 'code' => '2fa.require',
