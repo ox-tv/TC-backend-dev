@@ -71,4 +71,33 @@ class OptionController extends Controller
 
         return $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
     }
+
+    public function getAdSpace(Request $request){
+        $adSpaces = Option::get(Option::AD_SPACES);
+
+        return $adSpaces? json_decode($adSpaces->value, true) : [];
+    }
+
+    public function setAdSpace(Request $request){
+
+        $adImageUrl = $request->get('url');
+        $adSpaceKey = $request->get('key');
+
+        $adSpacesOption = Option::get(Option::AD_SPACES);
+
+        $adSpaces = json_decode($adSpacesOption, true);
+
+        if($adImageUrl){
+            $adSpaces[$adSpaceKey] = $adImageUrl;
+        }else{
+            unset($adSpaces[$adSpaceKey]);
+        }
+
+        Option::set(Option::AD_SPACES, json_encode($adSpaces));
+
+        return response()->json(["message" => "ok"]);
+
+    }
+
+
 }
