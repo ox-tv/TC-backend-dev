@@ -40,6 +40,6 @@ Route::group([
 
     Route::post('options/forbidden-words', '\App\Http\Controllers\OptionController@setForbiddenWords')->name("options.forbidden-words.store");
 
-    Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdSpace')->name("options.ad-spaces.store");
+    Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdSpace')->name("options.ad-spaces.get");
     Route::post('options/ad-spaces', '\App\Http\Controllers\OptionController@setAdSpace')->name("options.ad-spaces.store");
 });
