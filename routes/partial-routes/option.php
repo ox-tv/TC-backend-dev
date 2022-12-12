@@ -39,4 +39,7 @@ Route::group([
     Route::get('options/reasons/{key}', '\App\Http\Controllers\OptionController@getReasonsOption')->name("options.reasons.get");
 
     Route::post('options/forbidden-words', '\App\Http\Controllers\OptionController@setForbiddenWords')->name("options.forbidden-words.store");
+
+    Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdSpace')->name("options.ad-spaces.store");
+    Route::post('options/ad-spaces', '\App\Http\Controllers\OptionController@setAdSpace')->name("options.ad-spaces.store");
 });

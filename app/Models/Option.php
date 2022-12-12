@@ -20,6 +20,7 @@ class Option extends Model
     const PUBLISHER_REQUEST_REJECT_REASONS = 'publisher_request_reject_reasons';
     const TOTAL_DISTRIBUTED_MONEY = 'total_distributed_money';
     const FORBIDDEN_WORDS = 'forbidden_words';
+    const AD_SPACES = 'ad_spaces';
 
     const REASONS = [
         self::VIDEO_REPORT_REASONS,
