@@ -83,7 +83,7 @@ class OptionController extends Controller
         $adImageUrl = $request->get('url');
         $adSpaceKey = $request->get('key');
 
-        $adSpacesOption = Option::get(Option::AD_SPACES);
+        $adSpacesOption = Option::get(Option::AD_SPACES) ?? [];
 
         $adSpaces = json_decode($adSpacesOption->value, true);
 
