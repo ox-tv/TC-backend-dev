@@ -105,6 +105,7 @@
         }
         body,#bodyTable{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FAFAFA;
         }
         #bodyCell{
             /*@editable*/border-top:0;
@@ -153,7 +154,7 @@
             /*@editable*/text-align:left;
         }
         #templatePreheader{
-            /*@editable*/background-color:rgb(42,44,63);
+            /*@editable*/background-color:rgb(42,44,63);background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -176,7 +177,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateHeader{
-            /*@editable*/background-color:rgb(42,44,63);
+            /*@editable*/background-color:rgb(42,44,63);background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -199,7 +200,7 @@
             /*@editable*/text-decoration:underline;
         }
         #templateBody{
-            /*@editable*/background-color:rgb(42,44,63);
+            /*@editable*/background-color:rgb(42,44,63);background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -222,13 +223,13 @@
             /*@editable*/text-decoration:underline;
         }
         #templateFooter{
-            /*@editable*/background-color:rgb(42,44,63);
+            /*@editable*/background-color:rgb(42,44,63);background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
             /*@editable*/background-size:cover;
             /*@editable*/border-top:0;
-            /*@editable*/border-bottom:0;
+            /*@editable*/border-bottom:0;border-bottom: 2px solid #EAEAEA;
             /*@editable*/padding-top:9px;
             /*@editable*/padding-bottom:9px;
         }
@@ -395,7 +396,7 @@
 </head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#2a2c3f !important">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#FAFAFA !important">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
@@ -435,7 +436,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Blue.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Red.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -500,9 +501,9 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><p style="color:#FFFFFF"><strong><span style="font-size:18px">Your channel deletion is complete!</span></strong><br>
-<br>
-<span style="font-size:14px">Your channel and content have been removed from the platform and will not be visible to any users. You can restore your channel within 180 days by clicking on the restoration link in this email.</span></p></div>
+                                                    <div style="text-align: center;"><p style="color:#202020"><strong><span style="font-size:18px">Your channel deletion is complete!</span></strong><br>
+                                                            <br>
+                                                            <span style="font-size:14px">Your channel and content have been removed from the platform and will not be visible to any users. You can restore your channel within 180 days by clicking on the restoration link in this email.</span></p></div>
 
                                                 </td>
                                             </tr>
@@ -544,7 +545,7 @@
                                             <tbody>
                                             <tr>
                                                 <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Helvetica Neue, Helvetica, Arial, Verdana, sans-serif; font-size: 16px; padding: 12px;">
-                                                    <a class="mcnButton " title="Verify Email" href="{{ $deleteAccountLink }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF; text-transform: uppercase;">Restore Account</a>
+                                                    <a class="mcnButton " title="Verify Email" href="{{ $deleteAccountLink }}" target="_blank"style="font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #ffffff; text-transform: uppercase;">Restore Account</a>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -589,7 +590,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <div style="text-align: center;"><p style="color:#FFFFFF">
+                                                    <div style="text-align: center;"><p style="color:#202020">
                                                             <span style="font-size:14px">It has been a pleasure having you on Today’s Crypto, and we hope to see you again in the future.</span>
                                                             <br><br>
                                                             <span style="font-size:14px">Best regards,</span><br>
@@ -631,7 +632,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></span>
+                                                    <span style="color:#202020"><strong>Make sure to follow us on Twitter, Telegram & Linkedin for regular updates!</strong></span>
                                                 </td>
                                             </tr>
                                             </tbody></table>
@@ -671,11 +672,16 @@
                                                                             <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnFollowStacked" style="display:inline;">
 
                                                                                 <tbody><tr>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    </td>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
-                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="https://cdn-images.mailchimp.com/icons/social-block-v2/outline-light-twitter-96.png" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
                                                                                     </td>
                                                                                 </tr>
-
 
                                                                                 </tbody></table>
 

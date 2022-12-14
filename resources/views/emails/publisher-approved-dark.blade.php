@@ -105,6 +105,7 @@
         }
         body,#bodyTable{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FAFAFA;
         }
         #bodyCell{
             /*@editable*/border-top:0;
@@ -154,6 +155,7 @@
         }
         #templatePreheader{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -177,6 +179,7 @@
         }
         #templateHeader{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -200,6 +203,7 @@
         }
         #templateBody{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
@@ -223,12 +227,14 @@
         }
         #templateFooter{
             /*@editable*/background-color:rgb(42,44,63);
+            background-color: #FFFFFF;
             /*@editable*/background-image:none;
             /*@editable*/background-repeat:no-repeat;
             /*@editable*/background-position:center;
             /*@editable*/background-size:cover;
             /*@editable*/border-top:0;
             /*@editable*/border-bottom:0;
+            border-bottom: 2px solid #EAEAEA;
             /*@editable*/padding-top:9px;
             /*@editable*/padding-bottom:9px;
         }
@@ -394,7 +400,7 @@
         }</style></head>
 <body>
 <center>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:rgb(42,44,63)" style="background-color:rgb(42,44,63)" style="background-color:rgb(42,44,63)">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#FAFAFA !important">
         <tr>
             <td align="center" valign="top" id="bodyCell">
                 <!-- BEGIN TEMPLATE // -->
@@ -434,7 +440,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Blue.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Red.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -499,13 +505,13 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding: 0px 18px 9px;color: #F15858;">
 
-                                                    <div style="text-align: center;"><span style="color:#FFFFFF"><strong><span style="font-size:18px">Good news!</span></strong><br>
+                                                    <div style="text-align: center;"><span style="color:#202020"><strong><span style="font-size:18px">Good news!</span></strong><br>
 <br>
 Your application has now been reviewed and approved. You could now access everything in your publisher panel, so why not start by uploading your first video/podcast.</span><br>
                                                         <br>
-                                                        <span style="color:f15858"><strong>Want help exporting and importing media from your existing YouTube channel?</strong></span><br>
+                                                        <span style="color:#202020"><strong>Want help exporting and importing media from your existing YouTube channel?</strong></span><br>
                                                         <br>
-                                                        <span style="color:#FFFFFF">We can export and import your YouTube channel and videos for the last three months directly to your TC channel with your permission.<br>
+                                                        <span style="color:#202020">We can export and import your YouTube channel and videos for the last three months directly to your TC channel with your permission.<br>
 <br>
 For this service, click the "Request Import" button below. You can create a request later via our support center inside the publisher panel if you don't want to do this now.</span></div>
 
@@ -593,7 +599,7 @@ For this service, click the "Request Import" button below. You can create a requ
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <p style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></p>
+                                                    <p style="color:#202020"><strong>Make sure to follow us on Twitter, Telegram & Linkedin for regular updates!</strong></p>
                                                 </td>
                                             </tr>
                                             </tbody></table>
@@ -633,11 +639,16 @@ For this service, click the "Request Import" button below. You can create a requ
                                                                             <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnFollowStacked" style="display:inline;">
 
                                                                                 <tbody><tr>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    </td>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
-                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="https://cdn-images.mailchimp.com/icons/social-block-v2/outline-light-twitter-96.png" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
                                                                                     </td>
                                                                                 </tr>
-
 
                                                                                 </tbody></table>
 
