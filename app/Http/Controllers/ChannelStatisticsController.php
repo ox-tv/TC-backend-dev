@@ -2,21 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ChannelStatisticsDaily\ChannelStatisticsDailyItem;
-use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
 use App\Models\Channel;
 use App\Models\ChannelStatisticsDaily;
-use App\Models\Option;
-use App\Models\Playlist;
-use App\Models\User;
-use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
-use App\Services\PointService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 
 class ChannelStatisticsController extends Controller
 {
@@ -208,6 +200,8 @@ class ChannelStatisticsController extends Controller
             'unsubscribers_non_hero' => ($temp = $channelStatistics->sum('unsubscribers_non_hero')) > 0? intval($temp) : 0,
             'unsubscribers_total' => ($temp = $channelStatistics->sum('unsubscribers_total')) > 0? intval($temp) : 0,
             'upload_videos_total' => intval($channelStatistics->sum('upload_videos_total')),
+            'published_videos' => intval($channelStatistics->sum('published_videos')),
+            'unpublished_videos' => intval($channelStatistics->sum('unpublished_videos')),
         ];
     }
 
@@ -365,6 +359,8 @@ class ChannelStatisticsController extends Controller
                 'unsubscribers_non_hero' => 0,
                 'unsubscribers_total' => array_sum(array_column($rawData, 'unsubscribers')),
                 'upload_videos_total' => array_sum(array_column($rawData, 'uploads')),
+                'published_videos' => array_sum(array_column($rawData, 'uploads')),
+                'unpublished_videos' => array_sum(array_column($rawData, 'uploads')),
             ];
         }elseif ($type == 'monthly'){
             foreach ($periods as $month){
@@ -395,6 +391,8 @@ class ChannelStatisticsController extends Controller
                     'unsubscribers_non_hero' => 0,
                     'unsubscribers_total' => $rawData[$monthName]['unsubscribers'],
                     'upload_videos_total' => $rawData[$monthName]['uploads'],
+                    'published_videos' => $rawData[$monthName]['uploads'],
+                    'unpublished_videos' => $rawData[$monthName]['uploads'],
                 ];
             }
         }else{
@@ -427,6 +425,8 @@ class ChannelStatisticsController extends Controller
                     'unsubscribers_non_hero' => 0,
                     'unsubscribers_total' => rand(0, $rawData[$monthName]['unsubscribers']/15),
                     'upload_videos_total' => rand(0, $rawData[$monthName]['uploads']/3),
+                    'published_videos' => rand(0, $rawData[$monthName]['uploads']/3),
+                    'unpublished_videos' => rand(0, $rawData[$monthName]['uploads']/3),
                 ];
             }
         }
