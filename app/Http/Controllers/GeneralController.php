@@ -234,6 +234,7 @@ class GeneralController extends Controller
                 'views_total' => 0,
                 'likes_total' => 0,
                 'upload_videos_total' => 0,
+                'published_videos' => 0,
             ],
             'statistics' => [],
         ];
@@ -250,6 +251,7 @@ class GeneralController extends Controller
         $result['overview']['views_total'] = intval($videoStatisticsQuery->sum('views_total'));
         $result['overview']['likes_total'] = ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0;
         $result['overview']['upload_videos_total'] = intval($channelStatisticsQuery->sum('upload_videos_total'));
+        $result['overview']['published_videos'] = intval($channelStatisticsQuery->sum('published_videos')) - intval($channelStatisticsQuery->sum('unpublished_videos'));
 
 
         // Statistics by channel id
@@ -308,6 +310,8 @@ class GeneralController extends Controller
                 'subscribers_total' => ($temp = $channelStatisticsQuery->sum('subscribers_total')) > 0? intval($temp) : 0,
                 'unsubscribers_total' => ($temp = $channelStatisticsQuery->sum('unsubscribers_total')) > 0? intval($temp) : 0,
                 'upload_videos_total' => intval($channelStatisticsQuery->sum('upload_videos_total')),
+                'published_videos' => intval($channelStatisticsQuery->sum('published_videos')),
+                'unpublished_videos' => intval($channelStatisticsQuery->sum('unpublished_videos')),
             ];
         }
 
@@ -341,6 +345,8 @@ class GeneralController extends Controller
                 'subscribers_total' => ($temp = $channelStatisticsQuery->sum('subscribers_total')) > 0? intval($temp) : 0,
                 'unsubscribers_total' => ($temp = $channelStatisticsQuery->sum('unsubscribers_total')) > 0? intval($temp) : 0,
                 'upload_videos_total' => intval($channelStatisticsQuery->sum('upload_videos_total')),
+                'published_videos' => intval($channelStatisticsQuery->sum('published_videos')),
+                'unpublished_videos' => intval($channelStatisticsQuery->sum('unpublished_videos')),
             ];
         }
 
