@@ -86,7 +86,7 @@ class OptionController extends Controller
 
         $value = isset($adSpaces[$request->get('key')])? $adSpaces[$request->get('key')] : null;
 
-        return $value;
+        return is_array($value)? $value :['url' => $value];
     }
 
     public function setAdSpace(Request $request){
