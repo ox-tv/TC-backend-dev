@@ -100,7 +100,7 @@ class OptionController extends Controller
         $adSpaces = json_decode($adSpacesOption, true);
 
         if($adImageUrl){
-            $adSpaces[$adSpaceKey] = ['image_url' => $adImageUrl, 'redirect_to' => $adRedirectTo];
+            $adSpaces[$adSpaceKey] = ['url' => $adImageUrl, 'redirect_to' => $adRedirectTo];
         }else{
             unset($adSpaces[$adSpaceKey]);
         }
