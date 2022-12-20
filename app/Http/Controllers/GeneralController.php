@@ -276,13 +276,38 @@ class GeneralController extends Controller
                 $to = Carbon::now()->endOfYear();
                 break;
             case 'this_month';
-            default;
                 $from = Carbon::now()->startOfMonth();
                 $to = Carbon::now()->endOfMonth();
                 break;
+
+            case 'last_7d';
+                $from = Carbon::now()->subDays(7)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_14d';
+                $from = Carbon::now()->subDays(14)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_90d';
+                $from = Carbon::now()->subDays(90)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_180d';
+                $from = Carbon::now()->subDays(180)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_365d';
+                $from = Carbon::now()->subDays(365)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_30d';
+            default;
+                $from = Carbon::now()->subDays(30)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
         }
 
-        $result['statistics'] = $period == 'this_year'? $this->monthlyStatistics($channel, $from, $to) : $this->dailyStatistics($channel, $from, $to);
+        $result['statistics'] = in_array($period, ['this_year', 'last_365d', 'last_180d'])? $this->monthlyStatistics($channel, $from, $to) : $this->dailyStatistics($channel, $from, $to);
 
         return response()->json($result);
     }
