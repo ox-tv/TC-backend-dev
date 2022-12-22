@@ -600,10 +600,10 @@
                                                                             <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnFollowStacked" style="display:inline;">
 
                                                                                 <tbody><tr>
-                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
                                                                                         <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
-                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
                                                                                         <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
