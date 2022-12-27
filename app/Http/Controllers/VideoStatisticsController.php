@@ -3,17 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
-use App\Models\Channel;
-use App\Models\ChannelStatisticsDaily;
-use App\Models\Option;
-use App\Models\Playlist;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 
 class VideoStatisticsController extends Controller
 {

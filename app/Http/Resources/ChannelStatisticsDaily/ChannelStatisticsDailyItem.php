@@ -31,6 +31,8 @@ class ChannelStatisticsDailyItem extends JsonResource
             'unsubscribers_non_hero' => ($temp = $this->unsubscribers_non_hero) > 0? $temp : 0,
             'unsubscribers_total' => ($temp = $this->unsubscribers_total) > 0? $temp : 0,
             'upload_videos_total' => $this->upload_videos_total,
+            'published_videos' => $this->published_videos,
+            'unpublished_videos' => $this->unpublished_videos,
             'channel' => $this->when($withChannel, $channel),
         ];
     }

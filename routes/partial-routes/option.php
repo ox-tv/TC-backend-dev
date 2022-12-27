@@ -7,6 +7,9 @@ Route::get('options/reasons/{key}', '\App\Http\Controllers\OptionController@getR
 
 Route::get('options/forbidden-words', '\App\Http\Controllers\OptionController@getForbiddenWords')->name("options.forbidden-words.get");
 
+Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdByKey')->name("options.ad-spaces.get.by_key");
+
+
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
@@ -39,4 +42,7 @@ Route::group([
     Route::get('options/reasons/{key}', '\App\Http\Controllers\OptionController@getReasonsOption')->name("options.reasons.get");
 
     Route::post('options/forbidden-words', '\App\Http\Controllers\OptionController@setForbiddenWords')->name("options.forbidden-words.store");
+
+    Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdSpace')->name("options.ad-spaces.get");
+    Route::post('options/ad-spaces', '\App\Http\Controllers\OptionController@setAdSpace')->name("options.ad-spaces.store");
 });

@@ -32,6 +32,8 @@ class ChannelStatisticsDaily extends Model
         'unsubscribers_non_hero' => 0,
         'unsubscribers_total' => 0,
         'upload_videos_total' => 0,
+        'published_videos' => 0,
+        'unpublished_videos' => 0,
     ];
 
     public $timestamps = false;

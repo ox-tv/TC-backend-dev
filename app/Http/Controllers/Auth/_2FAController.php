@@ -159,6 +159,11 @@ class _2FAController extends Controller
         $user = auth('api')->user();
         $_2fa = $user->_2fa;
 
+        if (!$_2fa){
+            $_2fa = new _2FA();
+            $_2fa->user_id = $user->id;
+        }
+
         $result = $this->_2faService->check2FA($user, ['ip' => $request->ip()]);
 
         if (($_2fa->app_status && !$result['app']) || !$result['email']){

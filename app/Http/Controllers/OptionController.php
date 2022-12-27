@@ -71,4 +71,44 @@ class OptionController extends Controller
 
         return $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
     }
+
+    // Ads
+    public function getAdSpace(Request $request){
+        $adSpaces = Option::get(Option::AD_SPACES);
+
+        return $adSpaces? json_decode($adSpaces->value, true) : [];
+    }
+
+    public function getAdByKey(Request $request){
+        $adSpacesOption = Option::get(Option::AD_SPACES) ? Option::get(Option::AD_SPACES)->value : "[]";
+
+        $adSpaces = json_decode($adSpacesOption, true);
+
+        $value = isset($adSpaces[$request->get('key')])? $adSpaces[$request->get('key')] : null;
+
+        return is_array($value)? $value :['url' => $value];
+    }
+
+    public function setAdSpace(Request $request){
+
+        $adImageUrl = $request->get('url');
+        $adRedirectTo = $request->get('redirect_to');
+        $adSpaceKey = $request->get('key');
+
+        $adSpacesOption = Option::get(Option::AD_SPACES) ? Option::get(Option::AD_SPACES)->value : "[]";
+
+        $adSpaces = json_decode($adSpacesOption, true);
+
+        if($adImageUrl){
+            $adSpaces[$adSpaceKey] = ['url' => $adImageUrl, 'redirect_to' => $adRedirectTo];
+        }else{
+            unset($adSpaces[$adSpaceKey]);
+        }
+
+        Option::set(Option::AD_SPACES, json_encode($adSpaces));
+
+        return response()->json(["message" => "ok"]);
+    }
+
+
 }
