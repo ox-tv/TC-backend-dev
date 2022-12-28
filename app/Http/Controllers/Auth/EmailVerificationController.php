@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
+use App\Models\AuthKey;
 use App\Models\User;
 use App\Services\EmailVerificationService;
 use Illuminate\Http\Request;
@@ -34,15 +35,20 @@ class EmailVerificationController extends Controller
                 'auth-key' => [
                     'required',
                     function ($attribute, $value, $fail) {
-                        if ($value && !Cache::has($value)) {
+                        if ($value && !AuthKey::where('auth_key', $value)->exists()) {
                             $fail('The '.$attribute.' is invalid.');
                         }
+//                        if ($value && !Cache::has($value)) {
+//                            $fail('The '.$attribute.' is invalid.');
+//                        }
                     },
                 ],
             ]);
 
-            $userId = Cache::get($request->get('auth-key'));
-            $user = User::where('id', $userId)->firstOrFail();
+            $authKeyModel = AuthKey::where('auth_key', $request->get('auth-key'))->first();
+            $user = $authKeyModel->user()->firstOrFail();
+//            $userId = Cache::get($request->get('auth-key'));
+//            $user = User::where('id', $userId)->firstOrFail();
 
         }else{
             return response()->json([
@@ -52,11 +58,15 @@ class EmailVerificationController extends Controller
 
         $this->EmailVerificationService->sendCode($user);
 
-        $authKey = sha1('email_verification.require.' . $user->id);
-        Cache::put($authKey, $user->id, 24 * 60 * 60);
+        $authKeyModel = new AuthKey();
+        $authKeyModel->auth_key = sha1('email_verification.require.' . $user->id);
+        $authKeyModel->user_id = $user->id;
+        $authKeyModel->save();
+//        $authKey = sha1('email_verification.require.' . $user->id);
+//        Cache::put($authKey, $user->id, 24 * 60 * 60);
 
         return response()->json([
-            'auth_key' => $authKey,
+            'auth_key' => $authKeyModel->auth_key,
             'status' => 'ok',
         ]);
     }
@@ -78,15 +88,20 @@ class EmailVerificationController extends Controller
                 'auth-key' => [
                     'required',
                     function ($attribute, $value, $fail) {
-                        if ($value && !Cache::has($value)) {
+                        if ($value && !AuthKey::where('auth_key', $value)->exists()) {
                             $fail('The '.$attribute.' is invalid.');
                         }
+//                        if ($value && !Cache::has($value)) {
+//                            $fail('The '.$attribute.' is invalid.');
+//                        }
                     },
                 ],
             ]);
 
-            $userId = Cache::get($request->get('auth-key'));
-            $user = User::where('id', $userId)->firstOrFail();
+            $authKeyModel = AuthKey::where('auth_key', $request->get('auth-key'))->first();
+            $user = $authKeyModel->user()->firstOrFail();
+//            $userId = Cache::get($request->get('auth-key'));
+//            $user = User::where('id', $userId)->firstOrFail();
 
         }else{
             return response()->json([

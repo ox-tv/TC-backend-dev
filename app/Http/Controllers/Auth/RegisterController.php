@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Amir\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRegister;
+use App\Models\AuthKey;
 use App\Models\User;
 use App\Services\EmailVerificationService;
 use Illuminate\Support\Facades\Cache;
@@ -59,11 +60,16 @@ class RegisterController extends Controller
         $user->save();
 
         $this->EmailVerificationService->sendCode($user);
-        $authKey = sha1('email_verification.require.' . $user->id);
-        Cache::put($authKey, $user->id, 24 * 60 * 60);
+
+        $authKeyModel = new AuthKey();
+        $authKeyModel->auth_key = sha1('email_verification.require.' . $user->id);
+        $authKeyModel->user_id = $user->id;
+        $authKeyModel->save();
+//        $authKey = sha1('email_verification.require.' . $user->id);
+//        Cache::put($authKey, $user->id, 24 * 60 * 60);
         
         return response()->json([
-            'auth_key' => $authKey,
+            'auth_key' => $authKeyModel->auth_key,
             'code' => 'email_verification.require',
             'email' => $request->input('email'),
         ]);
