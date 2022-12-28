@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Mail\_2FACodeMail;
 use App\Mail\PublisherVerificationMail;
 use App\Models\_2FA;
+use App\Models\VerificationCode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
@@ -16,14 +17,20 @@ class _2FAService
 {
     public function sendEmail2FACode($user)
     {
-        $cacheKey = sha1('2fa-email' . $user->id);
+        $model = new VerificationCode();
+        $model->code = rand(100000,999999);
+        $model->user_id = $user->id;
+        $model->expired_at = Carbon::now()->addMinutes(5);
+        $model->save();
+
+        /*$cacheKey = sha1('2fa-email' . $user->id);
         $code = rand(100000,999999);
 
-        Cache::put($cacheKey, $code, 5 * 60);
+        Cache::put($cacheKey, $code, 5 * 60);*/
 
         // Send code to user email
         Mail::to($user->email)
-            ->queue(new _2FACodeMail($code));
+            ->queue(new _2FACodeMail($model->code));
 
         return true;
     }
@@ -63,11 +70,23 @@ class _2FAService
 
     private function verifyEmail2FA($user, $code)
     {
-        $cacheKey = sha1('2fa-email' . $user->id);
+        $model = VerificationCode::where('user_id', $user->id)
+            ->where('expired_at', '>=', Carbon::now())
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$model || $model->code != $code){
+            return false;
+        }
+
+        $model->verified_at = Carbon::now();
+        $model->save();
+
+        /*$cacheKey = sha1('2fa-email' . $user->id);
 
         if (Cache::get($cacheKey) == $code){
             return true;
-        }
+        }*/
 
         return false;
     }
