@@ -9,6 +9,7 @@ use App\Http\Resources\User\UserResource;
 use App\Mail\MagicLoginMail;
 use App\Mail\PasswordResetMail;
 use App\Models\_2FA;
+use App\Models\AuthKey;
 use App\Models\MagicLogin;
 use App\Models\PasswordReset;
 use App\Models\User;
@@ -77,14 +78,17 @@ class LoginController extends Controller
             }
 
             if (!empty($errors)){
-                $authKey = sha1('login.2fa.require.' . $user->id);
-                Cache::put($authKey, $user->id, 24 * 60 * 60);
+                $authKeyModel = new AuthKey();
+                $authKeyModel->auth_key = sha1('login.2fa.require.' . $user->id);
+                $authKeyModel->user_id = $user->id;
+                $authKeyModel->save();
+//                Cache::put($authKey, $user->id, 24 * 60 * 60);
 
                 return response()->json([
                     'message' => 'Please verify 2FA',
                     'code' => '2fa.require',
                     'errors' => $errors,
-                    'auth_key' => $authKey
+                    'auth_key' => $authKeyModel->auth_key
                 ], 403);
             }
         }
@@ -183,14 +187,18 @@ class LoginController extends Controller
             }
 
             if (!empty($errors)){
-                $authKey = sha1('login.2fa.require.' . $user->id);
-                Cache::put($authKey, $user->id, 24 * 60 * 60);
+                $authKeyModel = new AuthKey();
+                $authKeyModel->auth_key = sha1('login.2fa.require.' . $user->id);
+                $authKeyModel->user_id = $user->id;
+                $authKeyModel->save();
+//                $authKey = sha1('login.2fa.require.' . $user->id);
+//                Cache::put($authKey, $user->id, 24 * 60 * 60);
 
                 return response()->json([
                     'message' => 'Please verify 2FA',
                     'code' => '2fa.require',
                     'errors' => $errors,
-                    'auth_key' => $authKey
+                    'auth_key' => $authKeyModel->auth_key
                 ], 403);
             }
         }
