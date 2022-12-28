@@ -35,7 +35,7 @@ class EmailVerificationController extends Controller
                 'auth-key' => [
                     'required',
                     function ($attribute, $value, $fail) {
-                        if ($value && !AuthKey::where('auth_key')->exists()) {
+                        if ($value && !AuthKey::where('auth_key', $value)->exists()) {
                             $fail('The '.$attribute.' is invalid.');
                         }
 //                        if ($value && !Cache::has($value)) {
@@ -45,7 +45,7 @@ class EmailVerificationController extends Controller
                 ],
             ]);
 
-            $authKeyModel = AuthKey::where('auth_key')->first();
+            $authKeyModel = AuthKey::where('auth_key', $request->get('auth-key'))->first();
             $user = $authKeyModel->user()->firstOrFail();
 //            $userId = Cache::get($request->get('auth-key'));
 //            $user = User::where('id', $userId)->firstOrFail();
@@ -88,7 +88,7 @@ class EmailVerificationController extends Controller
                 'auth-key' => [
                     'required',
                     function ($attribute, $value, $fail) {
-                        if ($value && !AuthKey::where('auth_key')->exists()) {
+                        if ($value && !AuthKey::where('auth_key', $value)->exists()) {
                             $fail('The '.$attribute.' is invalid.');
                         }
 //                        if ($value && !Cache::has($value)) {
@@ -98,7 +98,7 @@ class EmailVerificationController extends Controller
                 ],
             ]);
 
-            $authKeyModel = AuthKey::where('auth_key')->first();
+            $authKeyModel = AuthKey::where('auth_key', $request->get('auth-key'))->first();
             $user = $authKeyModel->user()->firstOrFail();
 //            $userId = Cache::get($request->get('auth-key'));
 //            $user = User::where('id', $userId)->firstOrFail();
