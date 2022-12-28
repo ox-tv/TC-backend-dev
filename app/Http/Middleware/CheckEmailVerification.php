@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AuthKey;
 use App\Models\User;
 use App\Services\_2FAService;
 use App\Services\EmailVerificationService;
@@ -42,15 +43,20 @@ class CheckEmailVerification
                 'auth-key' => [
                     'sometimes',
                     function ($attribute, $value, $fail) {
-                        if ($value && !Cache::has($value)) {
+                        if ($value && !AuthKey::where('auth_key')->exists()) {
                             $fail('The '.$attribute.' is invalid.');
                         }
+//                        if ($value && !Cache::has($value)) {
+//                            $fail('The '.$attribute.' is invalid.');
+//                        }
                     },
                 ],
             ]);
 
-            $userId = Cache::get($request->get('auth-key'));
-            $user = User::where('id', $userId)->firstOrFail();
+            $authKeyModel = AuthKey::where('auth_key')->first();
+            $user = $authKeyModel->user()->firstOrFail();
+//            $userId = Cache::get($request->get('auth-key'));
+//            $user = User::where('id', $userId)->firstOrFail();
 
         }else{
             return response()->json([
