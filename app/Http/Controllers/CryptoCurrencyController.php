@@ -59,7 +59,7 @@ class CryptoCurrencyController extends Controller
         $data->append(['is_favorite']);
 
         // Fill MetaData if empty
-        //$this->FillMetaDataColumn($data);
+        $this->FillMetaDataColumn($data);
         /*
         // Update prices
         if ($request->is('api/market/cryptocurrencies')){
