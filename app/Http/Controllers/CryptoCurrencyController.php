@@ -39,15 +39,15 @@ class CryptoCurrencyController extends Controller
         $sortDirection = $request->get('sort_direction')?? 'ASC';
 
         if($sort === 'market_cap'){
-            $query->whereNotNull('prices')->orderByRaw("cast(prices->'$.market_cap' as float) {$sortDirection}");
+            $query->whereNotNull('prices')->where('order', '<=', 500)->orderByRaw("cast(prices->'$.market_cap' as float) {$sortDirection}");
         }elseif($sort === 'price'){
-            $query->whereNotNull('prices')->orderByRaw("cast(prices->'$.price' as float) {$sortDirection}");
+            $query->whereNotNull('prices')->where('order', '<=', 500)->orderByRaw("cast(prices->'$.price' as float) {$sortDirection}");
         }elseif($sort === '24h_percent'){
-            $query->whereNotNull('prices')->orderByRaw("cast(prices->'$.percent_change_24h' as float) {$sortDirection}");
+            $query->whereNotNull('prices')->where('order', '<=', 500)->orderByRaw("cast(prices->'$.percent_change_24h' as float) {$sortDirection}");
         }elseif($sort === '7d_percent'){
-            $query->whereNotNull('prices')->orderByRaw("cast(prices->'$.percent_change_7d' as float) {$sortDirection}");
+            $query->whereNotNull('prices')->where('order', '<=', 500)->orderByRaw("cast(prices->'$.percent_change_7d' as float) {$sortDirection}");
         }elseif($sort === '30d_percent'){
-            $query->whereNotNull('prices')->orderByRaw("cast(prices->'$.percent_change_30d' as float) {$sortDirection}");
+            $query->whereNotNull('prices')->where('order', '<=', 500)->orderByRaw("cast(prices->'$.percent_change_30d' as float) {$sortDirection}");
         }
 
         if ($request->get('per_page') == -1){
