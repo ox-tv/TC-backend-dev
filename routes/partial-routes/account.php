@@ -11,6 +11,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::delete('profile', '\App\Http\Controllers\UserController@destroy')->name('profile.destroy');
     Route::post('profile/password', '\App\Http\Controllers\UserController@changePassword')->middleware(['2fa']);
     Route::post('profile/custom-feed', '\App\Http\Controllers\CustomFeedController@update');
+    Route::get('profile/custom-feed', '\App\Http\Controllers\CustomFeedController@show');
 
     Route::get('subscribed-channels', '\App\Http\Controllers\UserController@subscribedChannels');
 
