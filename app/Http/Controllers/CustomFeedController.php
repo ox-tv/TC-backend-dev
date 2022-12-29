@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Chapter\ChapterStore;
 use App\Http\Requests\Chapter\ChapterUpdate;
 use App\Http\Resources\Chapter\ChapterResource;
+use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
+use App\Http\Resources\Tag\TagResource;
 use App\Models\Chapter;
 use App\Models\Option;
 use App\Models\Tag;
@@ -25,6 +27,18 @@ class CustomFeedController extends Controller
     public function __construct(TagRepository $tagRepository)
     {
         $this->tagRepository = $tagRepository;
+    }
+
+    public function show()
+    {
+        $result = [];
+        $user = auth('api')->user();
+
+        $result['custom_feed_setting'] = ($meta = $user->meta()->where('key', UserMeta::CustomFeedSetting)->first())? $meta->value : [];
+        $result['favorite_crypto_currencies'] = CryptoCurrencyResource::collection($user->favoriteCryptoCurrencies);
+        $result['favorite_tags'] = TagResource::collection($user->favoriteTags);
+
+        return $result;
     }
 
     public function update(Request $request)
