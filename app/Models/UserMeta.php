@@ -17,10 +17,12 @@ class UserMeta extends Model
     const PUBLISHER_REQUEST_STATUS = 'publisher_request_status';
     const PAYMENT_DETAILS = 'payment_details';
     const IDENTIFICATION_DETAILS = 'identification_details';
+    const CustomFeedSetting = 'custom_feed_setting';
 
     const KEYS_WITH_JSON_VALUE = [
         self::PAYMENT_DETAILS,
         self::IDENTIFICATION_DETAILS,
+        self::CustomFeedSetting,
     ];
 
 
