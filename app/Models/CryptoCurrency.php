@@ -51,6 +51,11 @@ class CryptoCurrency extends Model
         return $this->belongsToMany('App\Models\Video', 'crypto_currency_video');
     }
 
+    public function users()
+    {
+        return $this->belongsToMany('App\Models\User', 'crypto_currency_user');
+    }
+
 
     // Attributes
     public function setRatioAttribute($value)
