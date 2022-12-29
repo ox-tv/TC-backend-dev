@@ -19,6 +19,7 @@ class CryptoCurrencyController extends Controller
         $filters = $request->get('filters', []);
 
         $searchFilter = Arr::get($filters, 'search');
+        $isFavoriteFilter = Arr::get($filters, 'is_favorite');
         $idsFilter = Arr::get($filters, 'ids');
 
         if($searchFilter){
@@ -33,6 +34,12 @@ class CryptoCurrencyController extends Controller
 
         if($idsFilter && is_array($idsFilter)){
             $query->whereIn('id', $idsFilter);
+        }
+
+        if($isFavoriteFilter && auth('api')->check()){
+            $query->whereHas('users', function ($q){
+                $q->where('id', auth('api')->id());
+            });
         }
 
         $sort = $request->get('sort');
