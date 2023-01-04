@@ -121,7 +121,7 @@ class GeneralController extends Controller
             $customFeedSetting = $user->meta()->where('key', UserMeta::CustomFeedSetting)->first();
             $userFavoriteCoinIds = [];
 
-            if ($customFeedSetting->value['crypto_currencies_content_based']){
+            if (!$customFeedSetting || $customFeedSetting->value['crypto_currencies_content_based']){
                 $userFavoriteCoinIds = DB::table('crypto_currency_user')
                     ->select('crypto_currency_id')
                     ->where('user_id', $user->id)
