@@ -10,6 +10,7 @@ use App\Models\Comment;
 use App\Models\Report;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
@@ -102,21 +103,6 @@ class GeneralController extends Controller
 
         if ($user){
             // Videos For You
-            $userFavoriteCoinIds = DB::table('crypto_currency_user')
-                ->select('crypto_currency_id')
-                ->where('user_id', $user->id)
-                ->pluck('crypto_currency_id')
-                ->toArray();
-
-            if (empty($userFavoriteCoinIds)){
-                $userFavoriteCoinIds = DB::table('crypto_currency_user')
-                    ->selectRaw('COUNT(*) AS count, `crypto_currency_id`')
-                    ->groupBy('crypto_currency_id')
-                    ->orderBy('count','DESC')
-                    ->take(15)
-                    ->pluck('crypto_currency_id')->toArray();
-            }
-
             $userFavoriteTagIds = DB::table('tag_user')
                 ->select('tag_id')
                 ->where('user_id', $user->id)
@@ -132,12 +118,32 @@ class GeneralController extends Controller
                     ->pluck('tag_id')->toArray();
             }
 
+            $customFeedSetting = $user->meta()->where('key', UserMeta::CustomFeedSetting)->first();
+            $userFavoriteCoinIds = [];
+
+            if (!$customFeedSetting || $customFeedSetting->value['crypto_currencies_content_based']){
+                $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                    ->select('crypto_currency_id')
+                    ->where('user_id', $user->id)
+                    ->pluck('crypto_currency_id')
+                    ->toArray();
+            }
+
+            if (empty($userFavoriteCoinIds)){
+                $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                    ->selectRaw('COUNT(*) AS count, `crypto_currency_id`')
+                    ->groupBy('crypto_currency_id')
+                    ->orderBy('count','DESC')
+                    ->take(15)
+                    ->pluck('crypto_currency_id')->toArray();
+            }
+
             $videosForYou = Video::published()
                 ->where(function ($query) use ($userFavoriteCoinIds, $userFavoriteTagIds){
-                    $query->whereHas('crypto_currencies', function ($query) use ($userFavoriteCoinIds){
-                        $query->whereIn('id', $userFavoriteCoinIds);
-                    })->orWhereHas('tags', function ($query) use ($userFavoriteTagIds){
+                    $query->whereHas('tags', function ($query) use ($userFavoriteTagIds){
                         $query->whereIn('id', $userFavoriteTagIds);
+                    })->orWhereHas('crypto_currencies', function ($query) use ($userFavoriteCoinIds){
+                        $query->whereIn('id', $userFavoriteCoinIds);
                     });
                 })
                 ->take(12)
