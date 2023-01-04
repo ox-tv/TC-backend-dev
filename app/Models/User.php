@@ -356,6 +356,11 @@ class User extends Authenticatable
         ] : null;
     }
 
+    public function getIsHeroMembershipAutoRenewalAttribute(){
+        $res = PricingUser::where('user_id', $this->id)->where('status', PricingUser::STATUS_COMPLETED)->orderBy('created_at', 'desc')->first();
+        return $res && $res->metadata['payment_method']['name'] == 'Stripe';
+    }
+
 
     // Mutators
     public function setAvatarUrlAttribute($value)
