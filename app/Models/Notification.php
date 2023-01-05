@@ -14,7 +14,8 @@ class Notification extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'payload' => 'array'
+        'payload' => 'array',
+        'published_at' => 'datetime',
     ];
 
     // user group field values
