@@ -130,3 +130,14 @@ if(!function_exists('url_hash')){
         return strrev($string);
     }
 }
+
+
+// Create a URL hash
+if(!function_exists('url_hash')){
+    function array_filter_by_key($data, $allowedKeys): array
+    {
+        return array_filter($data, function($v, $k) use ($allowedKeys) {
+            return in_array($k, $allowedKeys);
+        }, ARRAY_FILTER_USE_BOTH);
+    }
+}
