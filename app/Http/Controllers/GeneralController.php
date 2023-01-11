@@ -7,6 +7,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\Comment;
+use App\Models\MonetizePoint;
 use App\Models\Report;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
@@ -47,13 +48,23 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelResource::collection($trendingChannels);
 
         // Trending Videos
-        $trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
+        /*$trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
             ->where('date', '>=', Carbon::now()->subDays(3))
             ->groupBy('video_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('points', 'DESC')
             //->take(15)
             ->pluck('video_id')
+            ->toArray();*/
+
+        $trendingMediaIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
+            ->where('related_to_type', Video::class)
+            ->where('date', '>=', Carbon::now()->subDays(3))
+            ->groupBy('related_to_id')
+            ->withoutGlobalScope('orderByDate')
+            ->orderBy('amount', 'DESC')
+            ->take(100)
+            ->pluck('related_to_id')
             ->toArray();
 
         $orderByTrendingMediaIds = implode(',', array_reverse($trendingMediaIds));
