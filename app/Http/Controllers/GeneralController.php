@@ -26,6 +26,8 @@ class GeneralController extends Controller
     {
         $result = [];
         $user = auth('api')->user();
+        $videoIds = \App\Models\Video::typeVideo()->published()->pluck('id');
+        $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id');
 
         // Trending Channels
         $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
@@ -48,31 +50,23 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelResource::collection($trendingChannels);
 
         // Trending Videos
-        /*$trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-            ->where('date', '>=', Carbon::now()->subDays(3))
-            ->groupBy('video_id')
-            ->withoutGlobalScope('orderByDate')
-            ->orderBy('points', 'DESC')
-            //->take(15)
-            ->pluck('video_id')
-            ->toArray();*/
-
-        $trendingMediaIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
+        $trendingVideoIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
             ->where('related_to_type', Video::class)
+            ->whereIn('related_to_id', $videoIds)
             ->where('date', '>=', Carbon::now()->subDays(3))
             ->groupBy('related_to_id')
             ->withoutGlobalScope('orderByDate')
             ->orderBy('amount', 'DESC')
-            ->take(100)
+            ->take(12)
             ->pluck('related_to_id')
             ->toArray();
 
-        $orderByTrendingMediaIds = implode(',', array_reverse($trendingMediaIds));
+        $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
 
         $trendingVideos = Video::published()->typeVideo()
             ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
+            ->when(!empty($orderByTrendingVideoIds), function ($q) use ($orderByTrendingVideoIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingVideoIds) DESC, published_at DESC");
             })
             ->take(12)
             ->with(['channel'])
@@ -80,10 +74,24 @@ class GeneralController extends Controller
             ->append(['is_bookmarked']);
         $result['trending_videos'] = VideoResource::collection($trendingVideos);
 
+        // Trending Podcasts
+        $trendingPodcastIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
+            ->where('related_to_type', Video::class)
+            ->whereIn('related_to_id', $podcastIds)
+            ->where('date', '>=', Carbon::now()->subDays(3))
+            ->groupBy('related_to_id')
+            ->withoutGlobalScope('orderByDate')
+            ->orderBy('amount', 'DESC')
+            ->take(12)
+            ->pluck('related_to_id')
+            ->toArray();
+
+        $orderByTrendingPodcastIds = implode(',', array_reverse($trendingPodcastIds));
+
         $trendingPodcasts = Video::published()->typePodcast()
             ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
+            ->when(!empty($orderByTrendingPodcastIds), function ($q) use ($orderByTrendingPodcastIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingPodcastIds) DESC, published_at DESC");
             })
             ->take(12)
             ->with(['channel'])
