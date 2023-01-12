@@ -57,6 +57,7 @@ class UserResource extends JsonResource
             'request_details' => $this->whenAppended('publisher_request_details'),
             'is_conversion' => $this->whenAppended('is_conversion'),
             'loyalty_points' => $this->whenAppended('loyalty_points'),
+            'is_hero_membership_auto_renewal' => $this->whenAppended('isHeroMembershipAutoRenewal'),
 
             // Relations
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
