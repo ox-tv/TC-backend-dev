@@ -206,9 +206,6 @@ class EarningController extends Controller
 
         $channels = Channel::whereNotNull('monetization_qualified_at')->where('monetization_qualified_at', '<', Carbon::now())->get();
 
-        $pointPerHeroSub = config('general.points.per_subscribe_hero');
-        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
-
         // Get Total Distributed Value
         $totalDistributedValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
 
