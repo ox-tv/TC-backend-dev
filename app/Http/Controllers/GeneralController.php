@@ -26,8 +26,8 @@ class GeneralController extends Controller
     {
         $result = [];
         $user = auth('api')->user();
-        $videoIds = \App\Models\Video::typeVideo()->published()->pluck('id');
-        $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id');
+        $videoIds = \App\Models\Video::typeVideo()->published()->pluck('id')->toArray();
+        $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
 
         // Trending Channels
         $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
@@ -50,16 +50,21 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelResource::collection($trendingChannels);
 
         // Trending Videos
-        $trendingVideoIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
-            ->where('related_to_type', Video::class)
-            ->whereIn('related_to_id', $videoIds)
-            ->where('date', '>=', Carbon::now()->subDays(3))
-            ->groupBy('related_to_id')
-            ->withoutGlobalScope('orderByDate')
-            ->orderBy('amount', 'DESC')
-            ->take(12)
-            ->pluck('related_to_id')
-            ->toArray();
+        $trendingVideoIds = MonetizePoint::raw(function($collection) use ($videoIds) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'related_to_type' => Video::class,
+                    'related_to_id' => ['$in'=> $videoIds],
+                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
+                ]],
+                ['$group' => [
+                    '_id' => '$related_to_id',
+                    'amount' => ['$sum' => '$amount'],
+                ]],
+                ['$sort' => ['amount' => -1]],
+                ['$limit' => 12]
+            ]);
+        })->pluck('_id')->toArray();
 
         $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
 
@@ -75,16 +80,21 @@ class GeneralController extends Controller
         $result['trending_videos'] = VideoResource::collection($trendingVideos);
 
         // Trending Podcasts
-        $trendingPodcastIds = MonetizePoint::selectRaw('SUM(amount) AS amount, related_to_id')
-            ->where('related_to_type', Video::class)
-            ->whereIn('related_to_id', $podcastIds)
-            ->where('date', '>=', Carbon::now()->subDays(3))
-            ->groupBy('related_to_id')
-            ->withoutGlobalScope('orderByDate')
-            ->orderBy('amount', 'DESC')
-            ->take(12)
-            ->pluck('related_to_id')
-            ->toArray();
+        $trendingPodcastIds = MonetizePoint::raw(function($collection) use ($podcastIds) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'related_to_type' => Video::class,
+                    'related_to_id' => ['$in'=> $podcastIds],
+                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
+                ]],
+                ['$group' => [
+                    '_id' => '$related_to_id',
+                    'amount' => ['$sum' => '$amount'],
+                ]],
+                ['$sort' => ['amount' => -1]],
+                ['$limit' => 12]
+            ]);
+        })->pluck('_id')->toArray();
 
         $orderByTrendingPodcastIds = implode(',', array_reverse($trendingPodcastIds));
 
