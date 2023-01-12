@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,17 @@ class MonetizePoint extends Model
             $builder->orderBy('date', 'ASC');
         });
     }
+
+    public function scopeActive($query){
+        $query->whereNotNull('activated_at')->where('activated_at', '<=', Carbon::now());
+        return $query;
+    }
+
+    public function scopeNotCalculated($query){
+        $query->where('is_calculated', false);
+        return $query;
+    }
+
 
 
     // Relations
