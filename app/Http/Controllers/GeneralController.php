@@ -270,7 +270,7 @@ class GeneralController extends Controller
         $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id);
         $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id);
 
-        $result['overview']['points'] = intval($videoStatisticsQuery->sum('points'));
+        $result['overview']['points'] = intval(MonetizePoint::where('channel_id', $channel->id)->sum('amount'));
         $result['overview']['watch_time_total'] = intval($videoStatisticsQuery->sum('watch_time_total'));
         $result['overview']['subscribers_total'] = intval($channelStatisticsQuery->sum('subscribers_total')) - intval($channelStatisticsQuery->sum('unsubscribers_total'));
         $result['overview']['views_total'] = intval($videoStatisticsQuery->sum('views_total'));
@@ -281,7 +281,7 @@ class GeneralController extends Controller
 
         // Statistics by channel id
         $filters = $request->get('filters', []);
-        $period = Arr::get($filters, 'statistics_period', 'this_month');
+        $period = Arr::get($filters, 'statistics_period', 'last_30d');
 
         switch ($period) {
             case 'this_week';
@@ -349,9 +349,12 @@ class GeneralController extends Controller
             $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
+            $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
-                'points' => intval($videoStatisticsQuery->sum('points')),
+                'points' => intval($monetizePointsQuery->sum('amount')),
                 'views_total' => intval($videoStatisticsQuery->sum('views_total')),
                 'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
                 'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,
@@ -384,9 +387,13 @@ class GeneralController extends Controller
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
+            $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->where('date', '>=', $month->copy()->startOfMonth())
+                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+
             $statistics[$date] = [
                 'date' => $date,
-                'points' => intval($videoStatisticsQuery->sum('points')),
+                'points' => intval($monetizePointQuery->sum('amount')),
                 'views_total' => intval($videoStatisticsQuery->sum('views_total')),
                 'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
                 'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,
