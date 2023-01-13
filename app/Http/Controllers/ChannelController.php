@@ -284,11 +284,8 @@ class ChannelController extends Controller
         return ChannelResource::make($channel);
     }
 
-    public function performanceTotal(Request $request,PointService $pointService, User $user = null)
+    public function performanceTotal(Request $request, User $user = null)
     {
-        $pointPerHeroSub = config('general.points.per_subscribe_hero');
-        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
-
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
         }
@@ -304,7 +301,7 @@ class ChannelController extends Controller
             })->sum('amount');
 
         // Calc total points
-        $totalPoints = MonetizePoint::when($from && !$to, function ($q) use ($from){
+        $pointsQuery = MonetizePoint::when($from && !$to, function ($q) use ($from){
                 $q->where(function($q) use($from){
                     $q->where('date', '>=', Carbon::parse($from))
                         ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
@@ -325,20 +322,20 @@ class ChannelController extends Controller
                     $q->where('date', '<=', Carbon::parse($to))
                         ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
                 });
-            })->sum('amount');
+            });
 
         $result = [
             //'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
             //'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
-            'points_total' => intval($totalPoints),
-            'points_channel' => intval($pointService->calcPoint($user,['from' => $from, 'to' => $to])),
+            'points_total' => intval($pointsQuery->sum('amount')),
+            'points_channel' => intval($pointsQuery->where('channel_id', $user->channel->id)->sum('amount')),
             'earning_channel' => intval($earningAmount),
         ];
 
         return response()->json($result);
     }
 
-    public function performanceMonthly(Request $request, PointService $pointService, User $user = null)
+    public function performanceMonthly(Request $request, User $user = null)
     {
         if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
@@ -359,11 +356,24 @@ class ChannelController extends Controller
                 ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
                 ->sum('amount');
 
+            $pointsTotal = MonetizePoint::where('channel_id', $user->channel->id)
+                ->where(function($q) use($from_day, $to_day){
+                    $q
+                        ->where('date', '>=', Carbon::parse($from_day))
+                        ->where('date', '<=', Carbon::parse($to_day))
+                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
+                })->orWhere(function($q) use($from_day, $to_day){
+                    $q->where('date', '<=', Carbon::parse($to_day))
+                        ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
+                });
+
             $result[$month->format("Y-m")] = [
                 'date' => $month->format("Y-m"),
-                'points_hero' => intval($pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
-                'points_non_hero' => intval($pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
-                'points_total' => intval($pointService->calcPoint($user,['from' => $from_day, 'to' => $to_day])),
+//                'points_hero' => intval($pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
+//                'points_non_hero' => intval($pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
+                'points_hero' => 0,
+                'points_non_hero' => 0,
+                'points_total' => intval($pointsTotal),
                 'earning' => intval($earningAmount),
             ];
         }
