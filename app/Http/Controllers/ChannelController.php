@@ -10,6 +10,7 @@ use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Models\Channel;
 use App\Models\Earning;
+use App\Models\MonetizePoint;
 use App\Models\User;
 use App\Models\VideoStatisticsDaily;
 use App\Services\_2FAService;
@@ -303,26 +304,28 @@ class ChannelController extends Controller
             })->sum('amount');
 
         // Calc total points
-        $totalPoints = VideoStatisticsDaily::when($from, function ($q, $from){
-                $q->where('date', '>=', Carbon::parse($from));
-            })->when($to, function ($q, $to){
+        $totalPoints = MonetizePoint::when($from && !$to, function ($q) use ($from){
+                $q->where(function($q) use($from){
+                    $q->where('date', '>=', Carbon::parse($from))
+                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
+                })->orWhere(function($q){
+                    $q->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
+                });
+            })
+            ->when(!$from && $to, function ($q) use ($to){
                 $q->where('date', '<=', Carbon::parse($to));
-            })->sum('points');
-
-        $heroSubCounts = User::when($to, function ($q, $to){
-            $q->whereHas('subscribedChannels', function ($q) use ($to){
-                $q->where('channel_user.created_at', '<=', $to);
-            });
-        })->isHero()->count();
-
-        $nonHeroSubCounts = User::when($to, function ($q, $to){
-            $q->whereHas('subscribedChannels', function ($q) use ($to){
-                $q->where('channel_user.created_at', '<=', $to);
-            });
-        })->isNonHero()->count();
-
-        $totalPoints += ($heroSubCounts * $pointPerHeroSub);
-        $totalPoints += ($nonHeroSubCounts * $pointPerNonHeroSub);
+            })
+            ->when($from && $to, function ($q) use ($from, $to){
+                $q->where(function($q) use($from, $to){
+                    $q
+                        ->where('date', '>=', Carbon::parse($from))
+                        ->where('date', '<=', Carbon::parse($to))
+                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
+                })->orWhere(function($q) use($from, $to){
+                    $q->where('date', '<=', Carbon::parse($to))
+                        ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
+                });
+            })->sum('amount');
 
         $result = [
             //'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
