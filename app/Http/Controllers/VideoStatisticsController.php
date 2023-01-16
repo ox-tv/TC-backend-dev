@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
+use App\Models\MonetizePoint;
 use App\Models\Video;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
@@ -145,5 +146,131 @@ class VideoStatisticsController extends Controller
             'watch_time_non_hero' => intval($videoStatistics->sum('watch_time_non_hero')),
             'watch_time_total' => intval($videoStatistics->sum('watch_time_total')),
         ];
+    }
+
+    public function index(Request $request, $videoIdOrHash)
+    {
+        $result = [
+            'overview' => [
+                'points' => 0,
+                'watch_time_total' => 0,
+                'views_total' => 0,
+                'likes_total' => 0,
+                'dislikes_total' => 0,
+            ],
+            'statistics' => [],
+        ];
+
+        // Validate video
+        $videoQuery = Video::where(function ($query) use ($videoIdOrHash){
+            $query->whereId($videoIdOrHash)->orWhere('url_hash', $videoIdOrHash);
+        });
+
+        if (!$request->is('api/admin/*')){
+            $videoQuery->mine();
+        }
+
+        $video = $videoQuery->firstOrFail();
+
+        // Get overview data
+        $statisticsQuery = VideoStatisticsDaily::where(['video_id' => $video->id]);
+        $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id);
+
+        $result['overview']['points'] = natural_intval($monetizePointQuery->sum('amount'));
+        $result['overview']['watch_time_total'] = natural_intval($statisticsQuery->sum('watch_time_total'));
+        $result['overview']['views_total'] = natural_intval($statisticsQuery->sum('views_total'));
+        $result['overview']['likes_total'] = natural_intval($statisticsQuery->sum('likes_total'));
+        $result['overview']['dislikes_total'] = natural_intval($statisticsQuery->sum('dislikes_total'));
+
+
+        // Statistics by channel id
+        $filters = $request->get('filters', []);
+        $period = Arr::get($filters, 'statistics_period', 'last_30d');
+
+        switch ($period) {
+            case 'last_7d';
+                $from = Carbon::now()->subDays(7)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_14d';
+                $from = Carbon::now()->subDays(14)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_90d';
+                $from = Carbon::now()->subDays(90)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_180d';
+                $from = Carbon::now()->subDays(180)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_365d';
+                $from = Carbon::now()->subDays(365)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_30d';
+            default;
+                $from = Carbon::now()->subDays(30)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+        }
+
+        $result['statistics'] = in_array($period, ['this_year', 'last_365d', 'last_180d'])? $this->monthlyStatistics($video, $from, $to) : $this->dailyStatistics($video, $from, $to);
+
+        return $result;
+    }
+
+    private function dailyStatistics($video, $from, $to): array
+    {
+        $statistics = [];
+        $periods = CarbonPeriod::create($from, '1 day', $to);
+
+        foreach ($periods as $day) {
+            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')));
+
+            $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')));
+
+            $statistics[$day->format('Y-m-d')] = [
+                'date' => $day->format('Y-m-d'),
+                'points' => natural_intval($monetizePointQuery->sum('amount')),
+                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
+                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
+                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
+                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+            ];
+        }
+
+        return $statistics;
+    }
+
+    private function monthlyStatistics($video, $from, $to): array
+    {
+        $statistics = [];
+        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+        foreach ($monthPeriods as $month) {
+            $date = $month->copy()->startOfMonth()->format("Y-m-d");
+
+            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+                ->where('date', '>=', $month->copy()->startOfMonth())
+                ->where('date', '<=', $month->copy()->endOfMonth());
+
+            $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id)
+                ->where('date', '>=', $month->copy()->startOfMonth())
+                ->where('date', '<=', $month->copy()->endOfMonth());
+
+            $statistics[$date] = [
+                'date' => $date,
+                'points' => natural_intval($monetizePointQuery->sum('amount')),
+                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
+                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
+                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
+                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+            ];
+        }
+
+        return $statistics;
     }
 }
