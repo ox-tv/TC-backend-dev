@@ -62,7 +62,7 @@ class GeneralController extends Controller
                     'amount' => ['$sum' => '$amount'],
                 ]],
                 ['$sort' => ['amount' => -1]],
-                ['$limit' => 12]
+                ['$limit' => 24]
             ]);
         })->pluck('_id')->toArray();
 
@@ -73,7 +73,7 @@ class GeneralController extends Controller
             ->when(!empty($orderByTrendingVideoIds), function ($q) use ($orderByTrendingVideoIds){
                 $q->orderByRaw("FIELD(id,$orderByTrendingVideoIds) DESC, published_at DESC");
             })
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -92,7 +92,7 @@ class GeneralController extends Controller
                     'amount' => ['$sum' => '$amount'],
                 ]],
                 ['$sort' => ['amount' => -1]],
-                ['$limit' => 12]
+                ['$limit' => 24]
             ]);
         })->pluck('_id')->toArray();
 
@@ -103,7 +103,7 @@ class GeneralController extends Controller
             ->when(!empty($orderByTrendingPodcastIds), function ($q) use ($orderByTrendingPodcastIds){
                 $q->orderByRaw("FIELD(id,$orderByTrendingPodcastIds) DESC, published_at DESC");
             })
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -111,7 +111,7 @@ class GeneralController extends Controller
 
         // Latest Media On TC
         $latestMedia = Video::published()
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->withoutGlobalScope(OrderDescScope::class)
             ->orderBy('published_at', 'desc')
@@ -175,7 +175,7 @@ class GeneralController extends Controller
                         $query->whereIn('id', $userFavoriteCoinIds);
                     });
                 })
-                ->take(12)
+                ->take(24)
                 ->with(['channel'])
                 ->withoutGlobalScope(OrderDescScope::class)
                 ->orderBy('published_at', 'desc')
@@ -188,7 +188,7 @@ class GeneralController extends Controller
             $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
             $mySubscriptionsVideos = Video::published()
                 ->whereIn('channel_id', $subscriptionsChannelIds)
-                ->take(12)
+                ->take(24)
                 ->with(['channel'])
                 ->orderBy('published_at', 'desc')
                 ->get()
