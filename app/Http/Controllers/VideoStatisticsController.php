@@ -128,7 +128,7 @@ class VideoStatisticsController extends Controller
     {
         return [
             'date' => $date,
-            'points' => intval($videoStatistics->sum('points')),
+            'points' => 0, // TODO: Remove this row after a while
             'views_hero' => intval($videoStatistics->sum('views_hero')),
             'views_non_hero' => intval($videoStatistics->sum('views_non_hero')),
             'views_total' => intval($videoStatistics->sum('views_total')),

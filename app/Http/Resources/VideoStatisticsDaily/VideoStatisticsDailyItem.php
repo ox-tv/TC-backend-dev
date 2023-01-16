@@ -41,7 +41,7 @@ class VideoStatisticsDailyItem extends JsonResource
             'watch_time_hero' => $this->watch_time_hero,
             'watch_time_non_hero' => $this->watch_time_non_hero,
             'watch_time_total' => $this->watch_time_total,
-            'points' => intval($this->points),
+            'points' => 0, // TODO: Remove this row after a while
             'video' => $this->when($withVideo, $video),
         ];
     }
