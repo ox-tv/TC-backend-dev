@@ -36,7 +36,8 @@ class MonetizePointsForUserVerified
             return 0;
         }
 
-        if (!($channel = $referrer->channel)){
+        $channel = $referrer->channel;
+        if (!$channel){
             return 0;
         }
 
