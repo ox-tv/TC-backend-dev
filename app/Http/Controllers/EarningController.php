@@ -9,8 +9,6 @@ use App\Models\Earning;
 use App\Models\MonetizePoint;
 use App\Models\Option;
 use App\Models\Transaction;
-use App\Models\User;
-use App\Models\VideoStatisticsDaily;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
