@@ -39,6 +39,7 @@ Route::group([
 
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")->middleware(['2fa.or.email-verification']);
+    Route::post('monetize/active-referral-points', '\App\Http\Controllers\ReferralController@setPointsToActive')->name("monetize.active-referral-points");
 
 });
 

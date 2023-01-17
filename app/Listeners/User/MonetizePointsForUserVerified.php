@@ -7,6 +7,7 @@ use App\Events\UserVerified;
 use App\Events\VideoViewed;
 use App\Models\MonetizePoint;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Models\UserStatisticsDaily;
 use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
@@ -41,8 +42,11 @@ class MonetizePointsForUserVerified
             return 0;
         }
 
+        $monetizeReferralPointsIsActive = $referrer->meta()->where('key', UserMeta::MonetizeReferralPointsIsActive)->first();
+
         return $this->monetizePointRepository->add([
             'channel_id' => $channel->id,
+            'activated_at' => $monetizeReferralPointsIsActive && $monetizeReferralPointsIsActive->value? Carbon::now() : null,
             'type' => MonetizePoint::TYPE_REFERRAL,
             'amount' => $pointsPerReferral,
         ], [

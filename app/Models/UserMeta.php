@@ -18,6 +18,7 @@ class UserMeta extends Model
     const PAYMENT_DETAILS = 'payment_details';
     const IDENTIFICATION_DETAILS = 'identification_details';
     const CustomFeedSetting = 'custom_feed_setting';
+    const MonetizeReferralPointsIsActive = 'monetize_referral_points_is_active';
 
     const KEYS_WITH_JSON_VALUE = [
         self::PAYMENT_DETAILS,
