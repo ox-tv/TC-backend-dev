@@ -15,16 +15,16 @@ class LoyaltyPointRepository
     {
         // validations
         if (empty($data['user_id'])){
-            throw new Exception('Something bad happens.');
+            throw new Exception('Something bad happened.');
         }
         if (empty($data['type'])){
-            throw new Exception('Something bad happens.');
+            throw new Exception('Something bad happened.');
         }
         if (empty($data['amount'])){
-            throw new Exception('Something bad happens.');
+            throw new Exception('Something bad happened.');
         }
         if (!empty($data['date']) && !($data['date'] instanceof Carbon)){
-            throw new Exception('Something bad happens.');
+            throw new Exception('Something bad happened.');
         }
 
         // data modification

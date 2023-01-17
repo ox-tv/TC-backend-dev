@@ -29,7 +29,7 @@ class LoyaltyPoint extends Model
     const TYPE_REFERRER = 1;
     const TYPE_REFERRAL = 2;
 
-    const STATUS_TYPE = [
+    const TYPE_TEXT = [
         self::TYPE_REFERRER => 'referrer',
         self::TYPE_REFERRAL => 'referral',
     ];

@@ -32,7 +32,7 @@ class MonetizePoint extends Model
     const TYPE_VIDEO_VIEWED = 3;
     const TYPE_SUBSCRIPTION = 4;
 
-    const STATUS_TYPE = [
+    const TYPE_TEXT = [
         self::TYPE_REFERRAL => 'referral',
         self::TYPE_VIDEO_LIKED => 'video_liked',
         self::TYPE_VIDEO_VIEWED => 'video_viewed',
