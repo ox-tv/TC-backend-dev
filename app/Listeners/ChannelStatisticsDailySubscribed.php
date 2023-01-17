@@ -5,11 +5,7 @@ namespace App\Listeners;
 use App\Events\ChannelSubscribed;
 use App\Events\VideoLiked;
 use App\Models\ChannelStatisticsDaily;
-use App\Models\UserVideo;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ChannelStatisticsDailySubscribed
 {

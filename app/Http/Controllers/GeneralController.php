@@ -7,6 +7,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\Comment;
+use App\Models\MonetizePoint;
 use App\Models\Report;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
@@ -25,6 +26,8 @@ class GeneralController extends Controller
     {
         $result = [];
         $user = auth('api')->user();
+        $videoIds = \App\Models\Video::typeVideo()->published()->pluck('id')->toArray();
+        $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
 
         // Trending Channels
         $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
@@ -47,34 +50,60 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelResource::collection($trendingChannels);
 
         // Trending Videos
-        $trendingMediaIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-            ->where('date', '>=', Carbon::now()->subDays(3))
-            ->groupBy('video_id')
-            ->withoutGlobalScope('orderByDate')
-            ->orderBy('points', 'DESC')
-            //->take(15)
-            ->pluck('video_id')
-            ->toArray();
+        $trendingVideoIds = MonetizePoint::raw(function($collection) use ($videoIds) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'related_to_type' => Video::class,
+                    'related_to_id' => ['$in'=> $videoIds],
+                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
+                ]],
+                ['$group' => [
+                    '_id' => '$related_to_id',
+                    'amount' => ['$sum' => '$amount'],
+                ]],
+                ['$sort' => ['amount' => -1]],
+                ['$limit' => 24]
+            ]);
+        })->pluck('_id')->toArray();
 
-        $orderByTrendingMediaIds = implode(',', array_reverse($trendingMediaIds));
+        $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
 
         $trendingVideos = Video::published()->typeVideo()
             ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
+            ->when(!empty($orderByTrendingVideoIds), function ($q) use ($orderByTrendingVideoIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingVideoIds) DESC, published_at DESC");
             })
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
         $result['trending_videos'] = VideoResource::collection($trendingVideos);
 
+        // Trending Podcasts
+        $trendingPodcastIds = MonetizePoint::raw(function($collection) use ($podcastIds) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'related_to_type' => Video::class,
+                    'related_to_id' => ['$in'=> $podcastIds],
+                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
+                ]],
+                ['$group' => [
+                    '_id' => '$related_to_id',
+                    'amount' => ['$sum' => '$amount'],
+                ]],
+                ['$sort' => ['amount' => -1]],
+                ['$limit' => 24]
+            ]);
+        })->pluck('_id')->toArray();
+
+        $orderByTrendingPodcastIds = implode(',', array_reverse($trendingPodcastIds));
+
         $trendingPodcasts = Video::published()->typePodcast()
             ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingMediaIds), function ($q) use ($orderByTrendingMediaIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingMediaIds) DESC, published_at DESC");
+            ->when(!empty($orderByTrendingPodcastIds), function ($q) use ($orderByTrendingPodcastIds){
+                $q->orderByRaw("FIELD(id,$orderByTrendingPodcastIds) DESC, published_at DESC");
             })
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->get()
             ->append(['is_bookmarked']);
@@ -82,7 +111,7 @@ class GeneralController extends Controller
 
         // Latest Media On TC
         $latestMedia = Video::published()
-            ->take(12)
+            ->take(24)
             ->with(['channel'])
             ->withoutGlobalScope(OrderDescScope::class)
             ->orderBy('published_at', 'desc')
@@ -146,7 +175,7 @@ class GeneralController extends Controller
                         $query->whereIn('id', $userFavoriteCoinIds);
                     });
                 })
-                ->take(12)
+                ->take(24)
                 ->with(['channel'])
                 ->withoutGlobalScope(OrderDescScope::class)
                 ->orderBy('published_at', 'desc')
@@ -159,7 +188,7 @@ class GeneralController extends Controller
             $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
             $mySubscriptionsVideos = Video::published()
                 ->whereIn('channel_id', $subscriptionsChannelIds)
-                ->take(12)
+                ->take(24)
                 ->with(['channel'])
                 ->orderBy('published_at', 'desc')
                 ->get()
@@ -251,7 +280,7 @@ class GeneralController extends Controller
         $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id);
         $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id);
 
-        $result['overview']['points'] = intval($videoStatisticsQuery->sum('points'));
+        $result['overview']['points'] = intval(MonetizePoint::where('channel_id', $channel->id)->sum('amount'));
         $result['overview']['watch_time_total'] = intval($videoStatisticsQuery->sum('watch_time_total'));
         $result['overview']['subscribers_total'] = intval($channelStatisticsQuery->sum('subscribers_total')) - intval($channelStatisticsQuery->sum('unsubscribers_total'));
         $result['overview']['views_total'] = intval($videoStatisticsQuery->sum('views_total'));
@@ -262,7 +291,7 @@ class GeneralController extends Controller
 
         // Statistics by channel id
         $filters = $request->get('filters', []);
-        $period = Arr::get($filters, 'statistics_period', 'this_month');
+        $period = Arr::get($filters, 'statistics_period', 'last_30d');
 
         switch ($period) {
             case 'this_week';
@@ -330,9 +359,12 @@ class GeneralController extends Controller
             $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
+            $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
-                'points' => intval($videoStatisticsQuery->sum('points')),
+                'points' => intval($monetizePointsQuery->sum('amount')),
                 'views_total' => intval($videoStatisticsQuery->sum('views_total')),
                 'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
                 'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,
@@ -365,9 +397,13 @@ class GeneralController extends Controller
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
+            $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->where('date', '>=', $month->copy()->startOfMonth())
+                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+
             $statistics[$date] = [
                 'date' => $date,
-                'points' => intval($videoStatisticsQuery->sum('points')),
+                'points' => intval($monetizePointQuery->sum('amount')),
                 'views_total' => intval($videoStatisticsQuery->sum('views_total')),
                 'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
                 'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,

@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
-use App\Models\Category;
 use App\Models\Channel;
-use App\Models\CryptoCurrency;
-use App\Models\Playlist;
+use App\Models\MonetizePoint;
 use App\Models\Scopes\OrderDescScope;
 use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -99,18 +96,26 @@ class SearchController extends Controller
 
         // Get Popular Videos if Search Result is Empty
         if ($videoQuery->count() == 0){
-            $popularVideoIds = VideoStatisticsDaily::selectRaw('SUM(points) AS points, video_id')
-                ->where('date', '>=', Carbon::now()->subDays(30))
-                ->groupBy('video_id')
-                ->withoutGlobalScope('orderByDate')
-                ->orderBy('points', 'DESC')
-                ->take(100)
-                ->pluck('video_id')->toArray();
+
+            $popularVideoIds = MonetizePoint::raw(function($collection) {
+                return $collection->aggregate([
+                    ['$match' => [
+                        'related_to_type' => Video::class,
+                        'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(30))],
+                    ]],
+                    ['$group' => [
+                        '_id' => '$related_to_id',
+                        'amount' => ['$sum' => '$amount'],
+                    ]],
+                    ['$sort' => ['amount' => -1]],
+                    ['$limit' => 15]
+                ]);
+            })->pluck('_id')->toArray();
 
             $orderByPopular = implode(',', array_reverse($popularVideoIds));
 
             $suggestedResult = Video::published()
-                ->orderByRaw("FIELD(id,$orderByPopular) DESC, Created_at DESC")
+                ->orderByRaw("FIELD(id,$orderByPopular) DESC, published_at DESC")
                 ->take(15)->get();
 
             $suggestedResult->load(['channel'])->append(['is_bookmarked']);

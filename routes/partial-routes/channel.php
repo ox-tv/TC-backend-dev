@@ -32,6 +32,7 @@ Route::group([
     Route::get('channel', '\App\Http\Controllers\ChannelController@show')->name('channel.show');
     Route::put('channel', '\App\Http\Controllers\ChannelController@update')->name('channel.update')->middleware(['channel.unfreeze']);
 
+    Route::get('channel/statistics', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
     Route::get('channel/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channel/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channel/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');
@@ -64,6 +65,7 @@ Route::group([
     Route::post('channels/{channel}/import-completed', '\App\Http\Controllers\YoutubeImporterController@importCompleted')->name("channels.import_completed");
     Route::put('channels/{channel}/import-request', '\App\Http\Controllers\YoutubeImporterController@importRequest')->name("channels.import_request");
 
+    Route::get('channels/{channel}/statistics', '\App\Http\Controllers\ChannelStatisticsController@index')->name('channel.statistics.index');
     Route::get('channels/{channel}/statistics/daily', '\App\Http\Controllers\ChannelStatisticsController@daily')->name('channel.statistics.daily');
     Route::get('channels/{channel}/statistics/monthly', '\App\Http\Controllers\ChannelStatisticsController@monthly')->name('channel.statistics.monthly');
     Route::get('channels/{channel}/statistics/total', '\App\Http\Controllers\ChannelStatisticsController@total')->name('channel.statistics.overview');

@@ -6,10 +6,7 @@ use App\Events\VideoCreated;
 use App\Events\VideoViewed;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ChannelStatisticsDailyVideoCreated
 {

@@ -24,6 +24,7 @@ use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
 use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
+use App\Listeners\Channels\MonetizePointsForChannelSubscribed;
 use App\Listeners\Channels\SendEmailOnChannelImportRequestCompleted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestAccepted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestCompleted;
@@ -51,7 +52,10 @@ use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
 use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\User\MonetizePointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
+use App\Listeners\Video\MonetizePointsForVideoLiked;
+use App\Listeners\Video\MonetizePointsForVideoViewed;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
@@ -79,6 +83,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         UserVerified::class => [
+            MonetizePointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
             SendNotificationOnUserVerified::class,
         ],
@@ -98,6 +103,7 @@ class EventServiceProvider extends ServiceProvider
 
         // Channel
         ChannelSubscribed::class => [
+            MonetizePointsForChannelSubscribed::class,
             ChannelStatisticsDailySubscribed::class,
         ],
         ChannelImportRequestCreated::class => [
@@ -166,10 +172,12 @@ class EventServiceProvider extends ServiceProvider
             SendNotificationOnVideoWasUnHidden::class,
         ],
         VideoLiked::class => [
+            MonetizePointsForVideoLiked::class,
             VideoStatisticsDailyLiked::class,
             VideoLikedDataForUserStatisticsDaily::class,
         ],
         VideoViewed::class => [
+            MonetizePointsForVideoViewed::class,
             VideoStatisticsDailyIncreaseView::class,
             VideoViewedDataForUserStatisticsDaily::class,
         ],
