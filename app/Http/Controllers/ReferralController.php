@@ -41,6 +41,7 @@ class ReferralController extends Controller
                 'total_referrals' => 0,
                 'total_referral_points' => 0,
             ],
+            'referral_code' => auth('api')->user()->referral_code,
             'statistics' => [],
         ];
 
