@@ -14,6 +14,10 @@ class ReferralController extends Controller
         $user = auth('api')->user();
         $channel = $user->channel;
 
+        if(!$channel){
+            abort(404, 'channel not found.');
+        }
+
         $user->meta()->updateOrCreate(
             ['key' => UserMeta::MonetizeReferralPointsIsActive],
             ['value' => true]
