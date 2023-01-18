@@ -40,6 +40,8 @@ class ReferralController extends Controller
             'overview' => [
                 'total_referrals' => 0,
                 'total_referral_points' => 0,
+                'this_month_referrals' => 0,
+                'this_month_referral_points' => 0,
             ],
             'referral_code' => auth('api')->user()->referral_code,
             'statistics' => [],
@@ -65,6 +67,24 @@ class ReferralController extends Controller
         })->pluck('amount')->first()?? 0;
 
         $result['overview']['total_referral_points'] = MonetizePoint::where('channel_id', $channel->id)->where('type', MonetizePoint::TYPE_REFERRAL)->sum('amount');
+
+        $result['overview']['this_month_referrals'] = ChannelStatisticsDaily::raw(function($collection) use ($channel){
+                return $collection->aggregate([
+                    ['$match' => [
+                        'channel_id' => $channel->id,
+                        'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->startOfMonth())],
+                    ]],
+                    ['$group' => [
+                        '_id' => null,
+                        'amount' => ['$sum' => ['$subtract' => ['$subscribers_total', '$unsubscribers_total']]],
+                    ]],
+                ]);
+            })->pluck('amount')->first()?? 0;
+
+        $result['overview']['this_month_referral_points'] = MonetizePoint::where('channel_id', $channel->id)
+            ->where('type', MonetizePoint::TYPE_REFERRAL)
+            ->where('date', '>=', Carbon::now()->startOfMonth())
+            ->sum('amount');
 
         // Statistics
         $filters = $request->get('filters', []);
