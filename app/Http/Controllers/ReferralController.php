@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\MonetizePoint;
 use App\Models\UserMeta;
+use App\Models\UserStatisticsDaily;
 use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -47,39 +48,20 @@ class ReferralController extends Controller
             'statistics' => [],
         ];
 
-        $channel = auth('api')->user()->channel;
+        $user = auth('api')->user();
+        $channel = $user->channel;
 
         if(!$channel){
             abort(404, 'channel not found.');
         }
 
         // Overview
-        $result['overview']['total_referrals'] = ChannelStatisticsDaily::raw(function($collection) use ($channel){
-            return $collection->aggregate([
-                ['$match' => [
-                    'channel_id' => $channel->id,
-                ]],
-                ['$group' => [
-                    '_id' => null,
-                    'amount' => ['$sum' => ['$subtract' => ['$subscribers_total', '$unsubscribers_total']]],
-                ]],
-            ]);
-        })->pluck('amount')->first()?? 0;
-
+        $result['overview']['total_referrals'] = UserStatisticsDaily::where('user_id', $user->id)->sum('referral_count_total');
         $result['overview']['total_referral_points'] = MonetizePoint::where('channel_id', $channel->id)->where('type', MonetizePoint::TYPE_REFERRAL)->sum('amount');
 
-        $result['overview']['this_month_referrals'] = ChannelStatisticsDaily::raw(function($collection) use ($channel){
-                return $collection->aggregate([
-                    ['$match' => [
-                        'channel_id' => $channel->id,
-                        'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->startOfMonth())],
-                    ]],
-                    ['$group' => [
-                        '_id' => null,
-                        'amount' => ['$sum' => ['$subtract' => ['$subscribers_total', '$unsubscribers_total']]],
-                    ]],
-                ]);
-            })->pluck('amount')->first()?? 0;
+        $result['overview']['this_month_referrals'] = UserStatisticsDaily::where('user_id', $user->id)
+            ->where('date', '>=', Carbon::now()->startOfMonth())
+            ->sum('referral_count_total');
 
         $result['overview']['this_month_referral_points'] = MonetizePoint::where('channel_id', $channel->id)
             ->where('type', MonetizePoint::TYPE_REFERRAL)
@@ -118,19 +100,20 @@ class ReferralController extends Controller
                 break;
         }
 
-        $result['statistics'] = in_array($period, ['this_year', 'last_365d', 'last_180d'])? $this->monthlyStatistics($channel, $from, $to) : $this->dailyStatistics($channel, $from, $to);
+        $result['statistics'] = in_array($period, ['this_year', 'last_365d', 'last_180d'])? $this->monthlyStatistics($user, $from, $to) : $this->dailyStatistics($user, $from, $to);
 
         return $result;
     }
 
-    private function dailyStatistics($channel, $from, $to): array
+    private function dailyStatistics($user, $from, $to): array
     {
         $statistics = [];
         $periods = CarbonPeriod::create($from, '1 day', $to);
+        $channel = $user->channel;
 
         foreach ($periods as $day) {
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+            $userStatisticsQuery = UserStatisticsDaily::where('user_id', $user->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')));
 
             $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
                 ->where('type', MonetizePoint::TYPE_REFERRAL)
@@ -139,23 +122,23 @@ class ReferralController extends Controller
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
                 'points' => natural_intval($monetizePointsQuery->sum('amount')),
-                'subscribers_total' => natural_intval($channelStatisticsQuery->sum('subscribers_total')),
-                'unsubscribers_total' => natural_intval($channelStatisticsQuery->sum('unsubscribers_total')),
+                'referral_count_total' => natural_intval($userStatisticsQuery->sum('referral_count_total')),
             ];
         }
 
         return $statistics;
     }
 
-    private function monthlyStatistics($channel, $from, $to): array
+    private function monthlyStatistics($user, $from, $to): array
     {
         $statistics = [];
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+        $channel = $user->channel;
 
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $userStatisticsQuery = UserStatisticsDaily::where('user_id', $user->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
@@ -167,8 +150,7 @@ class ReferralController extends Controller
             $statistics[$date] = [
                 'date' => $date,
                 'points' => intval($monetizePointQuery->sum('amount')),
-                'subscribers_total' => ($temp = $channelStatisticsQuery->sum('subscribers_total')) > 0? intval($temp) : 0,
-                'unsubscribers_total' => ($temp = $channelStatisticsQuery->sum('unsubscribers_total')) > 0? intval($temp) : 0,
+                'referral_count_total' => natural_intval($userStatisticsQuery->sum('referral_count_total')),
             ];
         }
 
