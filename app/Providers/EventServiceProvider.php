@@ -56,6 +56,7 @@ use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\User\LoyaltyPointsForUserVerified;
 use App\Listeners\User\MonetizePointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
+use App\Listeners\Video\LoyaltyPointsForVideoWatched;
 use App\Listeners\Video\MonetizePointsForVideoLiked;
 use App\Listeners\Video\MonetizePointsForVideoViewed;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -187,6 +188,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoWatched::class => [
             VideoWatchedDataForUserStatisticsDaily::class,
+            LoyaltyPointsForVideoWatched::class,
             VideoWatchedDataForVideoStatisticsDaily::class,
         ],
 
