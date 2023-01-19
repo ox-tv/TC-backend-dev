@@ -52,6 +52,7 @@ use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
 use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\User\LoyaltyPointsForUserVerified;
 use App\Listeners\User\MonetizePointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\Video\MonetizePointsForVideoLiked;
@@ -84,6 +85,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserVerified::class => [
             MonetizePointsForUserVerified::class,
+            LoyaltyPointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
             SendNotificationOnUserVerified::class,
         ],
