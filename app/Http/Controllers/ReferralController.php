@@ -37,6 +37,9 @@ class ReferralController extends Controller
 
     public function statistics(Request $request)
     {
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
         $result = [
             'overview' => [
                 'total_referrals' => 0,
@@ -44,12 +47,10 @@ class ReferralController extends Controller
                 'this_month_referrals' => 0,
                 'this_month_referral_points' => 0,
             ],
-            'referral_code' => auth('api')->user()->referral_code,
+            'referral_code' => $user->referral_code,
+            'monetize_referral_points_is_active' => ($meta = $user->meta()->where('key', UserMeta::MonetizeReferralPointsIsActive)->first()) && (bool)$meta->value,
             'statistics' => [],
         ];
-
-        $user = auth('api')->user();
-        $channel = $user->channel;
 
         if(!$channel){
             abort(404, 'channel not found.');
