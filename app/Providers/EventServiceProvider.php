@@ -34,6 +34,7 @@ use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\ChannelStatisticsDailyVideoUpdated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\Comments\LoyaltyPointsForCommentLiked;
 use App\Listeners\Comments\SendNotificationOnCommentCreated;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
@@ -52,8 +53,10 @@ use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
 use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\User\LoyaltyPointsForUserVerified;
 use App\Listeners\User\MonetizePointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
+use App\Listeners\Video\LoyaltyPointsForVideoWatched;
 use App\Listeners\Video\MonetizePointsForVideoLiked;
 use App\Listeners\Video\MonetizePointsForVideoViewed;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
@@ -84,6 +87,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserVerified::class => [
             MonetizePointsForUserVerified::class,
+            LoyaltyPointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
             SendNotificationOnUserVerified::class,
         ],
@@ -132,6 +136,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
+            LoyaltyPointsForCommentLiked::class,
         ],
 
         // Messages
@@ -183,6 +188,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         VideoWatched::class => [
             VideoWatchedDataForUserStatisticsDaily::class,
+            LoyaltyPointsForVideoWatched::class,
             VideoWatchedDataForVideoStatisticsDaily::class,
         ],
 

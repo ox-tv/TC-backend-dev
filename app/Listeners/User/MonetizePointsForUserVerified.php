@@ -2,13 +2,10 @@
 
 namespace App\Listeners\User;
 
-use Amir\Permission\Models\Role;
 use App\Events\UserVerified;
 use App\Events\VideoViewed;
 use App\Models\MonetizePoint;
-use App\Models\User;
 use App\Models\UserMeta;
-use App\Models\UserStatisticsDaily;
 use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
 

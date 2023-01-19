@@ -20,7 +20,7 @@ class LoyaltyPointRepository
         if (empty($data['type'])){
             throw new Exception('Something bad happened.');
         }
-        if (empty($data['amount'])){
+        if (!isset($data['amount'])){
             throw new Exception('Something bad happened.');
         }
         if (!empty($data['date']) && !($data['date'] instanceof Carbon)){

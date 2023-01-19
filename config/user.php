@@ -2,6 +2,7 @@
 
 return [
 
+    // Remove points after a while
     'points' => [
         'per_watch_video_as_hero' => env('USER_POINT_PER_WATCH_VIDEO_AS_HERO', 20),
         'per_watch_video_as_non_hero' => env('USER_POINT_PER_WATCH_VIDEO_AS_NON_HERO', 10),
