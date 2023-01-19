@@ -19,12 +19,6 @@ class LoyaltyPointsForCommentLiked
         $this->loyaltyPointRepository = $loyaltyPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoLiked  $event
-     * @return void
-     */
     public function handle(CommentLiked $event)
     {
         $user = $event->user;
@@ -39,17 +33,9 @@ class LoyaltyPointsForCommentLiked
 
         $this->loyaltyPointRepository->add([
             'user_id' => $user->id,
-            'related_to_type' => Comment::class,
-            'related_to_id' => $comment->id,
             'activated_at' => Carbon::now(),
             'type' => LoyaltyPoint::TYPE_COMMENT_LIKED,
             'amount' => $pointsPerLiked * $likeAmount,
-        ], [
-            'user_id',
-            'related_to_type',
-            'related_to_id',
-            'type',
-            'date',
         ]);
 
         return true;

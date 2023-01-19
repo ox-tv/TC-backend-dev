@@ -30,11 +30,13 @@ class LoyaltyPoint extends Model
     const TYPE_REFERRER = 1;
     const TYPE_REFERRAL = 2;
     const TYPE_COMMENT_LIKED = 3;
+    const TYPE_VIDEO_WATCHED = 4;
 
     const TYPE_TEXT = [
         self::TYPE_REFERRER => 'referrer',
         self::TYPE_REFERRAL => 'referral',
         self::TYPE_COMMENT_LIKED => 'comment-liked',
+        self::TYPE_VIDEO_WATCHED => 'video-watched',
     ];
 
 

@@ -17,12 +17,6 @@ class LoyaltyPointsForUserVerified
         $this->loyaltyPointRepository = $loyaltyPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(UserVerified $event)
     {
         $user = $event->user;
