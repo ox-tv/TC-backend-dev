@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChannelStatisticsDaily;
 use App\Models\MonetizePoint;
 use App\Models\UserMeta;
 use App\Models\UserStatisticsDaily;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;

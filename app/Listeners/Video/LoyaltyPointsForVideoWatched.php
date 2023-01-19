@@ -2,10 +2,8 @@
 
 namespace App\Listeners\Video;
 
-use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\LoyaltyPoint;
-use App\Models\UserStatisticsDaily;
 use App\Repository\Eloquent\LoyaltyPointRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

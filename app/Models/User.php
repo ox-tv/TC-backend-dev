@@ -344,7 +344,7 @@ class User extends Authenticatable
 
     public function getLoyaltyPointsAttribute()
     {
-        return intval(UserStatisticsDaily::where('user_id', $this->id)->sum('points'));
+        return intval(LoyaltyPoint::where('user_id', $this->id)->sum('amount'));
     }
 
     public function getIdenfyNameDataAttribute(){

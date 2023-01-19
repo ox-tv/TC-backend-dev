@@ -3,10 +3,7 @@
 namespace App\Listeners\Comments;
 
 use App\Events\CommentLiked;
-use App\Events\VideoLiked;
-use App\Models\Comment;
 use App\Models\LoyaltyPoint;
-use App\Models\UserStatisticsDaily;
 use App\Repository\Eloquent\LoyaltyPointRepository;
 use Carbon\Carbon;
 
