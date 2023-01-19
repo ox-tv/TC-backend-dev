@@ -31,6 +31,7 @@ return [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
     ],
 
+    // Remove points after a while
     'points' => [
         'to_usd_rate' => env('POINT_TO_USD_RATE', 0.2),
         'per_view' => env('POINTS_PER_VIEW', 0.1),
