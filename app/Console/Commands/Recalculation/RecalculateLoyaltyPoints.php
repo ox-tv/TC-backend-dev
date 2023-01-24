@@ -1,26 +1,21 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Recalculation;
 
-use App\Models\ChannelStatisticsDaily;
 use App\Models\LoyaltyPoint;
-use App\Models\PaymentDetails;
-use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
 use App\Models\UserStatisticsDaily;
-use App\Models\Video;
 use App\Repository\Eloquent\LoyaltyPointRepository;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class ReCalculateLoyaltyPoints extends Command
+class RecalculateLoyaltyPoints extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'tc:loyalty-points:recalc';
+    protected $signature = 'tc:recalc:loyalty-points';
 
     /**
      * The console command description.
