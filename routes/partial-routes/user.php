@@ -12,6 +12,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 
 Route::post('users/username/check', '\App\Http\Controllers\UserController@usernameCheck')->name('users.username.check');
+Route::post('users/referral-code/check', '\App\Http\Controllers\UserController@referralCodeCheck')->name('users.referral-code.check');
 
 
 // For Publishers

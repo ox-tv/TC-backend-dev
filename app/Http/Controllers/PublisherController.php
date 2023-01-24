@@ -210,6 +210,7 @@ class PublisherController extends Controller
         $channel->save();
 
         $user->username = $channel->name;
+        $user->referral_code = Str::slug($channel->name);
         $user->avatar_url = $channel->avatar_url;
         $user->save();
 

@@ -158,6 +158,7 @@ class ChannelController extends Controller
 
         $user = $channel->owner;
         $user->username = $channel->name;
+        $user->referral_code = Str::slug($channel->name);
         $user->avatar_url = $channel->avatar_url;
         $user->save();
 
@@ -246,6 +247,7 @@ class ChannelController extends Controller
 
         $user = $channel->owner;
         $user->username = $channel->name;
+        $user->referral_code = Str::slug($channel->name);
         $user->avatar_url = $channel->avatar_url;
         $user->save();
 
