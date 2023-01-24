@@ -31,7 +31,7 @@ class TagStore extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('tags', 'name')],
+            'name' => ['required', Rule::unique('tags', 'name'), CustomRule::alphaSpace(), 'max:25'],
             'status' => ['nullable', Rule::in(Tag::STATUS_TEXT)],
         ];
     }

@@ -34,7 +34,7 @@ class TagUpdate extends FormRequest
         $tag_id = $this->route('tag');
 
         return [
-            'name' => ['required', Rule::unique('tags', 'name')->ignore($tag_id)],
+            'name' => ['required', Rule::unique('tags', 'name')->ignore($tag_id), CustomRule::alphaSpace(), 'max:25'],
             'status' => ['nullable', Rule::in(Tag::STATUS_TEXT)],
         ];
     }

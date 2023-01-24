@@ -13,7 +13,7 @@ class TagRepository
     public function store($data): Tag
     {
         return Tag::firstOrCreate(
-            ['name' => $data['name']],
+            ['name' => strtolower($data['name'])],
             [
                 'status' => $data['status'],
                 'creation_scope' => $data['creation_scope']
@@ -24,7 +24,7 @@ class TagRepository
     public function update($tagId, $data): Tag
     {
         $tag = Tag::findOrFail($tagId);
-        $tag->name = $data['name'];
+        $tag->name = strtolower($data['name']);
         $tag->status = $data['status'] ?? $tag->status;
         $tag->save();
 
