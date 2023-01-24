@@ -277,6 +277,17 @@ class UserController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function referralCodeCheck(Request $request)
+    {
+        $request->validate([
+            'referral_code' => [
+                'required', 'string', 'exists:users,referral_code',
+            ],
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
     /**
      * Update the specified resource in storage.
      *
