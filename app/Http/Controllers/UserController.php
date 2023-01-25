@@ -453,7 +453,6 @@ class UserController extends Controller
         $accountDeletion->delete();
 
         return response()->json(['status' => 'ok']);
-        return response()->redirectTo('https://todayscrypto.com');
     }
 
     public function restoreUser($id)
