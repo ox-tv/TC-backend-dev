@@ -73,7 +73,7 @@ class UserController extends Controller
             })->whereNull('role_id');
 
         }else{
-            $query = User::query();
+            $query = User::users();
         }
 
         $filters = $request->get('filters', []);

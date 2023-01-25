@@ -127,7 +127,7 @@ class User extends Authenticatable
     }
 
     public function scopeUsers($query){
-        $query->where('role_id', null);
+        $query->whereNull('role_id');
         return $query;
     }
 
