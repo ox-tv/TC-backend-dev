@@ -535,7 +535,7 @@ class UserController extends Controller
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
             'scope' => 'required_with:eth_address',
             'tag_names' => ['nullable', 'array'],
-            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
+            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords), CustomRule::alphaSpace(), 'max:25'],
         ]);
 
         $user = auth('api')->user();

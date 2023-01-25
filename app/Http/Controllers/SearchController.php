@@ -7,6 +7,7 @@ use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\MonetizePoint;
 use App\Models\Scopes\OrderDescScope;
+use App\Models\Tag;
 use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,11 +28,24 @@ class SearchController extends Controller
         // Get videos
         $videoQuery = Video::published();
 
-        $videoQuery->where(function ($query) use ($keyword){
+        $relatedTagIds = [];
+        if (strlen($keyword) >= 3){
+            $relatedTagIds = Tag::searchName($keyword)->pluck('id')->toArray();
+        }
+
+        $videoQuery->where(function ($query) use ($keyword, $relatedTagIds){
             $query->where(function ($query) use ($keyword){
-                $query->SearchTitle($keyword);
-            })->orWhere(function ($query) use ($keyword){
-                $query->SearchDescription($keyword);
+                $query->where(function ($query) use ($keyword){
+                    $query->where(function ($query) use ($keyword){
+                        $query->SearchTitle($keyword);
+                    })->orWhere(function ($query) use ($keyword){
+                        $query->SearchDescription($keyword);
+                    });
+                });
+            })->orWhere(function ($query) use ($keyword, $relatedTagIds){
+                $query->whereHas('tags', function ($query) use ($relatedTagIds){
+                    $query->whereIn('id', $relatedTagIds);
+                });
             });
         });
 
