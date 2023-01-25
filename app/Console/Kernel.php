@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Console\Commands\CheckArchivePaymentDetails;
 use App\Console\Commands\CheckExpiredPaymentDetails;
 use App\Console\Commands\DumpNotifications;
+use App\Console\Commands\Removing\RemoveUnverifiedUsers;
 use App\Console\Commands\UpdateCryptoCurrenciesPrices;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -21,6 +22,7 @@ class Kernel extends ConsoleKernel
         DumpNotifications::class,
         CheckExpiredPaymentDetails::class,
         CheckArchivePaymentDetails::class,
+        RemoveUnverifiedUsers::class,
     ];
 
     /**
@@ -43,6 +45,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('tc:payment-details:check-archive')->runInBackground()->daily();
 
         $schedule->command('tc:auth-keys:remove-old')->runInBackground()->everyFourHours();
+
+        $schedule->command('tc:users:remove-unverified')->runInBackground()->daily();
 
         $schedule->command('telescope:prune')->daily();
 

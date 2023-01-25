@@ -14,7 +14,7 @@ class RemoveUnverifiedUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'tc:publishers:set-channel-name-as-referral-code';
+    protected $signature = 'tc:users:remove-unverified';
 
     /**
      * The console command description.
