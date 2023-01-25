@@ -35,7 +35,7 @@ class SetPublishersChannelNameToReferralCode extends Command
 
         foreach ($publishers as $publisher){
             $channel = $publisher->channel;
-            $publisher->referral_code = Str::slug($channel->name);
+            $publisher->referral_code = str_replace('-','', Str::slug($channel->name));
             $publisher->save();
         }
 
