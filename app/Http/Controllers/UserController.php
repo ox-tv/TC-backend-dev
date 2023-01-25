@@ -283,6 +283,8 @@ class UserController extends Controller
             'referral_code' => [
                 'required', 'string', 'exists:users,referral_code',
             ],
+        ],[
+            'referral_code.exists' => 'Invalid code, please check and try again.'
         ]);
 
         return response()->json(['status' => 'ok']);
