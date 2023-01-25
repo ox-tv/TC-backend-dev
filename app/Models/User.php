@@ -77,6 +77,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'hero_member_at' => 'datetime',
         'hero_due_at' => 'datetime',
+        'last_actived_at' => 'datetime',
     ];
 
     // search scopes
