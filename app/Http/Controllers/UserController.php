@@ -506,7 +506,7 @@ class UserController extends Controller
         ]);
 
         if ($user->channel){
-            $user->channel->append(['subscribers_count']);
+            $user->channel->append(['subscribers_count', 'monetization_qualified_at']);
         }
 
         return UserResource::make($user);

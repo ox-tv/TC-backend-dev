@@ -104,6 +104,7 @@ class ChannelController extends Controller
                 'total_dislikes',
                 'total_comments',
                 'hero_subscribers_count',
+                'monetization_qualified_at',
             ]);
 
             if ($adminPanel){
