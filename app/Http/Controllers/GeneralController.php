@@ -280,7 +280,7 @@ class GeneralController extends Controller
         $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id);
         $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id);
 
-        $result['overview']['points'] = intval(MonetizePoint::where('channel_id', $channel->id)->sum('amount'));
+        $result['overview']['points'] = intval(MonetizePoint::where('channel_id', $channel->id)->whereNotNull('activated_at')->sum('amount'));
         $result['overview']['watch_time_total'] = intval($videoStatisticsQuery->sum('watch_time_total'));
         $result['overview']['subscribers_total'] = intval($channelStatisticsQuery->sum('subscribers_total')) - intval($channelStatisticsQuery->sum('unsubscribers_total'));
         $result['overview']['views_total'] = intval($videoStatisticsQuery->sum('views_total'));
@@ -360,6 +360,7 @@ class GeneralController extends Controller
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->whereNotNull('activated_at')
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $statistics[$day->format('Y-m-d')] = [
@@ -398,6 +399,7 @@ class GeneralController extends Controller
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
             $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
+                ->whereNotNull('activated_at')
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 

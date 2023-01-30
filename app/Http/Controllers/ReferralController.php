@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MonetizePoint;
 use App\Models\UserMeta;
 use App\Models\UserStatisticsDaily;
+use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -12,6 +13,13 @@ use Illuminate\Support\Arr;
 
 class ReferralController extends Controller
 {
+    private $monetizePointRepository;
+
+    public function __construct(MonetizePointRepository $monetizePointRepository)
+    {
+        $this->monetizePointRepository = $monetizePointRepository;
+    }
+
     public function setPointsToActive()
     {
         $user = auth('api')->user();
@@ -26,9 +34,26 @@ class ReferralController extends Controller
             ['value' => true]
         );
 
+        $pointsAmountToActive = MonetizePoint::where('type', MonetizePoint::TYPE_REFERRAL)
+            ->where('channel_id', $channel->id)
+            ->whereNull('activated_at')
+            ->sum('amount');
+
+        $this->monetizePointRepository->add([
+            'channel_id' => $channel->id,
+            'activated_at' => Carbon::now(),
+            'type' => MonetizePoint::TYPE_REFERRAL,
+            'amount' => $pointsAmountToActive,
+        ], [
+            'channel_id',
+            'type',
+            'date',
+        ]);
+
         MonetizePoint::where('type', MonetizePoint::TYPE_REFERRAL)
             ->where('channel_id', $channel->id)
-            ->update(['activated_at' => MonetizePoint::fromDateTime(Carbon::now())]);
+            ->whereNull('activated_at')
+            ->delete();
 
         return response()->json(['status' => 'ok']);
     }
