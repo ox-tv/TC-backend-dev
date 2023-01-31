@@ -84,6 +84,10 @@ class ChannelController extends Controller
             $channels->append(['is_subscribed', 'subscribers_count']);
         }
 
+        if ($onlyDeletedFilter){
+            $channels->append(['owner.deletion_feedback', 'owner.deleted_at']);
+        }
+
         return ChannelResource::collection($channels);
     }
 
