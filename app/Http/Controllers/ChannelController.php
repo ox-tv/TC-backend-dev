@@ -47,6 +47,7 @@ class ChannelController extends Controller
         $filters = $request->get('filters', []);
 
         $searchFilter = Arr::get($filters, 'search');
+        $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter) {
@@ -54,6 +55,10 @@ class ChannelController extends Controller
             })->orWhere(function ($query) use($searchFilter) {
                 $query->SearchTitle($searchFilter);
             });
+        }
+
+        if ($onlyDeletedFilter){
+            $query->onlyTrashed()->with('owner');
         }
 
         $sort = $request->get('sort');
@@ -65,6 +70,8 @@ class ChannelController extends Controller
             $query->orderBy('points', 'desc');
         }elseif ($sort === 'most_comments'){
             $query->withCount('comments')->orderBy('comments_count', 'desc');
+        }elseif ($sort === 'last_deleted'){
+            $query->orderBy('deleted_at', 'desc');
         }else{
             $query->orderBy('created_at', 'desc');
         }
