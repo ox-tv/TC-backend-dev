@@ -420,6 +420,7 @@ class UserController extends Controller
         }
 
         $user->deletion_feedback = $request->get('feedback');
+        $user->save();
         $user->delete();
 
         $token = sha1($user->id . time());
