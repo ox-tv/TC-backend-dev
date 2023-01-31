@@ -85,7 +85,9 @@ class ChannelController extends Controller
         }
 
         if ($onlyDeletedFilter){
-            $channels->append(['owner.deletion_feedback', 'owner.deleted_at']);
+            $channels->each(function ($item, $key) {
+                $item->owner->append(['deletion_feedback', 'deleted_at']);
+            });
         }
 
         return ChannelResource::collection($channels);
