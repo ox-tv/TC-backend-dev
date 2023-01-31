@@ -39,7 +39,7 @@ class GeneralController extends Controller
                     '_id' => '$channel_id',
                     'subscribers' => ['$sum' => ['$subtract'=> ['$subscribers_total', '$unsubscribers_total']]],
                 ]],
-                ['$sort' => ['subscribers' => -1]],
+                ['$sort' => ['subscribers' => -1, '_id' => -1]],
                 ['$limit' => 15]
             ]);
         })->pluck('_id')->toArray();
