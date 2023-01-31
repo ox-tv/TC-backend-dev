@@ -30,13 +30,19 @@ class GeneralController extends Controller
         $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
 
         // Trending Channels
-        $trendingChannelIds = ChannelStatisticsDaily::selectRaw('SUM(subscribers_total) - SUM(unsubscribers_total) AS subscribers, channel_id')
-            ->where('date', '>=', (Carbon::now())->subDays(30))
-            ->groupBy('channel_id')
-            ->withoutGlobalScope('orderByDate')
-            ->orderBy('subscribers', 'DESC')
-            ->take(15)
-            ->pluck('channel_id')->toArray();
+        $trendingChannelIds = ChannelStatisticsDaily::raw(function($collection) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                ]],
+                ['$group' => [
+                    '_id' => '$channel_id',
+                    'subscribers' => ['$sum' => ['$subtract'=> ['$subscribers_total', '$unsubscribers_total']]],
+                ]],
+                ['$sort' => ['subscribers' => -1]],
+                ['$limit' => 15]
+            ]);
+        })->pluck('_id')->toArray();
 
         $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
 
