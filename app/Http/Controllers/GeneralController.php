@@ -67,7 +67,7 @@ class GeneralController extends Controller
                     '_id' => '$related_to_id',
                     'amount' => ['$sum' => '$amount'],
                 ]],
-                ['$sort' => ['amount' => -1]],
+                ['$sort' => ['amount' => -1, '_id' => -1]],
                 ['$limit' => 24]
             ]);
         })->pluck('_id')->toArray();
@@ -97,7 +97,7 @@ class GeneralController extends Controller
                     '_id' => '$related_to_id',
                     'amount' => ['$sum' => '$amount'],
                 ]],
-                ['$sort' => ['amount' => -1]],
+                ['$sort' => ['amount' => -1, '_id' => -1]],
                 ['$limit' => 24]
             ]);
         })->pluck('_id')->toArray();
