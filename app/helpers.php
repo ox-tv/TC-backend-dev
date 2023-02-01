@@ -130,3 +130,20 @@ if(!function_exists('url_hash')){
         return strrev($string);
     }
 }
+
+
+// Create a URL hash
+if(!function_exists('array_filter_by_key')){
+    function array_filter_by_key($data, $allowedKeys): array
+    {
+        return array_filter($data, function($v, $k) use ($allowedKeys) {
+            return in_array($k, $allowedKeys);
+        }, ARRAY_FILTER_USE_BOTH);
+    }
+}
+if(!function_exists('natural_intval')){
+    function natural_intval($number): int
+    {
+        return max(intval($number), 0);
+    }
+}

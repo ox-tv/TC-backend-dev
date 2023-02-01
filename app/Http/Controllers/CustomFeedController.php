@@ -48,7 +48,7 @@ class CustomFeedController extends Controller
 
         $request->validate([
             'tag_names' => ['nullable', 'array'],
-            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
+            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords), CustomRule::alphaSpace(), 'max:25'],
             'crypto_currency_ids' => ['nullable', 'array'],
             'crypto_currency_ids.*' => ['required', 'exists:crypto_currencies,id'],
             'crypto_currencies_content_based' => ['required', 'boolean'],

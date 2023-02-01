@@ -73,7 +73,7 @@ class UserController extends Controller
             })->whereNull('role_id');
 
         }else{
-            $query = User::query();
+            $query = User::users();
         }
 
         $filters = $request->get('filters', []);
@@ -131,6 +131,12 @@ class UserController extends Controller
             $query->orderBy('email');
         }elseif ($sort === 'username'){
             $query->orderBy('username');
+        }elseif ($sort === 'last_active'){
+            $query->orderBy('last_actived_at', 'desc');
+        }elseif ($sort === 'most_subscribes'){
+            $query->withCount('subscribedChannels')->orderBy('subscribed_channels_count', 'desc');
+        }elseif ($sort === 'most_watch_hours'){
+            $query->orderBy('watch_time', 'desc');
         }else{
             $query->orderBy('created_at', 'desc');
         }
@@ -277,6 +283,19 @@ class UserController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function referralCodeCheck(Request $request)
+    {
+        $request->validate([
+            'referral_code' => [
+                'required', 'string', 'exists:users,referral_code',
+            ],
+        ],[
+            'referral_code.exists' => 'Invalid code, please check and try again.'
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -401,6 +420,7 @@ class UserController extends Controller
         }
 
         $user->deletion_feedback = $request->get('feedback');
+        $user->save();
         $user->delete();
 
         $token = sha1($user->id . time());
@@ -440,7 +460,6 @@ class UserController extends Controller
         $accountDeletion->delete();
 
         return response()->json(['status' => 'ok']);
-        return response()->redirectTo('https://todayscrypto.com');
     }
 
     public function restoreUser($id)
@@ -494,7 +513,7 @@ class UserController extends Controller
         ]);
 
         if ($user->channel){
-            $user->channel->append(['subscribers_count']);
+            $user->channel->append(['subscribers_count', 'monetization_qualified_at']);
         }
 
         return UserResource::make($user);
@@ -524,7 +543,7 @@ class UserController extends Controller
             'new_password' => 'nullable|string|min:6|max:32|required_with:current_password',
             'scope' => 'required_with:eth_address',
             'tag_names' => ['nullable', 'array'],
-            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords)],
+            'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords), CustomRule::alphaSpace(), 'max:25'],
         ]);
 
         $user = auth('api')->user();

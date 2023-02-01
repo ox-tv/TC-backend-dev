@@ -13,4 +13,9 @@ class CustomRule
     {
         return new ForbiddenWordsRule($forbiddenWords);
     }
+
+    public static function alphaSpace(): AlphaSpace
+    {
+        return new AlphaSpace();
+    }
 }

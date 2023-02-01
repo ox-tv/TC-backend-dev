@@ -24,6 +24,7 @@ use App\Events\VideoUpdated;
 use App\Events\VideoWasHidden;
 use App\Events\VideoWasUnHidden;
 use App\Events\VideoWatched;
+use App\Listeners\Channels\MonetizePointsForChannelSubscribed;
 use App\Listeners\Channels\SendEmailOnChannelImportRequestCompleted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestAccepted;
 use App\Listeners\Channels\SendNotificationOnChannelImportRequestCompleted;
@@ -33,6 +34,7 @@ use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\ChannelStatisticsDailyVideoUpdated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\Comments\LoyaltyPointsForCommentLiked;
 use App\Listeners\Comments\SendNotificationOnCommentCreated;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
@@ -51,7 +53,12 @@ use App\Listeners\SendNotificationOnVideoUpdated;
 use App\Listeners\SendNotificationOnVideoWasHidden;
 use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
+use App\Listeners\User\LoyaltyPointsForUserVerified;
+use App\Listeners\User\MonetizePointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
+use App\Listeners\Video\LoyaltyPointsForVideoWatched;
+use App\Listeners\Video\MonetizePointsForVideoLiked;
+use App\Listeners\Video\MonetizePointsForVideoViewed;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
@@ -79,6 +86,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         UserVerified::class => [
+            MonetizePointsForUserVerified::class,
+            LoyaltyPointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
             SendNotificationOnUserVerified::class,
         ],
@@ -98,6 +107,7 @@ class EventServiceProvider extends ServiceProvider
 
         // Channel
         ChannelSubscribed::class => [
+            MonetizePointsForChannelSubscribed::class,
             ChannelStatisticsDailySubscribed::class,
         ],
         ChannelImportRequestCreated::class => [
@@ -126,6 +136,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
+            LoyaltyPointsForCommentLiked::class,
         ],
 
         // Messages
@@ -166,15 +177,18 @@ class EventServiceProvider extends ServiceProvider
             SendNotificationOnVideoWasUnHidden::class,
         ],
         VideoLiked::class => [
+            MonetizePointsForVideoLiked::class,
             VideoStatisticsDailyLiked::class,
             VideoLikedDataForUserStatisticsDaily::class,
         ],
         VideoViewed::class => [
+            MonetizePointsForVideoViewed::class,
             VideoStatisticsDailyIncreaseView::class,
             VideoViewedDataForUserStatisticsDaily::class,
         ],
         VideoWatched::class => [
             VideoWatchedDataForUserStatisticsDaily::class,
+            LoyaltyPointsForVideoWatched::class,
             VideoWatchedDataForVideoStatisticsDaily::class,
         ],
 

@@ -84,9 +84,13 @@ class OptionController extends Controller
 
         $adSpaces = json_decode($adSpacesOption, true);
 
-        $value = isset($adSpaces[$request->get('key')])? $adSpaces[$request->get('key')] : null;
+        if ($request->get('key')){
+            $value = isset($adSpaces[$request->get('key')])? $adSpaces[$request->get('key')] : null;
 
-        return is_array($value)? $value :['url' => $value];
+            return is_array($value)? $value :['url' => $value];
+        }
+
+        return $adSpaces;
     }
 
     public function setAdSpace(Request $request){

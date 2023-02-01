@@ -38,7 +38,9 @@ class ChannelResource extends JsonResource
             'points' => $this->points,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
+            'deleted_at' => $this->whenAppended('deleted_at'),
             "youtube_last_scraped_at" => $this->youtube_last_scraped_at,
+            "monetization_qualified_at" => $this->whenAppended('monetization_qualified_at'),
 
             // Custom attributes without query
             'status' => $this->status_text,

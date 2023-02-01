@@ -4,29 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Earning\EarningItem;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
-use App\Http\Resources\PaymentMethod\PaymentMethodItem;
-use App\Http\Resources\Plan\PlanItem;
-use App\Http\Resources\Pricing\PricingItem;
 use App\Models\Channel;
 use App\Models\Earning;
+use App\Models\MonetizePoint;
 use App\Models\Option;
-use App\Models\PaymentMethod;
-use App\Models\Plan;
-use App\Models\Pricing;
-use App\Models\PricingUser;
 use App\Models\Transaction;
-use App\Models\User;
-use App\Models\VideoStatisticsDaily;
-use App\Repository\PricingRepositoryInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class EarningController extends Controller
 {
@@ -216,9 +204,6 @@ class EarningController extends Controller
 
         $channels = Channel::whereNotNull('monetization_qualified_at')->where('monetization_qualified_at', '<', Carbon::now())->get();
 
-        $pointPerHeroSub = config('general.points.per_subscribe_hero');
-        $pointPerNonHeroSub = config('general.points.per_subscribe_non_hero');
-
         // Get Total Distributed Value
         $totalDistributedValues = Option::get(Option::TOTAL_DISTRIBUTED_MONEY);
 
@@ -243,46 +228,47 @@ class EarningController extends Controller
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
         foreach ($monthPeriods as $month) {
+            $totalAmount = $totalDistributedValues[$month->format('Y-m')]?? abort(403, "total distributed money is not exists for {$month->format('Y-m')}");
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $totalMonthPoints = VideoStatisticsDaily::where('date', '>=', Carbon::parse($from_day))
-                ->where('date', '<=', Carbon::parse($to_day))
-                ->sum('points');
+            $affectedTotalPointsQuery = MonetizePoint::active()
+                ->where(function ($q) use($from_day, $to_day){
+                    $q->where(function($q) use($from_day, $to_day){
+                        $q->notCalculated()
+                            ->where('date', '>=', Carbon::parse($from_day))
+                            ->where('date', '<=', Carbon::parse($to_day))
+                            ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
+                    })->orWhere(function($q) use($from_day, $to_day){
+                        $q->where('date', '<=', Carbon::parse($to_day))
+                            ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
+                    });
+                });
 
-            $heroSubCounts = User::whereHas('subscribedChannels', function ($q) use ($to_day){
-                $q->where('channel_user.created_at', '<=', $to_day);
-            })->isHero()->count();
 
-            $nonHeroSubCounts = User::whereHas('subscribedChannels', function ($q) use ($to_day){
-                $q->where('channel_user.created_at', '<=', $to_day);
-            })->isNonHero()->count();
-
-            $totalMonthPoints += ($heroSubCounts * $pointPerHeroSub);
-            $totalMonthPoints += ($nonHeroSubCounts * $pointPerNonHeroSub);
-
-            $totalAmount = $totalDistributedValues[$month->format('Y-m')]?? abort(403, "total distributed money is not exists for {$month->format('Y-m')}");
-
+            $totalMonthPoints = $affectedTotalPointsQuery->sum('points');
             $monthRate = $totalMonthPoints > 0 ? $totalAmount / $totalMonthPoints : 0;
 
             foreach ($channels as $channel){
 
                 $publisher = $channel->owner;
+                $affectedChannelPointsQuery = clone $affectedTotalPointsQuery;
 
-                $points = VideoStatisticsDaily::where('channel_id', $channel->id)
-                    ->where('date', '>=', Carbon::parse($from_day))
-                    ->whereDate('date', '<=', Carbon::parse($to_day))
+                $points = $affectedChannelPointsQuery->where('channel_id', $channel->id);
+                MonetizePoint::active()
+                    ->where('channel_id', $channel->id)
+                    ->where(function ($q) use($from_day, $to_day){
+                        $q->where(function($q) use($from_day, $to_day){
+                            $q->notCalculated()
+                                ->where('date', '>=', Carbon::parse($from_day))
+                                ->where('date', '<=', Carbon::parse($to_day))
+                                ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
+                        })->orWhere(function($q) use($from_day, $to_day){
+                            $q->where('date', '<=', Carbon::parse($to_day))
+                                ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
+                        });
+                    })
                     ->sum('points');
-
-                $heroSubCounts = $channel->subscribers()->where(function ($q) use ($to_day){
-                    $q->where('channel_user.created_at', '<=', $to_day);
-                })->isHero()->count();
-                $nonHeroSubCounts = $channel->subscribers()->where(function ($q) use ($to_day){
-                    $q->where('channel_user.created_at', '<=', $to_day);
-                })->isNonHero()->count();
-
-                $points += ($heroSubCounts * $pointPerHeroSub);
-                $points += ($nonHeroSubCounts * $pointPerNonHeroSub);
 
                 $earningAmount = $points * $monthRate;
                 $earningAmount = ($earningAmount > 0)? $earningAmount: 0;
@@ -328,6 +314,8 @@ class EarningController extends Controller
                     $earning->save();
                 });
             }
+
+            $affectedTotalPointsQuery->update(['is_calculated', true]);
         }
 
         return response()->json(["status" => "ok"]);

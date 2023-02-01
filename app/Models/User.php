@@ -77,6 +77,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'hero_member_at' => 'datetime',
         'hero_due_at' => 'datetime',
+        'last_actived_at' => 'datetime',
     ];
 
     // search scopes
@@ -127,7 +128,7 @@ class User extends Authenticatable
     }
 
     public function scopeUsers($query){
-        $query->where('role_id', null);
+        $query->whereNull('role_id');
         return $query;
     }
 
@@ -344,7 +345,7 @@ class User extends Authenticatable
 
     public function getLoyaltyPointsAttribute()
     {
-        return intval(UserStatisticsDaily::where('user_id', $this->id)->sum('points'));
+        return intval(LoyaltyPoint::where('user_id', $this->id)->sum('amount'));
     }
 
     public function getIdenfyNameDataAttribute(){

@@ -52,4 +52,11 @@ class UserRegister extends FormRequest
             'captcha' => 'required|captcha_api:' . request('captcha_key') . ',math'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'referral_code.exists' => 'Invalid code, please check and try again.',
+        ];
+    }
 }
