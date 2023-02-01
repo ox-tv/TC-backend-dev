@@ -18,6 +18,7 @@ class FeedbackController extends Controller
         $fromValueFilter = Arr::get($filters, 'from_value');
         $toValueFilter = Arr::get($filters, 'to_value');
         $userIdFilter = Arr::get($filters, 'user_id');
+        $emailFilter = Arr::get($filters, 'email');
         $fromFilter = Arr::get($filters, 'from');
         $toFilter = Arr::get($filters, 'to');
 
@@ -33,6 +34,10 @@ class FeedbackController extends Controller
 
         if ($userIdFilter) {
             $query->user($userIdFilter);
+        }
+
+        if ($emailFilter) {
+            $query->email($emailFilter);
         }
 
         if ($fromValueFilter) {
@@ -66,6 +71,7 @@ class FeedbackController extends Controller
             'type' => ['required', Rule::in(Feedback::TYPE_TEXT)],
             'location' => 'required',
             'origin' => 'nullable|string',
+            'email' => 'nullable|email',
             'value' => [
                 Rule::requiredIf(in_array($request->type, [Feedback::TYPE_TEXT[Feedback::TYPE_STAR], Feedback::TYPE_TEXT[Feedback::TYPE_THUMB]])),
                 'numeric'
@@ -81,6 +87,7 @@ class FeedbackController extends Controller
         $feedback->text = $request->get('text');
         $feedback->value = $request->get('value');
         $feedback->user_id = auth('api')->id();
+        $feedback->email = $request->get('email');
         $feedback->origin = $request->get('origin');
         $feedback->save();
 
