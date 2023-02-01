@@ -14,7 +14,7 @@ class AddEmailFieldToFeedbackTable extends Migration
     public function up()
     {
         Schema::table('feedback', function (Blueprint $table) {
-            $table->string('email');
+            $table->string('email')->nullable();
         });
     }
 
