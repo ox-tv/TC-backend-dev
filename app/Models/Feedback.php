@@ -40,6 +40,11 @@ class Feedback extends Model
         return $query;
     }
 
+    public function scopeEmail($query, $keyword){
+        $query->where('email', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
 
     // Relations
 
