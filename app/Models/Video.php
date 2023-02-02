@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Video extends Model
 {
@@ -58,7 +59,11 @@ class Video extends Model
 
         self::saved(function($model){
             if(is_null($model->url_hash) && !is_null($model->id)){
-                $model->url_hash = encode_id(str_pad($model->id,10,0,STR_PAD_RIGHT));
+                do{
+                    $urlHash = Str::random(12);
+                }while(Video::where('url_hash', $urlHash)->exists());
+
+                $model->url_hash = $urlHash;
                 $model->save();
             }
 

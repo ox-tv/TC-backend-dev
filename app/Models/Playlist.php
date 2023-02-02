@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\OrderDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Playlist extends Model
 {
@@ -24,7 +25,11 @@ class Playlist extends Model
 
         self::saved(function($model){
             if(is_null($model->url_hash) && !is_null($model->id)){
-                $model->url_hash = encode_id(str_pad($model->id,10,0,STR_PAD_RIGHT));
+                do{
+                    $urlHash = Str::random(12);
+                }while(Playlist::where('url_hash', $urlHash)->exists());
+
+                $model->url_hash = $urlHash;
                 $model->save();
             }
         });
