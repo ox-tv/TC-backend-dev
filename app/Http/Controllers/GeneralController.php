@@ -44,6 +44,21 @@ class GeneralController extends Controller
             ]);
         })->pluck('_id')->toArray();
 
+        $trendingChannelIds = MonetizePoint::raw(function($collection) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                    '$or' => [ [ 'type' =>  MonetizePoint::TYPE_VIDEO_LIKED], [ 'type' => MonetizePoint::TYPE_SUBSCRIPTION ] ]
+                ]],
+                ['$group' => [
+                    '_id' => '$channel_id',
+                    'amount' => ['$sum' => '$amount'],
+                ]],
+                ['$sort' => ['amount' => -1, '_id' => -1]],
+                ['$limit' => 15]
+            ]);
+        })->pluck('_id')->toArray();
+
         $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
 
         $trendingChannels = Channel::published()
