@@ -53,7 +53,7 @@ class UpdateCryptoCurrenciesPrices extends Command
                 if (!$this->updateCoins(true)){
                     break;
                 }
-                sleep(5);
+                sleep(20);
             }
 
         }else{
