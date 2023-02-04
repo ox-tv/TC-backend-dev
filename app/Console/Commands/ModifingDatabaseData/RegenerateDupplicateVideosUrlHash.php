@@ -30,7 +30,7 @@ class RegenerateDupplicateVideosUrlHash extends Command
      */
     public function handle()
     {
-        $videos = DB::table('videos')->whereRaw(DB::raw('url_hash in (SELECT `url_hash` FROM (SELECT count(*) as `count`, `url_hash` FROM `videos` WHERE 1 GROUP BY `url_hash`) T1 where T1.count > 1)'))->get();
+        $videos = Video::withTrashed()->whereRaw(DB::raw('url_hash in (SELECT `url_hash` FROM (SELECT count(*) as `count`, `url_hash` FROM `videos` WHERE 1 GROUP BY `url_hash`) T1 where T1.count > 1)'))->get();
 
         foreach ($videos as $video){
             if (!in_array($video->channel_id, ['20227', '20228', '20226'])){
