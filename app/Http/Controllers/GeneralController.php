@@ -14,7 +14,6 @@ use App\Models\Scopes\OrderDescScope;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;

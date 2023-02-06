@@ -37,6 +37,7 @@ class AddVideosCountToChannelStatistics extends Command
 
             $statistics = Channel2StatisticsDaily::firstOrNew([
                 'channel_id' => $channel->id,
+                'video_id' => null,
                 'date' => $video->created_at->startOfDay(),
             ]);
             $statistics->published_videos += 1;

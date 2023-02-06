@@ -24,6 +24,7 @@ class ChannelStatisticsDailyVideoCreated
 
         $statistics = Channel2StatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
+            'video_id' => null,
             'date' => Carbon::now()->startOfDay(),
         ]);
 

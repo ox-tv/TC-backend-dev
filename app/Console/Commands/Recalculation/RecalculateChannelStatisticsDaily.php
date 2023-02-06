@@ -49,6 +49,7 @@ class RecalculateChannelStatisticsDaily extends Command
 
                 $statistics = Channel2StatisticsDaily::firstOrNew([
                     'channel_id' => $channel->id,
+                    'video_id' => null,
                     'date' => Carbon::parse($date)->startOfDay(),
                 ]);
 
@@ -67,6 +68,7 @@ class RecalculateChannelStatisticsDaily extends Command
 
                 $statistics = Channel2StatisticsDaily::firstOrNew([
                     'channel_id' => $channel->id,
+                    'video_id' => null,
                     'date' => Carbon::parse($date)->startOfDay(),
                 ]);
 
