@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\ChannelSubscribed;
 use App\Events\VideoLiked;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
 use Carbon\Carbon;
 
@@ -33,11 +34,29 @@ class ChannelStatisticsDailySubscribed
         $unSubscribersCount = $event->unSubscribersCount;
 
 
-        $statistics = ChannelStatisticsDaily::firstOrNew([
+        /*$statistics = ChannelStatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
         ]);
 
+
+        $statistics->subscribers_total += $subscribersCount;
+        $statistics->unsubscribers_total += $unSubscribersCount;
+
+        if($user && $user->is_hero){
+            $statistics->subscribers_hero += $subscribersCount;
+            $statistics->unsubscribers_hero += $unSubscribersCount;
+        }else{
+            $statistics->subscribers_non_hero += $subscribersCount;
+            $statistics->unsubscribers_non_hero += $unSubscribersCount;
+        }
+
+        $statistics->save();*/
+
+        $statistics = Channel2StatisticsDaily::firstOrNew([
+            'channel_id' => $channel->id,
+            'date' => Carbon::now()->startOfDay(),
+        ]);
 
         $statistics->subscribers_total += $subscribersCount;
         $statistics->unsubscribers_total += $unSubscribersCount;

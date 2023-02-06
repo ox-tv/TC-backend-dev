@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\PaymentDetails;
 use App\Models\Scopes\OrderDescScope;
@@ -37,7 +38,15 @@ class AddVideosCountToChannelStatistics extends Command
         foreach ($videos as $video){
             $channel = $video->channel;
 
-            $statistics = ChannelStatisticsDaily::firstOrNew([
+            /*$statistics = ChannelStatisticsDaily::firstOrNew([
+                'channel_id' => $channel->id,
+                'date' => $video->created_at->startOfDay(),
+            ]);
+            $statistics->published_videos += 1;
+
+            $statistics->save();*/
+
+            $statistics = Channel2StatisticsDaily::firstOrNew([
                 'channel_id' => $channel->id,
                 'date' => $video->created_at->startOfDay(),
             ]);

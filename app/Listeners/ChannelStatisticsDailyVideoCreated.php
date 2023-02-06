@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\VideoCreated;
 use App\Events\VideoViewed;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\Video;
 use Carbon\Carbon;
@@ -22,7 +23,7 @@ class ChannelStatisticsDailyVideoCreated
         $video = $event->video;
         $channel = $video->channel;
 
-        $statistics = ChannelStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
         ]);

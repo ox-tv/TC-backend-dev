@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\Comment;
 use App\Models\MonetizePoint;
@@ -40,21 +41,6 @@ class GeneralController extends Controller
                     'subscribers' => ['$sum' => ['$subtract'=> ['$subscribers_total', '$unsubscribers_total']]],
                 ]],
                 ['$sort' => ['subscribers' => -1, '_id' => -1]],
-                ['$limit' => 15]
-            ]);
-        })->pluck('_id')->toArray();
-
-        $trendingChannelIds = MonetizePoint::raw(function($collection) {
-            return $collection->aggregate([
-                ['$match' => [
-                    'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
-                    '$or' => [ [ 'type' =>  MonetizePoint::TYPE_VIDEO_LIKED], [ 'type' => MonetizePoint::TYPE_SUBSCRIPTION ] ]
-                ]],
-                ['$group' => [
-                    '_id' => '$channel_id',
-                    'amount' => ['$sum' => '$amount'],
-                ]],
-                ['$sort' => ['amount' => -1, '_id' => -1]],
                 ['$limit' => 15]
             ]);
         })->pluck('_id')->toArray();
@@ -298,14 +284,13 @@ class GeneralController extends Controller
         $channel = auth('api')->user()->channel;
 
         // Overview Statistics by channel id
-        $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id);
-        $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id);
+        $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id);
 
         $result['overview']['points'] = intval(MonetizePoint::where('channel_id', $channel->id)->whereNotNull('activated_at')->sum('amount'));
-        $result['overview']['watch_time_total'] = intval($videoStatisticsQuery->sum('watch_time_total'));
+        $result['overview']['watch_time_total'] = intval($channelStatisticsQuery->sum('watch_time_total'));
         $result['overview']['subscribers_total'] = intval($channelStatisticsQuery->sum('subscribers_total')) - intval($channelStatisticsQuery->sum('unsubscribers_total'));
-        $result['overview']['views_total'] = intval($videoStatisticsQuery->sum('views_total'));
-        $result['overview']['likes_total'] = ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0;
+        $result['overview']['views_total'] = intval($channelStatisticsQuery->sum('views_total'));
+        $result['overview']['likes_total'] = natural_intval($channelStatisticsQuery->sum('likes_total'));
         $result['overview']['upload_videos_total'] = intval($channelStatisticsQuery->sum('upload_videos_total'));
         $result['overview']['published_videos'] = intval($channelStatisticsQuery->sum('published_videos')) - intval($channelStatisticsQuery->sum('unpublished_videos'));
 
@@ -374,10 +359,7 @@ class GeneralController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
-
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
@@ -387,13 +369,13 @@ class GeneralController extends Controller
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
                 'points' => intval($monetizePointsQuery->sum('amount')),
-                'views_total' => intval($videoStatisticsQuery->sum('views_total')),
-                'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
-                'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,
-                'comments_total' => intval($videoStatisticsQuery->sum('comments_total')),
-                'watch_time_total' => intval($videoStatisticsQuery->sum('watch_time_total')),
-                'subscribers_total' => ($temp = $channelStatisticsQuery->sum('subscribers_total')) > 0? intval($temp) : 0,
-                'unsubscribers_total' => ($temp = $channelStatisticsQuery->sum('unsubscribers_total')) > 0? intval($temp) : 0,
+                'views_total' => intval($channelStatisticsQuery->sum('views_total')),
+                'likes_total' => natural_intval($channelStatisticsQuery->sum('likes_total')),
+                'dislikes_total' => natural_intval($channelStatisticsQuery->sum('dislikes_total')),
+                'comments_total' => intval($channelStatisticsQuery->sum('comments_total')),
+                'watch_time_total' => intval($channelStatisticsQuery->sum('watch_time_total')),
+                'subscribers_total' => natural_intval($channelStatisticsQuery->sum('subscribers_total')),
+                'unsubscribers_total' => natural_intval($channelStatisticsQuery->sum('unsubscribers_total')),
                 'upload_videos_total' => intval($channelStatisticsQuery->sum('upload_videos_total')),
                 'published_videos' => intval($channelStatisticsQuery->sum('published_videos')),
                 'unpublished_videos' => intval($channelStatisticsQuery->sum('unpublished_videos')),
@@ -411,11 +393,7 @@ class GeneralController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
-
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
@@ -427,13 +405,13 @@ class GeneralController extends Controller
             $statistics[$date] = [
                 'date' => $date,
                 'points' => intval($monetizePointQuery->sum('amount')),
-                'views_total' => intval($videoStatisticsQuery->sum('views_total')),
-                'likes_total' => ($temp = $videoStatisticsQuery->sum('likes_total')) > 0? intval($temp) : 0,
-                'dislikes_total' => ($temp = $videoStatisticsQuery->sum('dislikes_total')) > 0? intval($temp) : 0,
-                'comments_total' => intval($videoStatisticsQuery->sum('comments_total')),
-                'watch_time_total' => intval($videoStatisticsQuery->sum('watch_time_total')),
-                'subscribers_total' => ($temp = $channelStatisticsQuery->sum('subscribers_total')) > 0? intval($temp) : 0,
-                'unsubscribers_total' => ($temp = $channelStatisticsQuery->sum('unsubscribers_total')) > 0? intval($temp) : 0,
+                'views_total' => intval($channelStatisticsQuery->sum('views_total')),
+                'likes_total' => natural_intval($channelStatisticsQuery->sum('likes_total')),
+                'dislikes_total' => natural_intval($channelStatisticsQuery->sum('dislikes_total')),
+                'comments_total' => intval($channelStatisticsQuery->sum('comments_total')),
+                'watch_time_total' => intval($channelStatisticsQuery->sum('watch_time_total')),
+                'subscribers_total' => natural_intval($channelStatisticsQuery->sum('subscribers_total')),
+                'unsubscribers_total' => natural_intval($channelStatisticsQuery->sum('unsubscribers_total')),
                 'upload_videos_total' => intval($channelStatisticsQuery->sum('upload_videos_total')),
                 'published_videos' => intval($channelStatisticsQuery->sum('published_videos')),
                 'unpublished_videos' => intval($channelStatisticsQuery->sum('unpublished_videos')),

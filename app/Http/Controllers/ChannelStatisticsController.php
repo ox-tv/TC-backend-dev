@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Channel;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
 use App\Models\MonetizePoint;
 use App\Models\VideoStatisticsDaily;
@@ -39,24 +40,7 @@ class ChannelStatisticsController extends Controller
         $fromFilter = Arr::get($filters, 'from');
         $toFilter = Arr::get($filters, 'to');
 
-
-        // Video Statistics by channel
-        $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
-
-            return $query->where('channel_id', $channel->id);
-
-        })->when($fromFilter, function ($query, $fromFilter) {
-
-            return $query->where('date', '>=', Carbon::parse($fromFilter));
-
-        })->when($toFilter, function ($query, $toFilter) {
-
-            return $query->where('date', '<=', Carbon::parse($toFilter));
-        });
-
-
-        // channel Statistics
-        $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
+        $channelStatisticsQuery = channel2StatisticsDaily::when($channel, function ($query, $channel) {
 
             return $query->where('channel_id', $channel->id);
 
@@ -73,7 +57,7 @@ class ChannelStatisticsController extends Controller
             return $this->makeFakeResult('total');
         }
 
-        return response()->json($this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, ''));
+        return response()->json($this->makeResult($channelStatisticsQuery, ''));
     }
 
     public function monthly(Request $request, $idOrSlug = null)
@@ -108,19 +92,13 @@ class ChannelStatisticsController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+            $channelStatisticsQuery = channel2StatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
                 ->where('date', '>=', Carbon::parse($from_day))
                 ->where('date', '<=', Carbon::parse($to_day))->get();
 
-            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
-                    return $query->where('channel_id', $channel->id);
-                })
-                ->where('date', '>=', Carbon::parse($from_day))
-                ->where('date', '<=', Carbon::parse($to_day))->get();
-
-            $statistics[$monthString] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $monthString);
+            $statistics[$monthString] = $this->makeResult($channelStatisticsQuery, $monthString);
         }
 
         return $statistics;
@@ -158,48 +136,43 @@ class ChannelStatisticsController extends Controller
 
         foreach ($periods as $day) {
 
-            $videoStatisticsQuery = VideoStatisticsDaily::when($channel, function ($query, $channel) {
+            $channelStatisticsQuery = channel2StatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
-            $channelStatisticsQuery = channelStatisticsDaily::when($channel, function ($query, $channel) {
-                    return $query->where('channel_id', $channel->id);
-                })
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
-
-            $statistics[$day->format('Y-m-d')] = $this->makeResult($videoStatisticsQuery, $channelStatisticsQuery, $day->format('Y-m-d'));
+            $statistics[$day->format('Y-m-d')] = $this->makeResult($channelStatisticsQuery, $day->format('Y-m-d'));
         }
 
         return $statistics;
     }
 
-    private function makeResult($videoStatistics, $channelStatistics, $date)
+    private function makeResult($channelStatistics, $date)
     {
         return [
             'date' => $date,
-            'points' => intval($videoStatistics->sum('points')),
-            'views_hero' => intval($videoStatistics->sum('views_hero')),
-            'views_non_hero' => intval($videoStatistics->sum('views_non_hero')),
-            'views_total' => intval($videoStatistics->sum('views_total')),
-            'likes_hero' => ($temp = $videoStatistics->sum('likes_hero')) > 0? intval($temp) : 0,
-            'likes_non_hero' => ($temp = $videoStatistics->sum('likes_non_hero')) > 0? intval($temp) : 0,
-            'likes_total' => ($temp = $videoStatistics->sum('likes_total')) > 0? intval($temp) : 0,
-            'dislikes_hero' => ($temp = $videoStatistics->sum('dislikes_hero')) > 0? intval($temp) : 0,
-            'dislikes_non_hero' => ($temp = $videoStatistics->sum('dislikes_non_hero')) > 0? intval($temp) : 0,
-            'dislikes_total' => ($temp = $videoStatistics->sum('dislikes_total')) > 0? intval($temp) : 0,
-            'comments_hero' => intval($videoStatistics->sum('comments_hero')),
-            'comments_non_hero' => intval($videoStatistics->sum('comments_non_hero')),
-            'comments_total' => intval($videoStatistics->sum('comments_total')),
-            'watch_time_hero' => intval($videoStatistics->sum('watch_time_hero')),
-            'watch_time_non_hero' => intval($videoStatistics->sum('watch_time_non_hero')),
-            'watch_time_total' => intval($videoStatistics->sum('watch_time_total')),
-            'subscribers_hero' => ($temp = $channelStatistics->sum('subscribers_hero')) > 0? intval($temp) : 0,
-            'subscribers_non_hero' => ($temp = $channelStatistics->sum('subscribers_non_hero')) > 0? intval($temp) : 0,
-            'subscribers_total' => ($temp = $channelStatistics->sum('subscribers_total')) > 0? intval($temp) : 0,
-            'unsubscribers_hero' => ($temp = $channelStatistics->sum('unsubscribers_hero')) > 0? intval($temp) : 0,
-            'unsubscribers_non_hero' => ($temp = $channelStatistics->sum('unsubscribers_non_hero')) > 0? intval($temp) : 0,
-            'unsubscribers_total' => ($temp = $channelStatistics->sum('unsubscribers_total')) > 0? intval($temp) : 0,
+            'points' => 0,
+            'views_hero' => intval($channelStatistics->sum('views_hero')),
+            'views_non_hero' => intval($channelStatistics->sum('views_non_hero')),
+            'views_total' => intval($channelStatistics->sum('views_total')),
+            'likes_hero' => natural_intval($channelStatistics->sum('likes_hero')),
+            'likes_non_hero' => natural_intval($channelStatistics->sum('likes_non_hero')),
+            'likes_total' => natural_intval($channelStatistics->sum('likes_total')),
+            'dislikes_hero' => natural_intval($channelStatistics->sum('dislikes_hero')),
+            'dislikes_non_hero' => natural_intval($channelStatistics->sum('dislikes_non_hero')),
+            'dislikes_total' => natural_intval($channelStatistics->sum('dislikes_total')),
+            'comments_hero' => intval($channelStatistics->sum('comments_hero')),
+            'comments_non_hero' => intval($channelStatistics->sum('comments_non_hero')),
+            'comments_total' => intval($channelStatistics->sum('comments_total')),
+            'watch_time_hero' => intval($channelStatistics->sum('watch_time_hero')),
+            'watch_time_non_hero' => intval($channelStatistics->sum('watch_time_non_hero')),
+            'watch_time_total' => intval($channelStatistics->sum('watch_time_total')),
+            'subscribers_hero' => natural_intval($channelStatistics->sum('subscribers_hero')),
+            'subscribers_non_hero' => natural_intval($channelStatistics->sum('subscribers_non_hero')),
+            'subscribers_total' => natural_intval($channelStatistics->sum('subscribers_total')),
+            'unsubscribers_hero' => natural_intval($channelStatistics->sum('unsubscribers_hero')),
+            'unsubscribers_non_hero' => natural_intval($channelStatistics->sum('unsubscribers_non_hero')),
+            'unsubscribers_total' => natural_intval($channelStatistics->sum('unsubscribers_total')),
             'upload_videos_total' => intval($channelStatistics->sum('upload_videos_total')),
             'published_videos' => intval($channelStatistics->sum('published_videos')),
             'unpublished_videos' => intval($channelStatistics->sum('unpublished_videos')),
@@ -457,15 +430,14 @@ class ChannelStatisticsController extends Controller
         }
 
         // Overview Statistics by channel id
-        $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id);
-        $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id);
+        $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id);
 
         $result['overview']['subscribers_total'] = natural_intval($channelStatisticsQuery->sum('subscribers_total')) - intval($channelStatisticsQuery->sum('unsubscribers_total'));
         $result['overview']['subscribers_hero'] = natural_intval($channelStatisticsQuery->sum('subscribers_hero')) - intval($channelStatisticsQuery->sum('unsubscribers_hero'));
-        $result['overview']['likes_total'] = natural_intval($videoStatisticsQuery->sum('likes_total'));
-        $result['overview']['dislikes_total'] = natural_intval($videoStatisticsQuery->sum('dislikes_total'));
-        $result['overview']['comments_total'] = natural_intval($videoStatisticsQuery->sum('comments_total'));
-        $result['overview']['watch_time_total'] = intval($videoStatisticsQuery->sum('watch_time_total'));
+        $result['overview']['likes_total'] = natural_intval($channelStatisticsQuery->sum('likes_total'));
+        $result['overview']['dislikes_total'] = natural_intval($channelStatisticsQuery->sum('dislikes_total'));
+        $result['overview']['comments_total'] = natural_intval($channelStatisticsQuery->sum('comments_total'));
+        $result['overview']['watch_time_total'] = intval($channelStatisticsQuery->sum('watch_time_total'));
 
 
         // Statistics by channel id
@@ -532,9 +504,6 @@ class ChannelStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
-
             $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
@@ -544,21 +513,21 @@ class ChannelStatisticsController extends Controller
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
                 'points' => intval($monetizePointQuery->sum('amount')),
-                'views_hero' => intval($videoStatisticsQuery->sum('views_hero')),
-                'views_non_hero' => intval($videoStatisticsQuery->sum('views_non_hero')),
-                'views_total' => intval($videoStatisticsQuery->sum('views_total')),
-                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
-                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
-                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
-                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
-                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
-                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
-                'comments_hero' => natural_intval($videoStatisticsQuery->sum('comments_hero')),
-                'comments_non_hero' => natural_intval($videoStatisticsQuery->sum('comments_non_hero')),
-                'comments_total' => natural_intval($videoStatisticsQuery->sum('comments_total')),
-                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
-                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
-                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+                'views_hero' => intval($channelStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => intval($channelStatisticsQuery->sum('views_non_hero')),
+                'views_total' => intval($channelStatisticsQuery->sum('views_total')),
+                'likes_hero' => natural_intval($channelStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($channelStatisticsQuery->sum('likes_non_hero')),
+                'likes_total' => natural_intval($channelStatisticsQuery->sum('likes_total')),
+                'dislikes_hero' => natural_intval($channelStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($channelStatisticsQuery->sum('dislikes_non_hero')),
+                'dislikes_total' => natural_intval($channelStatisticsQuery->sum('dislikes_total')),
+                'comments_hero' => natural_intval($channelStatisticsQuery->sum('comments_hero')),
+                'comments_non_hero' => natural_intval($channelStatisticsQuery->sum('comments_non_hero')),
+                'comments_total' => natural_intval($channelStatisticsQuery->sum('comments_total')),
+                'watch_time_hero' => natural_intval($channelStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($channelStatisticsQuery->sum('watch_time_non_hero')),
+                'watch_time_total' => natural_intval($channelStatisticsQuery->sum('watch_time_total')),
                 'subscribers_hero' => natural_intval($channelStatisticsQuery->sum('subscribers_hero')),
                 'subscribers_non_hero' => natural_intval($channelStatisticsQuery->sum('subscribers_non_hero')),
                 'subscribers_total' => natural_intval($channelStatisticsQuery->sum('subscribers_total')),
@@ -582,10 +551,6 @@ class ChannelStatisticsController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
-
             $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
@@ -597,21 +562,21 @@ class ChannelStatisticsController extends Controller
             $statistics[$date] = [
                 'date' => $date,
                 'points' => intval($monetizePointQuery->sum('amount')),
-                'views_hero' => intval($videoStatisticsQuery->sum('views_hero')),
-                'views_non_hero' => intval($videoStatisticsQuery->sum('views_non_hero')),
-                'views_total' => intval($videoStatisticsQuery->sum('views_total')),
-                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
-                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
-                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
-                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
-                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
-                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
-                'comments_hero' => natural_intval($videoStatisticsQuery->sum('comments_hero')),
-                'comments_non_hero' => natural_intval($videoStatisticsQuery->sum('comments_non_hero')),
-                'comments_total' => natural_intval($videoStatisticsQuery->sum('comments_total')),
-                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
-                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
-                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+                'views_hero' => intval($channelStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => intval($channelStatisticsQuery->sum('views_non_hero')),
+                'views_total' => intval($channelStatisticsQuery->sum('views_total')),
+                'likes_hero' => natural_intval($channelStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($channelStatisticsQuery->sum('likes_non_hero')),
+                'likes_total' => natural_intval($channelStatisticsQuery->sum('likes_total')),
+                'dislikes_hero' => natural_intval($channelStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($channelStatisticsQuery->sum('dislikes_non_hero')),
+                'dislikes_total' => natural_intval($channelStatisticsQuery->sum('dislikes_total')),
+                'comments_hero' => natural_intval($channelStatisticsQuery->sum('comments_hero')),
+                'comments_non_hero' => natural_intval($channelStatisticsQuery->sum('comments_non_hero')),
+                'comments_total' => natural_intval($channelStatisticsQuery->sum('comments_total')),
+                'watch_time_hero' => natural_intval($channelStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($channelStatisticsQuery->sum('watch_time_non_hero')),
+                'watch_time_total' => natural_intval($channelStatisticsQuery->sum('watch_time_total')),
                 'subscribers_hero' => natural_intval($channelStatisticsQuery->sum('subscribers_hero')),
                 'subscribers_non_hero' => natural_intval($channelStatisticsQuery->sum('subscribers_non_hero')),
                 'subscribers_total' => natural_intval($channelStatisticsQuery->sum('subscribers_total')),
