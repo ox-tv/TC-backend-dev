@@ -825,6 +825,9 @@ class VideoController extends Controller
         $category = $video->category ? $video->category->id : null;
 
         if(!$category && !count($tags)){
+
+            $query->where('channel_id', $video->channel_id);$videos = $query->withoutGlobalScope(OrderDescScope::class)->orderBy('published_at', 'desc')->paginate();$videos->load(['channel'])->append(['is_bookmarked']);return VideoResource::collection($videos);
+
             return VideoResource::collection(new Paginator([],15));
         }
 
