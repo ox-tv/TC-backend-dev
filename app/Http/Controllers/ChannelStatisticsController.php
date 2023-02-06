@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
-use App\Models\ChannelStatisticsDaily;
 use App\Models\MonetizePoint;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -504,7 +502,7 @@ class ChannelStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
 
             $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
@@ -551,7 +549,7 @@ class ChannelStatisticsController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $channelStatisticsQuery = channelStatisticsDaily::where('channel_id', $channel->id)
+            $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth())->get();
 
