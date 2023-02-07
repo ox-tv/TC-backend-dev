@@ -329,7 +329,7 @@ class Video extends Model
     }*/
 
     public function dailyStatistics(){
-        return $this->hasMany('App\Models\VideoStatisticsDaily');
+        return $this->hasMany('App\Models\Channel2StatisticsDaily');
     }
 
 

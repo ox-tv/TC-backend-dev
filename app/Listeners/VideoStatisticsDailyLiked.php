@@ -3,8 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\VideoLiked;
-use App\Models\UserVideo;
-use App\Models\VideoStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,7 +39,7 @@ class VideoStatisticsDailyLiked
         $pointsPerDisLikeNonHero = config('general.points.per_dislike_non_hero');
 
 
-        $statistics = VideoStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
