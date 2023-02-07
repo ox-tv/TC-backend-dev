@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class GeneralController extends Controller
@@ -26,114 +27,142 @@ class GeneralController extends Controller
     {
         $result = [];
         $user = auth('api')->user();
-        $videoIds = \App\Models\Video::typeVideo()->published()->pluck('id')->toArray();
-        $podcastIds = \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
+        $videoIds =  Cache::remember('home_total_video_ids', 60 * 60 , function () {
+            return \App\Models\Video::typeVideo()->published()->pluck('id')->toArray();
+        });
+        $podcastIds = Cache::remember('home_total_podcast_ids', 60 * 60 , function () {
+            return \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
+        });
 
         // Trending Channels
-        $trendingChannelIds = ChannelStatisticsDaily::raw(function($collection) {
-            return $collection->aggregate([
-                ['$match' => [
-                    'date' => ['$gte'=> ChannelStatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
-                ]],
-                ['$group' => [
-                    '_id' => '$channel_id',
-                    'subscribers' => ['$sum' => ['$subtract'=> ['$subscribers_total', '$unsubscribers_total']]],
-                ]],
-                ['$sort' => ['subscribers' => -1, '_id' => -1]],
-                ['$limit' => 15]
-            ]);
-        })->pluck('_id')->toArray();
+        $result['trending_channels'] = Cache::remember('home_trending_channels', 60 * 60 , function () {
+            $trendingChannelIds = Channel2StatisticsDaily::raw(function($collection) {
+                return $collection->aggregate([
+                    ['$match' => [
+                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                    ]],
+                    ['$group' => [
+                        '_id' => '$channel_id',
+                        'amount' => ['$sum' => ['$add' => [['$subtract'=> ['$subscribers_total', '$unsubscribers_total']], ['$subtract'=> ['$likes_total', '$dislikes_total']]]]],
+                    ]],
+                    ['$sort' => ['amount' => -1, '_id' => -1]],
+                    ['$limit' => 15]
+                ]);
+            })->pluck('_id')->toArray();
 
-        $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
+            $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
 
-        $trendingChannels = Channel::published()
-            ->when(!empty($orderByTrendingChannelIds), function ($q) use ($orderByTrendingChannelIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingChannelIds) DESC, Created_at DESC");
-            })
-            ->take(15)
-            ->get()
-            ->append(['is_subscribed', 'subscribers_count']);
-        $result['trending_channels'] = ChannelResource::collection($trendingChannels);
+            $trendingChannels = Channel::published()
+                ->orderByRaw((!empty($orderByTrendingChannelIds)?"FIELD(id,$orderByTrendingChannelIds) DESC, ": "") . "Created_at DESC")
+                ->take(15)
+                ->get()
+                ->append(['is_subscribed', 'subscribers_count']);
+
+            return ChannelResource::collection($trendingChannels)->jsonSerialize();
+        });
+
 
         // Trending Videos
-        $trendingVideoIds = MonetizePoint::raw(function($collection) use ($videoIds) {
-            return $collection->aggregate([
-                ['$match' => [
-                    'related_to_type' => Video::class,
-                    'related_to_id' => ['$in'=> $videoIds],
-                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
-                ]],
-                ['$group' => [
-                    '_id' => '$related_to_id',
-                    'amount' => ['$sum' => '$amount'],
-                ]],
-                ['$sort' => ['amount' => -1, '_id' => -1]],
-                ['$limit' => 24]
-            ]);
-        })->pluck('_id')->toArray();
+        $result['trending_videos'] = Cache::remember('home_trending_videos', 60 * 60 , function () use ($videoIds) {
+            $trendingVideoIds = Channel2StatisticsDaily::raw(function($collection) use ($videoIds) {
+                return $collection->aggregate([
+                    ['$match' => [
+                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                        'video_id' => ['$in'=> $videoIds],
+                    ]],
+                    ['$group' => [
+                        '_id' => '$video_id',
+                        'amount' => [
+                            '$sum' => [
+                                '$add' => [
+                                    '$views_total',
+                                    ['$multiply' => [['$subtract' => ['$likes_total', '$dislikes_total']], 50]]
+                                ]
+                            ]
+                        ],
+                    ]],
+                    ['$sort' => ['amount' => -1, '_id' => -1]],
+                    ['$limit' => 24]
+                ]);
+            })->pluck('_id')->toArray();
 
-        $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
+            $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
 
-        $trendingVideos = Video::published()->typeVideo()
-            ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingVideoIds), function ($q) use ($orderByTrendingVideoIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingVideoIds) DESC, published_at DESC");
-            })
-            ->take(24)
-            ->with(['channel'])
-            ->get()
-            ->append(['is_bookmarked']);
-        $result['trending_videos'] = VideoResource::collection($trendingVideos);
+            $trendingVideos = Video::published()->typeVideo()
+                ->withoutGlobalScope(OrderDescScope::class)
+                ->orderByRaw((!empty($orderByTrendingVideoIds)?"FIELD(id,$orderByTrendingVideoIds) DESC, ": "") . "published_at DESC")
+                ->take(24)
+                ->with(['channel'])
+                ->get()
+                ->append(['is_bookmarked']);
+
+            return VideoResource::collection($trendingVideos)->jsonSerialize();
+        });
+
 
         // Trending Podcasts
-        $trendingPodcastIds = MonetizePoint::raw(function($collection) use ($podcastIds) {
-            return $collection->aggregate([
-                ['$match' => [
-                    'related_to_type' => Video::class,
-                    'related_to_id' => ['$in'=> $podcastIds],
-                    'date' => ['$gte'=> MonetizePoint::fromDateTime(Carbon::now()->subDays(3))],
-                ]],
-                ['$group' => [
-                    '_id' => '$related_to_id',
-                    'amount' => ['$sum' => '$amount'],
-                ]],
-                ['$sort' => ['amount' => -1, '_id' => -1]],
-                ['$limit' => 24]
-            ]);
-        })->pluck('_id')->toArray();
+        $result['trending_podcasts'] = Cache::remember('home_trending_podcasts', 60 * 60 , function () use ($podcastIds) {
+            $trendingPodcastIds = Channel2StatisticsDaily::raw(function($collection) use ($podcastIds) {
+                return $collection->aggregate([
+                    ['$match' => [
+                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                        'video_id' => ['$in'=> $podcastIds],
+                    ]],
+                    ['$group' => [
+                        '_id' => '$video_id',
+                        'amount' => [
+                            '$sum' => [
+                                '$add' => [
+                                    '$views_total',
+                                    ['$multiply' => [['$subtract' => ['$likes_total', '$dislikes_total']], 50]]
+                                ]
+                            ]
+                        ],
+                    ]],
+                    ['$sort' => ['amount' => -1, '_id' => -1]],
+                    ['$limit' => 24]
+                ]);
+            })->pluck('_id')->toArray();
 
-        $orderByTrendingPodcastIds = implode(',', array_reverse($trendingPodcastIds));
+            $orderByTrendingPodcastIds = implode(',', array_reverse($trendingPodcastIds));
 
-        $trendingPodcasts = Video::published()->typePodcast()
-            ->withoutGlobalScope(OrderDescScope::class)
-            ->when(!empty($orderByTrendingPodcastIds), function ($q) use ($orderByTrendingPodcastIds){
-                $q->orderByRaw("FIELD(id,$orderByTrendingPodcastIds) DESC, published_at DESC");
-            })
-            ->take(24)
-            ->with(['channel'])
-            ->get()
-            ->append(['is_bookmarked']);
-        $result['trending_podcasts'] = VideoResource::collection($trendingPodcasts);
+            $trendingPodcasts = Video::published()->typePodcast()
+                ->withoutGlobalScope(OrderDescScope::class)
+                ->orderByRaw((!empty($orderByTrendingPodcastIds)?"FIELD(id,$orderByTrendingPodcastIds) DESC, ": "") . "published_at DESC")
+                ->take(24)
+                ->with(['channel'])
+                ->get()
+                ->append(['is_bookmarked']);
+
+            return VideoResource::collection($trendingPodcasts)->jsonSerialize();
+        });
+
 
         // Latest Media On TC
-        $latestMedia = Video::published()
-            ->take(24)
-            ->with(['channel'])
-            ->withoutGlobalScope(OrderDescScope::class)
-            ->orderBy('published_at', 'desc')
-            ->get()
-            ->append(['is_bookmarked']);
-        $result['latest_media'] = VideoResource::collection($latestMedia);
+        $result['latest_media'] = Cache::remember('home_latest_media', 60 * 60 , function () {
+            $latestMedia = Video::published()
+                ->take(24)
+                ->with(['channel'])
+                ->withoutGlobalScope(OrderDescScope::class)
+                ->orderBy('published_at', 'desc')
+                ->get()
+                ->append(['is_bookmarked']);
+
+            return VideoResource::collection($latestMedia)->jsonSerialize();
+        });
 
 
         // Top Channels
-        $topChannels = Channel::published()
-            ->withCount('subscribers')
-            ->orderBy('subscribers_count', 'desc')
-            ->take(15)
-            ->get()
-            ->append('is_subscribed');
-        $result['top_channels'] = ChannelResource::collection($topChannels);
+        $result['top_channels'] = Cache::remember('home_top_channels', 60 * 60 , function () {
+            $topChannels = Channel::published()
+                ->withCount('subscribers')
+                ->orderBy('subscribers_count', 'desc')
+                ->take(15)
+                ->get()
+                ->append('is_subscribed');
+
+            return ChannelResource::collection($topChannels)->jsonSerialize();
+        });
 
 
         if ($user){
