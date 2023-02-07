@@ -237,12 +237,16 @@ class VideoStatisticsController extends Controller
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
                 'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
                 'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
+                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
                 'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
                 'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
+                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
                 'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
                 'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
+                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
                 'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
                 'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
+                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
             ];
         }
 
@@ -270,12 +274,16 @@ class VideoStatisticsController extends Controller
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
                 'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
                 'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
+                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
                 'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
                 'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
+                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
                 'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
                 'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
+                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
                 'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
                 'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
+                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
             ];
         }
 
