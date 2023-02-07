@@ -235,10 +235,14 @@ class VideoStatisticsController extends Controller
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
-                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
-                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
-                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
-                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+                'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
+                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
+                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
+                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
             ];
         }
 
@@ -264,10 +268,14 @@ class VideoStatisticsController extends Controller
             $statistics[$date] = [
                 'date' => $date,
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
-                'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
-                'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
-                'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
-                'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
+                'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
+                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
+                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
+                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
             ];
         }
 
