@@ -4,6 +4,7 @@ namespace App\Repository\Eloquent;
 
 use App\Models\Channel;
 use App\Models\Video;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -63,5 +64,14 @@ class ChannelRepository
             DB::rollback();
             return false;
         }
+    }
+
+    public function subscribedChannelIds($user)
+    {
+        return Cache::remember("user{$user->id}_subscribedChannelIds", 10 /* TODO: uncomment this section: 24 * 60 * 60*/ , function () use ($user) {
+            return DB::table('channel_user')
+                ->where('user_id', $user->id)
+                ->pluck('channel_id')->toArray();
+        });
     }
 }
