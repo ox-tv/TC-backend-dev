@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use App\Repository\Eloquent\ChannelRepository;
-use App\Repository\Eloquent\CommentRepository;
-use App\Repository\Eloquent\VideoRepository;
+use App\Repository\Eloquent\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class Channel extends Model
 {
@@ -194,10 +191,10 @@ class Channel extends Model
 
     public function getIsSubscribedAttribute()
     {
-        $repository = new ChannelRepository(new VideoRepository(new CommentRepository()));
+        $repository = new UserRepository();
 
         return auth('api')->check()
-            && in_array($this->id, $repository->subscribedChannelIds(auth('api')->user()));
+            && in_array($this->id, $repository->subscribedChannelIds(auth('api')->id()));
     }
 
     public function getSubscribersCountAttribute()
