@@ -3,8 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\VideoLiked;
-use App\Models\UserVideo;
-use App\Models\VideoStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,7 +39,7 @@ class VideoStatisticsDailyLiked
         $pointsPerDisLikeNonHero = config('general.points.per_dislike_non_hero');
 
 
-        $statistics = VideoStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
@@ -53,22 +52,10 @@ class VideoStatisticsDailyLiked
         if($user && $user->is_hero){
             $statistics->likes_hero += $likeAmount;
             $statistics->dislikes_hero += $dislikeAmount;
-
-            if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
-                $statistics->points += ($pointsPerLikeHero * $likeAmount);
-                $statistics->points += (-1 * $pointsPerDisLikeHero * $dislikeAmount);
-            }
         }else{
             $statistics->likes_non_hero += $likeAmount;
             $statistics->dislikes_non_hero += $dislikeAmount;
-
-            if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
-                $statistics->points += ($pointsPerLikeNonHero * $likeAmount);
-                $statistics->points += (-1 * $pointsPerDisLikeNonHero * $dislikeAmount);
-            }
         }
-
-        $statistics->point_details = $statistics->calcPointDetails();
 
         $statistics->save();
 

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\MonetizePoint;
 use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -27,7 +27,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
 
-        $statisticsQuery = VideoStatisticsDaily::where([
+        $statisticsQuery = Channel2StatisticsDaily::where([
             'video_id' => $video->id
         ]);
 
@@ -79,7 +79,7 @@ class VideoStatisticsController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where([
+            $videoStatisticsQuery = Channel2StatisticsDaily::where([
                     'video_id' => $video->id
                 ])
                 ->where('date', '>=', Carbon::parse($from_day))
@@ -105,7 +105,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
 
-        $statisticsQuery = VideoStatisticsDaily::where([
+        $statisticsQuery = Channel2StatisticsDaily::where([
             'video_id' => $video->id
         ]);
 
@@ -173,7 +173,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
         // Get overview data
-        $statisticsQuery = VideoStatisticsDaily::where(['video_id' => $video->id]);
+        $statisticsQuery = Channel2StatisticsDaily::where(['video_id' => $video->id]);
         $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id);
 
         $result['overview']['points'] = natural_intval($monetizePointQuery->sum('amount'));
@@ -226,7 +226,7 @@ class VideoStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+            $videoStatisticsQuery = Channel2StatisticsDaily::where('video_id', $video->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')));
 
             $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id)
@@ -235,9 +235,17 @@ class VideoStatisticsController extends Controller
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
+                'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
                 'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
+                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
                 'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
+                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
                 'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
+                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
                 'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
             ];
         }
@@ -253,7 +261,7 @@ class VideoStatisticsController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+            $videoStatisticsQuery = Channel2StatisticsDaily::where('video_id', $video->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth());
 
@@ -264,9 +272,17 @@ class VideoStatisticsController extends Controller
             $statistics[$date] = [
                 'date' => $date,
                 'points' => natural_intval($monetizePointQuery->sum('amount')),
+                'views_hero' => natural_intval($videoStatisticsQuery->sum('views_hero')),
+                'views_non_hero' => natural_intval($videoStatisticsQuery->sum('views_non_hero')),
                 'views_total' => natural_intval($videoStatisticsQuery->sum('views_total')),
+                'likes_hero' => natural_intval($videoStatisticsQuery->sum('likes_hero')),
+                'likes_non_hero' => natural_intval($videoStatisticsQuery->sum('likes_non_hero')),
                 'likes_total' => natural_intval($videoStatisticsQuery->sum('likes_total')),
+                'dislikes_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_hero')),
+                'dislikes_non_hero' => natural_intval($videoStatisticsQuery->sum('dislikes_non_hero')),
                 'dislikes_total' => natural_intval($videoStatisticsQuery->sum('dislikes_total')),
+                'watch_time_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_hero')),
+                'watch_time_non_hero' => natural_intval($videoStatisticsQuery->sum('watch_time_non_hero')),
                 'watch_time_total' => natural_intval($videoStatisticsQuery->sum('watch_time_total')),
             ];
         }

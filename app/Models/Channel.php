@@ -174,12 +174,12 @@ class Channel extends Model
 
     public function getTotalLikesAttribute()
     {
-        return VideoStatisticsDaily::where('channel_id', $this->id)->sum('likes_total');
+        return Channel2StatisticsDaily::where('channel_id', $this->id)->sum('likes_total');
     }
 
     public function getTotalDislikesAttribute()
     {
-        return VideoStatisticsDaily::where('channel_id', $this->id)->sum('dislikes_total');
+        return Channel2StatisticsDaily::where('channel_id', $this->id)->sum('dislikes_total');
     }
 
     public function getTotalCommentsAttribute()

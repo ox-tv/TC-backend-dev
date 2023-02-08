@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\VideoViewed;
 use App\Events\VideoWatched;
-use App\Models\VideoStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 
 class VideoWatchedDataForVideoStatisticsDaily
@@ -36,7 +36,7 @@ class VideoWatchedDataForVideoStatisticsDaily
 
 
         // Add +1 to user statistics
-        $statistics = VideoStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
