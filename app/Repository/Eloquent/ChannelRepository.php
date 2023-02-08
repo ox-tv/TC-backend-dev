@@ -65,13 +65,4 @@ class ChannelRepository
             return false;
         }
     }
-
-    public function subscribedChannelIds($user)
-    {
-        return Cache::remember("user{$user->id}_subscribedChannelIds", 10 /* TODO: uncomment this section: 24 * 60 * 60*/ , function () use ($user) {
-            return DB::table('channel_user')
-                ->where('user_id', $user->id)
-                ->pluck('channel_id')->toArray();
-        });
-    }
 }
