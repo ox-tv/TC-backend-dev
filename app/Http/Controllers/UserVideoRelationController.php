@@ -91,7 +91,7 @@ class UserVideoRelationController extends Controller
             $bookmarkStatus = true;
         }
 
-        Cache::forget("user{$userId}_subscribedChannelIds");
+        Cache::forget("user{$userId}_bookmarkedVideoIds");
 
         return response()->json([
             'is_bookmarked' => $bookmarkStatus,
