@@ -282,10 +282,8 @@ class User extends Authenticatable
 
     public function getBookmarkedVideosCountAttribute()
     {
-        return DB::table('user_video')->where([
-            'relation' => UserVideo::BOOKMARKED_RELATION,
-            'user_id' => $this->id
-        ])->count();
+        $repository = new UserRepository();
+        return $repository->bookmarkedVideosCount($this->id);
     }
 
     public function getCommentsCountAttribute()

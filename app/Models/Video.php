@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
+use App\Repository\Eloquent\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -391,12 +392,10 @@ class Video extends Model
 
     public function getIsBookmarkedAttribute()
     {
+        $repository = new UserRepository();
+
         return auth('api')->check()
-            && UserVideo::where([
-                "user_id" => auth('api')->id(),
-                "video_id" => $this->id,
-                "relation" => UserVideo::BOOKMARKED_RELATION
-            ])->exists();
+            && in_array($this->id, $repository->bookmarkedVideoIds(auth('api')->id()));
     }
 
     public function getStatusTextAttribute()
