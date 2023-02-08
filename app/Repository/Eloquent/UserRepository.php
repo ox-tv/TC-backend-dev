@@ -12,7 +12,7 @@ class UserRepository
 {
     public function subscribedChannelIds($userId)
     {
-        return Cache::remember("user{$userId}_subscribedChannelIds", 10 /* TODO: uncomment this section: 24 * 60 * 60*/ , function () use ($userId) {
+        return Cache::remember("user{$userId}_subscribedChannelIds", 24 * 60 * 60 , function () use ($userId) {
             return DB::table('channel_user')
                 ->where('user_id', $userId)
                 ->pluck('channel_id')->toArray();
