@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\Comments\CommentCreated;
 use App\Events\VideoViewed;
-use App\Models\VideoStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 
 class VideoStatisticsDailyCommented
@@ -22,7 +22,7 @@ class VideoStatisticsDailyCommented
         $video = $comment->video()->first();
         $channel = $video->channel;
 
-        $statistics = VideoStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),

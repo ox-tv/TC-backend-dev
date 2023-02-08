@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\ChannelSubscribed;
 use App\Events\VideoLiked;
-use App\Models\ChannelStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 
 class ChannelStatisticsDailySubscribed
@@ -33,11 +33,11 @@ class ChannelStatisticsDailySubscribed
         $unSubscribersCount = $event->unSubscribersCount;
 
 
-        $statistics = ChannelStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'channel_id' => $channel->id,
+            'video_id' => null,
             'date' => Carbon::now()->startOfDay(),
         ]);
-
 
         $statistics->subscribers_total += $subscribersCount;
         $statistics->unsubscribers_total += $unSubscribersCount;

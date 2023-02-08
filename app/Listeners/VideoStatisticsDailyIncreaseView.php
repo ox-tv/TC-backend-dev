@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\VideoViewed;
-use App\Models\VideoStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -33,7 +33,7 @@ class VideoStatisticsDailyIncreaseView
         $channel = $video->channel;
         $pointsPerView = config('general.points.per_view');
 
-        $statistics = VideoStatisticsDaily::firstOrNew([
+        $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
@@ -46,12 +46,6 @@ class VideoStatisticsDailyIncreaseView
         }else{
             $statistics->views_non_hero += 1;
         }
-
-        if ($channel->monetization_qualified_at && $channel->monetization_qualified_at < Carbon::now()){
-            $statistics->points += $pointsPerView;
-        }
-
-        $statistics->point_details = $statistics->calcPointDetails();
 
         $statistics->save();
 

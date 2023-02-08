@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoStatisticsDaily\VideoStatisticsDailyItem;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\MonetizePoint;
 use App\Models\Video;
-use App\Models\VideoStatisticsDaily;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -27,7 +27,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
 
-        $statisticsQuery = VideoStatisticsDaily::where([
+        $statisticsQuery = Channel2StatisticsDaily::where([
             'video_id' => $video->id
         ]);
 
@@ -79,7 +79,7 @@ class VideoStatisticsController extends Controller
             $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where([
+            $videoStatisticsQuery = Channel2StatisticsDaily::where([
                     'video_id' => $video->id
                 ])
                 ->where('date', '>=', Carbon::parse($from_day))
@@ -105,7 +105,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
 
-        $statisticsQuery = VideoStatisticsDaily::where([
+        $statisticsQuery = Channel2StatisticsDaily::where([
             'video_id' => $video->id
         ]);
 
@@ -173,7 +173,7 @@ class VideoStatisticsController extends Controller
         $video = $videoQuery->firstOrFail();
 
         // Get overview data
-        $statisticsQuery = VideoStatisticsDaily::where(['video_id' => $video->id]);
+        $statisticsQuery = Channel2StatisticsDaily::where(['video_id' => $video->id]);
         $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id);
 
         $result['overview']['points'] = natural_intval($monetizePointQuery->sum('amount'));
@@ -226,7 +226,7 @@ class VideoStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+            $videoStatisticsQuery = Channel2StatisticsDaily::where('video_id', $video->id)
                 ->where('date', Carbon::parse($day->format('Y-m-d')));
 
             $monetizePointQuery = MonetizePoint::where('related_to_type', Video::class)->where('related_to_id', $video->id)
@@ -261,7 +261,7 @@ class VideoStatisticsController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $videoStatisticsQuery = VideoStatisticsDaily::where('video_id', $video->id)
+            $videoStatisticsQuery = Channel2StatisticsDaily::where('video_id', $video->id)
                 ->where('date', '>=', $month->copy()->startOfMonth())
                 ->where('date', '<=', $month->copy()->endOfMonth());
 

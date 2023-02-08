@@ -3,7 +3,7 @@
 namespace App\Console\Commands\Recalculation;
 
 use App\Models\Channel;
-use App\Models\ChannelStatisticsDaily;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -46,8 +46,10 @@ class RecalculateChannelStatisticsDaily extends Command
                 ->pluck('vides_count', 'date')->toArray();
 
             foreach ($totalVideos as $date => $count){
-                $statistics = ChannelStatisticsDaily::firstOrNew([
+
+                $statistics = Channel2StatisticsDaily::firstOrNew([
                     'channel_id' => $channel->id,
+                    'video_id' => null,
                     'date' => Carbon::parse($date)->startOfDay(),
                 ]);
 
@@ -63,8 +65,10 @@ class RecalculateChannelStatisticsDaily extends Command
                 ->pluck('vides_count', 'date')->toArray();
 
             foreach ($totalPublishedVideos as $date => $count){
-                $statistics = ChannelStatisticsDaily::firstOrNew([
+
+                $statistics = Channel2StatisticsDaily::firstOrNew([
                     'channel_id' => $channel->id,
+                    'video_id' => null,
                     'date' => Carbon::parse($date)->startOfDay(),
                 ]);
 

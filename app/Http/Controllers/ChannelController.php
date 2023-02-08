@@ -340,8 +340,6 @@ class ChannelController extends Controller
             });
 
         $result = [
-            //'points_hero' => $pointService->calcHeroPoint($user,['from' => $from, 'to' => $to]),
-            //'points_non_hero' => $pointService->calcNonHeroPoint($user,['from' => $from, 'to' => $to]),
             'points_total' => intval($pointsQuery->sum('amount')),
             'points_channel' => intval($pointsQuery->where('channel_id', $user->channel->id)->sum('amount')),
             'earning_channel' => intval($earningAmount),
@@ -384,8 +382,6 @@ class ChannelController extends Controller
 
             $result[$month->format("Y-m")] = [
                 'date' => $month->format("Y-m"),
-//                'points_hero' => intval($pointService->calcHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
-//                'points_non_hero' => intval($pointService->calcNonHeroPoint($user,['from' => $from_day, 'to' => $to_day])),
                 'points_hero' => 0,
                 'points_non_hero' => 0,
                 'points_total' => intval($pointsTotal),
