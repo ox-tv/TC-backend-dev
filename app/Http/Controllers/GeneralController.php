@@ -28,10 +28,10 @@ class GeneralController extends Controller
         $result = [];
         $user = auth('api')->user();
         $videoIds =  Cache::remember('home_total_video_ids', 60 * 60 , function () {
-            return \App\Models\Video::typeVideo()->published()->pluck('id')->toArray();
+            return Video::typeVideo()->published()->pluck('id')->toArray();
         });
         $podcastIds = Cache::remember('home_total_podcast_ids', 60 * 60 , function () {
-            return \App\Models\Video::typePodcast()->published()->pluck('id')->toArray();
+            return Video::typePodcast()->published()->pluck('id')->toArray();
         });
 
         // Trending Channels
