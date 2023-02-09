@@ -14,6 +14,8 @@ class CryptoCurrencyController extends Controller
 {
     public function index(Request $request)
     {
+        $isRelatedToCryptoCampaigns = $request->is('api/admin/cryptocurrencies/relatedto-campaigns');
+
         $query = CryptoCurrency::where('status', CryptoCurrency::STATUS_LIST);
 
         $filters = $request->get('filters', []);
@@ -40,6 +42,10 @@ class CryptoCurrencyController extends Controller
             $query->whereHas('users', function ($q){
                 $q->where('id', auth('api')->id());
             });
+        }
+
+        if ($isRelatedToCryptoCampaigns){
+            $query->whereHas('cryptoCampaigns');
         }
 
         $sort = $request->get('sort');
