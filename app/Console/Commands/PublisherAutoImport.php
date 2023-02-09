@@ -47,10 +47,9 @@ class PublisherAutoImport extends Command
 
             $channel = Channel::where('status', Channel::STATUS_PUBLISHED)
                 ->where('youtube_last_scraped_at', '<=', Carbon::now()->subHour())
-                ->take(1)
-                ->get();
+                ->take(1);
 
-            if(count($channel)){
+            if($channel->exists()){
 
                 $channel->update([
                     'import_request_status' => Channel::IMPORT_STATUS_SYNC
