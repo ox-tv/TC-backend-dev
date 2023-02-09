@@ -32,12 +32,6 @@ class PublisherAutoImport extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
-
 
     public function handle()
     {
@@ -50,13 +44,11 @@ class PublisherAutoImport extends Command
                 ->take(1);
 
             if($channel->exists()){
-
+ 
                 $channel->update([
                     'import_request_status' => Channel::IMPORT_STATUS_SYNC
                 ]);
-
-                return $channel;
-
+                
             }
 
         }
