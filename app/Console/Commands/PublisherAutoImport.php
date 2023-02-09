@@ -41,6 +41,11 @@ class PublisherAutoImport extends Command
 
             $channel = Channel::where('status', Channel::STATUS_PUBLISHED)
                 ->where('youtube_last_scraped_at', '<=', Carbon::now()->subHour())
+                ->whereHas('owner', function ($q){
+                    $q->whereHas('meta', function ($q){
+                        $q->where('key', 'auto_import')->where('value', true);
+                    });
+                })
                 ->take(1);
 
             if($channel->exists()){
