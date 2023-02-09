@@ -19,6 +19,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -287,6 +288,8 @@ class ChannelController extends Controller
         }else{
             $channel->subscribers()->attach(auth('api')->user());
         }
+
+        Cache::forget("user{$user->id}_subscribedChannelIds");
 
         $channel->append(['is_subscribed']);
 

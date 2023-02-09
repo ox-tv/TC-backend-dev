@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Amir\Permission\Models\Role;
 use Amir\Permission\Traits\HasRoles;
+use App\Repository\Eloquent\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -281,10 +282,8 @@ class User extends Authenticatable
 
     public function getBookmarkedVideosCountAttribute()
     {
-        return DB::table('user_video')->where([
-            'relation' => UserVideo::BOOKMARKED_RELATION,
-            'user_id' => $this->id
-        ])->count();
+        $repository = new UserRepository();
+        return $repository->bookmarkedVideosCount($this->id);
     }
 
     public function getCommentsCountAttribute()
@@ -294,7 +293,9 @@ class User extends Authenticatable
 
     public function getSubscribedChannelsCountAttribute()
     {
-        return DB::table('channel_user')->where('user_id', $this->id)->count();
+        $repository = new UserRepository();
+
+        return $repository->subscribedChannelsCount($this->id);
     }
 
     public function getPublisherRequestDetailsAttribute($value)

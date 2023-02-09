@@ -6,6 +6,7 @@ use App\Events\VideoLiked;
 use App\Models\Video;
 use App\Models\UserVideo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class UserVideoRelationController extends Controller
 {
@@ -79,8 +80,6 @@ class UserVideoRelationController extends Controller
 
         $isBookmarked = $video->bookmarkedBy()->find($userId);
 
-        $bookmarkStatus = null;
-
         if($isBookmarked){
 
             $video->bookmarkedBy()->wherePivot('relation', UserVideo::BOOKMARKED_RELATION)->detach($userId);
@@ -90,8 +89,9 @@ class UserVideoRelationController extends Controller
 
             $video->bookmarkedBy()->attach($userId, ['relation' => UserVideo::BOOKMARKED_RELATION]);
             $bookmarkStatus = true;
-
         }
+
+        Cache::forget("user{$userId}_bookmarkedVideoIds");
 
         return response()->json([
             'is_bookmarked' => $bookmarkStatus,

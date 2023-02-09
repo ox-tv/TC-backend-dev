@@ -4,6 +4,7 @@ namespace App\Repository\Eloquent;
 
 use App\Models\Channel;
 use App\Models\Video;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
