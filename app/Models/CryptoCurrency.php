@@ -51,6 +51,11 @@ class CryptoCurrency extends Model
         return $this->belongsToMany('App\Models\Video', 'crypto_currency_video');
     }
 
+    public function cryptoCampaigns()
+    {
+        return $this->belongsToMany('App\Models\CryptoCampaign', 'campaign_crypto_currency');
+    }
+
     public function users()
     {
         return $this->belongsToMany('App\Models\User', 'crypto_currency_user');

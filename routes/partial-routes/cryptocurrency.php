@@ -36,5 +36,6 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
+    Route::get('cryptocurrencies/relatedto-campaigns', '\App\Http\Controllers\CryptoCurrencyController@index')->name('cryptocurrencies.relatedto-campaigns');
 
 });
