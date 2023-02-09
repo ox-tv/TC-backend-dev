@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('telescope:prune')->daily();
 
-        $schedule->command('auto_import')->runInBackground()->hourly();
+        $schedule->command('auto_import')->runInBackground()->everyMinute();
 
     }
 
