@@ -510,6 +510,7 @@ class UserController extends Controller
             'is_conversion',
             'loyalty_points',
             'isHeroMembershipAutoRenewal',
+            'channelAutoImportIsActive',
         ]);
 
         if ($user->channel){
