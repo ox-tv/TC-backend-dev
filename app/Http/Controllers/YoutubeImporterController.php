@@ -159,7 +159,7 @@ class YoutubeImporterController extends Controller
     public function toggleAutoImport(Request $request)
     {
         $request->validate([
-            'status' => 'required|boolean'
+            'active' => 'required|boolean'
         ]);
 
         $user = auth('api')->user();
@@ -171,7 +171,7 @@ class YoutubeImporterController extends Controller
 
         $user->meta()->updateOrCreate(
             ['key' => UserMeta::ChannelAutoImportIsActive],
-            ['value' => $request->get('status'),]
+            ['value' => $request->get('active'),]
         );
 
         return response()->json(['status' => 'ok']);

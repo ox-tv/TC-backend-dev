@@ -215,6 +215,10 @@ class Channel extends Model
         return self::IMPORT_STATUS_TEXT[$this->import_request_status]?? $this->import_request_status;
     }
 
+    public function getYoutubeNextScrapAtAttribute(){
+        return $this->youtube_last_scraped_at? $this->youtube_last_scraped_at->addHours(4) : null;
+    }
+
     public function getAvatarAttribute($value)
     {
         return $this->avatar_url? : $value;
