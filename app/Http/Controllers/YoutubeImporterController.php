@@ -11,6 +11,7 @@ use App\Libraries\YIClient;
 use App\Models\Channel;
 use App\Models\Language;
 use App\Models\Subtitle;
+use App\Models\UserMeta;
 use App\Models\Video;
 use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
@@ -151,6 +152,27 @@ class YoutubeImporterController extends Controller
 
         $channel->import_request_status = Channel::IMPORT_STATUS_SYNC;
         $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function toggleAutoImport(Request $request)
+    {
+        $request->validate([
+            'active' => 'required|boolean'
+        ]);
+
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
+        if (!$channel){
+            return response()->json(['message' => 'Channel is not found for this user'], 404);
+        }
+
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::ChannelAutoImportIsActive],
+            ['value' => $request->get('active'),]
+        );
 
         return response()->json(['status' => 'ok']);
     }
