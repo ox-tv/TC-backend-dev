@@ -264,6 +264,15 @@ class User extends Authenticatable
         return $urls;
     }
 
+    public function getChannelAutoImportIsActiveAttribute()
+    {
+        $meta = DB::table('user_meta')
+            ->where('user_id', $this->id)
+            ->where('key', UserMeta::ChannelAutoImportIsActive)
+            ->first();
+        return $meta && $meta->value;
+    }
+
     public function getLikedVideosCountAttribute()
     {
         return DB::table('user_video')->where([
