@@ -15,6 +15,7 @@ class CryptoCurrencyController extends Controller
     public function index(Request $request)
     {
         $isRelatedToCryptoCampaigns = $request->is('api/admin/cryptocurrencies/relatedto-campaigns');
+        $isMarket = $request->is('api/market/cryptocurrencies');
 
         $query = CryptoCurrency::where('status', CryptoCurrency::STATUS_LIST);
 
@@ -72,6 +73,10 @@ class CryptoCurrencyController extends Controller
         }
 
         $data->append(['is_favorite']);
+
+        if ($isMarket){
+            $data->load('cryptoCampaigns');
+        }
 
         // Fill MetaData if empty
         $this->FillMetaDataColumn($data);

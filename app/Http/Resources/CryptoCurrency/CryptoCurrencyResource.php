@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\CryptoCurrency;
 
+use App\Http\Resources\CryptoCampaign\CryptoCampaignResource;
 use App\Http\Resources\Video\VideoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,6 +36,7 @@ class CryptoCurrencyResource extends JsonResource
 
             // Relations
             'videos' => VideoResource::collection($this->whenLoaded('videos')),
+            'campaigns' => CryptoCampaignResource::collection($this->whenLoaded('cryptoCampaigns')),
         ];
     }
 }
