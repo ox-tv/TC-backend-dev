@@ -8,14 +8,17 @@ use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Libraries\YIClient;
+use App\Models\Category;
 use App\Models\Channel;
 use App\Models\CryptoCurrency;
 use App\Models\Language;
 use App\Models\Subtitle;
+use App\Models\Tag;
 use App\Models\UserMeta;
 use App\Models\Video;
 use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -128,7 +131,34 @@ class YoutubeImporterController extends Controller
 
         DB::transaction(function () use ($request, $video, $tags, $cryptoCurrencyIDs){
 
-        $video->save();
+            $video->save();
+
+//            // adding categories
+//            if($request->get('categories')){
+//                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+//            }
+
+            // adding crypto currencies
+            if($cryptoCurrencyIDs){
+                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
+            }
+
+            // adding tags
+            if($tags){
+                $tags = collect($tags);
+
+                $tags->map(function ($tag) use ($video){
+                    $video->tags()->save($this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
+                    ]));
+                });
+            }
+
+        });
+
+
 
         if (!empty($request->get('subtitles'))){
             foreach ($request->get('subtitles') as $subtitle){
