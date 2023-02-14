@@ -17,11 +17,13 @@ class Tag extends Model
     const CREATION_SCOPE_ADMIN = 1;
     const CREATION_SCOPE_PUBLISHER = 2;
     const CREATION_SCOPE_USER = 3;
+    const CREATION_SCOPE_IMPORTER = 4;
 
     const CREATION_SCOPE_TEXT = [
         self::CREATION_SCOPE_ADMIN => 'admin',
         self::CREATION_SCOPE_PUBLISHER => 'publisher',
         self::CREATION_SCOPE_USER => 'user',
+        self::CREATION_SCOPE_IMPORTER => 'importer',
     ];
 
     // Status field values

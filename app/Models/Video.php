@@ -42,6 +42,7 @@ class Video extends Model
 
     const UPLOAD_METHOD_DIRECT = 1;
     const UPLOAD_METHOD_YOUTUBE = 2;
+    const UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT = 3;
 
     use HasFactory;
     use SoftDeletes;
