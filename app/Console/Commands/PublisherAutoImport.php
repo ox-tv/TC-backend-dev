@@ -41,7 +41,7 @@ class PublisherAutoImport extends Command
 
             $channel = Channel::where('status', Channel::STATUS_PUBLISHED)
                 ->whereNotNull('youtube_channel_id')
-                ->where('youtube_last_scraped_at', '<=', Carbon::now()->subHour())
+                ->where('youtube_last_scraped_at', '<=', Carbon::now()->subHours(config('yi.auto_import_frequency')))
                 ->whereHas('owner', function ($q){
                     $q->whereHas('meta', function ($q){
                         $q->where('key', 'auto_import')->where('value', true);
@@ -50,11 +50,11 @@ class PublisherAutoImport extends Command
                 ->take(1);
 
             if($channel->exists()){
- 
+
                 $channel->update([
                     'import_request_status' => Channel::IMPORT_STATUS_SYNC
                 ]);
-                
+
             }
 
         }
