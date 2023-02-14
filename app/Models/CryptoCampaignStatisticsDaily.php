@@ -17,7 +17,7 @@ class CryptoCampaignStatisticsDaily extends Model
     protected $collection = 'crypto_campaign_statistics_daily';
 
     protected $casts = [
-        //
+        'campaign_id' => 'integer'
     ];
 
     protected $dates = [
@@ -25,9 +25,9 @@ class CryptoCampaignStatisticsDaily extends Model
     ];
 
     protected $attributes = [
-        'registered_users_click' => 0,
-        'unknown_users_click' => 0,
-        'total_click' => 0,
+        'registered_users_clicks' => 0,
+        'unknown_users_clicks' => 0,
+        'total_clicks' => 0,
     ];
 
     public $timestamps = false;

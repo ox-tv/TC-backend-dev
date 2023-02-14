@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CryptoCampaign\CryptoCampaignResource;
 use App\Models\CryptoCampaign;
 use App\Models\CryptoCampaignStatisticsDaily;
+use App\Models\CryptoCurrency;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -137,16 +139,131 @@ class CryptoCampaignController extends Controller
             'date' => Carbon::now()->startOfDay(),
         ]);
 
-        $statistics->total_click += 1;
+        $statistics->total_clicks += 1;
 
         if (auth('api')->check()){
-            $statistics->registered_users_click += 1;
+            $statistics->registered_users_clicks += 1;
         }else{
-            $statistics->unknown_users_click += 1;
+            $statistics->unknown_users_clicks += 1;
         }
 
         $statistics->save();
 
         return response()->json(['message' => 'ok']);
+    }
+
+    public function statistics(Request $request, $campaignId)
+    {
+        $campaign = CryptoCampaign::where('id', $campaignId)->firstOrFail();
+
+        $result = [
+            'overview' => [
+                'total_days_active' => 0,
+                'total_clicks' => 0,
+                'avarage_clicks_per_day' => 0,
+                'max_clicks_per_day' => 0,
+                'min_clicks_per_day' => 0,
+                'registered_users_total_clicks' => 0,
+                'unknown_users_total_clicks' => 0,
+            ],
+            'crypto_currencies' => [],
+            'statistics' => []
+        ];
+
+        $result['overview']['total_days_active'] = Carbon::now()->diffInDays($campaign->created_at);
+        $result['overview']['total_clicks'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->sum('total_clicks');
+        $result['overview']['avarage_clicks_per_day'] = $result['overview']['total_days_active'] > 0 ? $result['overview']['total_clicks'] / $result['overview']['total_days_active'] : 0;
+        $result['overview']['max_clicks_per_day'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->max('total_clicks');
+        $result['overview']['min_clicks_per_day'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->min('total_clicks');
+        $result['overview']['registered_users_total_clicks'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->sum('registered_users_clicks');
+        $result['overview']['unknown_users_total_clicks'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->sum('unknown_users_clicks');
+
+        // Statistics by coins
+        $cryptoCurrencies = CryptoCurrency::whereHas('cryptoCampaigns')->get();
+        foreach ($cryptoCurrencies as $cryptoCurrency){
+            $result['crypto_currencies'][$cryptoCurrency->id] = [
+                'symbol' => $cryptoCurrency->symbol,
+                'total_clicks' => CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->where('crypto_currency_id', $cryptoCurrency->id)->sum('total_clicks')
+            ];
+        }
+
+        // Statistics by campaign id
+        $filters = $request->get('filters', []);
+        $period = Arr::get($filters, 'statistics_period', 'last_30d');
+
+        switch ($period) {
+            case 'last_7d';
+                $from = Carbon::now()->subDays(7)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_14d';
+                $from = Carbon::now()->subDays(14)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_90d';
+                $from = Carbon::now()->subDays(90)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+            case 'last_180d';
+                $from = Carbon::now()->subMonths(5)->startOfDay();
+                $to = Carbon::now()->endOfMonth();
+                break;
+            case 'last_365d';
+                $from = Carbon::now()->subMonths(11)->startOfDay();
+                $to = Carbon::now()->endOfMonth();
+                break;
+            case 'last_30d';
+            default;
+                $from = Carbon::now()->subDays(30)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                break;
+        }
+
+        $result['statistics'] = in_array($period, ['last_365d', 'last_180d'])? $this->monthlyStatistics($campaign, $from, $to) : $this->dailyStatistics($campaign, $from, $to);
+
+        return response()->json($result);
+    }
+
+    private function dailyStatistics($campaign, $from, $to): array
+    {
+        $statistics = [];
+        $periods = CarbonPeriod::create($from, '1 day', $to);
+
+        foreach ($periods as $day) {
+            $query = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)
+                ->where('date', Carbon::parse($day->format('Y-m-d')));
+
+            $statistics[$day->format('Y-m-d')] = [
+                'date' => $day->format('Y-m-d'),
+                'registered_users_clicks' => natural_intval($query->sum('registered_users_clicks')),
+                'unknown_users_clicks' => natural_intval($query->sum('unknown_users_clicks')),
+                'total_clicks' => natural_intval($query->sum('total_clicks')),
+            ];
+        }
+
+        return $statistics;
+    }
+
+    private function monthlyStatistics($campaign, $from, $to): array
+    {
+        $statistics = [];
+        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
+
+        foreach ($monthPeriods as $month) {
+            $date = $month->copy()->startOfMonth()->format("Y-m-d");
+
+            $query = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)
+                ->where('date', '>=', $month->copy()->startOfMonth())
+                ->where('date', '<=', $month->copy()->endOfMonth());
+
+            $statistics[$date] = [
+                'date' => $date,
+                'registered_users_clicks' => natural_intval($query->sum('registered_users_clicks')),
+                'unknown_users_clicks' => natural_intval($query->sum('unknown_users_clicks')),
+                'total_clicks' => natural_intval($query->sum('total_clicks')),
+            ];
+        }
+
+        return $statistics;
     }
 }
