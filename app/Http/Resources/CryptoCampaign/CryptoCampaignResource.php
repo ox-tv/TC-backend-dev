@@ -32,6 +32,8 @@ class CryptoCampaignResource extends JsonResource
 
             // Custom attributes without query
             'status' => $this->status_text,
+            'total_clicks' => 0,
+            'crypto_currencies_count' => 0,
 
             // Custom attributes with query
 

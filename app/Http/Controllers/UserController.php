@@ -510,10 +510,11 @@ class UserController extends Controller
             'is_conversion',
             'loyalty_points',
             'isHeroMembershipAutoRenewal',
+            'channelAutoImportIsActive',
         ]);
 
         if ($user->channel){
-            $user->channel->append(['subscribers_count', 'monetization_qualified_at']);
+            $user->channel->append(['subscribers_count', 'monetization_qualified_at', 'youtube_next_scrap_at']);
         }
 
         return UserResource::make($user);

@@ -47,6 +47,7 @@ class ChannelResource extends JsonResource
             "import_request_status" => $this->import_request_status_text,
             'avatar_thumbnails' => $this->avatar_thumbnails,
             'cover_thumbnails' => $this->cover_thumbnails,
+            'youtube_next_scrap_at' => $this->whenAppended('youtube_next_scrap_at'),
 
             // Custom attributes with query
             'uploads_count' => $this->whenAppended('uploads_count'),

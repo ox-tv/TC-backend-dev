@@ -4,16 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\Channels\ChannelImportRequestCompleted;
+use App\Events\VideoCreated;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Libraries\YIClient;
+use App\Models\Category;
 use App\Models\Channel;
+use App\Models\CryptoCurrency;
 use App\Models\Language;
 use App\Models\Subtitle;
+use App\Models\Tag;
+use App\Models\UserMeta;
 use App\Models\Video;
 use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -88,7 +94,28 @@ class YoutubeImporterController extends Controller
             'thumbnail' => ['required'],
             'user_id' => ['required'],
             'subtitles' => ['sometimes'],
+            'tags' => ['sometimes'],
         ]);
+
+        $tags = $request->get('tags');
+        $cryptoCurrencyIDs = false;
+
+        if($tags){
+            $excludedTags = explode(",", config('yi.auto_import_excluded_tags_for_cryptocurrency'));
+
+            $filteredTags = array_filter($tags, function ($value) use($excludedTags) {
+                return !in_array($value, $excludedTags);
+            });
+
+            $cryptoCurrencyIDs = CryptoCurrency::
+            select("id")
+                ->where(function ($query) use ($filteredTags){
+                    $query->whereIn('symbol', $filteredTags)
+                        ->orWhereIn('name', $filteredTags);
+                })
+                ->where('order', '<', '1000000')
+                ->pluck('id');
+        }
 
         $video = new Video();
 
@@ -99,10 +126,40 @@ class YoutubeImporterController extends Controller
         $video->file_url = $request->get('file_url');
         $video->thumbnail_url = $request->get('thumbnail');
         $video->user_id = $request->get('user_id');
-        $video->status = Video::STATUS_DRAFT_YI;
+        $video->status = Video::STATUS_PUBLISHED;
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
+        $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT;
 
-        $video->save();
+        DB::transaction(function () use ($request, $video, $tags, $cryptoCurrencyIDs){
+
+            $video->save();
+
+//            // adding categories
+//            if($request->get('categories')){
+//                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+//            }
+
+            // adding crypto currencies
+            if($cryptoCurrencyIDs){
+                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
+            }
+
+            // adding tags
+            if($tags){
+                $tags = collect($tags);
+
+                $tags->map(function ($tag) use ($video){
+                    $video->tags()->save($this->tagRepository->store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
+                    ]));
+                });
+            }
+
+        });
+
+
 
         if (!empty($request->get('subtitles'))){
             foreach ($request->get('subtitles') as $subtitle){
@@ -133,6 +190,8 @@ class YoutubeImporterController extends Controller
             }
         }
 
+        event(new VideoCreated($video));
+
         return VideoResource::make($video);
     }
 
@@ -151,6 +210,27 @@ class YoutubeImporterController extends Controller
 
         $channel->import_request_status = Channel::IMPORT_STATUS_SYNC;
         $channel->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function toggleAutoImport(Request $request)
+    {
+        $request->validate([
+            'active' => 'required|boolean'
+        ]);
+
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
+        if (!$channel){
+            return response()->json(['message' => 'Channel is not found for this user'], 404);
+        }
+
+        $user->meta()->updateOrCreate(
+            ['key' => UserMeta::ChannelAutoImportIsActive],
+            ['value' => $request->get('active'),]
+        );
 
         return response()->json(['status' => 'ok']);
     }

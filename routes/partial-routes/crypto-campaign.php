@@ -28,6 +28,7 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
-    Route::apiResource('crypto-campaigns', \App\Http\Controllers\CryptoCampaignController::class)->only(['index', 'show', 'store', 'update']);
+    Route::apiResource('crypto-campaigns', \App\Http\Controllers\CryptoCampaignController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::get('crypto-campaigns/{campaignId}/statistics', '\App\Http\Controllers\CryptoCampaignController@statistics')->name('crypto-campaigns.statistics');
 
 });

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('market/cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
+Route::put('cryptocurrencies/{cryptocurrency}/buy/{campaign}', '\App\Http\Controllers\CryptoCampaignController@storeStatistic');
 
 
 // For Login Users
@@ -36,5 +37,6 @@ Route::group([
     'role' => 'admin'
 ], function(){
 
+    Route::get('cryptocurrencies/relatedto-campaigns', '\App\Http\Controllers\CryptoCurrencyController@index')->name('cryptocurrencies.relatedto-campaigns');
 
 });
