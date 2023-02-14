@@ -17,6 +17,7 @@ use App\Models\Subtitle;
 use App\Models\Tag;
 use App\Models\UserMeta;
 use App\Models\Video;
+use App\Repository\Eloquent\TagRepository;
 use Done\Subtitles\Subtitles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -149,7 +150,7 @@ class YoutubeImporterController extends Controller
                 $tags = collect($tags);
 
                 $tags->map(function ($tag) use ($video){
-                    $video->tags()->save($this->tagRepository->store([
+                    $video->tags()->save(TagRepository::store([
                         'name' => $tag,
                         'status' => Tag::STATUS_PUBLISHED,
                         'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
