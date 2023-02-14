@@ -89,6 +89,7 @@ class YoutubeImporterController extends Controller
             'thumbnail' => ['required'],
             'user_id' => ['required'],
             'subtitles' => ['sometimes'],
+            'tags' => ['sometimes'],
         ]);
 
         $video = new Video();
