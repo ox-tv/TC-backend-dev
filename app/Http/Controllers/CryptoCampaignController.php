@@ -149,4 +149,14 @@ class CryptoCampaignController extends Controller
 
         return response()->json(['message' => 'ok']);
     }
+
+    public function destroy($campaignId)
+    {
+        $campaign = CryptoCampaign::where('id', $campaignId)->firstOrFail();
+
+        $campaign->crypto_currencies()->detach();
+        $campaign->delete();
+
+        return response()->json(['message' => 'ok']);
+    }
 }

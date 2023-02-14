@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CryptoCampaign extends Model
 {
+    use SoftDeletes;
+
     const STATUS_DRAFT = 1;
     const STATUS_ACTIVE = 2;
     const STATUS_ARCHIVE = 3;
