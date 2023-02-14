@@ -9,6 +9,7 @@ use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Libraries\YIClient;
 use App\Models\Channel;
+use App\Models\CryptoCurrency;
 use App\Models\Language;
 use App\Models\Subtitle;
 use App\Models\UserMeta;
@@ -91,6 +92,26 @@ class YoutubeImporterController extends Controller
             'subtitles' => ['sometimes'],
             'tags' => ['sometimes'],
         ]);
+
+        $tags = $request->get('tags');
+        $cryptoCurrencyIDs = false;
+
+        if($tags){
+            $excludedTags = explode(",", config('yi.auto_import_excluded_tags_for_cryptocurrency'));
+
+            $filteredTags = array_filter($tags, function ($value) use($excludedTags) {
+                return !in_array($value, $excludedTags);
+            });
+
+            $cryptoCurrencyIDs = CryptoCurrency::
+            select("id")
+                ->where(function ($query) use ($filteredTags){
+                    $query->whereIn('symbol', $filteredTags)
+                        ->orWhereIn('name', $filteredTags);
+                })
+                ->where('order', '<', '1000000')
+                ->pluck('id');
+        }
 
         $video = new Video();
 
