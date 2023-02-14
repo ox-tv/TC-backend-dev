@@ -124,6 +124,9 @@ class YoutubeImporterController extends Controller
         $video->user_id = $request->get('user_id');
         $video->status = Video::STATUS_DRAFT_YI;
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
+        $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT;
+
+        DB::transaction(function () use ($request, $video, $tags, $cryptoCurrencyIDs){
 
         $video->save();
 
