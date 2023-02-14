@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\Channels\ChannelImportRequestAccepted;
 use App\Events\Channels\ChannelImportRequestCompleted;
+use App\Events\VideoCreated;
 use App\Http\Requests\ChannelImportRequest;
 use App\Http\Resources\Channel\ImportRequestResource;
 use App\Http\Resources\Video\VideoResource;
@@ -188,6 +189,8 @@ class YoutubeImporterController extends Controller
                 );
             }
         }
+
+        event(new VideoCreated($video));
 
         return VideoResource::make($video);
     }
