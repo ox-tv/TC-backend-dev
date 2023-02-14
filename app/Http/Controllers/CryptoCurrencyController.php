@@ -74,7 +74,7 @@ class CryptoCurrencyController extends Controller
 
         $data->append(['is_favorite']);
 
-        if ($isMarket){
+        if ($isMarket || $isRelatedToCryptoCampaigns){
             $data->load('cryptoCampaigns');
         }
 
