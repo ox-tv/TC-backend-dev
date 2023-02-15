@@ -24,6 +24,7 @@ class CryptoCurrencyController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $isFavoriteFilter = Arr::get($filters, 'is_favorite');
         $idsFilter = Arr::get($filters, 'ids');
+        $excludeStableCoinsFilter = (bool) Arr::get($filters, 'exclude_stable_coins');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -37,6 +38,10 @@ class CryptoCurrencyController extends Controller
 
         if($idsFilter && is_array($idsFilter)){
             $query->whereIn('id', $idsFilter);
+        }
+
+        if($excludeStableCoinsFilter){
+            $query->whereNotIn('symbol', config('general.stable_coins_symbol'));
         }
 
         if($isFavoriteFilter && auth('api')->check()){
