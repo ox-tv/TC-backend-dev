@@ -37,6 +37,7 @@ class CryptoCurrencyResource extends JsonResource
             // Relations
             'videos' => VideoResource::collection($this->whenLoaded('videos')),
             'campaigns' => CryptoCampaignResource::collection($this->whenLoaded('cryptoCampaigns')),
+            'active_campaigns' => CryptoCampaignResource::collection($this->whenLoaded('activeCryptoCampaigns')),
         ];
     }
 }

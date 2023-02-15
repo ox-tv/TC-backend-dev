@@ -56,6 +56,11 @@ class CryptoCurrency extends Model
         return $this->belongsToMany('App\Models\CryptoCampaign', 'campaign_crypto_currency');
     }
 
+    public function activeCryptoCampaigns()
+    {
+        return $this->belongsToMany('App\Models\CryptoCampaign', 'campaign_crypto_currency')->where('status', CryptoCampaign::STATUS_ACTIVE);
+    }
+
     public function users()
     {
         return $this->belongsToMany('App\Models\User', 'crypto_currency_user');
