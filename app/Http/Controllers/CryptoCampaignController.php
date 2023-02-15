@@ -6,6 +6,7 @@ use App\Http\Resources\CryptoCampaign\CryptoCampaignResource;
 use App\Models\CryptoCampaign;
 use App\Models\CryptoCampaignStatisticsDaily;
 use App\Models\CryptoCurrency;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -275,5 +276,12 @@ class CryptoCampaignController extends Controller
         }
 
         return $statistics;
+    }
+
+    public function exportEarningAsPDF($campaignId)
+    {
+        $earning = CryptoCampaign::find($earningId);
+        $pdf = Pdf::loadView('export-layouts.earning', ['earning' => $earning]);
+        return $pdf->download("payout-{$earningId}.pdf");
     }
 }
