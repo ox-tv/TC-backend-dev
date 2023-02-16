@@ -44,6 +44,17 @@ class CryptoCampaign extends Model
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
+    public function getTotalClicksAttribute()
+    {
+        return CryptoCampaignStatisticsDaily::where('campaign_id', $this->id)->sum('total_clicks');
+    }
+
+    public function getCryptoCurrenciesCountAttribute()
+    {
+        return $this->crypto_currencies()->count();
+    }
+
+    // Muturs
     public function setStatusAttribute($value)
     {
         $this->attributes['status'] = (is_numeric($value))? $value : array_flip(self::STATUS_TEXT)[$value];

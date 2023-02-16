@@ -49,6 +49,8 @@ class CryptoCampaignController extends Controller
 
         $campaigns = $query->paginate($perPage);
 
+        $campaigns->append(['totalClicks', 'cryptoCurrenciesCount']);
+
         return CryptoCampaignResource::collection($campaigns);
     }
 
