@@ -98,7 +98,10 @@ class YoutubeImporterController extends Controller
             'tags' => ['sometimes'],
         ]);
 
-        $tags = $request->get('tags');
+        //$tags = $request->get('tags');
+        preg_match_all('/#(\w+)/', $request->get('description'), $hashTags);
+        $tags = $hashTags[1];
+
         $cryptoCurrencyIDs = false;
 
         if($tags){
@@ -135,28 +138,28 @@ class YoutubeImporterController extends Controller
 
             $video->save();
 
-//            // adding categories
-//            if($request->get('categories')){
-//                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
-//            }
+            // adding categories
+            if($request->get('categories')){
+                $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
+            }
 
             // adding crypto currencies
-//            if($cryptoCurrencyIDs){
-//                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
-//            }
+            if($cryptoCurrencyIDs){
+                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
+            }
 
             // adding tags
-//            if($tags){
-//                $tags = collect($tags);
-//
-//                $tags->map(function ($tag) use ($video){
-//                    $video->tags()->save(TagRepository::store([
-//                        'name' => $tag,
-//                        'status' => Tag::STATUS_PUBLISHED,
-//                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
-//                    ]));
-//                });
-//            }
+            if($tags){
+                $tags = collect($tags);
+
+                $tags->map(function ($tag) use ($video){
+                    $video->tags()->save(TagRepository::store([
+                        'name' => $tag,
+                        'status' => Tag::STATUS_PUBLISHED,
+                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
+                    ]));
+                });
+            }
 
         });
 
