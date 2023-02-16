@@ -141,22 +141,22 @@ class YoutubeImporterController extends Controller
 //            }
 
             // adding crypto currencies
-            if($cryptoCurrencyIDs){
-                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
-            }
+//            if($cryptoCurrencyIDs){
+//                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
+//            }
 
             // adding tags
-            if($tags){
-                $tags = collect($tags);
-
-                $tags->map(function ($tag) use ($video){
-                    $video->tags()->save(TagRepository::store([
-                        'name' => $tag,
-                        'status' => Tag::STATUS_PUBLISHED,
-                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
-                    ]));
-                });
-            }
+//            if($tags){
+//                $tags = collect($tags);
+//
+//                $tags->map(function ($tag) use ($video){
+//                    $video->tags()->save(TagRepository::store([
+//                        'name' => $tag,
+//                        'status' => Tag::STATUS_PUBLISHED,
+//                        'creation_scope' => Tag::CREATION_SCOPE_IMPORTER,
+//                    ]));
+//                });
+//            }
 
         });
 
