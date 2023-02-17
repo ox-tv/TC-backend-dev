@@ -194,7 +194,7 @@ class CryptoCampaignController extends Controller
         $result['overview']['unknown_users_total_clicks'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->sum('unknown_users_clicks');
 
         // Statistics by coins
-        $cryptoCurrencies = CryptoCurrency::whereHas('cryptoCampaigns')->get();
+        $cryptoCurrencies = CryptoCurrency::whereHas('cryptoCampaigns', function ($q) use ($campaign){$q->where('id', $campaign->id);})->get();
         foreach ($cryptoCurrencies as $cryptoCurrency){
             $result['crypto_currencies'][] = [
                 'symbol' => $cryptoCurrency->symbol,
