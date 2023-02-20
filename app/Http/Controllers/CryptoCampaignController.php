@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CampaignStatisticsExport;
 use App\Http\Resources\CryptoCampaign\CryptoCampaignResource;
 use App\Models\CryptoCampaign;
 use App\Models\CryptoCampaignStatisticsDaily;
 use App\Models\CryptoCurrency;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CryptoCampaignController extends Controller
 {
@@ -45,6 +48,8 @@ class CryptoCampaignController extends Controller
         }
 
         $campaigns = $query->paginate($perPage);
+
+        $campaigns->append(['totalClicks', 'cryptoCurrenciesCount']);
 
         return CryptoCampaignResource::collection($campaigns);
     }
@@ -189,10 +194,11 @@ class CryptoCampaignController extends Controller
         $result['overview']['unknown_users_total_clicks'] = CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->sum('unknown_users_clicks');
 
         // Statistics by coins
-        $cryptoCurrencies = CryptoCurrency::whereHas('cryptoCampaigns')->get();
+        $cryptoCurrencies = CryptoCurrency::whereHas('cryptoCampaigns', function ($q) use ($campaign){$q->where('id', $campaign->id);})->get();
         foreach ($cryptoCurrencies as $cryptoCurrency){
-            $result['crypto_currencies'][$cryptoCurrency->id] = [
+            $result['crypto_currencies'][] = [
                 'symbol' => $cryptoCurrency->symbol,
+                'name' => $cryptoCurrency->name,
                 'total_clicks' => CryptoCampaignStatisticsDaily::where('campaign_id', $campaign->id)->where('crypto_currency_id', $cryptoCurrency->id)->sum('total_clicks')
             ];
         }
@@ -230,6 +236,35 @@ class CryptoCampaignController extends Controller
         }
 
         $result['statistics'] = in_array($period, ['last_365d', 'last_180d'])? $this->monthlyStatistics($campaign, $from, $to) : $this->dailyStatistics($campaign, $from, $to);
+
+        if ($request->is('*/export')){
+
+            $exportData = [];
+            $exportData[] = ['Statistics: ', $campaign->name];
+            $exportData[] = ['Duration: ', sprintf('%s to %s', $campaign->created_at->format('Y-m-d'), Carbon::now()->format('Y-m-d'))];
+            $exportData[] = ['Total days active: ', $result['overview']['total_days_active']];
+            $exportData[] = ['Total click thru:', $result['overview']['total_clicks']];
+            $exportData[] = ['Day with most click thru:', $result['overview']['max_clicks_per_day']];
+            $exportData[] = ['Day with least click thru:', $result['overview']['min_clicks_per_day']];
+            $exportData[] = ['Registered users:', $result['overview']['registered_users_total_clicks']];
+            $exportData[] = ['Unknown users:', $result['overview']['unknown_users_total_clicks']];
+            $exportData[] = [''];
+            $exportData[] = ['Click thru, distrubution per coin:'];
+
+            foreach ($result['crypto_currencies'] as $row){
+                $exportData[] = [$row['name'], $row['total_clicks']];
+            }
+
+            $exportData[] = [''];
+            $exportData[] = ['Click thru/ day:'];
+
+            foreach ($result['statistics'] as $row){
+                $exportData[] = [$row['date'], $row['total_clicks']];
+            }
+
+            return Excel::download(new CampaignStatisticsExport(collect($exportData)), "campaign-{$campaign->id}-statistics.xlsx");
+        }
+
 
         return response()->json($result);
     }

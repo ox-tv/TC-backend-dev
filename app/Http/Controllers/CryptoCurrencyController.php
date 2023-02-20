@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Libraries\CoinGeckoClient;
 use App\Libraries\CoinMarketCapClient;
+use App\Models\CryptoCampaign;
 use App\Models\CryptoCurrency;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class CryptoCurrencyController extends Controller
         $searchFilter = Arr::get($filters, 'search');
         $isFavoriteFilter = Arr::get($filters, 'is_favorite');
         $idsFilter = Arr::get($filters, 'ids');
+        $excludeStableCoinsFilter = (bool) Arr::get($filters, 'exclude_stable_coins');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -39,6 +41,10 @@ class CryptoCurrencyController extends Controller
             $query->whereIn('id', $idsFilter);
         }
 
+        if($excludeStableCoinsFilter){
+            $query->whereNotIn('symbol', config('general.stable_coins_symbol'));
+        }
+
         if($isFavoriteFilter && auth('api')->check()){
             $query->whereHas('users', function ($q){
                 $q->where('id', auth('api')->id());
@@ -46,7 +52,9 @@ class CryptoCurrencyController extends Controller
         }
 
         if ($isRelatedToCryptoCampaigns){
-            $query->whereHas('cryptoCampaigns');
+            $query->whereHas('cryptoCampaigns', function ($q){
+                $q->where('status', CryptoCampaign::STATUS_ACTIVE);
+            });
         }
 
         $sort = $request->get('sort');
@@ -75,7 +83,7 @@ class CryptoCurrencyController extends Controller
         $data->append(['is_favorite']);
 
         if ($isMarket || $isRelatedToCryptoCampaigns){
-            $data->load('cryptoCampaigns');
+            $data->load('activeCryptoCampaigns');
         }
 
         // Fill MetaData if empty

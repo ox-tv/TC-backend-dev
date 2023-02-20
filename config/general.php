@@ -44,4 +44,5 @@ return [
     ],
 
 
+    'stable_coins_symbol' => ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'usdd', 'gusd', 'fei', 'usdtc', 'frax', 'usdj', 'lusd']
 ];
