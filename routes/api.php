@@ -72,6 +72,8 @@ Route::group([], __DIR__.'/partial-routes/playlist.php');
 
 Route::group([], __DIR__.'/partial-routes/channel.php');
 
+Route::group([], __DIR__.'/partial-routes/company.php');
+
 Route::group([], __DIR__.'/partial-routes/role.php');
 
 Route::group([], __DIR__.'/partial-routes/transaction.php');
