@@ -32,7 +32,7 @@ class CompanyResource extends JsonResource
             'contact_person_name' => $this->contact_person_name,
             'contact_person_email' => $this->contact_person_email,
             'contact_person_phone' => $this->contact_person_phone,
-            'invocing_questions_email' => $this->invocing_questions_email,
+            'invoicing_questions_email' => $this->invoicing_questions_email,
 
             'created_at' => $this->created_at,
 
