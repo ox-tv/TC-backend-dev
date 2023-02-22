@@ -3,15 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Ad\AdPricingResource;
-use App\Http\Resources\Form\FormResource;
-use App\Mail\GlobalMail;
 use App\Models\AdPricing;
-use App\Models\Form;
 use App\Models\Option;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Mail;
 
 class AdController extends Controller
 {
