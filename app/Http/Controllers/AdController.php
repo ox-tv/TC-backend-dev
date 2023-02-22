@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Ad\AdPricingResource;
 use App\Http\Resources\Form\FormResource;
 use App\Mail\GlobalMail;
 use App\Models\AdPricing;
@@ -56,6 +57,6 @@ class AdController extends Controller
         $tierNames = Option::get(Option::AD_TIERS_NAMES)->value ?? null;
         $tierNames = $tierNames? json_decode($tierNames, true): null;
 
-        return response()->json(['prices' => $prices, 'tier_names' => $tierNames]);
+        return response()->json(['prices' => AdPricingResource::collection($prices), 'tier_names' => $tierNames]);
     }
 }
