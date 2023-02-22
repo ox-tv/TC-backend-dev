@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Channel;
+use App\Models\UserMeta;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -44,7 +45,7 @@ class PublisherAutoImport extends Command
                 ->where('youtube_last_scraped_at', '<=', Carbon::now()->subHours(config('yi.auto_import_frequency')))
                 ->whereHas('owner', function ($q){
                     $q->whereHas('meta', function ($q){
-                        $q->where('key', 'auto_import')->where('value', true);
+                        $q->where('key', UserMeta::ChannelAutoImportIsActive)->where('value', true);
                     });
                 })
                 ->take(1);
