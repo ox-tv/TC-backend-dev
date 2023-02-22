@@ -32,7 +32,7 @@ class CreateCompaniesTable extends Migration
             $table->string('contact_person_email')->nullable();
             $table->string('contact_person_phone')->nullable();
 
-            $table->string('invocing_questions_email')->nullable();
+            $table->string('invoicing_questions_email')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

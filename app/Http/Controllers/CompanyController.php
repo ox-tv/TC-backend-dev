@@ -46,7 +46,7 @@ class CompanyController extends Controller
             'contact_person_name' => ['required'],
             'contact_person_email' => ['required'],
             'contact_person_phone' => ['nullable'],
-            'invocing_questions_email' => ['required'],
+            'invoicing_questions_email' => ['required'],
         ]);
 
         $company = new Company();
@@ -65,7 +65,7 @@ class CompanyController extends Controller
         $company->contact_person_name = $request->get('contact_person_name');
         $company->contact_person_email = $request->get('contact_person_email');
         $company->contact_person_phone = $request->get('contact_person_phone');
-        $company->invocing_questions_email = $request->get('invocing_questions_email');
+        $company->invoicing_questions_email = $request->get('invoicing_questions_email');
 
         $company->save();
 
@@ -87,7 +87,7 @@ class CompanyController extends Controller
             'contact_person_name' => ['required'],
             'contact_person_email' => ['required'],
             'contact_person_phone' => ['nullable'],
-            'invocing_questions_email' => ['required'],
+            'invoicing_questions_email' => ['required'],
         ]);
 
         $company = Company::where('id', $companyId)->firstOrFail();
@@ -107,7 +107,7 @@ class CompanyController extends Controller
         $company->contact_person_name = $request->get('contact_person_name');
         $company->contact_person_email = $request->get('contact_person_email');
         $company->contact_person_phone = $request->get('contact_person_phone');
-        $company->invocing_questions_email = $request->get('invocing_questions_email');
+        $company->invoicing_questions_email = $request->get('invoicing_questions_email');
 
         $company->save();
 
