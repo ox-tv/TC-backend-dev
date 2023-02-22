@@ -14,6 +14,10 @@ class AdPricing extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'date' => 'date'
+    ];
+
 
     // Relations
 
