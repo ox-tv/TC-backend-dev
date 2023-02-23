@@ -216,7 +216,7 @@ class Channel extends Model
     }
 
     public function getYoutubeNextScrapAtAttribute(){
-        return $this->youtube_last_scraped_at? $this->youtube_last_scraped_at->addHours(4) : null;
+        return $this->youtube_last_scraped_at? $this->youtube_last_scraped_at->addHours(config('yi.auto_import_frequency')) : null;
     }
 
     public function getAvatarAttribute($value)
