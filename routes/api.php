@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([], __DIR__.'/partial-routes/general.php');
 
+Route::group([], __DIR__.'/partial-routes/ad.php');
+
 Route::group([], __DIR__.'/partial-routes/auth.php');
 
 Route::group([], __DIR__.'/partial-routes/_2fa.php');
