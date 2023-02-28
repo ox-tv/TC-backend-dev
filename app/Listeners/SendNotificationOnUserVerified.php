@@ -49,7 +49,7 @@ Best wishes from the team at Today’s Crypto";
             TCNotification::Send(collect([$user]), new GeneralNotification(
                 Notification::TYPE_WELCOME_TO_REFERRAL_USERS,
                 Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-                ['message' => $welcomeText]
+                ['message' => $welcomeText, 'subject' => "Congratulation, and welcome to Today’s Crypto!"]
             ));
         }
 
