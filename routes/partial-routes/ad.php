@@ -31,5 +31,8 @@ Route::group([
 
     Route::put('ads/settings', '\App\Http\Controllers\AdController@storeSettings')->name('ads.settings.store');
     Route::get('ads/settings', '\App\Http\Controllers\AdController@getSettings')->name('ads.settings.get');
-    //Route::apiResource('categories', \App\Http\Controllers\CategoryController::class)->only(['store', 'update', 'destroy']);
+
+    Route::get('ads/filled-slots', '\App\Http\Controllers\AdController@filledSlotes')->name('ads.filled-slots');
+    Route::post('ads/campaigns', '\App\Http\Controllers\AdController@storeCampaign')->name('ads.campaigns.store');
+    //Route::apiResource('ads', \App\Http\Controllers\AdController::class)->only(['store', 'update']);
 });
