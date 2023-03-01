@@ -43,4 +43,9 @@ class AdCampaign extends Model
     public function getStatusTextAttribute(){
         return self::STATUS_TEXT[$this->status]?? $this->status;
     }
+
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['status'] = (is_numeric($value))? $value : array_flip(self::STATUS_TEXT)[$value];
+    }
 }
