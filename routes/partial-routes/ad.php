@@ -34,5 +34,8 @@ Route::group([
 
     Route::get('ads/filled-slots', '\App\Http\Controllers\AdController@filledSlotes')->name('ads.filled-slots');
     Route::post('ads/campaigns', '\App\Http\Controllers\AdController@storeCampaign')->name('ads.campaigns.store');
-    //Route::apiResource('ads', \App\Http\Controllers\AdController::class)->only(['store', 'update']);
+    Route::put('ads/campaigns/{id}', '\App\Http\Controllers\AdController@updateCampaign')->name('ads.campaigns.update');
+    Route::delete('ads/campaigns/{id}', '\App\Http\Controllers\AdController@destroyCampaign')->name('ads.campaigns.destroy');
+    Route::get('ads/campaigns/{id}', '\App\Http\Controllers\AdController@showCampaign')->name('ads.campaigns.show');
+
 });
