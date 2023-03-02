@@ -16,6 +16,54 @@ use Illuminate\Validation\Rule;
 
 class AdController extends Controller
 {
+    public function indexCampaign(Request $request)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+        $isAdminRoute = $request->is('api/admin/*');
+
+        $filters = $request->get('filters', []);
+        $companyIdFilter = Arr::get($filters, 'company_id');
+        $searchFilter = Arr::get($filters, 'search');
+
+
+        $query = AdCampaign::query();
+
+        if ($companyIdFilter){
+            $query->whereHas('company', function ($q) use ($companyIdFilter){
+
+                if (is_numeric($companyIdFilter)){
+                    $q->where('id', $companyIdFilter);
+                }else{
+                    $q->where('name', 'LIKE', '%'.$companyIdFilter.'%');
+                }
+            });
+        }
+
+        if ($searchFilter){
+            if (is_numeric($searchFilter)){
+                $query->where('id', $searchFilter);
+            }else{
+                $query->where('name', 'LIKE', '%'.$searchFilter.'%');
+            }
+        }
+
+        switch ($request->get('sort')){
+            case 'newest': {
+                $query->orderBy('created_at', 'DESC');
+            }
+            case 'oldest':
+            default: {
+                $query->orderBy('created_at', 'ASC');
+            }
+        }
+
+        $campaigns = $query->paginate($perPage);
+
+        $campaigns->load(['slots', 'company']);
+
+        return AdCampaignResource::collection($campaigns);
+    }
+    
     public function storeCampaign(Request $request)
     {
         $request->validate([
