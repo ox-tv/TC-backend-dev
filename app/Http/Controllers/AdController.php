@@ -6,7 +6,7 @@ use App\Http\Resources\Ad\AdCampaignResource;
 use App\Http\Resources\Ad\AdPricingResource;
 use App\Http\Resources\Ad\AdSlotResource;
 use App\Models\AdCampaign;
-use App\Models\AdPricing;
+use App\Models\AdDiscount;
 use App\Models\AdSlot;
 use App\Models\Option;
 use Carbon\Carbon;
@@ -134,7 +134,7 @@ class AdController extends Controller
         // update slots
         if ($campaign->status != AdCampaign::STATUS_ARCHIVED){
 
-            $preExistingSlotIds = array_column($request->get('slots'), 'id');
+            $preExistingSlotIds = array_column((array) $request->get('slots'), 'id');
             AdSlot::where('ad_campaign_id', $campaign->id)->whereNotIn('id', $preExistingSlotIds)->delete();
 
             if ($request->get('slots')){
@@ -206,12 +206,13 @@ class AdController extends Controller
             'tiers_cpm.*.tier' => 'required|in:1,2,3,4,5',
             'tiers_cpm.*.price' => 'required|numeric',
 
-            'discounts' => 'nullable',
-            'discounts.*.tier' => 'required|in:1,2,3,4,5',
-            'discounts.*.type' => 'required|in:fixed,percent',
-            'discounts.*.amount' => 'required|numeric',
-            'discounts.*.start' => ['required','date_format:Y-m-d'],
-            'discounts.*.end' => ['required','date_format:Y-m-d', 'after:discount.*.start'],
+            'tiers_discounts' => 'nullable',
+            'tiers_discounts.*.id' => ['nullable', Rule::exists('ad_discounts', 'id')],
+            'tiers_discounts.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_discounts.*.type' => 'required|in:fixed,percent',
+            'tiers_discounts.*.amount' => 'required|numeric',
+            'tiers_discounts.*.start_at' => ['nullable','date_format:Y-m-d'],
+            'tiers_discounts.*.end_at' => ['nullable','date_format:Y-m-d', 'after:discount.*.start_at'],
 
             'tiers_names' => 'required',
             'tiers_names.*.tier' => 'required|in:1,2,3,4,5',
@@ -221,12 +222,30 @@ class AdController extends Controller
 
         Option::set(Option::AD_TIERS_INFO, json_encode($request->only(['tiers_names', 'tiers_cpm'])));
 
-        if ($discounts = $request->get('discounts')){
+        // Discounts
+        $preExistingDiscountIds = array_column((array) $request->get('tiers_discounts'), 'id');
+        AdDiscount::whereNotIn('id', $preExistingDiscountIds)
+            ->where(function ($q){
+                $q->whereNull('end_at')
+                    ->orWhere('end_at', '>', Carbon::now());
+            })
+            ->delete();
+
+        if ($discounts = $request->get('tiers_discounts')){
             foreach ($discounts as $row){
-                AdPricing::updateOrCreate(
-                    ['tier' => $row['tier']],
-                    ['price' => $row['price']]
-                );
+
+                $discount = new AdDiscount();
+
+                if (!empty($row['id'])){
+                    $discount = AdDiscount::where('id', $row['id'])->first();
+                }
+
+                $discount->tier = $row['tier'];
+                $discount->type = $row['type'];
+                $discount->amount = $row['amount'];
+                $discount->start_at = $row['start_at']?? null;
+                $discount->end_at = $row['end_at']?? null;
+                $discount->save();
             }
         }
 
