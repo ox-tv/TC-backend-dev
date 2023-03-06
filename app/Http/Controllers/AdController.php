@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Ad\AdCampaignResource;
+use App\Http\Resources\Ad\AdDiscountResource;
 use App\Http\Resources\Ad\AdPricingResource;
 use App\Http\Resources\Ad\AdSlotResource;
 use App\Models\AdCampaign;
@@ -252,25 +253,36 @@ class AdController extends Controller
         return response()->json(["message" => "ok"]);
     }
 
-    /*public function getSettings(Request $request)
+    public function getSettings(Request $request)
     {
-        $request->validate([
-            'filters.from' => ['nullable','date_format:Y-m-d'],
-            'filters.to' => ['nullable','date_format:Y-m-d', 'after:from'],
-        ]);
+        $result = [
+            'tiers_cpm' => [],
+            'tiers_names' => [],
+            'tiers_discounts' => [],
+        ];
 
-        $filters = $request->get('filters', []);
-        $fromFilter = Arr::get($filters, 'from');
-        $toFilter = Arr::get($filters, 'to');
+        $tiersInfo = Option::get(Option::AD_TIERS_INFO)->value ?? null;
+        $tiersInfo = $tiersInfo? json_decode($tiersInfo, true): null;
 
-        $from = $fromFilter? Carbon::parse($fromFilter) : Carbon::now();
-        $to = $toFilter? Carbon::parse($toFilter) : $from->clone()->addDays(14);
+        $result['tiers_cpm'] = $tiersInfo['tiers_cpm']?? null;
+        $result['tiers_names'] = $tiersInfo['tiers_names']?? null;
 
-        $prices = AdPricing::where('date', '>=', $from)->where('date', '<=', $to)->get();
+        $result['tiers_discounts'] = AdDiscountResource::collection(AdDiscount::where(function ($q){
+            $q->whereNull('end_at')
+                ->orWhere('end_at', '>', Carbon::now());
+        })->get());
 
-        $tierNames = Option::get(Option::AD_TIERS_NAMES)->value ?? null;
-        $tierNames = $tierNames? json_decode($tierNames, true): null;
+        return response()->json($result);
+    }
 
-        return response()->json(['prices' => AdPricingResource::collection($prices), 'tier_names' => $tierNames]);
-    }*/
+    public function indexDiscount(Request $request)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $query = AdDiscount::query();
+
+        $discounts = $query->paginate($perPage);
+
+        return AdDiscountResource::collection($discounts);
+    }
 }

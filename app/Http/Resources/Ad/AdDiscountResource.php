@@ -6,7 +6,7 @@ use App\Http\Resources\User\UserResource;
 use App\Models\Channel;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AdPricingResource extends JsonResource
+class AdDiscountResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,9 +19,12 @@ class AdPricingResource extends JsonResource
         return [
             // Main attributes
             'id' => $this->id,
-            "date" => $this->date,
             'tier' => $this->tier,
-            'price' => $this->price,
+            'amount' => $this->amount,
+            'start_at' => $this->start_at,
+            'end_at' => $this->end_at,
+
+            'type' => $this->type_text,
         ];
     }
 }
