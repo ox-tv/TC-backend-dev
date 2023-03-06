@@ -84,14 +84,16 @@ class AdController extends Controller
         $campaign->data = $request->get('tiers_data');
         $campaign->save();
 
-        foreach ($request->get('slots') as $row){
-            $slot = new AdSlot();
-            $slot->ad_campaign_id = $campaign->id;
-            $slot->date = $row['date'];
-            $slot->tier = $row['tier'];
-            $slot->quantity = $row['quantity'];
-            $slot->price = 100;
-            $slot->save();
+        if ($request->get('slots')){
+            foreach ($request->get('slots') as $row){
+                $slot = new AdSlot();
+                $slot->ad_campaign_id = $campaign->id;
+                $slot->date = $row['date'];
+                $slot->tier = $row['tier'];
+                $slot->quantity = $row['quantity'];
+                $slot->price = 100;
+                $slot->save();
+            }
         }
 
         $campaign->load(['slots', 'company']);
@@ -198,19 +200,29 @@ class AdController extends Controller
     public function storeSettings(Request $request)
     {
         $request->validate([
+            'tiers_cpm' => 'required',
+            'tiers_cpm.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_cpm.*.price' => 'required|numeric',
+
+            'discounts' => 'nullable',
+            'discounts.*.tier' => 'required|in:1,2,3,4,5',
+            'discounts.*.type' => 'required|in:fixed,percent',
+            'discounts.*.amount' => 'required|numeric',
+            'discounts.*.start' => ['required','date_format:Y-m-d'],
+            'discounts.*.end' => ['required','date_format:Y-m-d', 'after:discount.*.start'],
+
             'tiers_names' => 'required',
-            'prices' => 'nullable',
-            'prices.*.date' => 'required|date_format:Y-m-d',
-            'prices.*.tier' => 'required|in:1,2,3,4,5',
-            'prices.*.price' => 'required|numeric',
+            'tiers_names.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_names.*.article' => 'required',
+            'tiers_names.*.group' => 'required',
         ]);
 
-        Option::set(Option::AD_TIERS_NAMES, json_encode($request->get('tiers_names')));
+        Option::set(Option::AD_TIERS_INFO, json_encode($request->only(['tiers_names', 'tiers_cpm'])));
 
-        if ($prices = $request->get('prices')){
-            foreach ($prices as $row){
+        if ($discounts = $request->get('discounts')){
+            foreach ($discounts as $row){
                 AdPricing::updateOrCreate(
-                    ['date' => $row['date'], 'tier' => $row['tier']],
+                    ['tier' => $row['tier']],
                     ['price' => $row['price']]
                 );
             }
@@ -219,7 +231,7 @@ class AdController extends Controller
         return response()->json(["message" => "ok"]);
     }
 
-    public function getSettings(Request $request)
+    /*public function getSettings(Request $request)
     {
         $request->validate([
             'filters.from' => ['nullable','date_format:Y-m-d'],
@@ -239,5 +251,5 @@ class AdController extends Controller
         $tierNames = $tierNames? json_decode($tierNames, true): null;
 
         return response()->json(['prices' => AdPricingResource::collection($prices), 'tier_names' => $tierNames]);
-    }
+    }*/
 }
