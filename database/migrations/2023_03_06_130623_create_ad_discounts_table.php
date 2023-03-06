@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdsPricingsTable extends Migration
+class CreateAdDiscountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateAdsPricingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('ads_pricings', function (Blueprint $table) {
+        Schema::create('ad_discounts', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
             $table->string('tier');
-            $table->decimal("price");
+            $table->unsignedTinyInteger("type");
+            $table->decimal("amount");
+            $table->timestamp('start_at')->nullable();
+            $table->timestamp('end_at')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -28,6 +31,6 @@ class CreateAdsPricingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ads_pricings');
+        Schema::dropIfExists('ad_discounts');
     }
 }
