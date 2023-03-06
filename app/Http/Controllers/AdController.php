@@ -137,19 +137,21 @@ class AdController extends Controller
             $preExistingSlotIds = array_column($request->get('slots'), 'id');
             AdSlot::where('ad_campaign_id', $campaign->id)->whereNotIn('id', $preExistingSlotIds)->delete();
 
-            foreach ($request->get('slots') as $row){
+            if ($request->get('slots')){
+                foreach ($request->get('slots') as $row){
 
-                if (!empty($row['id'])){
-                    continue;
+                    if (!empty($row['id'])){
+                        continue;
+                    }
+
+                    $slot = new AdSlot();
+                    $slot->ad_campaign_id = $campaign->id;
+                    $slot->date = $row['date'];
+                    $slot->tier = $row['tier'];
+                    $slot->quantity = $row['quantity'];
+                    $slot->price = 100;
+                    $slot->save();
                 }
-
-                $slot = new AdSlot();
-                $slot->ad_campaign_id = $campaign->id;
-                $slot->date = $row['date'];
-                $slot->tier = $row['tier'];
-                $slot->quantity = $row['quantity'];
-                $slot->price = 100;
-                $slot->save();
             }
         }
 
