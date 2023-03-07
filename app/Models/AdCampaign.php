@@ -28,6 +28,13 @@ class AdCampaign extends Model
         self::STATUS_ARCHIVED => 'archived',
     ];
 
+    public function scopeStatus($query, $status)
+    {
+        $status = is_numeric($status)? $status : array_flip(self::STATUS_TEXT)[$status];
+        $query->where('status', $status);
+        return $query;
+    }
+
 
     // Relations
     public function company(){

@@ -25,6 +25,7 @@ class AdController extends Controller
         $filters = $request->get('filters', []);
         $companyIdFilter = Arr::get($filters, 'company_id');
         $searchFilter = Arr::get($filters, 'search');
+        $statusFilter = Arr::get($filters, 'status');
 
 
         $query = AdCampaign::query();
@@ -46,6 +47,10 @@ class AdController extends Controller
             }else{
                 $query->where('name', 'LIKE', '%'.$searchFilter.'%');
             }
+        }
+
+        if ($statusFilter){
+            $query->status($statusFilter);
         }
 
         switch ($request->get('sort')){
@@ -203,9 +208,11 @@ class AdController extends Controller
     public function storeSettings(Request $request)
     {
         $request->validate([
-            'tiers_cpm' => 'required',
-            'tiers_cpm.*.tier' => 'required|in:1,2,3,4,5',
-            'tiers_cpm.*.price' => 'required|numeric',
+            'tiers_data' => 'required',
+            'tiers_data.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_data.*.cpm' => 'required|numeric',
+            'tiers_names.*.article' => 'required',
+            'tiers_names.*.group' => 'required',
 
             'tiers_discounts' => 'nullable',
             'tiers_discounts.*.id' => ['nullable', Rule::exists('ad_discounts', 'id')],
@@ -214,14 +221,20 @@ class AdController extends Controller
             'tiers_discounts.*.amount' => 'required|numeric',
             'tiers_discounts.*.start_at' => ['nullable','date_format:Y-m-d'],
             'tiers_discounts.*.end_at' => ['nullable','date_format:Y-m-d', 'after:discount.*.start_at'],
-
-            'tiers_names' => 'required',
-            'tiers_names.*.tier' => 'required|in:1,2,3,4,5',
-            'tiers_names.*.article' => 'required',
-            'tiers_names.*.group' => 'required',
         ]);
 
-        Option::set(Option::AD_TIERS_INFO, json_encode($request->only(['tiers_names', 'tiers_cpm'])));
+        $optionData = $request->only('tiers_data');
+
+        foreach ($optionData as $key => $row){
+            $pps = ($row['cpm'] * (25000 * 0.001) ) / 7 / 5; // TODO: cpm * avarage(4 week reach) * 0.001 / 7 / 5
+            $optionData[$key]['pps'] = [
+                'regular' => 10,
+                'final' => 9,
+            ];
+        }
+        dd($optionData);
+
+        Option::set(Option::AD_TIERS_INFO, json_encode());
 
         // Discounts
         $preExistingDiscountIds = array_column((array) $request->get('tiers_discounts'), 'id');
