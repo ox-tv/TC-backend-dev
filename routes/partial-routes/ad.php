@@ -38,5 +38,6 @@ Route::group([
     Route::delete('ads/campaigns/{id}', '\App\Http\Controllers\AdController@destroyCampaign')->name('ads.campaigns.destroy');
     Route::get('ads/campaigns/{id}', '\App\Http\Controllers\AdController@showCampaign')->name('ads.campaigns.show');
     Route::get('ads/campaigns', '\App\Http\Controllers\AdController@indexCampaign')->name('ads.campaigns.index');
+    Route::get('ads/discounts', '\App\Http\Controllers\AdController@indexDiscount')->name('ads.discounts.index');
 
 });

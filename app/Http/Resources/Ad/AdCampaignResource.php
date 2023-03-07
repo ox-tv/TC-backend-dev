@@ -20,6 +20,7 @@ class AdCampaignResource extends JsonResource
             'id' => $this->id,
             "name" => $this->name,
             'data' => $this->data,
+            'created_at' => $this->created_at,
 
             // Custom attributes without query
             'status' => $this->status_text,

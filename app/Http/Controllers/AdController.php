@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Ad\AdCampaignResource;
+use App\Http\Resources\Ad\AdDiscountResource;
 use App\Http\Resources\Ad\AdPricingResource;
 use App\Http\Resources\Ad\AdSlotResource;
 use App\Models\AdCampaign;
-use App\Models\AdPricing;
+use App\Models\AdDiscount;
 use App\Models\AdSlot;
 use App\Models\Option;
 use Carbon\Carbon;
@@ -24,6 +25,7 @@ class AdController extends Controller
         $filters = $request->get('filters', []);
         $companyIdFilter = Arr::get($filters, 'company_id');
         $searchFilter = Arr::get($filters, 'search');
+        $statusFilter = Arr::get($filters, 'status');
 
 
         $query = AdCampaign::query();
@@ -45,6 +47,10 @@ class AdController extends Controller
             }else{
                 $query->where('name', 'LIKE', '%'.$searchFilter.'%');
             }
+        }
+
+        if ($statusFilter){
+            $query->status($statusFilter);
         }
 
         switch ($request->get('sort')){
@@ -134,7 +140,7 @@ class AdController extends Controller
         // update slots
         if ($campaign->status != AdCampaign::STATUS_ARCHIVED){
 
-            $preExistingSlotIds = array_column($request->get('slots'), 'id');
+            $preExistingSlotIds = array_column((array) $request->get('slots'), 'id');
             AdSlot::where('ad_campaign_id', $campaign->id)->whereNotIn('id', $preExistingSlotIds)->delete();
 
             if ($request->get('slots')){
@@ -202,56 +208,94 @@ class AdController extends Controller
     public function storeSettings(Request $request)
     {
         $request->validate([
-            'tiers_cpm' => 'required',
-            'tiers_cpm.*.tier' => 'required|in:1,2,3,4,5',
-            'tiers_cpm.*.price' => 'required|numeric',
-
-            'discounts' => 'nullable',
-            'discounts.*.tier' => 'required|in:1,2,3,4,5',
-            'discounts.*.type' => 'required|in:fixed,percent',
-            'discounts.*.amount' => 'required|numeric',
-            'discounts.*.start' => ['required','date_format:Y-m-d'],
-            'discounts.*.end' => ['required','date_format:Y-m-d', 'after:discount.*.start'],
-
-            'tiers_names' => 'required',
-            'tiers_names.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_data' => 'required',
+            'tiers_data.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_data.*.cpm' => 'required|numeric',
             'tiers_names.*.article' => 'required',
             'tiers_names.*.group' => 'required',
+
+            'tiers_discounts' => 'nullable',
+            'tiers_discounts.*.id' => ['nullable', Rule::exists('ad_discounts', 'id')],
+            'tiers_discounts.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_discounts.*.type' => 'required|in:fixed,percent',
+            'tiers_discounts.*.amount' => 'required|numeric',
+            'tiers_discounts.*.start_at' => ['nullable','date_format:Y-m-d'],
+            'tiers_discounts.*.end_at' => ['nullable','date_format:Y-m-d', 'after:discount.*.start_at'],
         ]);
 
-        Option::set(Option::AD_TIERS_INFO, json_encode($request->only(['tiers_names', 'tiers_cpm'])));
+        $optionData = $request->only('tiers_data');
 
-        if ($discounts = $request->get('discounts')){
+        foreach ($optionData as $key => $row){
+            $pps = ($row['cpm'] * (25000 * 0.001) ) / 7 / 5; // TODO: cpm * avarage(4 week reach) * 0.001 / 7 / 5
+            $optionData[$key]['pps'] = [
+                'regular' => 10,
+                'final' => 9,
+            ];
+        }
+        dd($optionData);
+
+        Option::set(Option::AD_TIERS_INFO, json_encode());
+
+        // Discounts
+        $preExistingDiscountIds = array_column((array) $request->get('tiers_discounts'), 'id');
+        AdDiscount::whereNotIn('id', $preExistingDiscountIds)
+            ->where(function ($q){
+                $q->whereNull('end_at')
+                    ->orWhere('end_at', '>', Carbon::now());
+            })
+            ->delete();
+
+        if ($discounts = $request->get('tiers_discounts')){
             foreach ($discounts as $row){
-                AdPricing::updateOrCreate(
-                    ['tier' => $row['tier']],
-                    ['price' => $row['price']]
-                );
+
+                $discount = new AdDiscount();
+
+                if (!empty($row['id'])){
+                    $discount = AdDiscount::where('id', $row['id'])->first();
+                }
+
+                $discount->tier = $row['tier'];
+                $discount->type = $row['type'];
+                $discount->amount = $row['amount'];
+                $discount->start_at = $row['start_at']?? null;
+                $discount->end_at = $row['end_at']?? null;
+                $discount->save();
             }
         }
 
         return response()->json(["message" => "ok"]);
     }
 
-    /*public function getSettings(Request $request)
+    public function getSettings(Request $request)
     {
-        $request->validate([
-            'filters.from' => ['nullable','date_format:Y-m-d'],
-            'filters.to' => ['nullable','date_format:Y-m-d', 'after:from'],
-        ]);
+        $result = [
+            'tiers_cpm' => [],
+            'tiers_names' => [],
+            'tiers_discounts' => [],
+        ];
 
-        $filters = $request->get('filters', []);
-        $fromFilter = Arr::get($filters, 'from');
-        $toFilter = Arr::get($filters, 'to');
+        $tiersInfo = Option::get(Option::AD_TIERS_INFO)->value ?? null;
+        $tiersInfo = $tiersInfo? json_decode($tiersInfo, true): null;
 
-        $from = $fromFilter? Carbon::parse($fromFilter) : Carbon::now();
-        $to = $toFilter? Carbon::parse($toFilter) : $from->clone()->addDays(14);
+        $result['tiers_cpm'] = $tiersInfo['tiers_cpm']?? null;
+        $result['tiers_names'] = $tiersInfo['tiers_names']?? null;
 
-        $prices = AdPricing::where('date', '>=', $from)->where('date', '<=', $to)->get();
+        $result['tiers_discounts'] = AdDiscountResource::collection(AdDiscount::where(function ($q){
+            $q->whereNull('end_at')
+                ->orWhere('end_at', '>', Carbon::now());
+        })->get());
 
-        $tierNames = Option::get(Option::AD_TIERS_NAMES)->value ?? null;
-        $tierNames = $tierNames? json_decode($tierNames, true): null;
+        return response()->json($result);
+    }
 
-        return response()->json(['prices' => AdPricingResource::collection($prices), 'tier_names' => $tierNames]);
-    }*/
+    public function indexDiscount(Request $request)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $query = AdDiscount::query();
+
+        $discounts = $query->paginate($perPage);
+
+        return AdDiscountResource::collection($discounts);
+    }
 }
