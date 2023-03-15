@@ -17,6 +17,8 @@ use App\Events\Publisher\NewPublisherRequested;
 use App\Events\Publisher\PublisherRequestApproved;
 use App\Events\Publisher\PublisherRequestRejected;
 use App\Events\Report\ReportCreated;
+use App\Events\User\BuyingHeroMemberShipCompleted;
+use App\Events\User\CustomFeedFilled;
 use App\Events\UserVerified;
 use App\Events\VideoCreated;
 use App\Events\VideoDeleted;
@@ -36,6 +38,8 @@ use App\Listeners\ChannelStatisticsDailyVideoUpdated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
 use App\Listeners\Comments\LoyaltyPointsForCommentLiked;
 use App\Listeners\Comments\SendNotificationOnCommentCreated;
+use App\Listeners\Comments\TokenPointsForCommentCreated;
+use App\Listeners\HeroMemberShip\TokenPointsForBuyingHeroMemberShipCompleted;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
 use App\Listeners\Messages\SendNotificationOnMessageRepliedByAdmin;
@@ -55,10 +59,15 @@ use App\Listeners\SendNotificationOnVideoWasUnHidden;
 use App\Listeners\StripeWebhookHandledListener;
 use App\Listeners\User\LoyaltyPointsForUserVerified;
 use App\Listeners\User\MonetizePointsForUserVerified;
+use App\Listeners\User\TokenPointsForCustomFeedFilled;
+use App\Listeners\User\TokenPointsForUserVerified;
 use App\Listeners\UserVerifiedDataForUserStatisticsDaily;
 use App\Listeners\Video\LoyaltyPointsForVideoWatched;
 use App\Listeners\Video\MonetizePointsForVideoLiked;
 use App\Listeners\Video\MonetizePointsForVideoViewed;
+use App\Listeners\Video\TokenPointsForVideoCreated;
+use App\Listeners\Video\TokenPointsForVideoUpdated;
+use App\Listeners\Video\TokenPointsForVideoWatched;
 use App\Listeners\VideoLikedDataForUserStatisticsDaily;
 use App\Listeners\VideoStatisticsDailyCommented;
 use App\Listeners\VideoViewedDataForUserStatisticsDaily;
@@ -88,8 +97,12 @@ class EventServiceProvider extends ServiceProvider
         UserVerified::class => [
             MonetizePointsForUserVerified::class,
             LoyaltyPointsForUserVerified::class,
+            TokenPointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
             SendNotificationOnUserVerified::class,
+        ],
+        CustomFeedFilled::class => [
+            TokenPointsForCustomFeedFilled::class,
         ],
 
         // Publisher
@@ -103,6 +116,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         NewPublisherRequested::class => [
             SendNotificationOnNewPublisherRequested::class,
+        ],
+
+        // HeroMemberShip
+        BuyingHeroMemberShipCompleted::class => [
+            TokenPointsForBuyingHeroMemberShipCompleted::class,
         ],
 
         // Channel
@@ -133,6 +151,7 @@ class EventServiceProvider extends ServiceProvider
         CommentCreated::class => [
             VideoStatisticsDailyCommented::class,
             SendNotificationOnCommentCreated::class,
+            TokenPointsForCommentCreated::class,
         ],
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
@@ -162,10 +181,12 @@ class EventServiceProvider extends ServiceProvider
         VideoCreated::class => [
             ChannelStatisticsDailyVideoCreated::class,
             SendNotificationOnVideoCreated::class,
+            TokenPointsForVideoCreated::class,
         ],
         VideoUpdated::class => [
             SendNotificationOnVideoUpdated::class,
             ChannelStatisticsDailyVideoUpdated::class,
+            TokenPointsForVideoUpdated::class,
         ],
         VideoDeleted::class => [
             SendNotificationOnVideoDeleted::class,
@@ -189,6 +210,7 @@ class EventServiceProvider extends ServiceProvider
         VideoWatched::class => [
             VideoWatchedDataForUserStatisticsDaily::class,
             LoyaltyPointsForVideoWatched::class,
+            TokenPointsForVideoWatched::class,
             VideoWatchedDataForVideoStatisticsDaily::class,
         ],
 
