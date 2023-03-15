@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Listeners\User;
+
+use App\Events\User\CustomFeedFilled;
+use App\Models\TokenPoint;
+use App\Repository\Eloquent\TokenPointRepository;
+
+class TokenPointsForCustomFeedFilled
+{
+    private $tokenPointRepository;
+
+    public function __construct(TokenPointRepository $tokenPointRepository)
+    {
+        $this->tokenPointRepository = $tokenPointRepository;
+    }
+
+    public function handle(CustomFeedFilled $event)
+    {
+        $user = $event->user;
+
+        if ($user->favoriteCryptoCurrencies()->count() < 3 || $user->favoriteTags()->count() < 3){
+            return true;
+        }
+
+        if (TokenPoint::where('user_id', $user->id)->where('type', TokenPoint::TYPE_CUSTOM_FEED_FIILED)->exists()){
+            return true;
+        }
+
+        $amount = $user->is_hero? config('points.token.fill_custom_feed_as_hero') : config('points.token.fill_custom_feed');
+
+        $this->tokenPointRepository->add([
+            'user_id' => $user->id,
+            'type' => TokenPoint::TYPE_CUSTOM_FEED_FIILED,
+            'amount' => $amount,
+        ]);
+
+        return true;
+    }
+}
