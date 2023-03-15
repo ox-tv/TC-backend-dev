@@ -27,7 +27,7 @@ class TokenPointRepository
 
         // data modification
         $data['date'] = !empty($data['date'])? $data['date']->startOfDay() : Carbon::now()->startOfDay();
-        $data['activate_at'] = $data['activate_at']?? null;
+        $data['activate_at'] = $data['activate_at']?? Carbon::now()->addHours(24);
 
         // Get model or new
         $query = TokenPoint::query();

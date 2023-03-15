@@ -14,7 +14,7 @@ class TokenPoint extends Model
     protected $collection = 'token_points';
 
     protected $casts = [
-        'activated_at' => 'datetime'
+        'activate_at' => 'datetime'
     ];
 
     protected $dates = [
@@ -27,16 +27,24 @@ class TokenPoint extends Model
 
     public $timestamps = false;
 
-    const TYPE_REFERRAL = 1;
-    const TYPE_VIDEO_LIKED = 2;
-    const TYPE_VIDEO_VIEWED = 3;
-    const TYPE_SUBSCRIPTION = 4;
+    const TYPE_PUBLISH_A_MEDIA = 1;
+    const TYPE_ANSWER_A_COMMENT = 2;
+    const TYPE_REFERRER_AS_PUBLISHER = 3;
+    const TYPE_REFERRAL_VIA_PUBLISHER = 4;
+    const TYPE_REFERRER = 5;
+    const TYPE_WATCH_A_VIDEO = 6;
+    const TYPE_CUSTOM_FEED_FIILED = 7;
+    const TYPE_BUYING_YEARLY_HERO_MEMBERSHIP = 8;
 
     const TYPE_TEXT = [
-        self::TYPE_REFERRAL => 'referral',
-        self::TYPE_VIDEO_LIKED => 'video_liked',
-        self::TYPE_VIDEO_VIEWED => 'video_viewed',
-        self::TYPE_SUBSCRIPTION => 'subscription',
+        self::TYPE_PUBLISH_A_MEDIA => 'publish_a_media',
+        self::TYPE_ANSWER_A_COMMENT => 'answer_a_comment',
+        self::TYPE_REFERRER_AS_PUBLISHER => 'referrer_as_publisher',
+        self::TYPE_REFERRAL_VIA_PUBLISHER => 'referral_via_publisher',
+        self::TYPE_REFERRER => 'referrer',
+        self::TYPE_WATCH_A_VIDEO => 'watch_a_video',
+        self::TYPE_CUSTOM_FEED_FIILED => 'custom_feed_filled',
+        self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP => 'buying_yearly_hero_membership',
     ];
 
 
