@@ -36,9 +36,11 @@ use App\Listeners\ChannelStatisticsDailySubscribed;
 use App\Listeners\ChannelStatisticsDailyVideoCreated;
 use App\Listeners\ChannelStatisticsDailyVideoUpdated;
 use App\Listeners\CommentLikedDataForUserStatisticsDaily;
+use App\Listeners\Comments\LogCommentLikedOnceForCommentLiked;
 use App\Listeners\Comments\LoyaltyPointsForCommentLiked;
 use App\Listeners\Comments\SendNotificationOnCommentCreated;
 use App\Listeners\Comments\TokenPointsForCommentCreated;
+use App\Listeners\Comments\TokenPointsForCommentLiked;
 use App\Listeners\HeroMemberShip\TokenPointsForBuyingHeroMemberShipCompleted;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByAdmin;
 use App\Listeners\Messages\SendNotificationOnMessageCreatedByUser;
@@ -156,6 +158,8 @@ class EventServiceProvider extends ServiceProvider
         CommentLiked::class => [
             CommentLikedDataForUserStatisticsDaily::class,
             LoyaltyPointsForCommentLiked::class,
+            TokenPointsForCommentLiked::class, // Must be fired before `LogCommentLikedOnceForCommentLiked` listener
+            LogCommentLikedOnceForCommentLiked::class,
         ],
 
         // Messages
