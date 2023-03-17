@@ -27,12 +27,10 @@ class TokenPointsForCustomFeedFilled
             return true;
         }
 
-        $amount = $user->is_hero? config('points.token.fill_custom_feed_as_hero') : config('points.token.fill_custom_feed');
-
         $this->tokenPointRepository->add([
             'user_id' => $user->id,
-            'type' => TokenPoint::TYPE_CUSTOM_FEED_FIILED,
-            'amount' => $amount,
+            'type' => $user->is_hero? TokenPoint::TYPE_CUSTOM_FEED_FIILED_AS_HERO : TokenPoint::TYPE_CUSTOM_FEED_FIILED,
+            'amount' => $user->is_hero? config('points.token.fill_custom_feed_as_hero') : config('points.token.fill_custom_feed'),
         ]);
 
         return true;

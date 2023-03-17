@@ -27,12 +27,10 @@ class TokenPointsForBuyingHeroMemberShipCompleted
             return true;
         }
 
-        $amount = $user->is_hero? config('points.token.buying_yearly_membership_as_hero') : config('points.token.buying_yearly_membership');
-
         $this->tokenPointRepository->add([
             'user_id' => $user->id,
-            'type' => TokenPoint::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP,
-            'amount' => $amount,
+            'type' => $user->is_hero? TokenPoint::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO : TokenPoint::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP,
+            'amount' => $user->is_hero? config('points.token.buying_yearly_membership_as_hero') : config('points.token.buying_yearly_membership'),
         ]);
 
         return true;

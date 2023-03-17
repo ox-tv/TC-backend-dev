@@ -47,11 +47,10 @@ class TokenPointsForUserVerified
                 'amount' => config('points.token.referral_via_publisher'),
             ]);
         }else{
-            $amount = $referrer->is_hero? config('points.token.referrer_as_hero') : config('points.token.referrer');
             $this->tokenPointRepository->add([
                 'user_id' => $referrer->id,
-                'type' => TokenPoint::TYPE_REFERRER,
-                'amount' => $amount,
+                'type' => $referrer->is_hero? TokenPoint::TYPE_REFERRER_AS_HERO : TokenPoint::TYPE_REFERRER,
+                'amount' => $referrer->is_hero? config('points.token.referrer_as_hero') : config('points.token.referrer'),
             ]);
         }
 

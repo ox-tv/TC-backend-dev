@@ -37,16 +37,10 @@ class TokenPointsForVideoWatched
             return true;
         }
 
-        if ($user->is_hero){
-            $pointsPerWatched = config('points.token.watch_a_video_as_hero');
-        }else{
-            $pointsPerWatched = config('points.token.watch_a_video');
-        }
-
         $this->tokenPointRepository->add([
             'user_id' => $user->id,
-            'type' => TokenPoint::TYPE_WATCH_A_VIDEO,
-            'amount' => $pointsPerWatched,
+            'type' => $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO,
+            'amount' => $user->is_hero? config('points.token.watch_a_video_as_hero') : config('points.token.watch_a_video'),
         ]);
 
         return true;
