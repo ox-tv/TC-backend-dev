@@ -300,6 +300,11 @@ class User extends Authenticatable
         return $this->comments()->count();
     }
 
+    public function getReferralsCountAttribute()
+    {
+        return $this->referrals()->count();
+    }
+
     public function getSubscribedChannelsCountAttribute()
     {
         $repository = new UserRepository();
