@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\User\BuyingHeroMemberShipCompleted;
 use App\Libraries\CoinBaseClient;
 use App\Models\PricingUser;
 use App\Models\Transaction;
@@ -18,7 +19,7 @@ class CoinbaseController extends Controller
         $payload = file_get_contents( 'php://input' );
         $client = new CoinBaseClient();
 
-        if ( empty( $payload ) || $client->validateWebhook( $payload ) ) {
+        if ( empty( $payload ) || !$client->validateWebhook( $payload ) ) {
             abort(500, 'Coinbase Webhook Request Failure');
             //wp_die( 'Coinbase Webhook Request Failure', 'Coinbase Webhook', array( 'response' => 500 ) );
         }
@@ -105,7 +106,7 @@ class CoinbaseController extends Controller
                     $transaction->save();
                 }
 
-                if ($pricingUser->status = PricingUser::STATUS_COMPLETED){
+                if ($pricingUser->status == PricingUser::STATUS_COMPLETED){
                     if ($user->hero_due_at && $user->hero_due_at > Carbon::now()){
                         $user->hero_due_at = $user->hero_due_at->addDays($plan->interval);
                     }else{
@@ -114,6 +115,10 @@ class CoinbaseController extends Controller
                     $user->save();
                 }
             });
+
+            if ($transactionChangeFlag && $pricingUser->status == PricingUser::STATUS_COMPLETED){
+                event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
+            }
         }
 
         return true;

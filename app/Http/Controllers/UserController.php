@@ -53,6 +53,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $isAdminRoute = $request->is('api/admin/*');
         $isAdminList = $request->is('api/admin/admins');
         $isPublisherList = $request->is('api/admin/publishers');
         $isPublisherRequestsList = $request->is('api/admin/publisher-requests');
@@ -78,6 +79,7 @@ class UserController extends Controller
 
         $filters = $request->get('filters', []);
         $searchFilter = Arr::get($filters, 'search');
+        $refFilter = Arr::get($filters, 'ref');
         $usernameFilter = Arr::get($filters, 'username');
         $emailFilter = Arr::get($filters, 'email');
         $isHeroFilter = Arr::get($filters, 'is_hero');
@@ -94,6 +96,16 @@ class UserController extends Controller
                     $query->whereHas('channel', function($query) use ($searchFilter){
                         $query->searchTitle($searchFilter);
                     });
+                });
+            });
+        }
+
+        if($refFilter){
+            $query->whereHas('referrer', function ($q) use ($refFilter){
+                $q->where(function ($query) use ($refFilter){
+                    $query->SearchUsername($refFilter);
+                })->orWhere(function ($query) use ($refFilter){
+                    $query->SearchEmail($refFilter);
                 });
             });
         }
@@ -144,6 +156,12 @@ class UserController extends Controller
         $users = $query->paginate();
 
         // Add Attributes
+        if ($isAdminRoute){
+            $users->append([
+                'referrals_count',
+            ]);
+        }
+
         if ($isAdminList){
             // Nothing
         }elseif ($isPublisherList){

@@ -80,7 +80,7 @@ class ChannelController extends Controller
         $channels = $query->paginate($perPage);
 
         if ($isAdmin){
-            $channels->append(['subscribers_count', 'uploads_count', 'total_views', 'total_likes', 'total_comments']);
+            $channels->load(['owner'])->append(['subscribers_count', 'uploads_count', 'total_views', 'total_likes', 'total_comments', 'referrals_count']);
         }else{
             $channels->append(['is_subscribed', 'subscribers_count']);
         }
