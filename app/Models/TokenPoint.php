@@ -63,6 +63,29 @@ class TokenPoint extends Model
         self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO => 'buying_yearly_hero_membership_as_hero',
     ];
 
+    const TYPE_FOR_PUBLISHER = [
+        self::TYPE_PUBLISH_A_MEDIA,
+        self::TYPE_ANSWER_A_COMMENT,
+        self::TYPE_REFERRER_AS_PUBLISHER,
+    ];
+
+    const TYPE_FOR_HERO = [
+        self::TYPE_WATCH_A_VIDEO_AS_HERO,
+        self::TYPE_LIKED_COMMENT_AS_HERO,
+        self::TYPE_CUSTOM_FEED_FIILED_AS_HERO,
+        self::TYPE_REFERRER_AS_HERO,
+        self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO,
+    ];
+
+    const TYPE_FOR_USER = [
+        self::TYPE_REFERRAL_VIA_PUBLISHER,
+        self::TYPE_REFERRER,
+        self::TYPE_WATCH_A_VIDEO,
+        self::TYPE_CUSTOM_FEED_FIILED,
+        self::TYPE_LIKED_COMMENT,
+        self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP,
+    ];
+
 
     protected static function booted()
     {
