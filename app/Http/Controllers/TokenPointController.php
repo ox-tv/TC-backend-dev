@@ -13,6 +13,7 @@ class TokenPointController extends Controller
     public function overview()
     {
         $result = [
+            'total_tokens' => 3500000000,
             'total_tokens_distributed' => 0,
             'today_tokens_distributed' => 0,
             'user_total_tokens' => null,
