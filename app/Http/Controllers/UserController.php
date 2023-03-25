@@ -567,8 +567,19 @@ class UserController extends Controller
 
         $user = auth('api')->user();
 
-        if (!$user->channel){
+        if (
+            !$user->channel
+            && $user->is_hero
+            && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value <= Carbon::now()->subMonths(3))
+        ){
             $user->username = $request->get('username', $user->username);
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::UserNameChangedAt],
+                ['value' => Carbon::now()]
+            );
+        }
+
+        if (!$user->channel){
             $user->avatar_url = $request->get('avatar', $user->avatar_url);
         }
 
