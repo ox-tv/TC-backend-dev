@@ -4,9 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
 // For Login Users
-Route::group(['middleware' => 'auth:api'], function(){
+Route::group(['middleware' => ['auth:api', 'access.check:publisher,hero']], function(){
 
     Route::apiResource('messages', \App\Http\Controllers\MessageController::class)->except(["update","destroy"]);
     Route::post('messages/{reply_to}/reply', '\App\Http\Controllers\MessageController@store')->name("messages.reply");
