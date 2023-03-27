@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\CheckArchivePaymentDetails;
 use App\Console\Commands\CheckExpiredPaymentDetails;
+use App\Console\Commands\CheckHeroMembershipExpiry;
 use App\Console\Commands\DumpNotifications;
 use App\Console\Commands\Removing\RemoveUnverifiedUsers;
 use App\Console\Commands\UpdateCryptoCurrenciesPrices;
@@ -23,6 +24,7 @@ class Kernel extends ConsoleKernel
         CheckExpiredPaymentDetails::class,
         CheckArchivePaymentDetails::class,
         RemoveUnverifiedUsers::class,
+        CheckHeroMembershipExpiry::class,
     ];
 
     /**
@@ -49,6 +51,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('tc:users:remove-unverified')->runInBackground()->daily();
 
         $schedule->command('telescope:prune')->daily();
+
+        $schedule->command('plans:check-hero-expiry')->daily();
 
         $schedule->command('auto_import')->runInBackground()->everyMinute();
 

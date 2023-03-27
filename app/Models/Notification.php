@@ -64,6 +64,7 @@ class Notification extends Model
     const TYPE_UPDATE_CHANNEL_STATUS = 'UpdateChannelStatus';
     const TYPE_MENTIONED_ON_COMMENT = 'MentionedOnComment';
     const TYPE_WELCOME_TO_REFERRAL_USERS = 'WelcomeToReferralUsers';
+    const TYPE_HERO_MEMBERSHIP_END_SOON = 'HeroMembershipEndSoon';
 
     protected static function booted()
     {
