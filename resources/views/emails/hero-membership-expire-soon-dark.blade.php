@@ -508,7 +508,7 @@
                                                     <div style="text-align: center;"><p style="color:#202020">
                                                             <strong><span style="font-size:18px">Your Hodl Membership is ending soon</span></strong><br>
                                                             <br>
-                                                            We hope you enjoy Today’s Crypto and your Hero Membership.
+                                                            We hope you enjoy Today’s Crypto and your Hodl Membership.
                                                             <br><br>
                                                             Time flies when having fun, and we want you to know that
                                                             your Hodl Membership expires in seven days. However, you can
