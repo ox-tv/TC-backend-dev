@@ -125,8 +125,13 @@ class EmailVerificationController extends Controller
             $user->email_verified_at = now();
             $user->status = User::STATUS_ACTIVE;
 
-            if ($user->referrer_id){
+            $referrer = $user->referrer;
+            if ($referrer){
                 $user->hero_due_at = Carbon::now()->addMonths(2);
+            }
+
+            if ($referrer && $referrer->is_hero){
+                $user->hero_due_at = $user->hero_due_at? $user->hero_due_at->addMonth(): Carbon::now()->addMonth();
             }
 
             $user->save();
