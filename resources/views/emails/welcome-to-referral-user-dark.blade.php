@@ -508,7 +508,7 @@
                                                     <div style="text-align: center;"><p style="color:#202020">
                                                             <strong><span style="font-size:18px">Congratulation, and welcome to Today’s Crypto!</span></strong><br>
                                                             <br>
-                                                            You are gifted two months of free Hero Membership, meaning
+                                                            You are gifted two months of free Hodl Membership, meaning
                                                             you can enjoy Today’s Crypto utterly free from Ads and
                                                             unlimited tracking of coins/tokens. Set up your custom
                                                             content feed by clicking the “Customize” button next to your
