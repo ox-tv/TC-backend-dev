@@ -39,7 +39,7 @@ class SendNotificationOnUserVerified
             Mail::to($user->email)
                 ->queue(new WelcomeToReferralUserMail());
 
-            $welcomeText = "You are gifted two months of free Hero Membership, meaning you can enjoy Today’s Crypto utterly free from Ads and unlimited tracking of coins/tokens. Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience.
+            $welcomeText = "You are gifted two months of free Hodl Membership, meaning you can enjoy Today’s Crypto utterly free from Ads and unlimited tracking of coins/tokens. Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience.
 
 Best wishes from the team at Today’s Crypto";
 
