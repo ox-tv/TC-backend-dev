@@ -80,6 +80,7 @@ class UserController extends Controller
         $filters = $request->get('filters', []);
         $searchFilter = Arr::get($filters, 'search');
         $refFilter = Arr::get($filters, 'ref');
+        $subFilter = Arr::get($filters, 'sub');
         $usernameFilter = Arr::get($filters, 'username');
         $emailFilter = Arr::get($filters, 'email');
         $isHeroFilter = Arr::get($filters, 'is_hero');
@@ -106,6 +107,18 @@ class UserController extends Controller
                     $query->SearchUsername($refFilter);
                 })->orWhere(function ($query) use ($refFilter){
                     $query->SearchEmail($refFilter);
+                });
+            });
+        }
+
+        if ($subFilter){
+            $query->whereHas('subscribedChannels', function ($query) use ($subFilter){
+                $query->whereHas('owner', function ($q) use ($subFilter){
+                    $q->where(function ($query) use ($subFilter){
+                        $query->SearchUsername($subFilter);
+                    })->orWhere(function ($query) use ($subFilter){
+                        $query->SearchEmail($subFilter);
+                    });
                 });
             });
         }
