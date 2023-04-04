@@ -559,6 +559,8 @@ class UserController extends Controller
      */
     public function updateProfile(Request $request)
     {
+        $user = auth('api')->user();
+
         $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
@@ -568,6 +570,17 @@ class UserController extends Controller
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore(auth('api')->id()),
+                function ($attribute, $value, $fail) use($user) {
+                    if (
+                        $value
+                        && $user->username
+                        && !$user->channel
+                        && $user->is_hero
+                        && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value > Carbon::now()->subMonths(3))
+                    ){
+                        $fail('You can only change your username once every 3 months.');
+                    }
+                },
             ],
             //'email' => 'nullable|email',
             'avatar' => 'nullable|string',
@@ -578,7 +591,6 @@ class UserController extends Controller
             'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords), CustomRule::alphaSpace(), 'max:25'],
         ]);
 
-        $user = auth('api')->user();
 
         if (
             !$user->username ||
@@ -592,6 +604,7 @@ class UserController extends Controller
                 ['value' => Carbon::now()]
             );
         }
+
 
         if (!$user->channel){
             $user->avatar_url = $request->get('avatar', $user->avatar_url);
