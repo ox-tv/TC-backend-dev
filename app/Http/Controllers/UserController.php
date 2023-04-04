@@ -581,9 +581,10 @@ class UserController extends Controller
         $user = auth('api')->user();
 
         if (
-            !$user->channel
+            !$user->username ||
+            (!$user->channel
             && $user->is_hero
-            && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value <= Carbon::now()->subMonths(3))
+            && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value <= Carbon::now()->subMonths(3)))
         ){
             $user->username = $request->get('username', $user->username);
             $user->meta()->updateOrCreate(
