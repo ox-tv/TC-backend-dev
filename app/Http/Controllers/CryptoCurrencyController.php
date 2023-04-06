@@ -120,7 +120,7 @@ class CryptoCurrencyController extends Controller
     {
         $user = auth('api')->user();
 
-        if($user->has_free_plan && $user->favoriteCryptoCurrenciesCount() >= 5){
+        if($user->has_free_plan && $user->favoriteCryptoCurrenciesCount >= 5){
             return response()->json([
                 'code' => 'crypto_currencies.fav.max_exceeded'
             ], 403);
