@@ -62,6 +62,7 @@ class UserResource extends JsonResource
             'is_hero_membership_auto_renewal' => $this->whenAppended('isHeroMembershipAutoRenewal'),
             'channel_auto_import_is_active' => $this->whenAppended('channelAutoImportIsActive'),
             'referrals_count' => $this->whenAppended('referrals_count'),
+            'favorite_crypto_currencies_count' => $this->whenAppended('favoriteCryptoCurrenciesCount'),
 
             // Relations
             'channel' => ChannelResource::make($this->whenLoaded('channel')),

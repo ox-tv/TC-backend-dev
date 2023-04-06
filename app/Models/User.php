@@ -305,6 +305,11 @@ class User extends Authenticatable
         return $this->referrals()->count();
     }
 
+    public function getFavoriteCryptoCurrenciesCountAttribute()
+    {
+        return $this->favoriteCryptoCurrencies()->count();
+    }
+
     public function getSubscribedChannelsCountAttribute()
     {
         $repository = new UserRepository();

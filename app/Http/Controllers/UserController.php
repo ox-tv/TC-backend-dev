@@ -525,7 +525,7 @@ class UserController extends Controller
             'referrer',
             'meta',
             'favoriteTags',
-            'favoriteCryptoCurrencies',
+            //'favoriteCryptoCurrencies',
             'verifiedPaymentDetails',
             'lastPaymentDetails',
         ])->append([
@@ -542,6 +542,7 @@ class UserController extends Controller
             'loyalty_points',
             'isHeroMembershipAutoRenewal',
             'channelAutoImportIsActive',
+            'favoriteCryptoCurrenciesCount',
         ]);
 
         if ($user->channel){
