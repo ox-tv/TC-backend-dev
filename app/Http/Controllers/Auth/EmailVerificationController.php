@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuthKey;
 use App\Models\User;
 use App\Services\EmailVerificationService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -123,6 +124,16 @@ class EmailVerificationController extends Controller
         if (!$user->email_verified_at){
             $user->email_verified_at = now();
             $user->status = User::STATUS_ACTIVE;
+
+            $referrer = $user->referrer;
+            if ($referrer){
+                $user->hero_due_at = Carbon::now()->addMonths(2);
+            }
+
+            if ($referrer && $referrer->is_hero){
+                $user->hero_due_at = $user->hero_due_at? $user->hero_due_at->addMonth(): Carbon::now()->addMonth();
+            }
+
             $user->save();
 
             event(new UserVerified($user));

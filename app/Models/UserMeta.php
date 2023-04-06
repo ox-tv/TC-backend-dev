@@ -20,6 +20,7 @@ class UserMeta extends Model
     const CustomFeedSetting = 'custom_feed_setting';
     const MonetizeReferralPointsIsActive = 'monetize_referral_points_is_active';
     const ChannelAutoImportIsActive = 'channel_auto_import_is_active';
+    const UserNameChangedAt = 'username_changed_at';
 
     const KEYS_WITH_JSON_VALUE = [
         self::PAYMENT_DETAILS,

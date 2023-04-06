@@ -59,6 +59,7 @@ class ChannelResource extends JsonResource
             'is_subscribed' => $this->whenAppended('is_subscribed'),
             'subscribers_count' => $this->whenAppended('subscribers_count'),
             'hero_subscribers_count' => $this->whenAppended('hero_subscribers_count'),
+            'referrals_count' => $this->whenAppended('referrals_count'),
 
             // Relations
             'owner' => UserResource::make($this->whenLoaded('owner')),

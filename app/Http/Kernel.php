@@ -42,7 +42,7 @@ class Kernel extends HttpKernel
         'api' => [
             /*'throttle:api',*/
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\UserIsActive::class
+            \App\Http\Middleware\UserIsActive::class,
         ],
     ];
 
@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         '2fa' => \App\Http\Middleware\Check2FA::class,
         'email.verify' => \App\Http\Middleware\CheckEmailVerification::class,
         '2fa.or.email-verification' => \App\Http\Middleware\Check2FAorEmailVerification::class,
+        'access.check' => \App\Http\Middleware\CheckingAccessibilityUsingUserPlan::class,
     ];
 }

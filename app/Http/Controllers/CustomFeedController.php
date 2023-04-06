@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\User\CustomFeedFilled;
 use App\Http\Requests\Chapter\ChapterStore;
 use App\Http\Requests\Chapter\ChapterUpdate;
 use App\Http\Resources\Chapter\ChapterResource;
@@ -78,6 +79,8 @@ class CustomFeedController extends Controller
             ['key' => UserMeta::CustomFeedSetting],
             ['value' => json_encode(['crypto_currencies_content_based' => $request->get('crypto_currencies_content_based'),])]
         );
+
+        event(new CustomFeedFilled($user));
 
         return response()->json(['message' => 'ok']);
     }

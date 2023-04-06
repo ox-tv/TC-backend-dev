@@ -24,4 +24,26 @@ return [
         'referral' => env('USER_POINT_PER_REFERRER_AS_NON_HERO', 1000),
     ],
 
+    'token' => [
+        // as publisher
+        'publish_a_media' => 500,
+        'answer_a_comment' => 100,
+        'referrer_as_publisher' => 1000,
+
+        // as end user
+        'referral_via_publisher' => 100,
+
+        'referrer' => 2,
+        'referrer_as_hero' => 4,
+        'watch_a_video' => 3,
+        'watch_a_video_as_hero' => 6,
+        'fill_custom_feed' => 100,
+        'fill_custom_feed_as_hero' => 200,
+        'liked_comment' => 3,
+        'liked_comment_as_hero' => 6,
+        'buying_yearly_membership' => 5000,
+        'buying_yearly_membership_as_hero' => 10000,
+
+    ],
+
 ];

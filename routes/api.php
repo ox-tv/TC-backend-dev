@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([], __DIR__.'/partial-routes/general.php');
 
+Route::group([], __DIR__.'/partial-routes/ad.php');
+
 Route::group([], __DIR__.'/partial-routes/auth.php');
 
 Route::group([], __DIR__.'/partial-routes/_2fa.php');
@@ -33,6 +35,8 @@ Route::group([], __DIR__.'/partial-routes/feedback.php');
 Route::group([], __DIR__.'/partial-routes/form.php');
 
 Route::group([], __DIR__.'/partial-routes/crypto-campaign.php');
+
+Route::group([], __DIR__.'/partial-routes/token.php');
 
 Route::group([], __DIR__.'/partial-routes/content.php');
 
@@ -71,6 +75,8 @@ Route::group([], __DIR__.'/partial-routes/payment.php');
 Route::group([], __DIR__.'/partial-routes/playlist.php');
 
 Route::group([], __DIR__.'/partial-routes/channel.php');
+
+Route::group([], __DIR__.'/partial-routes/company.php');
 
 Route::group([], __DIR__.'/partial-routes/role.php');
 

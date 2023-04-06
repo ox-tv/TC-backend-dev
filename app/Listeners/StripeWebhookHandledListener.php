@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\User\BuyingHeroMemberShipCompleted;
 use App\Models\PricingUser;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -89,6 +90,8 @@ class StripeWebhookHandledListener
                 }
                 $user->save();
             });
+
+            event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
         }
 
         return true;

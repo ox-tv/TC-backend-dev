@@ -252,11 +252,11 @@ class User extends Authenticatable
 
     public function getAvatarThumbnailsAttribute()
     {
-        if (!$this->attributes['avatar_url']){
+        if (!$this->avatar_url){
             return [];
         }
 
-        foreach ($urls = getThumbnails($this->attributes['avatar_url']) as $key => $value){
+        foreach ($urls = getThumbnails($this->avatar_url) as $key => $value){
             $urls[$key] = $value;
             //$urls[$key] = strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value;
         }
@@ -298,6 +298,16 @@ class User extends Authenticatable
     public function getCommentsCountAttribute()
     {
         return $this->comments()->count();
+    }
+
+    public function getReferralsCountAttribute()
+    {
+        return $this->referrals()->count();
+    }
+
+    public function getFavoriteCryptoCurrenciesCountAttribute()
+    {
+        return $this->favoriteCryptoCurrencies()->count();
     }
 
     public function getSubscribedChannelsCountAttribute()

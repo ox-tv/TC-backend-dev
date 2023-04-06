@@ -53,6 +53,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $isAdminRoute = $request->is('api/admin/*');
         $isAdminList = $request->is('api/admin/admins');
         $isPublisherList = $request->is('api/admin/publishers');
         $isPublisherRequestsList = $request->is('api/admin/publisher-requests');
@@ -78,6 +79,8 @@ class UserController extends Controller
 
         $filters = $request->get('filters', []);
         $searchFilter = Arr::get($filters, 'search');
+        $refFilter = Arr::get($filters, 'ref');
+        $subFilter = Arr::get($filters, 'sub');
         $usernameFilter = Arr::get($filters, 'username');
         $emailFilter = Arr::get($filters, 'email');
         $isHeroFilter = Arr::get($filters, 'is_hero');
@@ -93,6 +96,28 @@ class UserController extends Controller
                 })->orWhere(function ($query) use ($searchFilter){
                     $query->whereHas('channel', function($query) use ($searchFilter){
                         $query->searchTitle($searchFilter);
+                    });
+                });
+            });
+        }
+
+        if($refFilter){
+            $query->whereHas('referrer', function ($q) use ($refFilter){
+                $q->where(function ($query) use ($refFilter){
+                    $query->SearchUsername($refFilter);
+                })->orWhere(function ($query) use ($refFilter){
+                    $query->SearchEmail($refFilter);
+                });
+            });
+        }
+
+        if ($subFilter){
+            $query->whereHas('subscribedChannels', function ($query) use ($subFilter){
+                $query->whereHas('owner', function ($q) use ($subFilter){
+                    $q->where(function ($query) use ($subFilter){
+                        $query->SearchUsername($subFilter);
+                    })->orWhere(function ($query) use ($subFilter){
+                        $query->SearchEmail($subFilter);
                     });
                 });
             });
@@ -144,6 +169,12 @@ class UserController extends Controller
         $users = $query->paginate();
 
         // Add Attributes
+        if ($isAdminRoute){
+            $users->append([
+                'referrals_count',
+            ]);
+        }
+
         if ($isAdminList){
             // Nothing
         }elseif ($isPublisherList){
@@ -494,7 +525,7 @@ class UserController extends Controller
             'referrer',
             'meta',
             'favoriteTags',
-            'favoriteCryptoCurrencies',
+            //'favoriteCryptoCurrencies',
             'verifiedPaymentDetails',
             'lastPaymentDetails',
         ])->append([
@@ -511,6 +542,7 @@ class UserController extends Controller
             'loyalty_points',
             'isHeroMembershipAutoRenewal',
             'channelAutoImportIsActive',
+            'favoriteCryptoCurrenciesCount',
         ]);
 
         if ($user->channel){
@@ -528,6 +560,8 @@ class UserController extends Controller
      */
     public function updateProfile(Request $request)
     {
+        $user = auth('api')->user();
+
         $forbiddenWords = Option::get(Option::FORBIDDEN_WORDS);
         $forbiddenWords = $forbiddenWords? json_decode($forbiddenWords->value, true) : [];
 
@@ -537,6 +571,17 @@ class UserController extends Controller
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore(auth('api')->id()),
+                function ($attribute, $value, $fail) use($user) {
+                    if (
+                        $value
+                        && $user->username
+                        && !$user->channel
+                        && $user->is_hero
+                        && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value > Carbon::now()->subMonths(3))
+                    ){
+                        $fail('You can only change your username once every 3 months.');
+                    }
+                },
             ],
             //'email' => 'nullable|email',
             'avatar' => 'nullable|string',
@@ -547,10 +592,22 @@ class UserController extends Controller
             'tag_names.*' => ['string', CustomRule::forbiddenWords($forbiddenWords), CustomRule::alphaSpace(), 'max:25'],
         ]);
 
-        $user = auth('api')->user();
+
+        if (
+            !$user->username ||
+            (!$user->channel
+            && $user->is_hero
+            && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value <= Carbon::now()->subMonths(3)))
+        ){
+            $user->username = $request->get('username', $user->username);
+            $user->meta()->updateOrCreate(
+                ['key' => UserMeta::UserNameChangedAt],
+                ['value' => Carbon::now()]
+            );
+        }
+
 
         if (!$user->channel){
-            $user->username = $request->get('username', $user->username);
             $user->avatar_url = $request->get('avatar', $user->avatar_url);
         }
 
