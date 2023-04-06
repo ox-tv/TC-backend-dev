@@ -11,13 +11,16 @@ class HeroMembershipExipreSoonMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $heroMembershipPageLink;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($link)
     {
+        $this->heroMembershipPageLink = $link;
     }
 
     /**

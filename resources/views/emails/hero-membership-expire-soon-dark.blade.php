@@ -512,7 +512,7 @@
                                                             <br><br>
                                                             Time flies when having fun, and we want you to know that
                                                             your Hodl Membership expires in seven days. However, you can
-                                                            renew your membership HERE if you find it valuable. By doing
+                                                            renew your membership <a href="{{ $heroMembershipPageLink }}" target="_blank">HERE</a> if you find it valuable. By doing
                                                             so, you also help our beloved publishers and us to become
                                                             the best source for trusted crypto news and market updates.
                                                             <br>

@@ -27,6 +27,8 @@ return [
 
     'PUBLISHER_SUPPORT_URL' => env('PUBLISHER_SUPPORT_URL', ''),
 
+    'MWA_BECOME_A_HERO_URL' => env('MWA_BECOME_A_HERO_URL', ''),
+
     'notifications' => [
         'keep' => env('NOTIFICATIONS_KEEP', 30),
     ],
