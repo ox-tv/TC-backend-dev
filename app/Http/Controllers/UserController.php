@@ -577,7 +577,7 @@ class UserController extends Controller
                         && $user->username
                         && !$user->channel
                         && $user->is_hero
-                        && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value > Carbon::now()->subMonths(3))
+                        && (($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) && $meta->value > Carbon::now()->subMonths(3))
                     ){
                         $fail('You can only change your username once every 3 months.');
                     }
