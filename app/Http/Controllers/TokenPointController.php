@@ -24,8 +24,8 @@ class TokenPointController extends Controller
         $result['today_tokens_distributed'] = TokenPoint::where('date', Carbon::now()->startOfDay())->sum('amount');
 
         if (auth('api')->check()){
-            $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->sum('amount');
-            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->whereNull('climed_at')->sum('amount');
+            $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
+            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('climed_at')->sum('amount');
         }
 
         return response()->json($result);
