@@ -104,4 +104,6 @@ Route::group([
     Route::put('videos/{video}/hide', '\App\Http\Controllers\VideoController@hide')->name('videos.hide');
     Route::put('videos/{video}/unhide', '\App\Http\Controllers\VideoController@unHide')->name('videos.unhide');
 
+    Route::put('videos/bulk-assign-category', '\App\Http\Controllers\VideoController@bulkAssignCategoryToMedia')->name('videos.bulk-assign-category');
+
 });

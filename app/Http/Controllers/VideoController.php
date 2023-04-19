@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class VideoController extends Controller
 {
@@ -550,6 +551,21 @@ class VideoController extends Controller
         event(new VideoUpdated($oldVideo, $video));
 
         return new VideoResource($video);
+    }
+
+    public function bulkAssignCategoryToMedia(Request $request)
+    {
+        $request->validate([
+            'category_id' => ['nullable'],
+            'media_ids' => ['required', 'array'],
+            'media_ids.*' => ['required', Rule::exists('videos', 'id')],
+        ]);
+
+        Video::whereIn('id', $request->get('media_ids'))->update([
+            'category_id' => $request->get('category_id')
+        ]);
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function changeStatusToPublished($id)
