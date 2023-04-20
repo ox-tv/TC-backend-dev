@@ -210,7 +210,7 @@ class Channel extends Model
     public function getReferralsCountAttribute()
     {
         $owner = $this->owner()->first();
-        return $owner->referrals()->count();
+        return $owner? $owner->referrals()->count() : 0;
     }
 
     public function getStatusTextAttribute(){

@@ -58,6 +58,18 @@ class UserController extends Controller
         $isPublisherList = $request->is('api/admin/publishers');
         $isPublisherRequestsList = $request->is('api/admin/publisher-requests');
 
+
+        $filters = $request->get('filters', []);
+        $searchFilter = Arr::get($filters, 'search');
+        $refFilter = Arr::get($filters, 'ref');
+        $subFilter = Arr::get($filters, 'sub');
+        $usernameFilter = Arr::get($filters, 'username');
+        $emailFilter = Arr::get($filters, 'email');
+        $isHeroFilter = Arr::get($filters, 'is_hero');
+        $isPublisherFilter = Arr::get($filters, 'is_publisher');
+        $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
+
+
         if ($isAdminList){
             $query = User::admins();
         }elseif ($isPublisherList){
@@ -73,19 +85,12 @@ class UserController extends Controller
                 }
             })->whereNull('role_id');
 
+        }elseif($isAdminRoute && ($refFilter || $subFilter)){
+            $query = User::query();
         }else{
             $query = User::users();
         }
 
-        $filters = $request->get('filters', []);
-        $searchFilter = Arr::get($filters, 'search');
-        $refFilter = Arr::get($filters, 'ref');
-        $subFilter = Arr::get($filters, 'sub');
-        $usernameFilter = Arr::get($filters, 'username');
-        $emailFilter = Arr::get($filters, 'email');
-        $isHeroFilter = Arr::get($filters, 'is_hero');
-        $isPublisherFilter = Arr::get($filters, 'is_publisher');
-        $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
         if($searchFilter){
             $query->where(function ($query) use ($searchFilter){
@@ -577,7 +582,7 @@ class UserController extends Controller
                         && $user->username
                         && !$user->channel
                         && $user->is_hero
-                        && (!($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) || $meta->value > Carbon::now()->subMonths(3))
+                        && (($meta = $user->meta()->where('key', UserMeta::UserNameChangedAt)->first()) && $meta->value > Carbon::now()->subMonths(3))
                     ){
                         $fail('You can only change your username once every 3 months.');
                     }

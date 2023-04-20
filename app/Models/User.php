@@ -346,6 +346,11 @@ class User extends Authenticatable
         return $value;
     }
 
+    public function getHasFreePlanAttribute()
+    {
+        return !($this->role_id || $this->is_hero);
+    }
+
     public function getIsConversionAttribute()
     {
         $publisherRequestDetails = $this->publisher_request_details;

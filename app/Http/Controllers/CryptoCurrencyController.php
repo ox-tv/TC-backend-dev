@@ -118,6 +118,14 @@ class CryptoCurrencyController extends Controller
 
     public function addToFavorites($crypto_currency_id)
     {
+        $user = auth('api')->user();
+
+        if($user->has_free_plan && $user->favoriteCryptoCurrenciesCount >= 5){
+            return response()->json([
+                'code' => 'crypto_currencies.fav.max_exceeded'
+            ], 403);
+        }
+
         $exists = CryptoCurrency::where([
             'id' => $crypto_currency_id,
             'status' => CryptoCurrency::STATUS_LIST
