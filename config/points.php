@@ -33,14 +33,14 @@ return [
         // as end user
         'referral_via_publisher' => 100,
 
-        'referrer' => 2,
-        'referrer_as_hero' => 4,
-        'watch_a_video' => 3,
-        'watch_a_video_as_hero' => 6,
+        'referrer' => 5,
+        'referrer_as_hero' => 10,
+        'watch_a_video' => 5,
+        'watch_a_video_as_hero' => 10,
         'fill_custom_feed' => 100,
         'fill_custom_feed_as_hero' => 200,
-        'liked_comment' => 3,
-        'liked_comment_as_hero' => 6,
+        'liked_comment' => 5,
+        'liked_comment_as_hero' => 10,
         'buying_yearly_membership' => 5000,
         'buying_yearly_membership_as_hero' => 10000,
 
