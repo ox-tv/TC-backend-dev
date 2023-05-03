@@ -51,7 +51,7 @@ class DoingTokenClaimRequests extends Command
         $requests = TokenClaim::where('status', TokenClaim::STATUS_PENDING)->get();
 
         foreach ($requests as $request){
-            $res = $polyganClient->ClaimToken($request->destination, $request->amount);
+            $res = $polyganClient->ClaimToken($request->destination, strval($request->amount));
 
             if (!$res['status']){
                 Cache::put('delay_token_do_claim_requests', true, 10 * 60);
