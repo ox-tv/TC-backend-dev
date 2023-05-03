@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $client = new \App\Libraries\TCPolygonClient();
-    $client->ClaimToken('', 0.03);
+    $res = $client->ClaimToken('0xaC2F4DD11455B65Bf4e0f42eD6eC45ebDec1840E', strval(50));
+    dd($res);
     return view('welcome');
 });
 
