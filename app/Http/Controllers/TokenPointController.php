@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TokenClaim\TokenClaimResource;
+use App\Models\TokenClaim;
 use App\Models\TokenPoint;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -25,19 +27,50 @@ class TokenPointController extends Controller
 
         if (auth('api')->check()){
             $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
-            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('climed_at')->sum('amount');
+            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('claimed_at')->sum('amount');
         }
 
         return response()->json($result);
     }
 
-    public function climTokens()
+    public function claimTokens(Request $request)
     {
-        // TODO: Check clim conditions
+        $request->validate([
+            'destnation' => ['required']
+        ]);
 
-        // TODO: Connect to blockchain and do a transfer
+        $user = auth('api')->user();
 
-        return response()->json(["message" => "ok"]);
+        $amount = TokenPoint::where('user_id', $user->id)->where('activate_at', '<=', Carbon::now())->whereNull('claimed_at')->sum('amount');
+
+        if ($amount < 500){
+            return response()->json([
+                'code' => 'not_enough_to_claim',
+                'message' => 'You do not have enough token (500 TCG) to claim',
+            ], 403);
+        }
+
+        $tokenClaim = new TokenClaim();
+        $tokenClaim->user_id = $user->id;
+        $tokenClaim->amount = $amount;
+        $tokenClaim->destination = $request->get('destnation');
+        $tokenClaim->status = TokenClaim::STATUS_PENDING;
+        $tokenClaim->save();
+
+        TokenPoint::where('user_id', $user->id)->where('activate_at', '<=', Carbon::now())->whereNull('claimed_at')->update([
+            'claimed_at' =>  TokenPoint::fromDateTime(Carbon::now())
+        ]);
+
+        return response()->json(['status' => 'ok', 'message' => 'Your request is being processed.']);
+    }
+
+    public function claimTokenRequests(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $tokenClaims = TokenClaim::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate();
+
+        return TokenClaimResource::collection($tokenClaims);
     }
 
     public function adminDashboard(Request $request)
