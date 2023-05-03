@@ -55,7 +55,7 @@ class TCPolygonClient
         }
     }
 
-    public function ClimToken($destnation, $amount)
+    public function ClaimToken($destnation, $amount)
     {
         $result = [
             'success' => false,
