@@ -9,7 +9,8 @@ Route::get('tokens', '\App\Http\Controllers\TokenPointController@overview');
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('tokens/clim', '\App\Http\Controllers\TokenPointController@climTokens')->name('tokens.clim');
+    Route::post('tokens/claim', '\App\Http\Controllers\TokenPointController@claimTokens')->name('tokens.claim');
+    Route::get('tokens/claim-requests', '\App\Http\Controllers\TokenPointController@claimTokenRequests')->name('tokens.claim-requests');
 
 });
 
