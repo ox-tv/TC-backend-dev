@@ -182,6 +182,11 @@ class PublisherController extends Controller
     }
 
     public function confirm(Request $request, User $user){
+
+        if ($user->channel) {
+            abort('This user already has a channel.', 403);
+        }
+
         $reason = $request->get('reason');
 
         //TODO:: save reason as a message
