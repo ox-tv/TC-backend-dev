@@ -49,7 +49,7 @@ class WatchTimeStore extends FormRequest
 
             $watchTimes = DB::table('watch_times')
                 ->where('user_id', $user->id)
-                ->where('video_id', $video->id)
+                //->where('video_id', $video->id)
                 ->orderByDesc('created_at')
                 ->first();
 
