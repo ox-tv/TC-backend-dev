@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelResource;
+use App\Http\Resources\Video\VideoHomeResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
@@ -97,7 +98,7 @@ class GeneralController extends Controller
                 ->append(['is_bookmarked']);
         });
 
-        $result['trending_videos'] = VideoResource::collection($trendingVideos);
+        $result['trending_videos'] = VideoHomeResource::collection($trendingVideos);
 
 
         // Trending Podcasts
@@ -135,7 +136,7 @@ class GeneralController extends Controller
                 ->append(['is_bookmarked']);
         });
 
-        $result['trending_podcasts'] = VideoResource::collection($trendingPodcasts);
+        $result['trending_podcasts'] = VideoHomeResource::collection($trendingPodcasts);
 
 
         // Latest Media On TC
@@ -149,7 +150,7 @@ class GeneralController extends Controller
                 ->append(['is_bookmarked']);
         });
 
-        $result['latest_media'] = VideoResource::collection($latestMedia);
+        $result['latest_media'] = VideoHomeResource::collection($latestMedia);
 
 
         // Top Channels
@@ -217,7 +218,7 @@ class GeneralController extends Controller
                 ->get()
                 ->append(['is_bookmarked']);
 
-            $result['videos_for_you'] = VideoResource::collection($videosForYou);
+            $result['videos_for_you'] = VideoHomeResource::collection($videosForYou);
 
             // My Subscriptions Videos
             $subscriptionsChannelIds = $user->subscribedChannels()->pluck('id')->toArray();
@@ -228,7 +229,7 @@ class GeneralController extends Controller
                 ->orderBy('published_at', 'desc')
                 ->get()
                 ->append(['is_bookmarked']);
-            $result['my_subscriptions_videos'] = VideoResource::collection($mySubscriptionsVideos);
+            $result['my_subscriptions_videos'] = VideoHomeResource::collection($mySubscriptionsVideos);
         }
 
         return $result;
