@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Video;
 
 use App\Http\Resources\Category\CategoryResource;
+use App\Http\Resources\Channel\ChannelHomeResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Chapter\ChapterResource;
 use App\Http\Resources\Comment\CommentResource;
@@ -43,7 +44,7 @@ class VideoHomeResource extends JsonResource
             'is_bookmarked' => $this->whenAppended('is_bookmarked'),
 
             // Relations
-            'channel' => ChannelResource::make($this->whenLoaded('channel')),
+            'channel' => ChannelHomeResource::make($this->whenLoaded('channel')),
         ];
     }
 }
