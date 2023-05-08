@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Channel\ChannelHomeResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoHomeResource;
 use App\Http\Resources\Video\VideoResource;
@@ -60,7 +61,7 @@ class GeneralController extends Controller
                 ->append(['is_subscribed', 'subscribers_count']);
         });
 
-        $result['trending_channels'] = ChannelResource::collection($trendingChannels);
+        $result['trending_channels'] = ChannelHomeResource::collection($trendingChannels);
 
 
         // Trending Videos
@@ -163,7 +164,7 @@ class GeneralController extends Controller
                 ->append('is_subscribed');
         });
 
-        $result['top_channels'] = ChannelResource::collection($topChannels);
+        $result['top_channels'] = ChannelHomeResource::collection($topChannels);
 
 
         if ($user){
