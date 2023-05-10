@@ -217,7 +217,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'message' => ['required'],
-            'address' => ['required'],
+            'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/'],
             'signature' => [
                 'required',
                 function ($attribute, $signature, $fail) {
