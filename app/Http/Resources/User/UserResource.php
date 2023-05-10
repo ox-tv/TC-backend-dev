@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'email' => $this->email,
             'eth_address' => $this->whenAppended('eth_address'),
+            'wallet' => $this->whenAppended('auth_wallet'),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'muted_until' => $this->muted_until,

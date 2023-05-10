@@ -540,6 +540,7 @@ class UserController extends Controller
             'lastPaymentDetails',
         ])->append([
             'eth_address',
+            'auth_wallet',
             'role_name',
             'liked_videos_count',
             'disliked_videos_count',
