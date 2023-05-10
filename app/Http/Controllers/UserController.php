@@ -182,6 +182,7 @@ class UserController extends Controller
         if ($isAdminRoute){
             $users->append([
                 'referrals_count',
+                'auth_wallet',
             ]);
         }
 
@@ -292,6 +293,7 @@ class UserController extends Controller
             'bookmarkVideos',
         ])->append([
             'eth_address',
+            'auth_wallet',
             'role_name',
             'liked_videos_count',
             'disliked_videos_count',
