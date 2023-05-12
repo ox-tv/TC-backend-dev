@@ -15,7 +15,7 @@ class TokenPoint extends Model
 
     protected $casts = [
         'activate_at' => 'datetime',
-        'claimed_at' => 'datetime'
+        'claimable_at' => 'datetime'
     ];
 
     protected $dates = [
