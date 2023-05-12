@@ -45,10 +45,12 @@ class CheckingTokenPointUpdateClaimable extends Command
     public function handle()
     {
         $polyganClient = new TCPolygonClient();
-        $tokenPoints = TokenPoint::raw(function($collection) {
+        $carbonNow = Carbon::now();
+
+        $tokenPoints = TokenPoint::raw(function($collection) use ($carbonNow) {
             return $collection->aggregate([
                 ['$match' => [
-                    'activate_at' => ['$lte'=> TokenPoint::fromDateTime(Carbon::now())],
+                    'activate_at' => ['$lte'=> TokenPoint::fromDateTime($carbonNow)],
                     'claimable_at' => ['$eq'=> null],
                 ]],
                 ['$group' => [
@@ -57,12 +59,14 @@ class CheckingTokenPointUpdateClaimable extends Command
                     'points' => ['$sum' => '$amount'],
                 ]],
                 ['$match' => [
-                    'points' => ['$gte'=> 3],
+                    'points' => ['$gte'=> 500],
                 ]],
             ]);
         });
 
-        $data = [];
+        $addresses = [];
+        $amounts = [];
+        $finalUserIds = [];
 
         foreach ($tokenPoints as $tokenPoint){
             $wallet = $tokenPoint->user->auth_wallet ?? null;
@@ -71,14 +75,27 @@ class CheckingTokenPointUpdateClaimable extends Command
                 continue;
             }
 
-            $data[$wallet] = !empty($data[$wallet])? $data[$wallet] + $tokenPoint->points : $tokenPoint->points;
+            $addresses[] = $wallet;
+            $amounts[] = $tokenPoint->points;
+            $finalUserIds[] = $tokenPoint->user_id;
         }
 
-
-        $addresses = array_keys($data);
-        $amounts = array_values($data);
+        if (empty($finalUserIds)){
+            return 0;
+        }
 
         $res = $polyganClient->updateClaimable($addresses, $amounts);
+
+        if (!$res['status']){
+            return 0;
+        }
+
+        TokenPoint::whereNull('claimable_at')
+        ->where('activate_at', '<=', $carbonNow)
+        ->whereIn('user_id', $finalUserIds)
+        ->update([
+            'claimable_at' => TokenPoint::fromDateTime($carbonNow)
+        ]);
 
         return 0;
     }
