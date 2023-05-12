@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Log;
 
 class TCPolygonClient
 {
-    private $baseUrl = 'http://localhost:3000';
+    private $baseUrl;
 
     public function __construct()
     {
-
+        $this->baseUrl = config('services.tc_polygon.base_url');
     }
 
     /*
@@ -55,7 +55,7 @@ class TCPolygonClient
         }
     }
 
-    public function ClaimToken($destnation, $amount)
+    public function sendTransaction($destnation, $amount)
     {
         $result = [
             'success' => false,
@@ -84,6 +84,44 @@ class TCPolygonClient
 
             $result['success'] = true;
             $result['hash'] = $body['hash'];
+            return $result;
+
+        }catch(Exception $e){
+            $result['success'] = false;
+            $result['message'] = $e->getMessage();
+            Log::error($result['message']);
+            return $result;
+        }
+    }
+
+    public function updateClaimable($addresses, $amounts)
+    {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'hash' => null,
+        ];
+
+        $args = array(
+            'users' => $addresses,
+            'amounts' => array_map('strval', $amounts),
+        );
+
+        try {
+            $response = Http::withOptions([
+                'verify' => false,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ]
+            ])->post("{$this->baseUrl}/update-claimable", $args);
+
+            $body = $response->json();
+
+            if(!$response->successful() || !$body['success']){
+                throw new Exception(!empty($body['errorCode'])? $body['errorCode'] . ':' . $body['errorMessage'] : '', $response->status());
+            }
+
+            $result['success'] = true;
             return $result;
 
         }catch(Exception $e){
