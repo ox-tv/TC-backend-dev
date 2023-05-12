@@ -86,7 +86,7 @@ class CheckingTokenPointUpdateClaimable extends Command
 
         $res = $polyganClient->updateClaimable($addresses, $amounts);
 
-        if (!$res['status']){
+        if (!$res['success']){
             return 0;
         }
 
