@@ -25,19 +25,10 @@ class TokenPointController extends Controller
 
         if (auth('api')->check()){
             $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
-            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('climed_at')->sum('amount');
+            $result['user_unclimed_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
         }
 
         return response()->json($result);
-    }
-
-    public function climTokens()
-    {
-        // TODO: Check clim conditions
-
-        // TODO: Connect to blockchain and do a transfer
-
-        return response()->json(["message" => "ok"]);
     }
 
     public function adminDashboard(Request $request)

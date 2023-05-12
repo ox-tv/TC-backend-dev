@@ -36,4 +36,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'tc_polygon' => [
+        'base_url' => env('TC_POLYGON_BASE_URL')
+    ],
+
 ];
