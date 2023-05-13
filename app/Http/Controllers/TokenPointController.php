@@ -17,7 +17,7 @@ class TokenPointController extends Controller
             'total_tokens_distributed' => 0,
             'today_tokens_distributed' => 0,
             'user_total_tokens' => null,
-            'user_unclimed_tokens' => null,
+            'user_locked_tokens' => null,
         ];
 
         $result['total_tokens_distributed'] = TokenPoint::sum('amount');
