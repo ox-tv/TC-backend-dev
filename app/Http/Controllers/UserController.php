@@ -183,6 +183,8 @@ class UserController extends Controller
             $users->append([
                 'referrals_count',
                 'auth_wallet',
+                'tokenPointsTotalAmount',
+                'tokenPointsLockedAmount',
             ]);
         }
 
