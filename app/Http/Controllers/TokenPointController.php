@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TokenPoint\TokenPointResource;
 use App\Models\TokenPoint;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -10,6 +11,26 @@ use Illuminate\Support\Arr;
 
 class TokenPointController extends Controller
 {
+    public function index(Request $request)
+    {
+        $adminRoute = $request->is('api/admin/*');
+
+        $filters = $request->get('filters', []);
+        $userIdFilter = Arr::get($filters, 'user_id');
+
+        if (!$adminRoute){
+            $userIdFilter = auth('api')->id();
+        }
+
+        $query = TokenPoint::query();
+
+        if ($userIdFilter){
+            $query->where('user_id', intval($userIdFilter));
+        }
+
+        return TokenPointResource::collection($query->paginate());
+    }
+
     public function overview()
     {
         $result = [
