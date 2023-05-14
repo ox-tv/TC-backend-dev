@@ -33,5 +33,6 @@ Route::group([
 ], function(){
 
     Route::get('tokens/dashboard', '\App\Http\Controllers\TokenPointController@adminDashboard')->name('tokens.dashboard');
+    Route::apiResource('tokens/history', \App\Http\Controllers\TokenPointController::class)->only(['index']);
 
 });
