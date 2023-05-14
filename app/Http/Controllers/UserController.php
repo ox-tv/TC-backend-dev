@@ -71,6 +71,7 @@ class UserController extends Controller
         $usernameFilter = Arr::get($filters, 'username');
         $emailFilter = Arr::get($filters, 'email');
         $isHeroFilter = Arr::get($filters, 'is_hero');
+        $loginTypeFilter = Arr::get($filters, 'login_type');
         $isPublisherFilter = Arr::get($filters, 'is_publisher');
         $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
@@ -149,6 +150,12 @@ class UserController extends Controller
             $query->IsHero();
         }elseif($isHeroFilter == "no"){
             $query->IsNonHero();
+        }
+
+        if($loginTypeFilter == "wallet"){
+            $query->whereNotNull('auth_wallet');
+        }elseif($loginTypeFilter == "email"){
+            $query->whereNotNull('email');
         }
 
         if($isPublisherFilter == "yes"){
