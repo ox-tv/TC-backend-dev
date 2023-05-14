@@ -100,7 +100,10 @@ class TokenPoint extends Model
         return $query;
     }
 
-
+    // Attributes
+    public function getTypeTextAttribute(){
+        return self::TYPE_TEXT[$this->type]?? $this->type;
+    }
 
     // Relations
     public function user(){
