@@ -177,13 +177,19 @@ class UserController extends Controller
             $query->orderBy('last_actived_at', 'desc');
         }elseif ($sort === 'most_subscribes'){
             $query->withCount('subscribedChannels')->orderBy('subscribed_channels_count', 'desc');
+        }elseif ($sort === 'most_referrals'){
+            $query->withCount('referrals')->orderBy('referrals_count', 'desc');
         }elseif ($sort === 'most_watch_hours'){
             $query->orderBy('watch_time', 'desc');
         }else{
             $query->orderBy('created_at', 'desc');
         }
 
-        $users = $query->paginate();
+        if (in_array($sort, ['most_earned_tokens', 'most_earned_tokens_24h', 'most_earned_tokens_7d', 'most_earned_tokens_30d'])){
+            $page = $request->get('page');
+        }else{
+            $users = $query->paginate();
+        }
 
         // Add Attributes
         if ($isAdminRoute){
