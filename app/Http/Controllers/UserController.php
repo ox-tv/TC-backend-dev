@@ -185,11 +185,7 @@ class UserController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        if (in_array($sort, ['most_earned_tokens', 'most_earned_tokens_24h', 'most_earned_tokens_7d', 'most_earned_tokens_30d'])){
-            $page = $request->get('page');
-        }else{
-            $users = $query->paginate();
-        }
+        $users = $query->paginate();
 
         // Add Attributes
         if ($isAdminRoute){
