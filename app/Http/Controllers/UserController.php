@@ -177,6 +177,8 @@ class UserController extends Controller
             $query->orderBy('last_actived_at', 'desc');
         }elseif ($sort === 'most_subscribes'){
             $query->withCount('subscribedChannels')->orderBy('subscribed_channels_count', 'desc');
+        }elseif ($sort === 'most_referrals'){
+            $query->withCount('referrals')->orderBy('referrals_count', 'desc');
         }elseif ($sort === 'most_watch_hours'){
             $query->orderBy('watch_time', 'desc');
         }else{
