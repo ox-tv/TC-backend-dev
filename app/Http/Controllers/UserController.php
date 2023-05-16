@@ -565,8 +565,6 @@ class UserController extends Controller
             'isHeroMembershipAutoRenewal',
             'channelAutoImportIsActive',
             'favoriteCryptoCurrenciesCount',
-            'tokenPointsTotalAmount',
-            'tokenPointsLockedAmount',
         ]);
 
         if ($user->channel){
