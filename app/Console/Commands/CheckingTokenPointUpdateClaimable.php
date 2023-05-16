@@ -59,7 +59,7 @@ class CheckingTokenPointUpdateClaimable extends Command
                     'points' => ['$sum' => '$amount'],
                 ]],
                 ['$match' => [
-                    'points' => ['$gte'=> 500],
+                    '$or' => [['points' => ['$gte'=> 500]], ['user_id' => [ '$in' => TokenPoint::whereNotNull('claimable_at')->pluck('user_id')->toArray() ]]],
                 ]],
             ]);
         });
