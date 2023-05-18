@@ -111,6 +111,16 @@ class HeroMembershipController extends Controller
 
     public function processPaymentStripe(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
+        return $request->user()
+            ->newSubscription('default', $pricing->external_id)
+            ->checkout([
+                'success_url' => 'https://todayscrypto.com/success-hero?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => 'https://todayscrypto.com/cancel-hero',
+            ]);
+    }
+
+    public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
+    {
         $this->validate($request, [
             'payment_method' => 'required'
         ]);
