@@ -118,7 +118,7 @@ class HeroMembershipController extends Controller
                 'cancel_url' => 'https://todayscrypto.com/cancel-hero',
             ]);
 
-        dd($checkout);
+        dd($checkout->url);
     }
 
     public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
