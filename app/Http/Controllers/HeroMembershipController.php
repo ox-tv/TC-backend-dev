@@ -118,10 +118,13 @@ class HeroMembershipController extends Controller
                 'cancel_url' => 'https://todayscrypto.com/cancel-hero',
             ]);
 
-        dd($checkout->url);
+        return response()->json([
+            'status' => 'ok',
+            'redirect_url' => $checkout->url
+        ]);
     }
 
-    public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
+    /*public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
         $this->validate($request, [
             'payment_method' => 'required'
@@ -179,7 +182,7 @@ class HeroMembershipController extends Controller
                 'message' => 'Error creating subscription. ' . $e->getMessage()
             ],400);
         }
-    }
+    }*/
 
     public function processPaymentCoinBase(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
