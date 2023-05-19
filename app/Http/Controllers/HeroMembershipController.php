@@ -114,8 +114,8 @@ class HeroMembershipController extends Controller
         $checkout = $request->user()
             ->newSubscription('default', $pricing->external_id)
             ->checkout([
-                'success_url' => 'https://todayscrypto.com/success-hero?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => 'https://todayscrypto.com/cancel-hero',
+                'success_url' => config('services.stripe.checkout_success_url'),
+                'cancel_url' => config('services.stripe.checkout_failure_url'),
             ]);
 
         return response()->json([
