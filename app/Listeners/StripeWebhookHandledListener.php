@@ -3,6 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\User\BuyingHeroMemberShipCompleted;
+use App\Http\Resources\PaymentMethod\PaymentMethodItem;
+use App\Http\Resources\Plan\PlanItem;
+use App\Http\Resources\Pricing\PricingItem;
+use App\Models\Pricing;
 use App\Models\PricingUser;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -34,20 +38,23 @@ class StripeWebhookHandledListener
      */
     public function handle(WebhookReceived $event)
     {
-        $payload = $event->payload;
-        $method = 'handle'.Str::studly(str_replace('.', '_', $payload['type']));
-        Log::info(print_r($payload, true));
-        if (method_exists($this, $method)) {
-            $this->{$method}($payload);
-            return true;
+        if ($event->payload['type'] === 'customer.subscription.created') {
+            $this->handleCustomerSubscriptionCreated($event->payload);
         }
 
-        return false;
+        if ($event->payload['type'] === 'customer.subscription.updated') {
+            $this->handleCustomerSubscriptionUpdated($event->payload);
+        }
+
+        if ($event->payload['type'] === 'customer.subscription.deleted') {
+            // Handle the incoming event...
+        }
+
+        return true;
     }
 
-    protected function handleCustomerSubscriptionCreated(array $payload)
+    protected function handleCustomerSubscriptionCreated($payload)
     {
-
         if (empty($payload['data']['object']['customer'])){
             return false;
         }
@@ -58,48 +65,63 @@ class StripeWebhookHandledListener
             return false;
         }
 
-        $data = $payload['data']['object'];
+        $subId = $payload['data']['object']['id'];
+        $pricingUser = PricingUser::where('metadata->subscription_id', $subId)->first();
 
-        if (empty($data['metadata']['pricing_user_id'])){
+        if ($pricingUser){
             return false;
         }
 
-        $pricingUser = PricingUser::find($data['metadata']['pricing_user_id']);
 
-        if (!$pricingUser){
+        $planId = $payload['data']['object']['plan']['id'];
+        $pricing = Pricing::where('external_id', $planId)->first();
+        if (!$pricing){
             return false;
         }
 
-        if ($pricingUser->status != PricingUser::STATUS_PENDING){
-            return false;
-        }
 
-        if ($user->subscribedToPrice($pricingUser->pricing->external_id, 'default')) {
-            DB::transaction(function () use ($pricingUser, $user){
-                $transaction = $pricingUser->transaction;
-                $plan = $pricingUser->pricing->plan;
-                $transaction->status = Transaction::STATUS_COMPLETED;
-                $pricingUser->status = PricingUser::STATUS_COMPLETED;
-                $pricingUser->save();
-                $transaction->save();
+        DB::transaction(function () use ($subId, $pricing, $user){
 
-                if ($user->hero_due_at && $user->hero_due_at > Carbon::now()){
-                    $user->hero_due_at = $user->hero_due_at->addDays($plan->interval);
-                }else{
-                    $user->hero_due_at = Carbon::now()->addDays($plan->interval);
-                }
-                $user->save();
-            });
+            $plan = $pricing->plan()->first();
+            $paymentMethod = $pricing->paymentMethod()->first();
 
-            event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
-        }
+            $transaction = new Transaction();
+            $transaction->type = Transaction::TYPE_DEPOSIT;
+            $transaction->status = Transaction::STATUS_COMPLETED;
+            $transaction->payment_method_id = $paymentMethod->id;
+            $transaction->amount = $pricing->amount;
+            $transaction->save();
+
+            $pricingUser = new PricingUser();
+            $pricingUser->user_id = $user->id;
+            $pricingUser->pricing_id = $pricing->id;
+            $pricingUser->status = PricingUser::STATUS_COMPLETED;
+            $pricingUser->metadata = [
+                'pricing' => PricingItem::make($pricing),
+                'plan' => PlanItem::make($plan),
+                'payment_method' => PaymentMethodItem::make($paymentMethod),
+                'subscription_id' => $subId,
+            ];
+            $pricingUser->transaction_id = $transaction->id;
+            $pricingUser->save();
+
+
+            if ($user->hero_due_at && $user->hero_due_at > Carbon::now()){
+                $user->hero_due_at = $user->hero_due_at->addDays($plan->interval);
+            }else{
+                $user->hero_due_at = Carbon::now()->addDays($plan->interval);
+            }
+            $user->save();
+        });
+
+        event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
 
         return true;
     }
 
     protected function handleCustomerSubscriptionUpdated(array $payload)
     {
-
+        $this->handleCustomerSubscriptionCreated($payload);
     }
 
     protected function handleCustomerSubscriptionDeleted(array $payload)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Amir\Permission\Models\Role;
 use App\Events\User\AccountDeleted;
+use App\Events\UserVerified;
 use App\Http\Requests\UserStore;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\User\UserResource;
@@ -25,11 +26,15 @@ use App\Rules\CustomRule;
 use App\Services\_2FAService;
 use App\Services\EmailVerificationService;
 use Carbon\Carbon;
+use Elliptic\EC;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use kornrunner\Keccak;
 
 class UserController extends Controller
 {
@@ -66,6 +71,7 @@ class UserController extends Controller
         $usernameFilter = Arr::get($filters, 'username');
         $emailFilter = Arr::get($filters, 'email');
         $isHeroFilter = Arr::get($filters, 'is_hero');
+        $loginTypeFilter = Arr::get($filters, 'login_type');
         $isPublisherFilter = Arr::get($filters, 'is_publisher');
         $onlyDeletedFilter = Arr::get($filters, 'only_deleted');
 
@@ -146,6 +152,12 @@ class UserController extends Controller
             $query->IsNonHero();
         }
 
+        if($loginTypeFilter == "wallet"){
+            $query->whereNotNull('auth_wallet');
+        }elseif($loginTypeFilter == "email"){
+            $query->whereNotNull('email');
+        }
+
         if($isPublisherFilter == "yes"){
             $query->Publishers();
         }elseif($isPublisherFilter == "no"){
@@ -165,6 +177,8 @@ class UserController extends Controller
             $query->orderBy('last_actived_at', 'desc');
         }elseif ($sort === 'most_subscribes'){
             $query->withCount('subscribedChannels')->orderBy('subscribed_channels_count', 'desc');
+        }elseif ($sort === 'most_referrals'){
+            $query->withCount('referrals')->orderBy('referrals_count', 'desc');
         }elseif ($sort === 'most_watch_hours'){
             $query->orderBy('watch_time', 'desc');
         }else{
@@ -177,6 +191,9 @@ class UserController extends Controller
         if ($isAdminRoute){
             $users->append([
                 'referrals_count',
+                'auth_wallet',
+                'tokenPointsTotalAmount',
+                'tokenPointsLockedAmount',
             ]);
         }
 
@@ -287,6 +304,7 @@ class UserController extends Controller
             'bookmarkVideos',
         ])->append([
             'eth_address',
+            'auth_wallet',
             'role_name',
             'liked_videos_count',
             'disliked_videos_count',
@@ -535,6 +553,7 @@ class UserController extends Controller
             'lastPaymentDetails',
         ])->append([
             'eth_address',
+            'auth_wallet',
             'role_name',
             'liked_videos_count',
             'disliked_videos_count',
@@ -748,6 +767,58 @@ class UserController extends Controller
         }
 
         $user->eth_address = $request->get('eth_address');
+        $user->save();
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function setAuthWallet(Request $request)
+    {
+
+        $request->validate([
+            'message' => ['required'],
+            'address' => [
+                'required', 'regex:/^0x[a-fA-F0-9]{40}$/', Rule::unique('users', 'auth_wallet'),
+                function ($attribute, $signature, $fail) {
+                    if (auth('api')->user()->auth_wallet){
+                        $fail('The '.$attribute.' is already assigned to user.');
+                    }
+                }
+            ],
+            'signature' => [
+                'required',
+                function ($attribute, $signature, $fail) {
+                    $message = request()->get('message');
+                    $address = request()->get('address');
+
+                    try {
+                        $messageLength = strlen($message);
+                        $hash = Keccak::hash("\x19Ethereum Signed Message:\n{$messageLength}{$message}", 256);
+                        $sign = [
+                            "r" => substr($signature, 2, 64),
+                            "s" => substr($signature, 66, 64)
+                        ];
+
+                        $recId  = ord(hex2bin(substr($signature, 130, 2))) - 27;
+
+                        if ($recId != ($recId & 1)) {
+                            throw new Exception();
+                        }
+
+                        $publicKey = (new EC('secp256k1'))->recoverPubKey($hash, $sign, $recId);
+
+                        if ("0x" . substr(Keccak::hash(substr(hex2bin($publicKey->encode("hex")), 1), 256), 24) !== Str::lower($address)) {
+                            throw new Exception();
+                        }
+                    }catch (Exception $e){
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ],
+        ]);
+
+        $user = auth('api')->user();
+        $user->auth_wallet = $request->get('address');
         $user->save();
 
         return response()->json(['status' => 'ok']);

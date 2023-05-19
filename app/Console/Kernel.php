@@ -54,6 +54,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('plans:check-hero-expiry')->daily();
 
+        $schedule->command('tcg:update-claimable')->runInBackground()->daily();
+
         $schedule->command('auto_import')->runInBackground()->everyMinute();
 
     }

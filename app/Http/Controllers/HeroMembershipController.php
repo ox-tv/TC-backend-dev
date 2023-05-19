@@ -111,6 +111,21 @@ class HeroMembershipController extends Controller
 
     public function processPaymentStripe(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
+        $checkout = $request->user()
+            ->newSubscription('default', $pricing->external_id)
+            ->checkout([
+                'success_url' => config('services.stripe.checkout_success_url'),
+                'cancel_url' => config('services.stripe.checkout_failure_url'),
+            ]);
+
+        return response()->json([
+            'status' => 'ok',
+            'redirect_to' => $checkout->url
+        ]);
+    }
+
+    /*public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
+    {
         $this->validate($request, [
             'payment_method' => 'required'
         ]);
@@ -167,7 +182,7 @@ class HeroMembershipController extends Controller
                 'message' => 'Error creating subscription. ' . $e->getMessage()
             ],400);
         }
-    }
+    }*/
 
     public function processPaymentCoinBase(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {

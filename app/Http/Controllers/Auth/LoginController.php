@@ -217,7 +217,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'message' => ['required'],
-            'address' => ['required'],
+            'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/'],
             'signature' => [
                 'required',
                 function ($attribute, $signature, $fail) {
@@ -266,7 +266,6 @@ class LoginController extends Controller
         if (!($user = $userQuery->first())){
             // new user
             $user = new User();
-            $user->email = $request->get('address') . '@todayscrypto.com';
             $user->auth_wallet = $request->get('address');
             $user->email_verified_at = Carbon::now();
             $user->status = User::STATUS_ACTIVE;

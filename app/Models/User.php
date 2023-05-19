@@ -317,6 +317,16 @@ class User extends Authenticatable
         return $repository->subscribedChannelsCount($this->id);
     }
 
+    public function getTokenPointsTotalAmountAttribute()
+    {
+        return TokenPoint::where('user_id', $this->id)->where('activate_at', '<=', Carbon::now())->sum('amount');
+    }
+
+    public function getTokenPointsLockedAmountAttribute()
+    {
+        return TokenPoint::where('user_id', $this->id)->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
+    }
+
     public function getPublisherRequestDetailsAttribute($value)
     {
         if (is_null($value)){

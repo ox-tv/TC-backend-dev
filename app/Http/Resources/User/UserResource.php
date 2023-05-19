@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'email' => $this->email,
             'eth_address' => $this->whenAppended('eth_address'),
+            'wallet' => $this->whenAppended('auth_wallet'),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
             'muted_until' => $this->muted_until,
@@ -63,6 +64,8 @@ class UserResource extends JsonResource
             'channel_auto_import_is_active' => $this->whenAppended('channelAutoImportIsActive'),
             'referrals_count' => $this->whenAppended('referrals_count'),
             'favorite_crypto_currencies_count' => $this->whenAppended('favoriteCryptoCurrenciesCount'),
+            'token_points_total_amount' => $this->whenAppended('tokenPointsTotalAmount'),
+            'token_points_locked_amount' => $this->whenAppended('tokenPointsLockedAmount'),
 
             // Relations
             'channel' => ChannelResource::make($this->whenLoaded('channel')),

@@ -14,7 +14,8 @@ class TokenPoint extends Model
     protected $collection = 'token_points';
 
     protected $casts = [
-        'activate_at' => 'datetime'
+        'activate_at' => 'datetime',
+        'claimable_at' => 'datetime'
     ];
 
     protected $dates = [
@@ -99,7 +100,10 @@ class TokenPoint extends Model
         return $query;
     }
 
-
+    // Attributes
+    public function getTypeTextAttribute(){
+        return self::TYPE_TEXT[$this->type]?? $this->type;
+    }
 
     // Relations
     public function user(){

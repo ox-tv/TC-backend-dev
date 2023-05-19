@@ -9,8 +9,6 @@ Route::get('tokens', '\App\Http\Controllers\TokenPointController@overview');
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('tokens/clim', '\App\Http\Controllers\TokenPointController@climTokens')->name('tokens.clim');
-
 });
 
 
@@ -35,5 +33,6 @@ Route::group([
 ], function(){
 
     Route::get('tokens/dashboard', '\App\Http\Controllers\TokenPointController@adminDashboard')->name('tokens.dashboard');
+    Route::apiResource('tokens/history', \App\Http\Controllers\TokenPointController::class)->only(['index']);
 
 });
