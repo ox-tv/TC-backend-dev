@@ -120,7 +120,7 @@ class HeroMembershipController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'redirect_url' => $checkout->url
+            'redirect_to' => $checkout->url
         ]);
     }
 
