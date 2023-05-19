@@ -34,6 +34,8 @@ return [
         'model'  => \App\Models\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'checkout_success_url' => env('STRIPE_CHECKOUT_SUCCESS_URL', 'https://todayscrypto.com/'),
+        'checkout_failure_url' => env('STRIPE_CHECKOUT_FAILURE_URL', 'https://todayscrypto.com/'),
     ],
 
     'tc_polygon' => [
