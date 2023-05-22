@@ -107,7 +107,7 @@ class CoinBaseClient
     public function validateWebhook($payload)
     {
         $secret = $this->webhookSecret;
-        $receivedSignature = request()->header('X-X-CC-Webhook-Signature-Name');
+        $receivedSignature = request()->header('X-CC-Webhook-Signature');
 
         if ( !$receivedSignature ) {
             return false;
