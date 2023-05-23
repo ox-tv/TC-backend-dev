@@ -5,6 +5,7 @@ namespace App\Listeners\Video;
 use App\Events\VideoWatched;
 use App\Models\TokenPoint;
 use App\Repository\Eloquent\TokenPointRepository;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class TokenPointsForVideoWatched
@@ -41,6 +42,7 @@ class TokenPointsForVideoWatched
             'user_id' => $user->id,
             'type' => $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO,
             'amount' => $user->is_hero? config('points.token.watch_a_video_as_hero') : config('points.token.watch_a_video'),
+            'activate_at' => Carbon::now()->addHours(3),
         ]);
 
         return true;
