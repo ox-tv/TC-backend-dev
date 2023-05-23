@@ -511,9 +511,12 @@
                                                             We hope you enjoy Today’s Crypto and your Hodl Membership.
                                                             <br><br>
                                                             Time flies when having fun, and we want you to know that
-                                                            your Hodl Membership expires in seven days. However, you can
-                                                            renew your membership <a href="{{ $heroMembershipPageLink }}" target="_blank">HERE</a> if you find it valuable. By doing
-                                                            so, you also help our beloved publishers and us to become
+                                                            your Hodl Membership expires in seven days. However,
+                                                            your membership will renew automatically on the expiry day
+                                                            if you have paid with a debit or credit card. Likewise,
+                                                            if you have paid with Crypto, you can renew your membership
+                                                            <a href="{{ $heroMembershipPageLink }}" target="_blank">HERE</a> if you find it valuable.
+                                                            By doing so, you also help our beloved publishers and us to become
                                                             the best source for trusted crypto news and market updates.
                                                             <br>
                                                             <br>

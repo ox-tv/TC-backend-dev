@@ -35,7 +35,10 @@ class CheckHeroMembershipExpiry extends Command
      */
     public function handle()
     {
-        $users = User::isHero()->where('hero_due_at', '<', Carbon::now()->addDays(7))->get();
+        $users = User::isHero()
+            ->where('hero_due_at', '<', Carbon::now()->addDays(7))
+            ->where('hero_due_at', '>=', Carbon::now()->addDays(6))
+            ->get();
 
         if ($users->isEmpty()){
             return 0;
@@ -43,9 +46,9 @@ class CheckHeroMembershipExpiry extends Command
 
         $heroMembershipPageLink = config('general.MWA_BECOME_A_HERO_URL');
         $subject = "Your Hodl Membership is ending soon";
-        $message = "We hope you enjoy Today’s Crypto and your Hero Membership.
+        $message = "We hope you enjoy Today’s Crypto and your Hodl Membership.
 
-Time flies when having fun, and we want you to know that your Hodl Membership expires in seven days. However, you can renew your membership <a href=\'{$heroMembershipPageLink}\' target=\'_blank\'>HERE</a> if you find it valuable. By doing so, you also help our beloved publishers and us to become the best source for trusted crypto news and market updates.
+Time flies when having fun, and we want you to know that your Hodl Membership expires in seven days. However, your membership will renew automatically on the expiry day if you have paid with a debit or credit card. Likewise, if you have paid with Crypto, you can renew your membership <a href=\'{$heroMembershipPageLink}\' target=\'_blank\'>HERE</a> if you find it valuable. By doing so, you also help our beloved publishers and us to become the best source for trusted crypto news and market updates.
 
 Best wishes from the team at Today’s Crypto";
 
