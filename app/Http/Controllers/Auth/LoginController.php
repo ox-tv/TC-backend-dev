@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use kornrunner\Keccak;
 
 class LoginController extends Controller
@@ -215,9 +216,14 @@ class LoginController extends Controller
 
     public function loginWithWallet(Request $request, $scope = 'user')
     {
+        $request->merge([
+            'referral_code' => strtoupper($request->get('referral_code')),
+        ]);
+
         $request->validate([
             'message' => ['required'],
             'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/'],
+            'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
             'signature' => [
                 'required',
                 function ($attribute, $signature, $fail) {
