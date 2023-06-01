@@ -269,6 +269,13 @@ class LoginController extends Controller
             $user->auth_wallet = $request->get('address');
             $user->email_verified_at = Carbon::now();
             $user->status = User::STATUS_ACTIVE;
+
+            do{
+                $referral_code = strtoupper(Str::random(6));
+            }while(User::where('referral_code', $referral_code)->exists());
+
+            $user->referral_code = $referral_code;
+
             $user->save();
 
             event(new UserVerified($user));
