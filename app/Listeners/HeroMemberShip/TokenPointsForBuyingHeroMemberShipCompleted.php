@@ -19,7 +19,7 @@ class TokenPointsForBuyingHeroMemberShipCompleted
     public function handle(BuyingHeroMemberShipCompleted $event)
     {
         $user = $event->user;
-        $pricingUser = $this->pricingUser;
+        $pricingUser = $event->pricingUser;
         $plan = $pricingUser->pricing->plan;
 
         // Check conditions
