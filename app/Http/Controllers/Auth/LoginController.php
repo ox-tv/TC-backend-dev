@@ -276,6 +276,11 @@ class LoginController extends Controller
 
             $user->referral_code = $referral_code;
 
+            if($request->get('referral_code')){
+                $referrer = User::where('referral_code', $request->get('referral_code'))->first();
+                $user->referrer_id = $referrer->id;
+            }
+
             $user->save();
 
             event(new UserVerified($user));
