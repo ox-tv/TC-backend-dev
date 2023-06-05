@@ -8,7 +8,7 @@ Route::get('home', '\App\Http\Controllers\GeneralController@home');
 // search
 Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');
 
-Route::post('advertisement-inquire', '\App\Http\Controllers\GeneralController@advertisementInquireForm');
+Route::post('inquire', '\App\Http\Controllers\GeneralController@advertisementInquireForm');
 
 
 // For Publishers
