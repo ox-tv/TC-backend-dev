@@ -33,7 +33,7 @@ class TokenPointsForCommentLiked
         $commentOwner = $comment->user()->first();
         $likeAmount = $event->likeAmount;
 
-        if ($likeAmount != 1 || LogCommentLikedOnce::where('comment_id', $comment->id)->where('user_id', $user->id)->exists()){
+        if ($likeAmount != 1 || LogCommentLikedOnce::where('comment_id', $comment->id)->where('user_id', $user->id)->exists() || $comment->user_id == $user->id){
             return true;
         }
 
