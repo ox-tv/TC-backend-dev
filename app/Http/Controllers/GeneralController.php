@@ -6,6 +6,7 @@ use App\Http\Resources\Channel\ChannelHomeResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoHomeResource;
 use App\Http\Resources\Video\VideoResource;
+use App\Mail\AdvertisementInquireMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
 use App\Models\ChannelStatisticsDaily;
@@ -22,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class GeneralController extends Controller
 {
@@ -449,5 +451,26 @@ class GeneralController extends Controller
         }
 
         return $statistics;
+    }
+
+    public function advertisementInquireForm(Request $request)
+    {
+        $request->validate([
+            'c_p_name' => ['required'],
+            'c_p_channel_url' => ['required'],
+            'c_p_website' => ['required'],
+            'full_name' => ['required'],
+            'email' => ['required', 'email'],
+            'estimated_budget' => ['required'],
+        ]);
+
+        $data = $request->all();
+
+        $destinationMail = config('general.ADVERTISEMENT_INQUIRE_MAIL_TO');
+
+        Mail::to($destinationMail)
+            ->queue(new AdvertisementInquireMail($data));
+
+        return response()->json(['status' => 'ok']);
     }
 }
