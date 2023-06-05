@@ -85,7 +85,7 @@ class Comment extends Model
     }
 
     public function parent(){
-        return $this->hasOne('App\Models\Comment', 'parent_id');
+        return $this->belongsTo('App\Models\Comment', 'parent_id');
     }
 
     public function reports()

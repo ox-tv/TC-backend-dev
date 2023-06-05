@@ -8,6 +8,7 @@ use App\Models\Channel2StatisticsDaily;
 use App\Models\TokenPoint;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TokenPointsForCommentCreated
 {
