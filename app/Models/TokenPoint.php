@@ -45,6 +45,8 @@ class TokenPoint extends Model
     const TYPE_BUYING_YEARLY_HERO_MEMBERSHIP = 13;
     const TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO = 14;
 
+    const TYPE_OTHER = 15;
+
     const TYPE_TEXT = [
         self::TYPE_PUBLISH_A_MEDIA => 'publish_a_media',
         self::TYPE_ANSWER_A_COMMENT => 'answer_a_comment',
@@ -62,6 +64,8 @@ class TokenPoint extends Model
         self::TYPE_LIKED_COMMENT_AS_HERO => 'liked_comment_as_hero',
         self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP => 'buying_yearly_hero_membership',
         self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO => 'buying_yearly_hero_membership_as_hero',
+
+        self::TYPE_OTHER => 'other',
     ];
 
     const TYPE_FOR_PUBLISHER = [
@@ -85,6 +89,7 @@ class TokenPoint extends Model
         self::TYPE_CUSTOM_FEED_FIILED,
         self::TYPE_LIKED_COMMENT,
         self::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP,
+        self::TYPE_OTHER,
     ];
 
 
