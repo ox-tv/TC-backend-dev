@@ -65,6 +65,8 @@ class StripeWebhookHandledListener
             return false;
         }
 
+        $userBeforeUpdate = clone $user;
+
         $subId = $payload['data']['object']['id'];
         $pricingUser = PricingUser::where('metadata->subscription_id', $subId)->first();
 
@@ -114,7 +116,7 @@ class StripeWebhookHandledListener
             $user->save();
         });
 
-        event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
+        event(new BuyingHeroMemberShipCompleted($userBeforeUpdate, $pricingUser));
 
         return true;
     }
