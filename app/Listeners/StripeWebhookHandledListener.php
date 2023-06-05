@@ -79,8 +79,9 @@ class StripeWebhookHandledListener
             return false;
         }
 
+        $pricingUser = new PricingUser();
 
-        DB::transaction(function () use ($subId, $pricing, $user){
+        DB::transaction(function () use ($subId, $pricing, $user, $pricingUser){
 
             $plan = $pricing->plan()->first();
             $paymentMethod = $pricing->paymentMethod()->first();
@@ -92,7 +93,6 @@ class StripeWebhookHandledListener
             $transaction->amount = $pricing->amount;
             $transaction->save();
 
-            $pricingUser = new PricingUser();
             $pricingUser->user_id = $user->id;
             $pricingUser->pricing_id = $pricing->id;
             $pricingUser->status = PricingUser::STATUS_COMPLETED;
