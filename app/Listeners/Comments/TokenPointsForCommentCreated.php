@@ -33,7 +33,7 @@ class TokenPointsForCommentCreated
 
         if (!$parentComment || $video->user_id != $comment->user_id || $parentComment->user_id == $comment->user_id){
             Log::warning('inside if', [
-                $parentComment, $video->user_id, $comment->user_id, $parentComment->user_id
+                $parentComment, $video->user_id, $comment->user_id
             ]);
             return true;
         }
