@@ -57,6 +57,7 @@ class CoinbaseController extends Controller
         $prevStatus = $metadata['coinbase_status']?? 'NEW';
 
         $user = User::find($pricingUser->user_id);
+        $userBeforeUpdate = clone $user;
 
         $timeline = $eventData['timeline'];
         $lastUpdate = end( $timeline );
@@ -117,7 +118,7 @@ class CoinbaseController extends Controller
             });
 
             if ($transactionChangeFlag && $pricingUser->status == PricingUser::STATUS_COMPLETED){
-                event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
+                event(new BuyingHeroMemberShipCompleted($userBeforeUpdate, $pricingUser));
             }
         }
 

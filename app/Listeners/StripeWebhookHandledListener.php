@@ -65,6 +65,8 @@ class StripeWebhookHandledListener
             return false;
         }
 
+        $userBeforeUpdate = clone $user;
+
         $subId = $payload['data']['object']['id'];
         $pricingUser = PricingUser::where('metadata->subscription_id', $subId)->first();
 
@@ -79,8 +81,9 @@ class StripeWebhookHandledListener
             return false;
         }
 
+        $pricingUser = new PricingUser();
 
-        DB::transaction(function () use ($subId, $pricing, $user){
+        DB::transaction(function () use ($subId, $pricing, $user, $pricingUser){
 
             $plan = $pricing->plan()->first();
             $paymentMethod = $pricing->paymentMethod()->first();
@@ -92,7 +95,6 @@ class StripeWebhookHandledListener
             $transaction->amount = $pricing->amount;
             $transaction->save();
 
-            $pricingUser = new PricingUser();
             $pricingUser->user_id = $user->id;
             $pricingUser->pricing_id = $pricing->id;
             $pricingUser->status = PricingUser::STATUS_COMPLETED;
@@ -114,7 +116,7 @@ class StripeWebhookHandledListener
             $user->save();
         });
 
-        event(new BuyingHeroMemberShipCompleted($user, $pricingUser));
+        event(new BuyingHeroMemberShipCompleted($userBeforeUpdate, $pricingUser));
 
         return true;
     }

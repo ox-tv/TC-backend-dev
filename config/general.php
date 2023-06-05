@@ -46,5 +46,7 @@ return [
     ],
 
 
-    'stable_coins_symbol' => ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'usdd', 'gusd', 'fei', 'usdtc', 'frax', 'usdj', 'lusd']
+    'stable_coins_symbol' => ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'usdd', 'gusd', 'fei', 'usdtc', 'frax', 'usdj', 'lusd'],
+
+    'ADVERTISEMENT_INQUIRE_MAIL_TO' => env('ADVERTISEMENT_INQUIRE_MAIL_TO', ''),
 ];
