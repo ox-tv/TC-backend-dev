@@ -32,13 +32,8 @@ class TokenPointsForCommentCreated
         $parentComment = $comment->parent()->first();
 
         if (!$parentComment || $video->user_id != $comment->user_id || $parentComment->user_id == $comment->user_id){
-            Log::warning('inside if', [
-                $parentComment, $video->user_id, $comment->user_id
-            ]);
             return true;
         }
-
-        Log::warning('outside if');
 
         $pointAmount = config('points.token.answer_a_comment');
 
