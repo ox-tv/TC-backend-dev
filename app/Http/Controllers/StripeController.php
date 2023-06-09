@@ -18,13 +18,11 @@ class StripeController extends Controller
     {
         $user = auth('api')->user();
 
-
-
         if ($user->subscribed('default')) {
 
-            $user->subscription('default')->swap('price_1Kb4MoFmwVriBzKiuBL3QW0N');
+            //$user->subscription('default')->swap('price_1Kb4MoFmwVriBzKiuBL3QW0N');
 
-            //$user->subscription('default')->cancel();
+            $user->subscription('default')->cancel();
         }
 
         return response()->json(['status' => 'ok']);
