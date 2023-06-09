@@ -124,66 +124,6 @@ class HeroMembershipController extends Controller
         ]);
     }
 
-    /*public function processPaymentStripe1(Request $request, Pricing $pricing, $plan, $paymentMethod)
-    {
-        $this->validate($request, [
-            'payment_method' => 'required'
-        ]);
-
-        $user = auth('api')->user();
-        $stripePaymentMethod = $request->input('payment_method');
-
-        DB::beginTransaction();
-
-        try {
-            $user->createOrGetStripeCustomer();
-
-            $transaction = new Transaction();
-            $transaction->type = Transaction::TYPE_DEPOSIT;
-            $transaction->status = Transaction::STATUS_PENDING;
-            $transaction->payment_method_id = $paymentMethod->id;
-            $transaction->amount = $pricing->amount;
-            $transaction->save();
-
-            $pricingUser = new PricingUser();
-            $pricingUser->user_id = $user->id;
-            $pricingUser->pricing_id = $pricing->id;
-            $pricingUser->status = PricingUser::STATUS_PENDING;
-            $pricingUser->metadata = [
-                'coinbase_status' => 'NEW',
-                'pricing' => PricingItem::make($pricing),
-                'plan' => PlanItem::make($plan),
-                'payment_method' => PaymentMethodItem::make($paymentMethod),
-            ];
-            $pricingUser->transaction_id = $transaction->id;
-            $pricingUser->save();
-
-            $user->newSubscription('default', $pricing->external_id)->create($stripePaymentMethod, [
-                'email' => $user->email
-            ],[
-                'metadata' => ['pricing_user_id' => $pricingUser->id],
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'status' => 'ok',
-            ]);
-
-        } catch (IncompletePayment $exception) {
-            return response()->json([
-                'status' => 'N/A',
-                'id' => $exception->payment->id
-            ]);
-        } catch (Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error creating subscription. ' . $e->getMessage()
-            ],400);
-        }
-    }*/
-
     public function processPaymentCoinBase(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
         $user = auth('api')->user();

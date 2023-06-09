@@ -18,6 +18,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // stripe
     Route::get('stripe/setup-intent', '\App\Http\Controllers\StripeController@setupIntent');
+    Route::delete('stripe/subscription/cancel', '\App\Http\Controllers\StripeController@cancelSubscription');
 
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
     Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
