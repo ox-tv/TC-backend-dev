@@ -381,7 +381,7 @@ class ChannelController extends Controller
                 })->orWhere(function($q) use($from_day, $to_day){
                     $q->where('date', '<=', Carbon::parse($to_day))
                         ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                });
+                })->sum('amount');
 
             $result[$month->format("Y-m")] = [
                 'date' => $month->format("Y-m"),
