@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+
 class StripeController extends Controller
 {
     public function setupIntent()
@@ -10,7 +12,9 @@ class StripeController extends Controller
 
         $subscription = $user->subscription('default');
 
-        $subscription->updateStripeSubscription(['billing_cycle_anchor' => 1689426539]);
+        $subscription->extendTrial(
+            $subscription->trial_ends_at? $subscription->trial_ends_at->addDays(7) : now()->addDays(7)
+        );
 
         return response()->json(['status' => 'ok']);
 
