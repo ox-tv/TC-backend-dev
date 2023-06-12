@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
 
+    Route::get('profile/membership-data', '\App\Http\Controllers\ProfileController@getMembershipData')->name('profile.membership-data');
+
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
     Route::delete('profile', '\App\Http\Controllers\UserController@destroy')->name('profile.destroy');
