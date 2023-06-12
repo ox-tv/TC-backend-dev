@@ -6,6 +6,14 @@ class StripeController extends Controller
 {
     public function setupIntent()
     {
+        $user = auth('api')->user();
+
+        $subscription = $user->subscription('default');
+
+        $subscription->updateStripeSubscription(['billing_cycle_anchor' => 1689426539]);
+
+        return response()->json(['status' => 'ok']);
+
         $data = [
             'intent' => auth()->user()->createSetupIntent(),
             'payment_methods' => auth()->user()->paymentMethods(),
@@ -27,5 +35,4 @@ class StripeController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
-
 }
