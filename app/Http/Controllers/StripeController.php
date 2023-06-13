@@ -10,17 +10,9 @@ class StripeController extends Controller
     {
         $user = auth('api')->user();
 
-        $subscription = $user->subscription('default');
-
-        $subscription->extendTrial(
-            $subscription->trial_ends_at? $subscription->trial_ends_at->addDays(7) : now()->addDays(7)
-        );
-
-        return response()->json(['status' => 'ok']);
-
         $data = [
-            'intent' => auth()->user()->createSetupIntent(),
-            'payment_methods' => auth()->user()->paymentMethods(),
+            'intent' => $user->createSetupIntent(),
+            'payment_methods' => $user->paymentMethods(),
         ];
 
         return response()->json($data);
