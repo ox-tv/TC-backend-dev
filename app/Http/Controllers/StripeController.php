@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+
 class StripeController extends Controller
 {
     public function setupIntent()
     {
+        $user = auth('api')->user();
+
         $data = [
-            'intent' => auth()->user()->createSetupIntent(),
-            'payment_methods' => auth()->user()->paymentMethods(),
+            'intent' => $user->createSetupIntent(),
+            'payment_methods' => $user->paymentMethods(),
         ];
 
         return response()->json($data);
@@ -27,5 +31,4 @@ class StripeController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
-
 }

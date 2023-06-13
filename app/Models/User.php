@@ -81,6 +81,18 @@ class User extends Authenticatable
         'last_actived_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        self::saved(function($model){
+            if (!$model->hero_member_at && $model->is_hero){
+                $model->hero_member_at = Carbon::now();
+                $model->save();
+            }
+        });
+    }
+
+
+
     // search scopes
 
     public function scopeSearchUsername($query, $keyword){
