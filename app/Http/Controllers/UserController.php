@@ -404,10 +404,6 @@ class UserController extends Controller
 
             // hero member
             $user->hero_due_at = $request->get('hero_due_at', null);
-
-            if (!$user->hero_member_at && $user->is_hero){
-                $user->hero_member_at = Carbon::now();
-            }
         }
 
         if ($request->is('api/admin/*')){
