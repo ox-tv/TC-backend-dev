@@ -21,11 +21,13 @@ class UserMeta extends Model
     const MonetizeReferralPointsIsActive = 'monetize_referral_points_is_active';
     const ChannelAutoImportIsActive = 'channel_auto_import_is_active';
     const UserNameChangedAt = 'username_changed_at';
+    const LoginTypes = 'login_types';
 
     const KEYS_WITH_JSON_VALUE = [
         self::PAYMENT_DETAILS,
         self::IDENTIFICATION_DETAILS,
         self::CustomFeedSetting,
+        self::LoginTypes,
     ];
 
 

@@ -7,6 +7,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('profile/2fa', '\App\Http\Controllers\Auth\_2FAController@user2FA')->name('profile.2fa');
 
     Route::get('profile/membership-data', '\App\Http\Controllers\ProfileController@getMembershipData')->name('profile.membership-data');
+    Route::get('profile/security-data', '\App\Http\Controllers\ProfileController@getSecurityData')->name('profile.security-data');
+
+    Route::post('profile/login-type', '\App\Http\Controllers\ProfileController@setLoginType');
+
+
+
 
     Route::get('profile', '\App\Http\Controllers\UserController@profile');
     Route::post('profile', '\App\Http\Controllers\UserController@updateProfile');
