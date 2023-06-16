@@ -65,29 +65,21 @@ class ProfileController extends Controller
                 Rule::requiredIf(request()->get('login_type_wallet') === false || (!$loginTypeWalletStatus && !request()->get('login_type_wallet') && !request()->get('login_type_credentials'))), 'boolean'
             ],
             'credentials.email' => [
-                function($attribute, $value, $fail) use($user){
-                    if (request()->get('login_type_credentials') && !$user->email && !$value) {
-                        $fail('The email field is required.');
-                    }
-                },
+                Rule::requiredIf(request()->get('login_type_credentials') === true && !$user->email),
                 Rule::unique('users', 'email')->where(function($q) {
                     $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
                     $q->whereNull('role_id')->orWhere('role_id', $publisherRoleId);
                 })->whereNotNull('email_verified_at')
             ],
             'credentials.password' => [
-                function($attribute, $value, $fail) use($user){
-                    if (request()->get('login_type_credentials') && !$user->email && !$value) {
-                        $fail('The password is required.');
-                    }
-                },
+                Rule::requiredIf(request()->get('login_type_credentials') === true && !$user->email),
                 'string', 'min:8'
             ],
         ]);
 
         if ($request->get('login_type_credentials') && !$user->email){
-            $user->email = $request->get('credentials.email');
-            $user->password = Hash::make($request->get('credentials.password'));
+            $user->email = $request->get('credentials')['email'];
+            $user->password = Hash::make($request->get('credentials')['password']);
             $user->save();
         }
 
