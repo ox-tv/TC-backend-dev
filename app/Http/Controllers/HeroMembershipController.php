@@ -111,17 +111,26 @@ class HeroMembershipController extends Controller
 
     public function processPaymentStripe(Request $request, Pricing $pricing, $plan, $paymentMethod)
     {
-        $checkout = $request->user()
-            ->newSubscription('default', $pricing->external_id)
-            ->checkout([
+        $user = auth('api')->user();
+
+        if ($user->subscribed('default')) {
+            $checkout = $request->user()->checkout($pricing->external_id, [
                 'success_url' => config('services.stripe.checkout_success_url'),
                 'cancel_url' => config('services.stripe.checkout_failure_url'),
             ]);
+        }else{
+            $checkout = $request->user()
+                ->newSubscription('default', $pricing->external_id)
+                ->checkout([
+                    'success_url' => config('services.stripe.checkout_success_url'),
+                    'cancel_url' => config('services.stripe.checkout_failure_url'),
+                ]);
+        }
 
-        return response()->json([
-            'status' => 'ok',
-            'redirect_to' => $checkout->url
-        ]);
+        $result['redirect_to'] = $checkout->url;
+        $result['status'] = 'ok';
+
+        return response()->json($result);
     }
 
     public function processPaymentCoinBase(Request $request, Pricing $pricing, $plan, $paymentMethod)
