@@ -114,11 +114,13 @@ class HeroMembershipController extends Controller
         $user = auth('api')->user();
 
         if ($user->subscribed('default')) {
+            // one time buy
             $checkout = $request->user()->checkout($pricing->external_id, [
                 'success_url' => config('services.stripe.checkout_success_url'),
                 'cancel_url' => config('services.stripe.checkout_failure_url'),
             ]);
         }else{
+            // subscription
             $checkout = $request->user()
                 ->newSubscription('default', $pricing->external_id)
                 ->checkout([
