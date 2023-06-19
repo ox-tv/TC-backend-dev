@@ -29,6 +29,7 @@ class PricingItem extends JsonResource
             'currency' => $this->currency,
             'amount' => $this->amount,
             'external_id' => $this->external_id,
+            'is_subscription' => (bool) $this->is_subscription,
             'plan' => $this->when($withPlan, $plan),
             'payment_method' => $this->when($withPaymentMethod, $paymentMethod),
             'created_at' => $this->created_at
