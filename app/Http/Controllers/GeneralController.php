@@ -465,6 +465,8 @@ class GeneralController extends Controller
 
         $data = $request->all();
 
+        $data['c_p_channel_url'] = $request->get('c_p_channel_url', ' - ');
+
         $destinationMail = config('general.ADVERTISEMENT_INQUIRE_MAIL_TO');
 
         Mail::to($destinationMail)
