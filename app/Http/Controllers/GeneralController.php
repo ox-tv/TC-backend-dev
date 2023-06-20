@@ -457,7 +457,6 @@ class GeneralController extends Controller
     {
         $request->validate([
             'c_p_name' => ['required'],
-            'c_p_channel_url' => ['required'],
             'c_p_website' => ['required'],
             'full_name' => ['required'],
             'email' => ['required', 'email'],
