@@ -21,7 +21,7 @@ class Option extends Model
     const TOTAL_DISTRIBUTED_MONEY = 'total_distributed_money';
     const FORBIDDEN_WORDS = 'forbidden_words';
     const AD_SPACES = 'ad_spaces';
-    const AD_TIERS_INFO = 'ad_tiers_info';
+    const AD_TIERS_DATA = 'ad_tiers_data';
 
     const REASONS = [
         self::VIDEO_REPORT_REASONS,
