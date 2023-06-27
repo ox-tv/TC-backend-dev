@@ -216,7 +216,7 @@ class AdController extends Controller
 
             'tiers_discounts' => 'nullable',
             'tiers_discounts.*.id' => ['nullable', Rule::exists('ad_discounts', 'id')],
-            'tiers_discounts.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_discounts.*.tier' => 'required|in:1,2,3,4,5,all',
             'tiers_discounts.*.type' => 'required|in:fixed,percent',
             'tiers_discounts.*.amount' => 'required|numeric',
             'tiers_discounts.*.start_at' => ['nullable','date_format:Y-m-d'],
