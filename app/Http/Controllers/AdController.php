@@ -155,7 +155,7 @@ class AdController extends Controller
                     $slot->date = $row['date'];
                     $slot->tier = $row['tier'];
                     $slot->quantity = $row['quantity'];
-                    $slot->price = 100;
+                    $slot->price = 100; // TODO: Get price from database
                     $slot->save();
                 }
             }
