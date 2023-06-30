@@ -215,7 +215,7 @@ class AdController extends Controller
     {
         $service = new AdManagerService();
 
-        return $service->getPricePerSlot($tier, $date);
+        return response()->json(['price' => $service->getPricePerSlot($tier, $date)]);
     }
 
 
