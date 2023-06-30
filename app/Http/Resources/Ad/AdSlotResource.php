@@ -21,6 +21,7 @@ class AdSlotResource extends JsonResource
             'tier' => $this->tier,
             'price' => $this->price,
             'quantity' => $this->quantity,
+            'ad_campaign_id' => $this->ad_campaign_id,
 
             // Relations
             'campaign' => AdCampaignResource::make($this->whenLoaded('campaign')),
