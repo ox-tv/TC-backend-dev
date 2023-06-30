@@ -147,3 +147,10 @@ if(!function_exists('natural_intval')){
         return max(intval($number), 0);
     }
 }
+if(!function_exists('is_json_string')){
+    function is_json_string($json_str): bool
+    {
+        json_decode($json_str);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+}
