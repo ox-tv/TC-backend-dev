@@ -10,6 +10,7 @@ use App\Models\AdCampaign;
 use App\Models\AdDiscount;
 use App\Models\AdSlot;
 use App\Models\Option;
+use App\Services\AdManagerService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,6 +18,12 @@ use Illuminate\Validation\Rule;
 
 class AdController extends Controller
 {
+    private $adManagerService;
+    public function __construct(AdManagerService $adManagerService)
+    {
+        $this->adManagerService = $adManagerService;
+    }
+
     public function indexCampaign(Request $request)
     {
         $perPage = $request->get('per_page') ?: 15;
@@ -97,7 +104,7 @@ class AdController extends Controller
                 $slot->date = $row['date'];
                 $slot->tier = $row['tier'];
                 $slot->quantity = $row['quantity'];
-                $slot->price = 100;
+                $slot->price = $this->adManagerService->getPricePerSlot($row['tier'], $row['date']);
                 $slot->save();
             }
         }
@@ -146,16 +153,17 @@ class AdController extends Controller
             if ($request->get('slots')){
                 foreach ($request->get('slots') as $row){
 
+                    $slot = new AdSlot();
+
                     if (!empty($row['id'])){
-                        continue;
+                        $slot = AdSlot::find($row['id']);
                     }
 
-                    $slot = new AdSlot();
                     $slot->ad_campaign_id = $campaign->id;
                     $slot->date = $row['date'];
                     $slot->tier = $row['tier'];
                     $slot->quantity = $row['quantity'];
-                    $slot->price = 100;
+                    $slot->price = $this->adManagerService->getPricePerSlot($row['tier'], $row['date']);
                     $slot->save();
                 }
             }
@@ -203,6 +211,13 @@ class AdController extends Controller
         return AdSlotResource::collection($slotes);
     }
 
+    public function getPricePerSlot($tier, $date)
+    {
+        $service = new AdManagerService();
+
+        return response()->json(['price' => $service->getPricePerSlot($tier, $date)]);
+    }
+
 
     // Add Manager Settings
     public function storeSettings(Request $request)
@@ -211,33 +226,34 @@ class AdController extends Controller
             'tiers_data' => 'required',
             'tiers_data.*.tier' => 'required|in:1,2,3,4,5',
             'tiers_data.*.cpm' => 'required|numeric',
-            'tiers_names.*.article' => 'required',
-            'tiers_names.*.group' => 'required',
+            'tiers_data.*.article' => 'required',
+            'tiers_data.*.group' => 'required',
 
-            'tiers_discounts' => 'nullable',
+            'tiers_discounts' => ['nullable', 'array'],
             'tiers_discounts.*.id' => ['nullable', Rule::exists('ad_discounts', 'id')],
-            'tiers_discounts.*.tier' => 'required|in:1,2,3,4,5',
+            'tiers_discounts.*.tier' => ['required', Rule::in(['1','2','3','4','5','all'])],
             'tiers_discounts.*.type' => 'required|in:fixed,percent',
             'tiers_discounts.*.amount' => 'required|numeric',
             'tiers_discounts.*.start_at' => ['nullable','date_format:Y-m-d'],
             'tiers_discounts.*.end_at' => ['nullable','date_format:Y-m-d', 'after:discount.*.start_at'],
         ]);
 
-        $optionData = $request->only('tiers_data');
+        /*$tiersData = $request->only('tiers_data');
 
-        foreach ($optionData as $key => $row){
-            $pps = ($row['cpm'] * (25000 * 0.001) ) / 7 / 5; // TODO: cpm * avarage(4 week reach) * 0.001 / 7 / 5
-            $optionData[$key]['pps'] = [
+        foreach ($tiersData as $key => $row){
+            $pps = ($row['cpm'] * 25000 * 0.001) / 7 / 5; // TODO: cpm * avarage(4 week reach) * 0.001 / 7 / 5
+            $tiersData[$key]['pps'] = [
                 'regular' => 10,
                 'final' => 9,
             ];
-        }
-        dd($optionData);
+        }*/
 
-        Option::set(Option::AD_TIERS_INFO, json_encode());
+        Option::set(Option::AD_TIERS_DATA, json_encode($request->get('tiers_data')));
+
 
         // Discounts
-        $preExistingDiscountIds = array_column((array) $request->get('tiers_discounts'), 'id');
+        $discounts = $request->get('tiers_discounts');
+        $preExistingDiscountIds = array_column((array) $discounts, 'id');
         AdDiscount::whereNotIn('id', $preExistingDiscountIds)
             ->where(function ($q){
                 $q->whereNull('end_at')
@@ -245,9 +261,8 @@ class AdController extends Controller
             })
             ->delete();
 
-        if ($discounts = $request->get('tiers_discounts')){
+        if ($discounts){
             foreach ($discounts as $row){
-
                 $discount = new AdDiscount();
 
                 if (!empty($row['id'])){
@@ -263,22 +278,20 @@ class AdController extends Controller
             }
         }
 
-        return response()->json(["message" => "ok"]);
+        return response()->json($request->all());
     }
 
     public function getSettings(Request $request)
     {
         $result = [
-            'tiers_cpm' => [],
-            'tiers_names' => [],
+            'tiers_data' => [],
             'tiers_discounts' => [],
         ];
 
-        $tiersInfo = Option::get(Option::AD_TIERS_INFO)->value ?? null;
-        $tiersInfo = $tiersInfo? json_decode($tiersInfo, true): null;
+        $tiersData = Option::get(Option::AD_TIERS_DATA)->value ?? null;
+        $tiersData = $tiersData? json_decode($tiersData, true): null;
 
-        $result['tiers_cpm'] = $tiersInfo['tiers_cpm']?? null;
-        $result['tiers_names'] = $tiersInfo['tiers_names']?? null;
+        $result['tiers_data'] = $tiersData?? null;
 
         $result['tiers_discounts'] = AdDiscountResource::collection(AdDiscount::where(function ($q){
             $q->whereNull('end_at')

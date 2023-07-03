@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PlanStore;
 use App\Http\Requests\PlanUpdate;
 use App\Http\Resources\Plan\PlanItem;
+use App\Models\PaymentMethod;
 use App\Models\Plan;
 use App\Models\Pricing;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +18,26 @@ class PlanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Plan::with(['pricing','pricing.paymentMethod']);
+        $user = auth('api')->user();
+
+        $query = Plan::with([
+            'pricing' => function ($query) use($request, $user) {
+                if ($request->is('api/plans')){
+                    if ($user && $user->subscribed('default')){
+                        $query->where('is_subscription', false);
+                    }else{
+                        $paymentMethodFilter = PaymentMethod::firstOrCreate(['name' => 'Stripe'])->id;
+                        $query->where(function(Builder $query) use ($paymentMethodFilter) {
+                            $query->where('payment_method_id', $paymentMethodFilter)
+                                ->where('is_subscription', true);
+                        })->orWhere(function(Builder $query) use ($paymentMethodFilter) {
+                            $query->where('payment_method_id', '!=', $paymentMethodFilter);
+                        });
+                    }
+                }
+            }
+            ,'pricing.paymentMethod'
+        ]);
 
         if($request->is('api/plans')){
             $query->where('status', Plan::STATUS_ACTIVE);
@@ -25,7 +45,6 @@ class PlanController extends Controller
 
         // filters
         $filters = $request->get('filters', []);
-
         $paymentMethodFilter = Arr::get($filters, 'payment_method_id');
 
         if($paymentMethodFilter){

@@ -457,7 +457,6 @@ class GeneralController extends Controller
     {
         $request->validate([
             'c_p_name' => ['required'],
-            'c_p_channel_url' => ['required'],
             'c_p_website' => ['required'],
             'full_name' => ['required'],
             'email' => ['required', 'email'],
@@ -465,6 +464,8 @@ class GeneralController extends Controller
         ]);
 
         $data = $request->all();
+
+        $data['c_p_channel_url'] = $request->get('c_p_channel_url', ' - ');
 
         $destinationMail = config('general.ADVERTISEMENT_INQUIRE_MAIL_TO');
 
