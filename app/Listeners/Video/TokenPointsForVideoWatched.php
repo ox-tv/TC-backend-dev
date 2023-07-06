@@ -25,25 +25,28 @@ class TokenPointsForVideoWatched
         $endTime = $event->endTime;
         $videoDuration = $video->duration;
 
-        $watchTimeDuration = DB::table('watch_times')
-                ->where('video_id', $video->id)
+        $duration = DB::table('watch_times')
+                ->whereDate('created_at', Carbon::today())
                 ->where('user_id', $user->id)
                 ->selectRaw("SUM(end_time - start_time) as duration")
                 ->first()->duration?? 0;
 
-        $beforePercent = ($watchTimeDuration - ($endTime - $startTime)) * 100 / $videoDuration;
-        $afterPercent = $watchTimeDuration * 100 / $videoDuration;
+        $durationInMinute = intval($duration / 60);
 
-        if (!($beforePercent < 50 && $afterPercent >= 50)){
-            return true;
+        $row = TokenPoint::where('date', Carbon::now()->startOfDay())
+            ->where('user_id', $user->id)
+            ->whereIn('type', [TokenPoint::TYPE_WATCH_A_VIDEO, TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO])->first();
+
+        if ($row){
+            $row->amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
+            $row->save();
+        }else{
+            $this->tokenPointRepository->add([
+                'user_id' => $user->id,
+                'type' => $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO,
+                'amount' => $user->is_hero? $durationInMinute * 2 : $durationInMinute,
+            ]);
         }
-
-        $this->tokenPointRepository->add([
-            'user_id' => $user->id,
-            'type' => $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO,
-            'amount' => $user->is_hero? config('points.token.watch_a_video_as_hero') : config('points.token.watch_a_video'),
-            'activate_at' => Carbon::now()->addHours(3),
-        ]);
 
         return true;
     }

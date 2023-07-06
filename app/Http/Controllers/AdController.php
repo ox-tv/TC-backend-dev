@@ -10,6 +10,7 @@ use App\Models\AdCampaign;
 use App\Models\AdDiscount;
 use App\Models\AdSlot;
 use App\Models\Option;
+use App\Services\AdManagerService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,6 +18,12 @@ use Illuminate\Validation\Rule;
 
 class AdController extends Controller
 {
+    private $adManagerService;
+    public function __construct(AdManagerService $adManagerService)
+    {
+        $this->adManagerService = $adManagerService;
+    }
+
     public function indexCampaign(Request $request)
     {
         $perPage = $request->get('per_page') ?: 15;
@@ -97,7 +104,7 @@ class AdController extends Controller
                 $slot->date = $row['date'];
                 $slot->tier = $row['tier'];
                 $slot->quantity = $row['quantity'];
-                $slot->price = 100; // TODO: Get price from database
+                $slot->price = $this->adManagerService->getPricePerSlot($row['tier'], $row['date']);
                 $slot->save();
             }
         }
@@ -146,16 +153,17 @@ class AdController extends Controller
             if ($request->get('slots')){
                 foreach ($request->get('slots') as $row){
 
+                    $slot = new AdSlot();
+
                     if (!empty($row['id'])){
-                        continue;
+                        $slot = AdSlot::find($row['id']);
                     }
 
-                    $slot = new AdSlot();
                     $slot->ad_campaign_id = $campaign->id;
                     $slot->date = $row['date'];
                     $slot->tier = $row['tier'];
                     $slot->quantity = $row['quantity'];
-                    $slot->price = 100;
+                    $slot->price = $this->adManagerService->getPricePerSlot($row['tier'], $row['date']);
                     $slot->save();
                 }
             }
@@ -201,6 +209,13 @@ class AdController extends Controller
         $slotes = AdSlot::where('date', '>=', $from)->where('date', '<=', $to)->get();
 
         return AdSlotResource::collection($slotes);
+    }
+
+    public function getPricePerSlot($tier, $date)
+    {
+        $service = new AdManagerService();
+
+        return response()->json(['price' => $service->getPricePerSlot($tier, $date)]);
     }
 
 

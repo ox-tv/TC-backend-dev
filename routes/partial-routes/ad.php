@@ -32,6 +32,8 @@ Route::group([
     Route::put('ads/settings', '\App\Http\Controllers\AdController@storeSettings')->name('ads.settings.store');
     Route::get('ads/settings', '\App\Http\Controllers\AdController@getSettings')->name('ads.settings.get');
 
+    Route::get('ads/price/{tier}/{date}', '\App\Http\Controllers\AdController@getPricePerSlot')->name('ads.get-price-per-slot');
+
     Route::get('ads/filled-slots', '\App\Http\Controllers\AdController@filledSlotes')->name('ads.filled-slots');
     Route::post('ads/campaigns', '\App\Http\Controllers\AdController@storeCampaign')->name('ads.campaigns.store');
     Route::put('ads/campaigns/{id}', '\App\Http\Controllers\AdController@updateCampaign')->name('ads.campaigns.update');
