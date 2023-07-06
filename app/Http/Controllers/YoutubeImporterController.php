@@ -104,6 +104,8 @@ class YoutubeImporterController extends Controller
 
         $cryptoCurrencyIDs = false;
 
+        $finalTags = [];
+
         if($tags){
             $excludedTags = explode(",", config('yi.auto_import_excluded_tags_for_cryptocurrency'));
 
@@ -111,11 +113,13 @@ class YoutubeImporterController extends Controller
                 return !in_array($value, $excludedTags);
             });
 
+            $finalTags = array_unique($filteredTags);
+
             $cryptoCurrencyIDs = CryptoCurrency::
             select("id")
-                ->where(function ($query) use ($filteredTags){
-                    $query->whereIn('symbol', $filteredTags)
-                        ->orWhereIn('name', $filteredTags);
+                ->where(function ($query) use ($finalTags){
+                    $query->whereIn('symbol', $finalTags)
+                        ->orWhereIn('name', $finalTags);
                 })
                 ->where('order', '<', '1000000')
                 ->pluck('id');
@@ -134,7 +138,7 @@ class YoutubeImporterController extends Controller
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
         $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT;
 
-        DB::transaction(function () use ($request, $video, $tags, $cryptoCurrencyIDs){
+        DB::transaction(function () use ($request, $video, $finalTags, $cryptoCurrencyIDs){
 
             $video->save();
 
@@ -149,8 +153,8 @@ class YoutubeImporterController extends Controller
             }
 
             // adding tags
-            if($tags){
-                $tags = collect($tags);
+            if($finalTags){
+                $tags = collect($finalTags);
 
                 $tags->map(function ($tag) use ($video){
                     $video->tags()->save(TagRepository::store([
