@@ -23,7 +23,7 @@ class TokenPointsForCustomFeedFilled
             return true;
         }
 
-        if (TokenPoint::where('user_id', $user->id)->where('type', TokenPoint::TYPE_CUSTOM_FEED_FIILED)->exists()){
+        if (TokenPoint::where('user_id', $user->id)->whereIn('type', [TokenPoint::TYPE_CUSTOM_FEED_FIILED, TokenPoint::TYPE_CUSTOM_FEED_FIILED_AS_HERO])->exists()){
             return true;
         }
 
