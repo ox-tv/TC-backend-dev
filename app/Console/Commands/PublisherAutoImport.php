@@ -48,6 +48,7 @@ class PublisherAutoImport extends Command
                         $q->where('key', UserMeta::ChannelAutoImportIsActive)->where('value', true);
                     });
                 })
+                ->inRandomOrder()
                 ->take(1);
 
             if($channel->exists()){
