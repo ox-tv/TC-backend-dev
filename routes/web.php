@@ -15,6 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $now = \App\Models\CryptoCurrencyPrice::fromDateTime(\Carbon\Carbon::now());
+    $data = [
+        ['Crypto_currency_id' => 1, 'price' => 110, 'last_updated' => $now],
+        ['Crypto_currency_id' => 5, 'price' => 34152, 'last_updated' => $now],
+        ['Crypto_currency_id' => 3, 'price' => 0.00753, 'last_updated' => $now],
+    ];
+    \App\Models\CryptoCurrencyPrice::insert($data);
     return view('welcome');
 });
 
