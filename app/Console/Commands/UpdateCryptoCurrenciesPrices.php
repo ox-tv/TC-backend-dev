@@ -153,4 +153,17 @@ class UpdateCryptoCurrenciesPrices extends Command
             "percent_change_1y" => $value['price_change_percentage_1y_in_currency'],
         ];
     }
+
+    private function getDataForSaveHistory($value)
+    {
+        return [
+            "last_updated" => $value['last_updated'],
+            "price"=> $value['current_price'],
+        ];
+    }
+
+    private function savePricesHistorical($data)
+    {
+
+    }
 }
