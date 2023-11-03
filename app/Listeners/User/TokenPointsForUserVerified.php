@@ -47,11 +47,22 @@ class TokenPointsForUserVerified
                 'amount' => config('points.token.referral_via_publisher'),
             ]);
         }else{
-            $this->tokenPointRepository->add([
-                'user_id' => $referrer->id,
-                'type' => $referrer->is_hero? TokenPoint::TYPE_REFERRER_AS_HERO : TokenPoint::TYPE_REFERRER,
-                'amount' => $referrer->is_hero? config('points.token.referrer_as_hero') : config('points.token.referrer'),
-            ]);
+            $type = $referrer->is_hero? TokenPoint::TYPE_REFERRER_AS_HERO : TokenPoint::TYPE_REFERRER;
+            $amount = $referrer->is_hero? config('points.token.referrer_as_hero') : config('points.token.referrer');
+            // Check user get max 5 token point for referral
+
+            $referrerTokenPoint = TokenPoint::where('user_id', intval($referrer->id))
+                ->where('type', $type)
+                ->where('date', Carbon::now()->startOfDay())
+                ->first();
+
+            if ($referrerTokenPoint->amount < $amount * 5 ) {
+                $this->tokenPointRepository->add([
+                    'user_id' => $referrer->id,
+                    'type' => $type,
+                    'amount' => $amount,
+                ]);
+            }
         }
 
         return true;
