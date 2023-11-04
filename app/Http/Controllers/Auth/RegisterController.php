@@ -57,6 +57,8 @@ class RegisterController extends Controller
             $user->referrer_id = $referrer->id;
         }
 
+        $user->registration_ip = $request->ip();
+
         $user->save();
 
         $this->EmailVerificationService->sendCode($user);
