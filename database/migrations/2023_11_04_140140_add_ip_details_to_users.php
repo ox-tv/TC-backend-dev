@@ -15,7 +15,7 @@ class AddIpDetailsToUsers extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->ipAddress('registration_ip')->nullable()->after('updated_at');
-            $table->ipAddress('last_active_from_ip')->nullable()->after('updated_at');
+            $table->ipAddress('last_active_from_ip')->nullable()->after('last_actived_at');
         });
     }
 
