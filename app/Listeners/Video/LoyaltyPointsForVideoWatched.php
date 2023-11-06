@@ -25,11 +25,22 @@ class LoyaltyPointsForVideoWatched
         $endTime = $event->endTime;
         $videoDuration = $video->duration;
 
+        /*
         $watchTimeDuration = DB::table('watch_times')
                 ->where('video_id', $video->id)
                 ->where('user_id', $user->id)
                 ->selectRaw("SUM(end_time - start_time) as duration")
                 ->first()->duration?? 0;
+        */
+
+        $watchTimes = DB::table('watch_times')->where('video_id', $video->id)->where('user_id', $user->id)->select(["end_time", "start_time"])->get();
+
+        $totalTimes = [];
+        foreach ($watchTimes as $watchTime){
+            $totalTimes[] = $watchTime->end_time - $watchTime->start_time;
+        }
+
+        $watchTimeDuration = array_sum($totalTimes);
 
         $beforePercent = ($watchTimeDuration - ($endTime - $startTime)) * 100 / $videoDuration;
         $afterPercent = $watchTimeDuration * 100 / $videoDuration;
