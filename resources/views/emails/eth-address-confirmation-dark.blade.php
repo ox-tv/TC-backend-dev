@@ -571,7 +571,7 @@ Click the button below to verify your new ETH address.</p></div>
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#FFFFFF"><strong>Make sure to follow us on Twitter for regular updates!</strong></span>
+                                                    <span style="color:#FFFFFF"><strong>Follow us on X or join our official Telegram group for regular updates!</strong></span>
                                                 </td>
                                             </tr>
                                             </tbody></table>
