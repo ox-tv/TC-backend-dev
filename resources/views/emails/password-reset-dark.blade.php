@@ -440,7 +440,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-light2.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/Auto-Email-Logo.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -578,7 +578,7 @@ Click the button below to reset your password.</span></p></div>
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#202020"><strong>Make sure to follow us on Twitter, Telegram & Linkedin for regular updates!</strong></span>
+                                                    <span style="color:#202020"><strong>Follow us on X or join our official Telegram group for regular updates!</strong></span>
                                                 </td>
                                             </tr>
                                             </tbody></table>
@@ -619,13 +619,13 @@ Click the button below to reset your password.</span></p></div>
 
                                                                                 <tbody><tr>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
-                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/X-Email-Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
-                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://t.me/todayscrypto" target="_blank"><img src="{{ asset('assets/images/Telegram-Email-Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
-                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://todayscrypto.com/channels/todays-crypto" target="_blank"><img src="{{ asset('assets/images/TC-Email-Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                 </tr>
 

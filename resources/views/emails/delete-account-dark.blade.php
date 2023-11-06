@@ -436,7 +436,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-Red.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="https://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/Auto-Email-Logo.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -672,14 +672,14 @@
                                                                             <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnFollowStacked" style="display:inline;">
 
                                                                                 <tbody><tr>
-                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
-                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
+                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
-                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:20px; padding-bottom:9px;">
-                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                    <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
+                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
-                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:48px; max-width:48px; display:block;"></a>
+                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                 </tr>
 
