@@ -56,7 +56,7 @@ class TokenPointsForUserVerified
                 ->where('date', Carbon::now()->startOfDay())
                 ->first();
 
-            if ($referrerTokenPoint->amount < $amount * 5 ) {
+            if ($referrerTokenPoint && $referrerTokenPoint->amount < $amount * 5 ) {
                 $this->tokenPointRepository->add([
                     'user_id' => $referrer->id,
                     'type' => $type,
