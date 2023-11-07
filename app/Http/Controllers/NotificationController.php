@@ -141,6 +141,8 @@ class NotificationController extends Controller
             "read_at" => now(),
         ]);
 
+        Cache::forget("user.{$user->id}.notifications.unread_count");
+
         return response()->json(['message' => 'ok']);
     }
 
@@ -156,6 +158,8 @@ class NotificationController extends Controller
             $query->where('notifications.scope', array_flip(Notification::SCOPE_TEXT)[$scope])
                 ->orWhere('notifications.scope', Notification::SCOPE_GLOBAL);
         })->update(['read_at' => now()]);
+
+        Cache::forget("user.{$user->id}.notifications.unread_count");
 
         return response()->json(['message' => 'ok']);
     }
