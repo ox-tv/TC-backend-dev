@@ -880,9 +880,9 @@ class VideoController extends Controller
         return $video->view_count;
     }
 
-    public function watch_time_store(WatchTimeStore $request, $idOrUrlHash)
+    public function watch_time_store(WatchTimeStore $request, $videoId)
     {
-        $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
+        $video = Video::published()->where('id', $videoId)->firstOrFail();
         $user = auth("api")->user();
         $originalStart = $start = $request->get("start_time");
         $originalEnd = $end = $request->get("end_time");
