@@ -4,6 +4,7 @@ namespace App\Repository\Eloquent;
 
 use App\Models\Notification;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class NotificationRepository
@@ -25,6 +26,10 @@ class NotificationRepository
             $notification->save();
             $notification->users()->attach($users->pluck('id')->toArray());
         });
+
+        foreach ($users as $user){
+            Cache::forget("user.{$user->id}.notifications.unread_count");
+        }
 
         return $notification;
     }

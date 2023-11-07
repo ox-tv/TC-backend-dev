@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use TCNotification;
 
@@ -167,10 +168,12 @@ class NotificationController extends Controller
             abort(404);
         }
 
-        $count = $user->unreadNotifications()->where(function ($query) use ($scope){
-            $query->where('notifications.scope', array_flip(Notification::SCOPE_TEXT)[$scope])
-                ->orWhere('notifications.scope', Notification::SCOPE_GLOBAL);
-        })->count();
+        $count = Cache::remember("user.{$user->id}.notifications.unread_count", 60 * 60 , function () use ($user, $scope){
+            return $user->unreadNotifications()->where(function ($query) use ($scope){
+                $query->where('notifications.scope', array_flip(Notification::SCOPE_TEXT)[$scope])
+                    ->orWhere('notifications.scope', Notification::SCOPE_GLOBAL);
+            })->count();
+        });
 
         return response()->json(['count' => $count]);
     }
