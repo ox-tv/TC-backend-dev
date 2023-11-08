@@ -6,6 +6,7 @@ use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class VideoWatchedDataForVideoStatisticsDaily
 {
@@ -36,11 +37,19 @@ class VideoWatchedDataForVideoStatisticsDaily
 
 
         // Add +1 to user statistics
-        $statistics = Channel2StatisticsDaily::firstOrNew([
+        /*$statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
             'date' => Carbon::now()->startOfDay(),
-        ]);
+        ]);*/
+
+        $statistics = Cache::remember("Channel2StatisticsDaily_channel{$channel->id}_video{$video->id}_today", Carbon::now()->endOfDay() , function () use ($channel, $video){
+            return Channel2StatisticsDaily::firstOrNew([
+                'video_id' => $video->id,
+                'channel_id' => $channel->id,
+                'date' => Carbon::now()->startOfDay(),
+            ]);
+        });
 
         $statistics->watch_time_total += $duration;
 
@@ -51,6 +60,8 @@ class VideoWatchedDataForVideoStatisticsDaily
         }
 
         $statistics->save();
+
+        Cache::put("Channel2StatisticsDaily_channel{$channel->id}_video{$video->id}_today", $statistics, Carbon::now()->endOfDay());
 
         return $statistics;
     }
