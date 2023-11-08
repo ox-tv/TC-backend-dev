@@ -893,7 +893,8 @@ class VideoController extends Controller
         $allWatchTimes = Cache::remember("watchtime_user{$user->id}_video{$video->id}", WatchTime::AllRowsCachePeriod , function () use ($user, $video){
             return DB::table('watch_times')
                 ->where('user_id', $user->id)
-                ->where('video_id', $video->id);
+                ->where('video_id', $video->id)
+                ->get();
         });
 
         $watchTimes = $allWatchTimes->filter(function ($row, $key) use ($originalStart, $originalEnd) {
