@@ -8,4 +8,6 @@ class WatchTime extends Model
 {
     protected $table = 'watch_times';
 
+    public const AllRowsCachePeriod = 24 * 60 * 60;
+    public const LastRowCachePeriod = 60 * 60;
 }
