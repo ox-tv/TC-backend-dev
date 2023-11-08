@@ -6,6 +6,7 @@ use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\UserStatisticsDaily;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class VideoWatchedDataForUserStatisticsDaily
@@ -42,7 +43,8 @@ class VideoWatchedDataForUserStatisticsDaily
             ->first()->duration?:0;
         */
 
-        $watchTimes = DB::table('watch_times')->where('video_id', $video->id)->where('user_id', $user->id)->select(["end_time", "start_time"])->get();
+        $watchTimes = Cache::get("watchtime_user{$user->id}_video{$video->id}");
+        //$watchTimes = DB::table('watch_times')->where('video_id', $video->id)->where('user_id', $user->id)->select(["end_time", "start_time"])->get();
 
         $totalTimes = [];
         foreach ($watchTimes as $watchTime){
