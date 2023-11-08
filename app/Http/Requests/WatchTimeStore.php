@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -47,11 +48,12 @@ class WatchTimeStore extends FormRequest
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
-            $lastWatchTime = DB::table('watch_times')
+            $lastWatchTime = Cache::get("watchtime_user{$user->id}_last");
+            /*$lastWatchTime = DB::table('watch_times')
                 ->where('user_id', $user->id)
                 //->where('video_id', $video->id)
                 ->orderByDesc('created_at')
-                ->first();
+                ->first();*/
 
             if(!$lastWatchTime){
                 return;
