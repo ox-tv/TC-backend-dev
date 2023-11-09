@@ -6,6 +6,7 @@ use App\Events\VideoWatched;
 use App\Models\TokenPoint;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TokenPointsForVideoWatched
@@ -45,20 +46,27 @@ class TokenPointsForVideoWatched
 
         $durationInMinute = intval($watchTimeDuration / 60);
 
-        $row = TokenPoint::where('date', Carbon::now()->startOfDay())
-            ->where('user_id', $user->id)
-            ->whereIn('type', [TokenPoint::TYPE_WATCH_A_VIDEO, TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO])->first();
+
+        $type = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
+        $row = Cache::remember("tokenpoint_user{$user->id}_type{$type}_current", 60 * 60 * 24 , function () use ($user, $type){
+            return TokenPoint::where('date', Carbon::now()->startOfDay())
+                ->where('user_id', $user->id)
+                ->where('type', $type)
+                ->first();
+        });
 
         if ($row){
             $row->amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
             $row->save();
         }else{
-            $this->tokenPointRepository->add([
+            $row = $this->tokenPointRepository->add([
                 'user_id' => $user->id,
-                'type' => $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO,
+                'type' => $type,
                 'amount' => $user->is_hero? $durationInMinute * 2 : $durationInMinute,
             ]);
         }
+
+        Cache::put("tokenpoint_user{$user->id}_type{$type}_current", $row, 60 * 60 * 24);
 
         return true;
     }
