@@ -66,7 +66,7 @@ class TokenPointsForVideoWatched
             ]);
         }
 
-        Cache::put("tokenpoint_user{$user->id}_type{$type}_current", $row, 60 * 60 * 24);
+        Cache::put("tokenpoint_user{$user->id}_type{$type}_current", $row, Carbon::now()->endOfDay());
 
         return true;
     }
