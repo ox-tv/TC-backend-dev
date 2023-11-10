@@ -98,7 +98,7 @@ class CoinbaseController extends Controller
                 $transactionChangeFlag = true;
             }
 
-            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user){
+            DB::transaction(function () use ($pricingUser, $transaction, $transactionChangeFlag, $user, $userBeforeUpdate){
                 $plan = $pricingUser->pricing->plan;
 
                 $pricingUser->save();
@@ -114,12 +114,10 @@ class CoinbaseController extends Controller
                         $user->hero_due_at = Carbon::now()->addDays($plan->interval);
                     }
                     $user->save();
+
+                    event(new BuyingHeroMemberShipCompleted($userBeforeUpdate, $pricingUser));
                 }
             });
-
-            if ($transactionChangeFlag && $pricingUser->status == PricingUser::STATUS_COMPLETED){
-                event(new BuyingHeroMemberShipCompleted($userBeforeUpdate, $pricingUser));
-            }
         }
 
         return true;
