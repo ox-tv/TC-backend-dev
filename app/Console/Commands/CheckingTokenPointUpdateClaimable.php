@@ -45,7 +45,7 @@ class CheckingTokenPointUpdateClaimable extends Command
     public function handle()
     {
         $polyganClient = new TCPolygonClient();
-        $carbonNow = Carbon::now()->startOfDay();
+        $carbonNow = Carbon::now();
         $carbonStartOfDay = Carbon::now()->startOfDay();
 
         $tokenPoints = TokenPoint::raw(function($collection) use ($carbonStartOfDay) {
