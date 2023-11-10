@@ -59,7 +59,7 @@ class WatchTimeStore extends FormRequest
                 return;
             }
 
-            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration + 1)->format('Y-m-d H:i:s')) {
+            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration - 1)->format('Y-m-d H:i:s')) {
                 $validator->errors()->add('watch_time', 'Your watch time duration is bigger than datetime of last submitted watch time record.');
             }
         });
