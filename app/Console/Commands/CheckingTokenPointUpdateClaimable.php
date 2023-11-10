@@ -45,12 +45,13 @@ class CheckingTokenPointUpdateClaimable extends Command
     public function handle()
     {
         $polyganClient = new TCPolygonClient();
-        $carbonNow = Carbon::now();
+        $carbonNow = Carbon::now()->startOfDay();
+        $carbonStartOfDay = Carbon::now()->startOfDay();
 
-        $tokenPoints = TokenPoint::raw(function($collection) use ($carbonNow) {
+        $tokenPoints = TokenPoint::raw(function($collection) use ($carbonStartOfDay) {
             return $collection->aggregate([
                 ['$match' => [
-                    'activate_at' => ['$lte'=> TokenPoint::fromDateTime($carbonNow)],
+                    'activate_at' => ['$lt'=> TokenPoint::fromDateTime($carbonStartOfDay)],
                     'claimable_at' => ['$eq'=> null],
                 ]],
                 ['$group' => [
@@ -91,7 +92,7 @@ class CheckingTokenPointUpdateClaimable extends Command
         }
 
         TokenPoint::whereNull('claimable_at')
-        ->where('activate_at', '<=', $carbonNow)
+        ->where('activate_at', '<', $carbonStartOfDay)
         ->whereIn('user_id', $finalUserIds)
         ->update([
             'claimable_at' => TokenPoint::fromDateTime($carbonNow)
