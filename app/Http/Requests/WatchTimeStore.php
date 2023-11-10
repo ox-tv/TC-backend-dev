@@ -44,7 +44,7 @@ class WatchTimeStore extends FormRequest
             //$video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
             $duration = $this->get('end_time') - $this->get('start_time') - 1;
 
-            if ($duration > 32){
+            if ($duration > 50){
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
@@ -59,7 +59,7 @@ class WatchTimeStore extends FormRequest
                 return;
             }
 
-            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration)->format('Y-m-d H:i:s')) {
+            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration + 1)->format('Y-m-d H:i:s')) {
                 $validator->errors()->add('watch_time', 'Your watch time duration is bigger than datetime of last submitted watch time record.');
             }
         });
