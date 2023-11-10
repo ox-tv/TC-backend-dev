@@ -48,7 +48,7 @@ class TokenPointsForVideoWatched
 
 
         $type = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
-        $row = Cache::remember("tokenpoint_user{$user->id}_type{$type}_current", 60 * 60 * 24 , function () use ($user, $type){
+        $row = Cache::remember("tokenpoint_user{$user->id}_type{$type}_current", Carbon::now()->endOfDay() , function () use ($user, $type){
             return TokenPoint::where('date', Carbon::now()->startOfDay())
                 ->where('user_id', $user->id)
                 ->where('type', $type)
