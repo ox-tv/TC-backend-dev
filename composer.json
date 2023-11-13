@@ -32,6 +32,7 @@
         "overtrue/laravel-passport-cache-token": "^3.2",
         "php-ffmpeg/php-ffmpeg": "^0.17.0",
         "pragmarx/google2fa": "^8.0",
+        "predis/predis": "^2.2",
         "pusher/pusher-php-server": "~3.0",
         "simplito/elliptic-php": "^1.0",
         "spatie/db-dumper": "^2.21"
