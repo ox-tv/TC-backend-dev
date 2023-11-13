@@ -27,7 +27,7 @@ class CoinbaseController extends Controller
         $data       = json_decode( $payload, true );
         $eventData = $data['event']['data'];
 
-        Log::info( 'Webhook received event: ', ['data' => $data] );
+        //Log::info( 'Webhook received event: ', ['data' => $data] );
 
         if ( ! isset( $eventData['metadata']['source'] ) ) {
             // Probably a charge not created by us.
