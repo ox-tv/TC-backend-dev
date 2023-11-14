@@ -53,6 +53,7 @@ class CheckingTokenPointUpdateClaimable extends Command
                 ['$match' => [
                     'activate_at' => ['$lt'=> TokenPoint::fromDateTime($carbonStartOfDay)],
                     'claimable_at' => ['$eq'=> null],
+                    'amount' => ['$gt'=> 0],
                 ]],
                 ['$group' => [
                     '_id' => '$user_id',
@@ -62,6 +63,7 @@ class CheckingTokenPointUpdateClaimable extends Command
                 ['$match' => [
                     '$or' => [['points' => ['$gte'=> 500]], ['user_id' => [ '$in' => TokenPoint::whereNotNull('claimable_at')->pluck('user_id')->toArray() ]]],
                 ]],
+                [ '$limit' => 10 ]
             ]);
         });
 
