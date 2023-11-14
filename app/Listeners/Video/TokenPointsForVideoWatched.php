@@ -46,6 +46,9 @@ class TokenPointsForVideoWatched
 
         $durationInMinute = intval($watchTimeDuration / 60);
 
+        $maxMinutesToEarn = $user->is_hero? 180 : 1440;
+        $durationInMinute = min($durationInMinute, $maxMinutesToEarn);
+
 
         $type = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
         $row = Cache::remember("tokenpoint_user{$user->id}_type{$type}_current", Carbon::now()->endOfDay() , function () use ($user, $type){
