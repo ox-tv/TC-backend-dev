@@ -46,7 +46,7 @@ class TokenPointsForVideoWatched
 
         $durationInMinute = intval($watchTimeDuration / 60);
 
-        $maxMinutesToEarn = $user->is_hero? 180 : 1440;
+        $maxMinutesToEarn = 1440; //$user->is_hero? 180 : 1440;
         $durationInMinute = min($durationInMinute, $maxMinutesToEarn);
 
 
