@@ -34,21 +34,17 @@ class SendNotificationOnUserVerified
         ));
 
 
-        // Send Mail and Notification to referral user
-        if ($user->referrer_id){
-            Mail::to($user->email)
-                ->queue(new WelcomeToReferralUserMail());
+        // Send Mail and Notification to new user
+        Mail::to($user->email)
+            ->queue(new WelcomeToReferralUserMail());
 
-            $welcomeText = "You are gifted two months of free Hodl Membership, meaning you can enjoy Today’s Crypto utterly free from Ads and unlimited tracking of coins/tokens. Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience.
+        $welcomeText = "You are gifted a seven-day trial of our HODL Membership, meaning you can enjoy Today’s Crypto utterly free from Ads and unlimited tracking of coins/tokens. You will also have the highest token reward for watching your favorite content during this trial. Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience. You will also earn your first 50 TCG tokens for doing so! Happy streaming.";
 
-Best wishes from the team at Today’s Crypto";
-
-            TCNotification::Send(collect([$user]), new GeneralNotification(
-                Notification::TYPE_WELCOME_TO_REFERRAL_USERS,
-                Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
-                ['message' => $welcomeText, 'subject' => "Congratulation, and welcome to Today’s Crypto!"]
-            ));
-        }
+        TCNotification::Send(collect([$user]), new GeneralNotification(
+            Notification::TYPE_WELCOME_TO_REFERRAL_USERS,
+            Notification::SCOPE_TEXT[Notification::SCOPE_GLOBAL],
+            ['message' => $welcomeText, 'subject' => "Congratulations, and welcome to Today’s Crypto!"]
+        ));
 
         return true;
     }
