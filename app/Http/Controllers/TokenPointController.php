@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class TokenPointController extends Controller
 {
@@ -39,6 +40,7 @@ class TokenPointController extends Controller
             'today_tokens_distributed' => 0,
             'user_total_tokens' => null,
             'user_locked_tokens' => null,
+            'user_daily_watch_limit_reached' => null,
         ];
 
         $result['total_tokens_distributed'] = TokenPoint::sum('amount');
@@ -47,6 +49,7 @@ class TokenPointController extends Controller
         if (auth('api')->check()){
             $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
             $result['user_locked_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
+            $result['user_daily_watch_limit_reached'] = Cache::get('user_daily_watch_limit_reached');
         }
 
         return response()->json($result);
