@@ -9,6 +9,8 @@ use Aws\S3\S3Client;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
 use Storage;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +51,11 @@ class AppServiceProvider extends ServiceProvider
 
             return new Filesystem(new AwsS3Adapter($client, $config['account_id'], $config['bucket']));
         });
+
+        Request::setTrustedProxies(
+            ['REMOTE_ADDR'],
+            Request::HEADER_X_FORWARDED_FOR
+        );
 
     }
 }
