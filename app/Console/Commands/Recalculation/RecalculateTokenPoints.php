@@ -63,7 +63,7 @@ class RecalculateTokenPoints extends Command
                 ->where('type', $pointType)
                 ->first();
 
-            if ($yesterdayRow->amount < $amount){
+            if ($yesterdayRow && $yesterdayRow->amount < $amount){
                 $todayRow = TokenPoint::where('date', Carbon::now()->startOfDay())
                     ->where('user_id', $user->id)
                     ->where('type', $pointType)
