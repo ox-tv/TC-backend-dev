@@ -47,6 +47,8 @@ class TokenPointsForVideoWatched
         $durationInMinute = intval($watchTimeDuration / 60);
 
         $maxMinutesToEarn = $user->is_hero? 180 : 30;
+
+        if ($durationInMinute >= $maxMinutesToEarn){return true;}
         $durationInMinute = min($durationInMinute, $maxMinutesToEarn);
 
         Cache::put('user_daily_watch_limit_reached', $durationInMinute >= $maxMinutesToEarn, Carbon::now()->endOfDay());
