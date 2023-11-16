@@ -125,7 +125,7 @@ class EmailVerificationController extends Controller
             $user->email_verified_at = now();
             $user->status = User::STATUS_ACTIVE;
 
-            $user->hero_due_at = Carbon::now()->addDays(7);
+            //$user->hero_due_at = Carbon::now()->addDays(7);
 
             $user->save();
 
