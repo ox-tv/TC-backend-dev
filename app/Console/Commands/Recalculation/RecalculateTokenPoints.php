@@ -45,20 +45,20 @@ class RecalculateTokenPoints extends Command
     {
         $this->tokenPointRepository = new TokenPointRepository();
 
-        $user_ids = TokenPoint::where('date', Carbon::now()->subDays(2)->startOfDay())
+        $user_ids = TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
             ->where('type', TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO)
             ->where('amount', 360)
             ->pluck('user_id')->toArray();
 
-        $user_ids = array_merge($user_ids, TokenPoint::where('date', Carbon::now()->subDays(2)->startOfDay())
+        $user_ids = array_merge($user_ids, TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
             ->where('type', TokenPoint::TYPE_WATCH_A_VIDEO)
             ->where('amount', 30)
             ->pluck('user_id')->toArray());
 
         $watchTimes = DB::table('watch_times')
             ->whereIn('user_id', $user_ids)
-            ->whereDate('created_at', '>=', Carbon::today()->subDays(2)->startOfDay())
-            ->whereDate('created_at', '<=', Carbon::today()->subDays(1)->endOfDay())
+            ->whereDate('created_at', '>=', Carbon::today()->subDays(1)->startOfDay())
+            //->whereDate('created_at', '<=', Carbon::today()->subDays(1)->endOfDay())
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
             ->get();
@@ -70,12 +70,12 @@ class RecalculateTokenPoints extends Command
             $durationInMinute = intval($watchTime->duration / 60);
             $amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
 
-            $yesterdayRow = TokenPoint::where('date', Carbon::now()->subDays(2)->startOfDay())
+            $yesterdayRow = TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
                 ->where('user_id', $user->id)
                 ->where('type', $pointType)
                 ->first();
 
-            $todayRow = TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
+            $todayRow = TokenPoint::where('date', Carbon::now()/*->subDays(1)*/->startOfDay())
                 ->where('user_id', $user->id)
                 ->where('type', $pointType)
                 ->first();
