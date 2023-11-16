@@ -82,7 +82,7 @@ class RecalculateTokenPoints extends Command
 
             $submitedAmount = ($yesterdayRow? $yesterdayRow->amount : 0) + ($todayRow? $todayRow->amount : 0);
 
-            if ($amount < $submitedAmount){
+            if ($amount > $submitedAmount){
                 if ($todayRow){
                     $todayRow->amount = $todayRow->amount + ($amount - $submitedAmount);
                     $todayRow->save();
