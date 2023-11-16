@@ -38,7 +38,7 @@ class SendNotificationOnUserVerified
         Mail::to($user->email)
             ->queue(new WelcomeToReferralUserMail());
 
-        $welcomeText = "You are gifted a seven-day trial of our HODL Membership, meaning you can enjoy Today’s Crypto utterly free from Ads and unlimited tracking of coins/tokens. You will also have the highest token reward for watching your favorite content during this trial. Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience. You will also earn your first 50 TCG tokens for doing so! Happy streaming.";
+        $welcomeText = "Set up your custom content feed by clicking the “Customize” button next to your “Videos for you” section on the home page for the best possible experience. You will also earn your first 25 TCG tokens for doing so! Happy streaming.";
 
         TCNotification::Send(collect([$user]), new GeneralNotification(
             Notification::TYPE_WELCOME_TO_REFERRAL_USERS,

@@ -508,13 +508,9 @@
                                                     <div style="text-align: center;"><p style="color:#202020">
                                                             <strong><span style="font-size:18px">Congratulations, and welcome to Today’s Crypto!</span></strong><br>
                                                             <br>
-                                                            You are gifted a seven-day trial of our HODL Membership, meaning
-                                                            you can enjoy Today’s Crypto utterly free from Ads and
-                                                            unlimited tracking of coins/tokens. You will also have
-                                                            the highest token reward for watching your favorite content during this trial.
                                                             Set up your custom content feed by clicking the “Customize” button next to your
-                                                            “Videos for you” section on the home page for the best
-                                                            possible experience. You will also earn your first 50 TCG tokens for doing so! Happy streaming.</p></div>
+                                                            “Videos for you” section on the home page for the best possible experience.
+                                                            You will also earn your first 25 TCG tokens for doing so! Happy streaming.</p></div>
 
                                                 </td>
                                             </tr>
