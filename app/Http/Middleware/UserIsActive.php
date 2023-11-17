@@ -19,15 +19,16 @@ class UserIsActive
      */
     public function handle(Request $request, Closure $next)
     {
+
         $user = auth('api')->user();
 
-        if ($user->status == User::STATUS_INACTIVE){
+        if ($user && $user->status == User::STATUS_INACTIVE){
 
-            if($request->user()->token()){
-                $request->user()->token()->revoke();
-            }
+            $user->tokens->each(function($token, $key) {
+                $token->delete();
+            });
 
-            abort(401, 'User is not active!');
+            return $next($request);
         }
 
         if (($user = auth('api')->user()) && !Cache::has('user_'.$user->id.'_last_actived_at_stored')){
