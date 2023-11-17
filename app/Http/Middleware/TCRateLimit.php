@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class TCRateLimit
@@ -42,6 +43,7 @@ class TCRateLimit
     public function terminate(Request $request, Response $response): void
     {
         $ip = getClientIP($request);
-        dump($ip);
+        Log::channel('coinmarketcap')->error($ip);
+        //dump($ip);
     }
 }
