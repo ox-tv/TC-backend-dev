@@ -15,8 +15,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    dd(getUserIP(request()), request()->getClientIp());
     return view('welcome');
 });
+
+function getUserIP($request){
+    if( !empty( $request->server('HTTP_CF_CONNECTING_IP') ) ){
+
+        return $request->server('HTTP_CF_CONNECTING_IP');
+
+    }else{
+
+        return $request->getClientIp();
+
+    }
+}
 
 
 
