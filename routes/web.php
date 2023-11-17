@@ -15,21 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    dd(getUserIP(request()), request()->getClientIp());
+    //dd(getClientIP(request()), request()->getClientIp());
+    return response()->json(['data']);
     return view('welcome');
-});
+})->middleware('waf.ratelimit');
 
-function getUserIP($request){
-    if( !empty( $request->server('HTTP_CF_CONNECTING_IP') ) ){
-
-        return $request->server('HTTP_CF_CONNECTING_IP');
-
-    }else{
-
-        return $request->getClientIp();
-
-    }
-}
 
 
 
