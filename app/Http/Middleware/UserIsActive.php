@@ -19,6 +19,7 @@ class UserIsActive
      */
     public function handle(Request $request, Closure $next)
     {
+
         $user = auth('api')->user();
 
         if ($user && $user->status == User::STATUS_INACTIVE){
