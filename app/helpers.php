@@ -154,3 +154,13 @@ if(!function_exists('is_json_string')){
         return json_last_error() === JSON_ERROR_NONE;
     }
 }
+
+if(!function_exists('getClientIP')){
+    function getClientIP($request){
+        if( !empty( $request->server('HTTP_CF_CONNECTING_IP') ) ){
+            return $request->server('HTTP_CF_CONNECTING_IP');
+        }else{
+            return $request->getClientIp();
+        }
+    }
+}
