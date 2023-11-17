@@ -287,8 +287,6 @@ class LoginController extends Controller
                 $user->referrer_id = $referrer->id;
             }
 
-            $user->registration_ip = getClientIP($request);
-
             $user->save();
 
             event(new UserVerified($user));
