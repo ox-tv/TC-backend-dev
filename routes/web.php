@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SecurityRateLimit;
 use App\TCNotification\GeneralNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+
     //dd(Carbon::now()->toDateTimeString());
-    //dd(getClientIP(request()), request()->getClientIp());
+    dump(getClientIP(request()), request()->getClientIp());
     return response()->json(['data']);
     return view('welcome');
 })->middleware('waf.ratelimit:4,1,m,1,D');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SecurityRateLimit;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
@@ -38,7 +39,12 @@ class TCRateLimit
         $datetime = Carbon::now()->toDateTimeString();
 
         if (Cache::get("{$routeName}.ip{$ip}.block")){
-            Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
+            $this->saveToDB([
+                'ip_address' => $ip,
+                'user_id' => $userID,
+                'route' => $routeName,
+            ]);
+            //Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
             abort(403, "Too many Requests...");
         }
 
@@ -47,7 +53,12 @@ class TCRateLimit
 
         if ($count > $maxRequest){
             Cache::put("{$routeName}.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
-            Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
+            //Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
+            $this->saveToDB([
+                'ip_address' => $ip,
+                'user_id' => $userID,
+                'route' => $routeName,
+            ]);
             abort(403, "Too many Requests...");
         }
 
@@ -125,5 +136,14 @@ class TCRateLimit
         }
 
         return $ttlCache;
+    }
+
+    private function saveToDB($data)
+    {
+        SecurityRateLimit::create([
+            'ip_address' => $data['ip_address'],
+            'user_id' => $data['user_id'],
+            'route' => $data['route'],
+        ]);
     }
 }
