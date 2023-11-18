@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store');
+    Route::post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store')->middleware('waf.ratelimit:4,1,m,1,D');
 
     // Video like/dislike routes
     Route::put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like')->middleware('user.unmute');

@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    //dd(Carbon::now()->toDateTimeString());
     //dd(getClientIP(request()), request()->getClientIp());
     return response()->json(['data']);
     return view('welcome');
-})->middleware('waf.ratelimit:3,30,s,1,m');
+})->middleware('waf.ratelimit:4,1,m,1,D');
 
 
 
