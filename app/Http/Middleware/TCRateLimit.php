@@ -33,7 +33,7 @@ class TCRateLimit
         $blockUnit = $params[4]; // h
 
         $ip = getClientIP($request);
-        $userID = $request->user()->id;
+        $userID = $request->user()? $request->user()->id: null;
         $routeName = $request->route()->getActionName();
 
         if (Cache::get("{$routeName}.ip{$ip}.block")){
