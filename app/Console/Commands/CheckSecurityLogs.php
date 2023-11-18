@@ -36,7 +36,9 @@ class CheckSecurityLogs extends Command
         $logFileHandle = fopen(storage_path().'/logs/ratelimit/api-2023-11-18.log', 'r');
 
         if ($logFileHandle) {
+            $lineNumber = 0;
             while (($line = fgets($logFileHandle)) !== false) {
+                dump($lineNumber);
                 $dataPart = explode("production.ERROR:", $line)[1];
                 $data = explode(" / ", $dataPart);
 
@@ -56,6 +58,8 @@ class CheckSecurityLogs extends Command
                 $securityRateLimit->created_at = $dateTime;
 
                 $securityRateLimit->save();
+
+                $lineNumber++;
 
             }
 
