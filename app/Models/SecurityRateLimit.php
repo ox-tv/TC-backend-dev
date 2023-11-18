@@ -20,5 +20,7 @@ class SecurityRateLimit extends Model
     }
 
     protected $fillable = ['ip_address','user_id','route'];
-
+    protected $casts = [
+        'created_at' => 'datetime'
+    ];
 }
