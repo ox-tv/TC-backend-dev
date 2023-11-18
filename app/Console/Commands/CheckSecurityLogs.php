@@ -53,7 +53,7 @@ class CheckSecurityLogs extends Command
                 $securityRateLimit->timestamps = false;
 
                 $securityRateLimit->ip_address = $ip;
-                $securityRateLimit->user_id = $userId;
+                $securityRateLimit->user_id = intval($userId);
                 $securityRateLimit->route = $route;
                 $securityRateLimit->created_at = $dateTime;
 
