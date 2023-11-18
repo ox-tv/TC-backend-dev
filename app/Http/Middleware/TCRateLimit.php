@@ -32,17 +32,16 @@ class TCRateLimit
         $blockNumber = $params[3]; // 1
         $blockUnit = $params[4]; // h
 
-
         $ip = getClientIP($request);
-        if (Cache::get("watchtime.ip{$ip}.block")){
+        if (Cache::get("{$request->route()->getActionName()}.ip{$ip}.block")){
             abort(403, "Too many Requests...");
         }
 
 
-        $count = Cache::get("watchtime.ip{$ip}.count");
+        $count = intval(Cache::get("{$request->route()->getActionName()}.ip{$ip}.count"));
 
         if ($count > $maxRequest){
-            Cache::put("watchtime.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
+            Cache::put("{$request->route()->getActionName()}.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
             abort(403, "Too many Requests...");
         }
 
@@ -63,9 +62,9 @@ class TCRateLimit
         $blockUnit = $params[4]; // h
 
         $ip = getClientIP($request);
-        $count = Cache::get("watchtime.ip{$ip}.count")??0;
-        $count++;
-        Cache::put("watchtime.ip{$ip}.count", $count, $this->getCacheTTLByPeriod($periodNumber, $periodUnit));
+        $count = intval(Cache::get("{$request->route()->getActionName()}.ip{$ip}.count"));
+        $count = $count + 1;
+        Cache::put("{$request->route()->getActionName()}.ip{$ip}.count", $count, $this->getCacheTTLByPeriod($periodNumber, $periodUnit));
     }
 
 
