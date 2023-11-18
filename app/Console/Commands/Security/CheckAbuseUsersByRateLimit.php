@@ -16,7 +16,7 @@ class CheckAbuseUsersByRateLimit extends Command
      *
      * @var string
      */
-    protected $signature = 'tc:security:ratelimit:check-abuse-users';
+    protected $signature = 'tc:security:rate-limit:check-abuse-users';
 
     /**
      * The console command description.
