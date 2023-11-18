@@ -57,7 +57,7 @@ class RegisterController extends Controller
             $user->referrer_id = $referrer->id;
         }
 
-        $user->registration_ip = $request->ip();
+        $user->registration_ip = getClientIP($request);
 
         $user->save();
 
