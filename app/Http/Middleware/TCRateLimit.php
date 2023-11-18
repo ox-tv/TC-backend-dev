@@ -35,9 +35,10 @@ class TCRateLimit
         $ip = getClientIP($request);
         $userID = $request->user()? $request->user()->id: null;
         $routeName = $request->route()->getActionName();
+        $datetime = Carbon::now()->toDateTimeString();
 
         if (Cache::get("{$routeName}.ip{$ip}.block")){
-            Log::channel('ratelimit')->error("IP:{$ip} -> UserID: {$userID} -> {$routeName}");
+            Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
             abort(403, "Too many Requests...");
         }
 
@@ -46,7 +47,7 @@ class TCRateLimit
 
         if ($count > $maxRequest){
             Cache::put("{$routeName}.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
-            Log::channel('ratelimit')->error("IP:{$ip} -> UserID: {$userID} -> {$routeName}");
+            Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
             abort(403, "Too many Requests...");
         }
 
@@ -79,15 +80,15 @@ class TCRateLimit
     {
         switch ($periodUnit){
             case 's':{
-                $ttlCache = Carbon::now()->setSecond(ceil(Carbon::now()->second / $periodNumber) * $periodNumber)->setMillisecond(0);
+                $ttlCache = Carbon::now()->setSecond(floor(Carbon::now()->second / $periodNumber + 1) * $periodNumber)->setMillisecond(0);
                 break;
             }
             case 'm':{
-                $ttlCache = Carbon::now()->setMinute(ceil(Carbon::now()->minute / $periodNumber) * $periodNumber)->setSecond(0)->setMillisecond(0);
+                $ttlCache = Carbon::now()->setMinute(floor((Carbon::now()->minute) / $periodNumber + 1) * $periodNumber)->setSecond(0)->setMillisecond(0);
                 break;
             }
             case 'h':{
-                $ttlCache = Carbon::now()->setHour(ceil(Carbon::now()->hour / $periodNumber) * $periodNumber)->setMinute(0)->setSecond(0)->setMillisecond(0);
+                $ttlCache = Carbon::now()->setHour(floor(Carbon::now()->hour / $periodNumber + 1) * $periodNumber)->setMinute(0)->setSecond(0)->setMillisecond(0);
                 break;
             }
             default:{
