@@ -33,15 +33,20 @@ class TCRateLimit
         $blockUnit = $params[4]; // h
 
         $ip = getClientIP($request);
-        if (Cache::get("{$request->route()->getActionName()}.ip{$ip}.block")){
+        $userID = $request->user()->id;
+        $routeName = $request->route()->getActionName();
+
+        if (Cache::get("{$routeName}.ip{$ip}.block")){
+            Log::channel('ratelimit')->error("IP:{$ip} -> UserID: {$userID} -> {$routeName}");
             abort(403, "Too many Requests...");
         }
 
 
-        $count = intval(Cache::get("{$request->route()->getActionName()}.ip{$ip}.count"));
+        $count = intval(Cache::get("{$routeName}.ip{$ip}.count"));
 
         if ($count > $maxRequest){
-            Cache::put("{$request->route()->getActionName()}.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
+            Cache::put("{$routeName}.ip{$ip}.block", true, $this->getCacheTTLFromNow($blockNumber, $blockUnit));
+            Log::channel('ratelimit')->error("IP:{$ip} -> UserID: {$userID} -> {$routeName}");
             abort(403, "Too many Requests...");
         }
 
@@ -62,9 +67,11 @@ class TCRateLimit
         $blockUnit = $params[4]; // h
 
         $ip = getClientIP($request);
-        $count = intval(Cache::get("{$request->route()->getActionName()}.ip{$ip}.count"));
+        $routeName = $request->route()->getActionName();
+
+        $count = intval(Cache::get("{$routeName}.ip{$ip}.count"));
         $count = $count + 1;
-        Cache::put("{$request->route()->getActionName()}.ip{$ip}.count", $count, $this->getCacheTTLByPeriod($periodNumber, $periodUnit));
+        Cache::put("{$routeName}.ip{$ip}.count", $count, $this->getCacheTTLByPeriod($periodNumber, $periodUnit));
     }
 
 
