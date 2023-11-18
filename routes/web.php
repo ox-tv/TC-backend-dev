@@ -1,6 +1,7 @@
 <?php
 
 use App\TCNotification\GeneralNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,7 +19,7 @@ Route::get('/', function () {
     //dd(getClientIP(request()), request()->getClientIp());
     return response()->json(['data']);
     return view('welcome');
-})->middleware('waf.ratelimit');
+})->middleware('waf.ratelimit:3,30,s,1,m');
 
 
 
