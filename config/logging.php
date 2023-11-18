@@ -109,6 +109,14 @@ return [
             'permission' => 0644,
         ],
 
+        'ratelimit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ratelimit/api.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'permission' => 0644,
+        ],
+
         'coingecko' => [
             'driver' => 'daily',
             'path' => storage_path('logs/coingecko/api.log'),
