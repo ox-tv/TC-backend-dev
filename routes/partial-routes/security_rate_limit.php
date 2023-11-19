@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('security-rate-limit/report', '\App\Http\Controllers\SecurityRateLimitController@index');
+Route::get('security-rate-limit/restore', '\App\Http\Controllers\SecurityRateLimitController@restoreBlockedTokens');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){

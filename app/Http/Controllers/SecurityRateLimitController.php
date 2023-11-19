@@ -13,6 +13,8 @@ use App\Repository\Eloquent\TagRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use phpDocumentor\Reflection\Types\Null_;
 
 class SecurityRateLimitController extends Controller
 {
@@ -58,4 +60,12 @@ class SecurityRateLimitController extends Controller
         return response()->json(['group_by_user' => $data, 'amount_of_users_below_100_requests' => $amount]);
     }
 
+    public function restoreBlockedTokens()
+    {
+        $userId = 52263;
+
+        TokenPoint::where('user_id', $userId)->whereNotNull('claimable_by')->update(['claimable_at' => null, 'claimable_by' => null]);
+
+        Cache::forget("\App\Http\Controllers\VideoController@watch_time_store.ip212.68.59.152.block");
+    }
 }
