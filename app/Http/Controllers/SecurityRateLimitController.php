@@ -48,7 +48,7 @@ class SecurityRateLimitController extends Controller
                     ],
                 ]],
                 ['$match' => [
-                    'count' => ['$lte'=> 100],
+                    'count' => ['$lte'=> 300],
                 ]],
                 ['$sort' => ['count' => -1]],
             ]);
@@ -62,6 +62,27 @@ class SecurityRateLimitController extends Controller
 
     public function restoreBlockedTokens()
     {
+        $rows = (new SecurityRateLimit())->setCollection('rate_limit_2023-11-18')->raw(function($collection){
+            return $collection->aggregate([
+                ['$group' => [
+                    '_id' => '$user_id',
+                    'count' => [
+                        '$sum' => 1
+                    ],
+                ]],
+                ['$match' => [
+                    'count' => ['$gte'=> 100, '$lte'=> 300],
+                ]],
+                ['$sort' => ['count' => -1]],
+            ]);
+        })->pluck('_id')->toArray();
+
+        $userIds = array_map(function($user_id){ return intval($user_id); }, $rows);
+
+        TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->update(['claimable_at' => null, 'claimable_by' => null]);
+
+        return response()->json(['status' => 'ok']);
+
         $userId = 66847;
 
         TokenPoint::where('user_id', $userId)->whereNotNull('claimable_by')->update(['claimable_at' => null, 'claimable_by' => null]);
