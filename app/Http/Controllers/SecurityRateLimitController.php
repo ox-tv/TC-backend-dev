@@ -21,43 +21,69 @@ class SecurityRateLimitController extends Controller
 
     public function index(Request $request)
     {
-        $data = SecurityRateLimit::raw(function($collection){
-            return $collection->aggregate([
-                /*['$match' => [
-                    //'date' => ['$gte'=> SecurityRateLimit::fromDateTime(Carbon::now()->subDays(3))],
-                    //'video_id' => ['$in'=> $podcastIds],
-                ]],*/
-                ['$group' => [
-                    '_id' => '$user_id',
-                    'count' => [
-                        '$sum' => 1
-                    ],
-                ]],
-                ['$sort' => ['count' => -1]],
-                /*['$limit' => 24]*/
-            ]);
-        });
+        $result = [
+            'user_id' => [],
+            'ip_address' => [],
+            'route' => [],
+        ];
+
+        $filters = $request->get('filters', []);
+        $ipAddressFilter = Arr::get($filters, 'ip_address');
+        $userIdFilter = intval(Arr::get($filters, 'user_id'));
+        $routeFilter = Arr::get($filters, 'route');
+        $dateFilter = Carbon::parse(Arr::get($filters, 'date')? Arr::get($filters, 'date') : Carbon::now() )->format('Y-m-d');
+
+        $match = [];
+
+        if (!empty($userIdFilter)){
+            $match['user_id'] = $userIdFilter;
+        }
+
+        if (!empty($ipAddressFilter)){
+            $match['ip_address'] = $ipAddressFilter;
+        }
+
+        if (!empty($routeFilter)){
+            $match['route'] = $routeFilter;
+        }
+
+        $aggregateUserId = [];
+        $aggregateIpAddress = [];
+        $aggregateRoute = [];
+
+        if (!empty($match)){
+            $aggregateUserId[] = ['$match' => $match];
+            $aggregateIpAddress[] = ['$match' => $match];
+            $aggregateRoute[] = ['$match' => $match];
+        }
+
+        $aggregateUserId[] = ['$group' => ['_id' => '$user_id', 'count' => ['$sum' => 1],]];
+        $aggregateIpAddress[] = ['$group' => ['_id' => '$ip_address', 'count' => ['$sum' => 1],]];
+        $aggregateRoute[] = ['$group' => ['_id' => '$route', 'count' => ['$sum' => 1],]];
+
+        $aggregateUserId[] = ['$sort' => ['count' => -1]];
+        $aggregateIpAddress[] = ['$sort' => ['count' => -1]];
+        $aggregateRoute[] = ['$sort' => ['count' => -1]];
 
 
-        $userIds = SecurityRateLimit::raw(function($collection){
-            return $collection->aggregate([
-                ['$group' => [
-                    '_id' => '$user_id',
-                    'count' => [
-                        '$sum' => 1
-                    ],
-                ]],
-                ['$match' => [
-                    'count' => ['$lte'=> 300],
-                ]],
-                ['$sort' => ['count' => -1]],
-            ]);
-        })->pluck('_id')->toArray();
+        $result['user_id'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateUserId){
+                return $collection->aggregate($aggregateUserId);
+            });
 
-        $amount = TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->where('activate_at', '>=', Carbon::now()->subDay()->startOfDay())->sum('amount');
+        $result['ip_address'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateIpAddress){
+                return $collection->aggregate($aggregateIpAddress);
+            });
 
-
-        return response()->json(['group_by_user' => $data, 'amount_of_users_below_100_requests' => $amount]);
+        $result['route'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateRoute){
+                return $collection->aggregate($aggregateRoute);
+            });
+        return response()->json($result);
     }
 
     public function restoreBlockedTokens()
