@@ -62,10 +62,10 @@ class SecurityRateLimitController extends Controller
 
     public function restoreBlockedTokens()
     {
-        $userId = 52263;
+        $userId = 66847;
 
         TokenPoint::where('user_id', $userId)->whereNotNull('claimable_by')->update(['claimable_at' => null, 'claimable_by' => null]);
 
-        Cache::forget("\App\Http\Controllers\VideoController@watch_time_store.ip212.68.59.152.block");
+        Cache::forget("\App\Http\Controllers\VideoController@watch_time_store.ip2400:9800:390:2232:1353:ea75:470c:ed11.block");
     }
 }
