@@ -42,7 +42,7 @@ class CheckAbuseUsersByRateLimit extends Command
                     ],
                 ]],
                 ['$match' => [
-                    'count' => ['$gte'=> 200],
+                    'count' => ['$gte'=> 300],
                 ]],
                 ['$sort' => ['count' => -1]],
             ]);

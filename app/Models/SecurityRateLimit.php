@@ -19,6 +19,11 @@ class SecurityRateLimit extends Model
         $this->collection = 'rate_limit_' . Carbon::now()->format("Y-m-d");
     }
 
+    public function setCollection($collection) {
+        $this->collection = $collection;
+        return $this;
+    }
+
     protected $fillable = ['ip_address','user_id','route'];
     protected $casts = [
         'created_at' => 'datetime'
