@@ -2,14 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register')->middleware('waf.ratelimit:10,2,h,7,D');
+Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register')->middleware('waf.ratelimit:5,24,h,7,D');
 
 Route::post('login/magic/{scope?}', '\App\Http\Controllers\Auth\LoginController@sendMagicLogin')->where('scope', 'admin|publisher');
 Route::post('login/magic/{token}', '\App\Http\Controllers\Auth\LoginController@verifyMagicLogin');
 Route::post('login/{scope?}', '\App\Http\Controllers\Auth\LoginController@login')->where('scope', 'admin|publisher');
 Route::post('login-with-wallet/{scope?}', '\App\Http\Controllers\Auth\LoginController@loginWithWallet')
     ->where('scope', 'admin|publisher')
-    ->middleware('waf.ratelimit:10,2,h,7,D');
+    ->middleware('waf.ratelimit:5,24,h,7,D');
 
 Route::post('password/send', '\App\Http\Controllers\Auth\LoginController@send_password_reset_link');
 Route::get('password/verify/{token}', '\App\Http\Controllers\Auth\LoginController@verify_password_reset_token');
