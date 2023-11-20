@@ -9,6 +9,7 @@ use App\Http\Resources\Tag\TagResource;
 use App\Models\SecurityRateLimit;
 use App\Models\Tag;
 use App\Models\TokenPoint;
+use App\Models\User;
 use App\Repository\Eloquent\TagRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -114,5 +115,64 @@ class SecurityRateLimitController extends Controller
         TokenPoint::where('user_id', $userId)->whereNotNull('claimable_by')->update(['claimable_at' => null, 'claimable_by' => null]);
 
         Cache::forget("\App\Http\Controllers\VideoController@watch_time_store.ip2400:9800:390:2232:1353:ea75:470c:ed11.block");
+    }
+
+    public function disableUsers()
+    {
+        $userIds = [74658,
+            74657,
+            74656,
+            74653,
+            74652,
+            74651,
+            74650,
+            74649,
+            74648,
+            73770,
+            73765,
+            73764,
+            73763,
+            73759,
+            73758,
+            73757,
+            73756,
+            73755,
+            73754,
+            73552,
+            73551,
+            73550,
+            73549,
+            73548,
+            73547,
+            73546,
+            73545,
+            73544,
+            73543,
+            73425,
+            73424,
+            73423,
+            73422,
+            73417,
+            73416,
+            73415,
+            73414,
+            73413,
+            73412,
+            73346,
+            73344,
+            73343,
+            73342,
+            73324,
+            73323,
+            73322,
+            73301,
+            73300,
+            73299];
+        $carbonNow = Carbon::now();
+
+        TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime($carbonNow), 'claimable_by' => 'security.rate_limit']);
+        User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
+
+        return response()->json(['tokens' => TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->get()]);
     }
 }
