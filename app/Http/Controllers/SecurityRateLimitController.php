@@ -120,6 +120,8 @@ class SecurityRateLimitController extends Controller
     public function disableUsers()
     {
         $userIds = [58396];
+        $userIds = User::whereIn('referrer_id', $userIds)->pluck('id')->toArray();
+
         $carbonNow = Carbon::now();
 
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime($carbonNow), 'claimable_by' => 'security.rate_limit']);
