@@ -127,6 +127,12 @@ class SecurityRateLimitController extends Controller
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime($carbonNow), 'claimable_by' => 'security.rate_limit']);
         User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
 
+        $ipAddresses = User::whereIn('referrer_id', $userIds)->pluck('registration_ip')->toArray();
+        $ipAddresses = array_filter($ipAddresses);
+        foreach ($ipAddresses as $ipAddress){
+            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+        }
+
         return response()->json(['tokens' => TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->get()]);
     }
 }
