@@ -119,7 +119,7 @@ class SecurityRateLimitController extends Controller
 
     public function disableUsers()
     {
-        $userIds = [58396];
+        /*$userIds = [58396];
         $userIds = User::whereIn('referrer_id', $userIds)->pluck('id')->toArray();
 
         $ipAddresses = User::whereIn('id', $userIds)->pluck('registration_ip')->toArray();
@@ -141,8 +141,23 @@ class SecurityRateLimitController extends Controller
         $carbonNow = Carbon::now();
 
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime($carbonNow), 'claimable_by' => 'security.rate_limit']);
+        User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);*/
+
+        $ipAddress = '45.87.252.153';
+        $userIds = User::where('last_active_from_ip', $ipAddress)->pluck('id')->toArray();
+        TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
         User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
 
-        return response()->json(['user_ids'=>$userIds, 'tokens' => TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->get()]);
+        Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+        Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+        Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+
+
+        $userIds2 = User::whereIn('referrer_id', $userIds)->pluck('id')->toArray();
+        TokenPoint::whereIn('user_id', $userIds2)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
+        User::whereIn('id', $userIds2)->update(['status' => User::STATUS_INACTIVE]);
+
+
+        return response()->json(['user_ids'=>$userIds, 'user_ids2'=>$userIds2, 'tokens' => TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->get()]);
     }
 }
