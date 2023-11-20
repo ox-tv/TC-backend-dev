@@ -16,7 +16,7 @@ class CheckAbuseUsersByRateLimit extends Command
      *
      * @var string
      */
-    protected $signature = 'tc:security:rate-limit:check-abuse-users';
+    protected $signature = 'tc:security:rate-limit:check-abuse-users {--date=}';
 
     /**
      * The console command description.
@@ -32,8 +32,14 @@ class CheckAbuseUsersByRateLimit extends Command
      */
     public function handle()
     {
+        $date = Carbon::now()->format('Y-m-d');
+        if ($this->option('date') == 'yesterday'){
+            $date = Carbon::now()->subDay()->format('Y-m-d');
+        }
+
         // Unclaimable tokens if users has more than 100 blocked requests
-        $rows = SecurityRateLimit::raw(function($collection){
+        $rows = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$date}")->raw(function($collection){
             return $collection->aggregate([
                 ['$group' => [
                     '_id' => '$user_id',
@@ -55,7 +61,8 @@ class CheckAbuseUsersByRateLimit extends Command
 
 
         // Set status to inactive if users has more than 800 blocked requests
-        $rows = SecurityRateLimit::raw(function($collection){
+        $rows = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$date}")->raw(function($collection){
             return $collection->aggregate([
                 ['$group' => [
                     '_id' => '$user_id',
