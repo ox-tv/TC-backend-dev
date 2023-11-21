@@ -37,6 +37,8 @@ class UserResource extends JsonResource
             'identity_verified_at' => $this->identity_verified_at,
             'watch_time' => $this->watch_time,
             'referral_code' => $this->referral_code,
+            'registration_ip' => $this->whenAppended('registration_ip'),
+            'last_active_from_ip' => $this->whenAppended('last_active_from_ip'),
 
             // Custom attributes without query
             'is_hero' => $this->is_hero,
@@ -45,6 +47,7 @@ class UserResource extends JsonResource
             'idenfy_name_data' => $this->idenfy_name_data,
             'deletion_feedback' => $this->whenAppended('deletion_feedback'),
             'deleted_at' => $this->whenAppended('deleted_at'),
+            'status' => $this->whenAppended('status_text'),
 
             // Custom attributes with query
             'username' => $this->username,

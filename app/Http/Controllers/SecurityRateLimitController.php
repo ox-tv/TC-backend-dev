@@ -6,10 +6,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Tag\TagStore;
 use App\Http\Requests\Tag\TagUpdate;
 use App\Http\Resources\Tag\TagResource;
+use App\Http\Resources\User\UserResource;
+use App\Http\Resources\WatchTime\WatchTimeResource;
 use App\Models\SecurityRateLimit;
 use App\Models\Tag;
 use App\Models\TokenPoint;
 use App\Models\User;
+use App\Models\WatchTime;
 use App\Repository\Eloquent\TagRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -124,22 +127,25 @@ class SecurityRateLimitController extends Controller
 
     public function disableUsers()
     {
-        /*$userIds = [62290, 62292];
+        $userIds = [64011, 75288, 75289, 75290, 75291,74994,74993, 74992, 74977, 74976, 74975, 59679,74614,74613,74612,74611,74531
+        ,75112,75053,74844];
         $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
 
-        $userIds = User::whereIn('referrer_id', $userIds)->pluck('id')->toArray();
+        $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
 
         $ipAddresses = User::whereIn('id', $userIds)->pluck('registration_ip')->toArray();
         $ipAddresses = array_filter($ipAddresses);
         foreach ($ipAddresses as $ipAddress){
             Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
             Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+            Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
         }
 
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
-        User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);*/
+        User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
 
-        $ipAddress = '176.233.51.78';
+        $users = User::whereIn('id', $userIds)->get(['username','email', 'auth_wallet', 'registration_ip']);
+        /*$ipAddress = '176.233.51.78';
         $userIds = User::where('registration_ip', $ipAddress)->pluck('id')->toArray();
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
         User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
@@ -151,9 +157,39 @@ class SecurityRateLimitController extends Controller
 
         $userIds2 = User::whereIn('referrer_id', $userIds)->pluck('id')->toArray();
         TokenPoint::whereIn('user_id', $userIds2)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
-        User::whereIn('id', $userIds2)->update(['status' => User::STATUS_INACTIVE]);
+        User::whereIn('id', $userIds2)->update(['status' => User::STATUS_INACTIVE]);*/
 
 
-        return response()->json(['user_ids'=>$userIds, /*'user_ids2'=>$userIds2, */'tokens' => TokenPoint::whereIn('user_id', $userIds)->whereNotNull('claimable_by')->get()]);
+        return response()->json(['user_ids'=>$users]);
+    }
+
+    public function userInfo($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $user->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
+        $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+
+        return UserResource::make($user);
+    }
+
+    public function userReferrals(Request $request, $userId)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $users = User::where('referrer_id', $userId)->paginate($perPage);
+
+        $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+
+        return UserResource::collection($users);
+    }
+
+    public function userWatchTimes(Request $request, $userId)
+    {
+        $perPage = $request->get('per_page') ?: 15;
+
+        $watchTimes = WatchTime::where('user_id', $userId)->paginate($perPage);
+
+        return WatchTimeResource::collection($watchTimes);
     }
 }
