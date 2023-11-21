@@ -15,6 +15,7 @@ class TokenPointController extends Controller
     public function index(Request $request)
     {
         $adminRoute = $request->is('api/admin/*');
+        $perPage = $request->get('per_page') ?: 15;
 
         $filters = $request->get('filters', []);
         $userIdFilter = Arr::get($filters, 'user_id');
@@ -29,7 +30,7 @@ class TokenPointController extends Controller
             $query->where('user_id', intval($userIdFilter));
         }
 
-        return TokenPointResource::collection($query->paginate());
+        return TokenPointResource::collection($query->paginate($perPage));
     }
 
     public function overview()
