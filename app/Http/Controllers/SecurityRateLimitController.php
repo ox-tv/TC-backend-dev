@@ -26,6 +26,7 @@ class SecurityRateLimitController extends Controller
             'user_id' => [],
             'ip_address' => [],
             'route' => [],
+            'total' => 0,
         ];
 
         $filters = $request->get('filters', []);
@@ -84,6 +85,10 @@ class SecurityRateLimitController extends Controller
             ->raw(function($collection) use ($aggregateRoute){
                 return $collection->aggregate($aggregateRoute);
             });
+
+        $result['total'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")->count();
+
         return response()->json($result);
     }
 
