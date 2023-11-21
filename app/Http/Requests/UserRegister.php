@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Amir\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UserRegister extends FormRequest
@@ -41,6 +42,14 @@ class UserRegister extends FormRequest
                     $isDeleted = User::where('email', $value)->withTrashed()->whereNotNull('deleted_at')->exists();
                     if ($isDeleted) {
                         $fail(__('auth.account_deleted'));
+                    }
+                },
+                function($attribute, $value, $fail){
+                    // check if user is deleted
+                    $blackListDomains = ['gufum.com'];
+                    $domain = Str::after(strtolower($value), '@');
+                    if (in_array($domain, $blackListDomains)) {
+                        $fail(__('The domain for email address is not allowed. Please use another email address.'));
                     }
                 },
                 /*Rule::unique('users', 'email')->where(function($q) use($publisherRoleId) {
