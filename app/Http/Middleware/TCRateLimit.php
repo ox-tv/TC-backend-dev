@@ -43,6 +43,7 @@ class TCRateLimit
                 'ip_address' => $ip,
                 'user_id' => $userID,
                 'route' => $routeName,
+                'is_blocked' => true,
             ]);
             //Log::channel('ratelimit')->error("IP:{$ip} / date: {$datetime} / UserID: {$userID} / {$routeName}");
             abort(403, "Too many Requests...");
@@ -58,9 +59,17 @@ class TCRateLimit
                 'ip_address' => $ip,
                 'user_id' => $userID,
                 'route' => $routeName,
+                'is_blocked' => true,
             ]);
             abort(403, "Too many Requests...");
         }
+
+        $this->saveToDB([
+            'ip_address' => $ip,
+            'user_id' => $userID,
+            'route' => $routeName,
+            'is_blocked' => false,
+        ]);
 
         return $next($request);
     }
@@ -144,6 +153,7 @@ class TCRateLimit
             'ip_address' => $data['ip_address'],
             'user_id' => $data['user_id'],
             'route' => $data['route'],
+            'is_blocked' => !empty($data['is_blocked']),
         ]);
     }
 }
