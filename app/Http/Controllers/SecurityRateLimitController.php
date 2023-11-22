@@ -62,9 +62,14 @@ class SecurityRateLimitController extends Controller
             $aggregateRoute[] = ['$match' => $match];
         }
 
-        $aggregateUserId[] = ['$group' => ['_id' => '$user_id', 'count' => ['$sum' => 1],]];
-        $aggregateIpAddress[] = ['$group' => ['_id' => '$ip_address', 'count' => ['$sum' => 1],]];
-        $aggregateRoute[] = ['$group' => ['_id' => '$route', 'count' => ['$sum' => 1],]];
+        $aggregateUserId[] = ['$project' => ['user_id' => '$user_id','blocked' => ['$cond' => ['$is_blocked', 1, 0] ],]];
+        $aggregateIpAddress[] = ['$project' => ['ip_address' => '$ip_address','blocked' => ['$cond' => ['$is_blocked', 1, 0] ],]];
+        $aggregateRoute[] = ['$project' => ['route' => '$route','blocked' => ['$cond' => ['$is_blocked', 1, 0] ],]];
+
+
+        $aggregateUserId[] = ['$group' => ['_id' => '$user_id', 'count_all' => ['$sum' => 1], 'count_blocked' => ['$sum' => '$blocked'],]];
+        $aggregateIpAddress[] = ['$group' => ['_id' => '$ip_address', 'count_all' => ['$sum' => 1], 'count_blocked' => ['$sum' => '$blocked'],]];
+        $aggregateRoute[] = ['$group' => ['_id' => '$route', 'count_all' => ['$sum' => 1], 'count_blocked' => ['$sum' => '$blocked'],]];
 
         $aggregateUserId[] = ['$sort' => ['count' => -1]];
         $aggregateIpAddress[] = ['$sort' => ['count' => -1]];
