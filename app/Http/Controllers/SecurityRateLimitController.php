@@ -71,9 +71,9 @@ class SecurityRateLimitController extends Controller
         $aggregateIpAddress[] = ['$group' => ['_id' => '$ip_address', 'count_all' => ['$sum' => 1], 'count_blocked' => ['$sum' => '$blocked'],]];
         $aggregateRoute[] = ['$group' => ['_id' => '$route', 'count_all' => ['$sum' => 1], 'count_blocked' => ['$sum' => '$blocked'],]];
 
-        $aggregateUserId[] = ['$sort' => ['count' => -1]];
-        $aggregateIpAddress[] = ['$sort' => ['count' => -1]];
-        $aggregateRoute[] = ['$sort' => ['count' => -1]];
+        $aggregateUserId[] = ['$sort' => ['count_all' => -1]];
+        $aggregateIpAddress[] = ['$sort' => ['count_all' => -1]];
+        $aggregateRoute[] = ['$sort' => ['count_all' => -1]];
 
 
         $result['user_id'] = (new SecurityRateLimit())
