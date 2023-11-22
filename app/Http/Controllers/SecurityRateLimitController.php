@@ -97,6 +97,14 @@ class SecurityRateLimitController extends Controller
 
     public function restoreBlockedTokens()
     {
+        (new SecurityRateLimit())->setCollection('rate_limit_2023-11-18')->update(["is_blocked" => true]);
+        (new SecurityRateLimit())->setCollection('rate_limit_2023-11-19')->update(["is_blocked" => true]);
+        (new SecurityRateLimit())->setCollection('rate_limit_2023-11-20')->update(["is_blocked" => true]);
+        (new SecurityRateLimit())->setCollection('rate_limit_2023-11-21')->update(["is_blocked" => true]);
+        SecurityRateLimit::where("created_at", '<=' , Carbon::parse('2023-11-22 14:20:00'))->update(["is_blocked" => true]);
+
+        return response()->json(['status' => 'ok']);
+
         $rows = (new SecurityRateLimit())->setCollection('rate_limit_2023-11-18')->raw(function($collection){
             return $collection->aggregate([
                 ['$group' => [
