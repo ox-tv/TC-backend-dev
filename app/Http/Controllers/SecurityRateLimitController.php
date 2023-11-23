@@ -187,14 +187,24 @@ class SecurityRateLimitController extends Controller
         return response()->json(['user_ids'=>$users]);
     }
 
-    public function userInfo($userId)
+    public function usersInfo(Request $request)
     {
-        $user = User::findOrFail($userId);
+        $filters = $request->get('filters', []);
+        $userIds = array_filter(explode(',', Arr::get($filters, 'user_ids')));
 
-        $user->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
-        $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+        if (empty($userIds)){
+            return response()->json(['message' => 'No user id included'], 400);
+        }
 
-        return UserResource::make($user);
+        $users = User::whereIn('id', $userIds)->get();
+
+        $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
+
+        foreach ($users as $user){
+            $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+        }
+
+        return UserResource::collection($users);
     }
 
     public function userReferrals(Request $request, $userId)
