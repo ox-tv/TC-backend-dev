@@ -194,7 +194,7 @@ class SecurityRateLimitController extends Controller
         $ipAddress = Arr::get($filters, 'ip_address');
         $date = Arr::get($filters, 'date');
 
-        $query = User::whereIn('id', $userIds);
+        $query = User::whereIn('id', $userIds)->whereNotNull('email_verified_at');
 
         if ($ipAddress && $date){
             $query->orWhere(function ($query) use ($ipAddress, $date){
