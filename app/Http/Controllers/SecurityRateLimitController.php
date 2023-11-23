@@ -97,6 +97,16 @@ class SecurityRateLimitController extends Controller
         $result['total'] = (new SecurityRateLimit())
             ->setCollection("rate_limit_{$dateFilter}")->count();
 
+        $result['suspicious_ips'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
+                return $collection->aggregate([
+                    ['$group' => ['_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],]],
+                    ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
+                    ['$sort' => ['users_count' => -1]],
+                    ['$match' => ['users_count' => ['$gte'=> 2],]],
+                ]);
+            })->pluck('_id')->toArray();
+
         return response()->json($result);
     }
 
