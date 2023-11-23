@@ -187,14 +187,9 @@ class SecurityRateLimitController extends Controller
         return response()->json(['user_ids'=>$users]);
     }
 
-    public function usersInfo(Request $request)
+    public function usersInfo(Request $request, $userIds)
     {
-        $filters = $request->get('filters', []);
-        $userIds = array_filter(explode(',', Arr::get($filters, 'user_ids')));
-
-        if (empty($userIds)){
-            return response()->json(['message' => 'No user id included'], 400);
-        }
+        $userIds = array_filter(explode(',', $userIds));
 
         $users = User::whereIn('id', $userIds)->get();
 
