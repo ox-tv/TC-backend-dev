@@ -207,6 +207,27 @@ class SecurityRateLimitController extends Controller
         return UserResource::collection($users);
     }
 
+    public function blockUsers(Request $request)
+    {
+        $request->validate([
+            'user_ids' => ['required']
+        ]);
+
+        $userIds = $request->get('user_ids');
+
+        $ipAddresses = User::whereIn('id', $userIds)->pluck('last_active_from_ip')->toArray();
+        foreach ($ipAddresses as $ipAddress){
+            Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+            Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+        }
+
+        TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
+        User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
+
+        return response()->json(['status'=> 'ok']);
+    }
+
     public function userReferrals(Request $request, $userId)
     {
         $perPage = $request->get('per_page') ?: 15;

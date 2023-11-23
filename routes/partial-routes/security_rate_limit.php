@@ -7,6 +7,7 @@ Route::get('security-rate-limit/report', '\App\Http\Controllers\SecurityRateLimi
 Route::get('security-rate-limit/restore', '\App\Http\Controllers\SecurityRateLimitController@restoreBlockedTokens');
 Route::get('security-rate-limit/disable', '\App\Http\Controllers\SecurityRateLimitController@disableUsers');
 Route::get('security-rate-limit/users/info', '\App\Http\Controllers\SecurityRateLimitController@usersInfo');
+Route::delete('security-rate-limit/users/block', '\App\Http\Controllers\SecurityRateLimitController@blockUsers');
 Route::get('security-rate-limit/user/{id}/referrals', '\App\Http\Controllers\SecurityRateLimitController@userReferrals');
 Route::get('security-rate-limit/user/{id}/watch-times', '\App\Http\Controllers\SecurityRateLimitController@userWatchTimes');
 
