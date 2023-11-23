@@ -105,7 +105,7 @@ class SecurityRateLimitController extends Controller
                     ['$sort' => ['users_count' => -1]],
                     ['$match' => ['users_count' => ['$gte'=> 2],]],
                 ]);
-            })->pluck('_id')->toArray();
+            })->pluck('users_count','_id')->toArray();
 
         return response()->json($result);
     }

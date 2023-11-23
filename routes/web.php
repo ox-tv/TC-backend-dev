@@ -34,7 +34,7 @@ Route::get('/', function () {
                     'users_count' => ['$gte'=> 2],
                 ]],
             ]);
-        })/*->pluck('_id')->toArray()*/;
+        })->pluck('users_count','_id')->toArray();
 
     return response()->json($result);
     return view('welcome');
