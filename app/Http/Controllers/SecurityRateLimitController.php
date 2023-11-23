@@ -191,12 +191,18 @@ class SecurityRateLimitController extends Controller
     {
         $filters = $request->get('filters', []);
         $userIds = array_filter(explode(',', Arr::get($filters, 'user_ids')));
+        $ipAddress = Arr::get($filters, 'ip_address');
+        $date = Arr::get($filters, 'date');
 
-        if (empty($userIds)){
-            return response()->json(['message' => 'No user id included'], 400);
+        $query = User::whereIn('id', $userIds);
+
+        if ($ipAddress && $date){
+            $query->orWhere(function ($query) use ($ipAddress, $date){
+                $query->whereDate('created_at', Carbon::parse($date))->orWhere('registration_ip', $ipAddress);
+            });
         }
 
-        $users = User::whereIn('id', $userIds)->get();
+        $users = $query->get();
 
         $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
 

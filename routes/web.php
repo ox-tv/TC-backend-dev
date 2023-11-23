@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
+
+    dd(Carbon::today()->subDays(1));
     $dateFilter = '2023-11-22';
     $result = (new SecurityRateLimit())
         ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
