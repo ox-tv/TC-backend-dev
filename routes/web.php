@@ -18,9 +18,25 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    //dd(Carbon::now()->toDateTimeString());
-    dump(getClientIP(request()), request()->getClientIp());
-    return response()->json(['data']);
+    $dateFilter = '2023-11-22';
+    $result = (new SecurityRateLimit())
+        ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
+            return $collection->aggregate([
+                 ['$group' => [
+                     '_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],
+                 ]],
+                ['$group' => [
+                    '_id' => '$_id.ip_address',
+                    "users_count" => ['$sum' => 1]
+                ]],
+                ['$sort' => ['users_count' => -1]],
+                ['$match' => [
+                    'users_count' => ['$gte'=> 2],
+                ]],
+            ]);
+        })/*->pluck('_id')->toArray()*/;
+
+    return response()->json($result);
     return view('welcome');
 })->middleware('waf.ratelimit:4,1,m,1,D');
 
