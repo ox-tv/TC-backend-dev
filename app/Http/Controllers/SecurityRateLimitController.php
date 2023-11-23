@@ -198,7 +198,7 @@ class SecurityRateLimitController extends Controller
 
         if ($ipAddress && $date){
             $query->orWhere(function ($query) use ($ipAddress, $date){
-                $query->whereDate('created_at', Carbon::parse($date))->orWhere('registration_ip', $ipAddress);
+                $query->whereDate('created_at', Carbon::parse($date))->where('registration_ip', $ipAddress);
             });
         }
 

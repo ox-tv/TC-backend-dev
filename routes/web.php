@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
 
 
-    dd(Carbon::today()->subDays(1));
-    $dateFilter = '2023-11-22';
+    //dd(Carbon::today()->subDays(1));
+    /*$dateFilter = '2023-11-22';
     $result = (new SecurityRateLimit())
         ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
             return $collection->aggregate([
@@ -38,9 +38,9 @@ Route::get('/', function () {
             ]);
         })->pluck('users_count','_id')->toArray();
 
-    return response()->json($result);
+    return response()->json($result);*/
     return view('welcome');
-})->middleware('waf.ratelimit:4,1,m,1,D');
+})/*->middleware('waf.ratelimit:4,1,m,1,D')*/;
 
 
 
