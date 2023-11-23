@@ -187,16 +187,21 @@ class SecurityRateLimitController extends Controller
         return response()->json(['user_ids'=>$users]);
     }
 
-    public function usersInfo(Request $request, $userIds)
+    public function usersInfo(Request $request)
     {
-        $userIds = array_filter(explode(',', $userIds));
+        $filters = $request->get('filters', []);
+        $userIds = array_filter(explode(',', Arr::get($filters, 'user_ids')));
+
+        if (empty($userIds)){
+            return response()->json(['message' => 'No user id included'], 400);
+        }
 
         $users = User::whereIn('id', $userIds)->get();
 
         $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
 
         foreach ($users as $user){
-            $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+            $user->referrer && $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
         }
 
         return UserResource::collection($users);
