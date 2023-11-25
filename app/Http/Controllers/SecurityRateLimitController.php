@@ -75,6 +75,10 @@ class SecurityRateLimitController extends Controller
         $aggregateIpAddress[] = ['$sort' => ['count_all' => -1]];
         $aggregateRoute[] = ['$sort' => ['count_all' => -1]];
 
+        $aggregateUserId[] = ['$limit' => 500];
+        $aggregateIpAddress[] = ['$limit' => 500];
+        $aggregateRoute[] = ['$limit' => 500];
+
 
         $result['user_id'] = (new SecurityRateLimit())
             ->setCollection("rate_limit_{$dateFilter}")
@@ -104,6 +108,7 @@ class SecurityRateLimitController extends Controller
                     ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
                     ['$sort' => ['users_count' => -1]],
                     ['$match' => ['users_count' => ['$gte'=> 2],]],
+                    ['$limit' => 500]
                 ]);
             })->pluck('users_count','_id')->toArray();
 
