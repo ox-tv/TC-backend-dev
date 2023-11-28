@@ -33,7 +33,7 @@ class CheckAbuseUsersByRateLimit extends Command
      */
     public function handle()
     {
-        $date = Carbon::parse('2023-11-25')->format('Y-m-d');
+        $date = Carbon::now()->format('Y-m-d');
         if ($this->option('date') == 'yesterday'){
             $date = Carbon::now()->subDay()->format('Y-m-d');
         }
