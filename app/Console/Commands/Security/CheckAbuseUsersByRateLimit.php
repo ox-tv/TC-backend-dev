@@ -8,6 +8,7 @@ use App\Models\TokenPoint;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class CheckAbuseUsersByRateLimit extends Command
 {
@@ -37,48 +38,37 @@ class CheckAbuseUsersByRateLimit extends Command
             $date = Carbon::now()->subDay()->format('Y-m-d');
         }
 
-        // Unclaimable tokens if users has more than 100 blocked requests
-        $rows = (new SecurityRateLimit())
+
+        $ipAddresses = (new SecurityRateLimit())
             ->setCollection("rate_limit_{$date}")->raw(function($collection){
-            return $collection->aggregate([
-                ['$group' => [
-                    '_id' => '$user_id',
-                    'count' => [
-                        '$sum' => 1
-                    ],
-                ]],
-                ['$match' => [
-                    'count' => ['$gte'=> 300],
-                ]],
-                ['$sort' => ['count' => -1]],
-            ]);
-        })->pluck('_id')->toArray();
+                return $collection->aggregate([
+                    ['$group' => ['_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],]],
+                    ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
+                    ['$match' => ['users_count' => ['$gt'=> 5],]],
+                    ['$sort' => ['users_count' => -1]]
+                ]);
+            })->pluck('_id')->toArray();
 
-        $userIds = array_map(function($user_id){ return intval($user_id); }, $rows);
-        $carbonNow = Carbon::now();
-
-        TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime($carbonNow), 'claimable_by' => 'security.rate_limit']);
+        $userIds = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$date}")
+            ->raw(function($collection) use ($ipAddresses){
+                return $collection->aggregate([
+                    ['$match' => ['ip_address' => ['$in' => $ipAddresses]]],
+                    ['$group' => ['_id' => '$user_id']]
+                ]);
+            })->pluck('_id')->filter()->toArray();
 
 
-        // Set status to inactive if users has more than 800 blocked requests
-        $rows = (new SecurityRateLimit())
-            ->setCollection("rate_limit_{$date}")->raw(function($collection){
-            return $collection->aggregate([
-                ['$group' => [
-                    '_id' => '$user_id',
-                    'count' => [
-                        '$sum' => 1
-                    ],
-                ]],
-                ['$match' => [
-                    'count' => ['$gte'=> 500],
-                ]],
-                ['$sort' => ['count' => -1]],
-            ]);
-        })->pluck('_id')->toArray();
+        $userIds = array_map(function($user_id){ return intval($user_id); }, $userIds);
+        //$ipAddresses = array_merge($ipAddresses, User::whereIn('id', $userIds)->pluck('last_active_from_ip')->toArray());
 
-        $userIds = array_map(function($user_id){ return intval($user_id); }, $rows);
+        foreach ($ipAddresses as $ipAddress){
+            Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
+            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
+            Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
+        }
 
+        TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
         User::whereIn('id', $userIds)->update(['status' => User::STATUS_INACTIVE]);
 
         return 0;
