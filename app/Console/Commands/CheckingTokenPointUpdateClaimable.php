@@ -48,7 +48,7 @@ class CheckingTokenPointUpdateClaimable extends Command
     {
         $polyganClient = new TCPolygonClient();
 
-        //\Artisan::call('tc:security:rate-limit:check-abuse-users --date=yesterday');
+        \Artisan::call('tc:security:rate-limit:check-abuse-users --date=yesterday');
 
         while (1){
             $carbonNow = Carbon::now();
