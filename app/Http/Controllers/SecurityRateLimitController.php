@@ -155,19 +155,21 @@ class SecurityRateLimitController extends Controller
 
     public function disableUsers()
     {
-        $userIds = [74999,75001,75002,75003,75008,75012,75013,75014,63310,63311,63971, 63989,73124,73148,64128,64122,28670,28788,64906,67444,72941,72965
+        /*$userIds = [74999,75001,75002,75003,75008,75012,75013,75014,63310,63311,63971, 63989,73124,73148,64128,64122,28670,28788,64906,67444,72941,72965
         ,64128,64122,63336,63442,74356,74526,63417,63414,75298,75300,73601,73664,74771,74825,74835,74798,74838,74852,75042,75055,75058,75061,75064,75077,75101,75125
         ,75189,75191,75194,75196,75198,75202,75205];
-        $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
+        $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());*/
 
-        $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
+        //$userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
 
-        $ipAddresses = User::whereIn('id', $userIds)->pluck('registration_ip')->toArray();
+        $userIds = User::searchEmail('@omeie.com')->pluck('id')->toArray();
+
+        $ipAddresses = User::whereIn('id', $userIds)->pluck('last_active_from_ip')->toArray();
         $ipAddresses = array_filter($ipAddresses);
         foreach ($ipAddresses as $ipAddress){
-            Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
-            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
-            Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+            Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
+            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
+            Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
         }
 
         TokenPoint::whereIn('user_id', $userIds)->whereNull('claimable_at')->update(['claimable_at' => TokenPoint::fromDateTime(Carbon::now()), 'claimable_by' => 'security.rate_limit']);
