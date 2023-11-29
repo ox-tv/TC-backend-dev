@@ -108,7 +108,7 @@ class SecurityRateLimitController extends Controller
                     ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
                     ['$sort' => ['users_count' => -1]],
                     ['$match' => ['users_count' => ['$gte'=> 2],]],
-                    ['$limit' => 500]
+                    //['$limit' => 500]
                 ]);
             })->pluck('users_count','_id')->toArray();
 
