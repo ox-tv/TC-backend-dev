@@ -80,49 +80,37 @@ class SecurityRateLimitController extends Controller
         $aggregateRoute[] = ['$limit' => 500];
 
 
-        $cacheTTL = Carbon::parse($dateFilter)->isToday()? 10 * 60 : 7 * 24 * 60 * 60;
+        $result['user_id'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateUserId){
+                return $collection->aggregate($aggregateUserId);
+            });
 
-        $result['user_id'] = Cache::remember("rate_limit_logs-by-user_id-{$dateFilter}", $cacheTTL , function () use ($dateFilter, $aggregateUserId){
-            return (new SecurityRateLimit())
-                ->setCollection("rate_limit_{$dateFilter}")
-                ->raw(function($collection) use ($aggregateUserId){
-                    return $collection->aggregate($aggregateUserId);
-                });
-        });
+        $result['ip_address'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateIpAddress){
+                return $collection->aggregate($aggregateIpAddress);
+            });
 
-        $result['ip_address'] = Cache::remember("rate_limit_logs-by-ip_address-{$dateFilter}", $cacheTTL , function () use ($dateFilter, $aggregateIpAddress){
-            return (new SecurityRateLimit())
-                ->setCollection("rate_limit_{$dateFilter}")
-                ->raw(function($collection) use ($aggregateIpAddress){
-                    return $collection->aggregate($aggregateIpAddress);
-                });
-        });
+        $result['route'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateRoute){
+                return $collection->aggregate($aggregateRoute);
+            });
 
-        $result['route'] = Cache::remember("rate_limit_logs-by-route-{$dateFilter}", $cacheTTL , function () use ($dateFilter, $aggregateRoute){
-            return (new SecurityRateLimit())
-                ->setCollection("rate_limit_{$dateFilter}")
-                ->raw(function($collection) use ($aggregateRoute){
-                    return $collection->aggregate($aggregateRoute);
-                });
-        });
+        $result['total'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")->count();
 
-        $result['total'] = Cache::remember("rate_limit_logs-total_count-{$dateFilter}", $cacheTTL , function () use ($dateFilter){
-            return (new SecurityRateLimit())
-                ->setCollection("rate_limit_{$dateFilter}")->count();
-        });
-
-        $result['suspicious_ips'] = Cache::remember("rate_limit_logs-suspicious_ips-{$dateFilter}", $cacheTTL , function () use ($dateFilter){
-            return (new SecurityRateLimit())
-                ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
-                    return $collection->aggregate([
-                        ['$group' => ['_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],]],
-                        ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
-                        ['$sort' => ['users_count' => -1]],
-                        ['$match' => ['users_count' => ['$gte'=> 2],]],
-                        //['$limit' => 500]
-                    ]);
-                })->pluck('users_count','_id')->toArray();
-        });
+        $result['suspicious_ips'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
+                return $collection->aggregate([
+                    ['$group' => ['_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],]],
+                    ['$group' => ['_id' => '$_id.ip_address',"users_count" => ['$sum' => 1] ]],
+                    ['$sort' => ['users_count' => -1]],
+                    ['$match' => ['users_count' => ['$gte'=> 2],]],
+                    //['$limit' => 500]
+                ]);
+            })->pluck('users_count','_id')->toArray();
 
         return response()->json($result);
     }
