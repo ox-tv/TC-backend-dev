@@ -189,8 +189,8 @@ class SecurityRateLimitController extends Controller
 
     public function disableUsers()
     {
-        $userIds = ['90400','62290','90512','90998','90733','62292','90587','90644','85429','91621','90722','91287','91617','91005','91940','92113','3938','7644','65497','79176','89045','90743'];
-        $userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
+        $userIds = [90400,62290,90512,90998,90733,62292,90587,90644,85429,91621,90722,91287,91617,91005,91940,92113,3938,7644,65497,79176,89045,90743];
+        //$userIds = array_merge($userIds, User::whereIn('referrer_id', $userIds)->pluck('id')->toArray());
 
 
         foreach (array_chunk($userIds,400) as $ids){
