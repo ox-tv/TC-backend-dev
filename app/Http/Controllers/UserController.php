@@ -103,6 +103,8 @@ class UserController extends Controller
                 $query->where(function ($query) use ($searchFilter){
                     $query->SearchUsername($searchFilter);
                 })->orWhere(function ($query) use ($searchFilter){
+                    $query->SearchAuthWallet($searchFilter);
+                })->orWhere(function ($query) use ($searchFilter){
                     $query->SearchEmail($searchFilter);
                 })->orWhere(function ($query) use ($searchFilter){
                     $query->whereHas('channel', function($query) use ($searchFilter){
