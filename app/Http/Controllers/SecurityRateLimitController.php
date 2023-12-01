@@ -80,7 +80,7 @@ class SecurityRateLimitController extends Controller
         $aggregateRoute[] = ['$limit' => 500];
 
 
-        $cacheTTL = Carbon::parse($dateFilter)->isToday()? 10 * 60 : 7 * 24 * 60 * 60;
+        $cacheTTL = Carbon::parse($dateFilter)->isToday()? 2 * 60 : 7 * 24 * 60 * 60;
 
         $result['user_id'] = Cache::remember("rate_limit_logs-by-user_id-{$dateFilter}", $cacheTTL , function () use ($dateFilter, $aggregateUserId){
             return (new SecurityRateLimit())
