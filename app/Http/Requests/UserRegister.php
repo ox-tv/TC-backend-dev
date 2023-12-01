@@ -46,7 +46,7 @@ class UserRegister extends FormRequest
                 },
                 function($attribute, $value, $fail){
                     // check if user is deleted
-                    $blackListDomains = ['gufum.com'];
+                    $blackListDomains = ['gufum.com', 'omeie.com', 'zbock.com', 'zslsz.com', 'nezid.com'];
                     $domain = Str::after(strtolower($value), '@');
                     if (in_array($domain, $blackListDomains)) {
                         $fail(__('The domain for email address is not allowed. Please use another email address.'));
