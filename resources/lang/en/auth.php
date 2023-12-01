@@ -19,7 +19,7 @@ return [
     'unauthorized' => 'Your email/username or password is not correct',
 
 
-    'inactive_account' => 'Your account is inactive.',
+    'inactive_account' => 'Your account is blocked due to multi-account abuse.',
     'account_deleted' => 'Your account was deleted. To restore account, Please contact us.',
     'logged_out_successfully' => 'You are now logged out.',
     'email_already_taken' => 'This email is already registered.',
