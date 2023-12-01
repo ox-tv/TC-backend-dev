@@ -271,6 +271,7 @@ class LoginController extends Controller
         }
 
         if (!($user = $userQuery->first())){
+            abort(403, 'We are updating this section. We will be back soon.');
             // new user
             $user = new User();
             $user->auth_wallet = $request->get('address');
