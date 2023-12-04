@@ -3,22 +3,31 @@
 namespace App\Http\Controllers\Auth;
 
 use Amir\Permission\Models\Role;
+use App\Events\UserVerified;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\User\UserResource;
 use App\Mail\MagicLoginMail;
 use App\Mail\PasswordResetMail;
+use App\Models\_2FA;
 use App\Models\AuthKey;
 use App\Models\MagicLogin;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\_2FAService;
 use Carbon\Carbon;
+use Elliptic\EC;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use kornrunner\Keccak;
 
 class LoginController extends Controller
 {
