@@ -34,6 +34,7 @@ class VideoHomeResource extends JsonResource
             'title' => $this->title,
             'url_hash' => $this->url_hash,
             'duration' => $this->duration,
+            'view_count' => $this->view_count,
             'published_at' => $this->published_at,
 
             // Custom attributes without query

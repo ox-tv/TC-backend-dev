@@ -42,7 +42,7 @@ return [
         'liked_comment' => 0,
         'liked_comment_as_hero' => 0,
         'buying_yearly_membership' => 5000,
-        'buying_yearly_membership_as_hero' => 10000,
+        'buying_yearly_membership_as_hero' => 5000,
 
     ],
 

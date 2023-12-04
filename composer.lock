@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0eadc726570ec6dbf81cd644a91054f1",
+    "content-hash": "8c8f0655a275600a4db23a2717dfb955",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -5250,6 +5250,89 @@
             "time": "2022-01-27T09:35:39+00:00"
         },
         {
+            "name": "overtrue/laravel-passport-cache-token",
+            "version": "3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/overtrue/laravel-passport-cache-token.git",
+                "reference": "b5d0e80150eb93ac6a78d641089a3540588e4883"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/overtrue/laravel-passport-cache-token/zipball/b5d0e80150eb93ac6a78d641089a3540588e4883",
+                "reference": "b5d0e80150eb93ac6a78d641089a3540588e4883",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^8.0|^9.0|^10.0",
+                "illuminate/cache": "^8.0|^9.0|^10.0",
+                "illuminate/contracts": "^8.0|^9.0|^10.0",
+                "illuminate/database": "^8.0|^9.0|^10.0",
+                "illuminate/support": "^8.0|^9.0|^10.0",
+                "laravel/passport": "^10.0|^11.0"
+            },
+            "require-dev": {
+                "brainmaestro/composer-git-hooks": "dev-master",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "mockery/mockery": "^1.4",
+                "orchestra/testbench": "^7.0",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "hooks": {
+                    "pre-commit": [
+                        "composer test",
+                        "composer check-style"
+                    ],
+                    "pre-push": [
+                        "composer test",
+                        "composer check-style"
+                    ]
+                },
+                "laravel": {
+                    "providers": [
+                        "Overtrue\\LaravelPassportCacheToken\\CacheTokenServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Overtrue\\LaravelPassportCacheToken\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "overtrue",
+                    "email": "anzhengchao@gmail.com"
+                }
+            ],
+            "description": "Make laravel/passport token cacheable.",
+            "support": {
+                "issues": "https://github.com/overtrue/laravel-passport-cache-token/issues",
+                "source": "https://github.com/overtrue/laravel-passport-cache-token/tree/3.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.easywechat.com/img/pay/wechat.jpg",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/overtrue",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/overtrue",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2023-02-21T02:35:55+00:00"
+        },
+        {
             "name": "paragonie/constant_time_encoding",
             "version": "v2.6.3",
             "source": {
@@ -6025,6 +6108,67 @@
                 "source": "https://github.com/antonioribeiro/google2fa/tree/v8.0.1"
             },
             "time": "2022-06-13T21:57:56+00:00"
+        },
+        {
+            "name": "predis/predis",
+            "version": "v2.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/predis/predis.git",
+                "reference": "b1d3255ed9ad4d7254f9f9bba386c99f4bb983d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/predis/predis/zipball/b1d3255ed9ad4d7254f9f9bba386c99f4bb983d1",
+                "reference": "b1d3255ed9ad4d7254f9f9bba386c99f4bb983d1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.3",
+                "phpstan/phpstan": "^1.9",
+                "phpunit/phpunit": "^8.0 || ~9.4.4"
+            },
+            "suggest": {
+                "ext-relay": "Faster connection with in-memory caching (>=0.6.2)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Predis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Till Krüss",
+                    "homepage": "https://till.im",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "A flexible and feature-complete Redis client for PHP.",
+            "homepage": "http://github.com/predis/predis",
+            "keywords": [
+                "nosql",
+                "predis",
+                "redis"
+            ],
+            "support": {
+                "issues": "https://github.com/predis/predis/issues",
+                "source": "https://github.com/predis/predis/tree/v2.2.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/tillkruss",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-09-13T16:42:03+00:00"
         },
         {
             "name": "psr/cache",

@@ -154,3 +154,15 @@ if(!function_exists('is_json_string')){
         return json_last_error() === JSON_ERROR_NONE;
     }
 }
+
+if(!function_exists('getClientIP')){
+    function getClientIP($request){
+        if( !empty( $request->header('X-TC-CLIENT-IP') ) ){
+            return $request->header('X-TC-CLIENT-IP');
+        }elseif( !empty( $request->server('HTTP_CF_CONNECTING_IP') ) ){
+            return $request->server('HTTP_CF_CONNECTING_IP');
+        }else{
+            return $request->getClientIp();
+        }
+    }
+}

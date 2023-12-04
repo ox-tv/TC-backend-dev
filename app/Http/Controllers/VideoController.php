@@ -31,12 +31,14 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoMeta;
+use App\Models\WatchTime;
 use App\Repository\Eloquent\TagRepository;
 use App\Repository\Eloquent\VideoRepository;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -880,27 +882,27 @@ class VideoController extends Controller
         return $video->view_count;
     }
 
-    public function watch_time_store(WatchTimeStore $request, $idOrUrlHash)
+    public function watch_time_store(WatchTimeStore $request, $videoId)
     {
-        $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
+        $video = Video::published()->where('id', $videoId)->firstOrFail();
         $user = auth("api")->user();
         $originalStart = $start = $request->get("start_time");
         $originalEnd = $end = $request->get("end_time");
         $duration = 0;
 
-        $watchTimes = DB::table('watch_times')
-            ->where('user_id', $user->id)
-            ->where('video_id', $video->id)
-            ->where(function($query) use ($originalStart, $originalEnd) {
-                $query->whereBetween('start_time', [$originalStart, $originalEnd])
-                    ->orWhereBetween('end_time', [$originalStart, $originalEnd])
-                    ->orWhere(function($query) use ($originalStart, $originalEnd) {
-                        $query->where('start_time', '<=', $originalStart)
-                            ->where('end_time', '>=', $originalEnd);
-                    });
-            })
-            ->orderBy('start_time')
-            ->get();
+        $allWatchTimes = Cache::remember("watchtime_user{$user->id}_video{$video->id}", WatchTime::AllRowsCachePeriod , function () use ($user, $video){
+            return DB::table('watch_times')
+                ->where('user_id', $user->id)
+                ->where('video_id', $video->id)
+                ->get();
+        });
+
+        $watchTimes = $allWatchTimes->filter(function ($row, $key) use ($originalStart, $originalEnd) {
+            return ($row->start_time >= $originalStart && $row->start_time < $originalEnd)
+                || ($row->end_time > $originalStart && $row->end_time <= $originalEnd)
+                || ($row->start_time >= $originalStart && $row->end_time <= $originalEnd)
+                || ($row->start_time <= $originalStart && $row->end_time >= $originalEnd);
+        })->sortBy('start_time');
 
 
         // Calc new rows
@@ -934,12 +936,23 @@ class VideoController extends Controller
         }
 
         // Add to Database
-        DB::transaction(function () use ($video, $user, $newRows) {
+        DB::transaction(function () use ($video, $user, $newRows, $allWatchTimes) {
             foreach ($newRows as $row){
-                $video->watch_times()->attach($user->id, [
+                /*$video->watch_times()->attach($user->id, [
                     "start_time" => $row['start_time'],
                     "end_time" => $row['end_time']
-                ]);
+                ]);*/
+                $watchTimeModel = new WatchTime();
+                $watchTimeModel->video_id = $video->id;
+                $watchTimeModel->user_id = $user->id;
+                $watchTimeModel->start_time = $row['start_time'];
+                $watchTimeModel->end_time = $row['end_time'];
+                $watchTimeModel->save();
+
+                Cache::put("watchtime_user{$user->id}_last", $watchTimeModel, WatchTime::LastRowCachePeriod);
+
+                $allWatchTimes->push((object)$watchTimeModel->getAttributes());
+                Cache::put("watchtime_user{$user->id}_video{$video->id}", $allWatchTimes, WatchTime::AllRowsCachePeriod);
             }
         });
 

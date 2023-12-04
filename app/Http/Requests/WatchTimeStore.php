@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -39,25 +40,26 @@ class WatchTimeStore extends FormRequest
         $validator->after(function ($validator) {
 
             $user = auth('api')->user();
-            $idOrUrlHash = $this->route('idOrUrlHash');
-            $video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
+            //$idOrUrlHash = $this->route('idOrUrlHash');
+            //$video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
             $duration = $this->get('end_time') - $this->get('start_time') - 1;
 
-            if ($duration > 32){
+            if ($duration > 50){
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
-            $watchTimes = DB::table('watch_times')
+            $lastWatchTime = Cache::get("watchtime_user{$user->id}_last");
+            /*$lastWatchTime = DB::table('watch_times')
                 ->where('user_id', $user->id)
                 //->where('video_id', $video->id)
                 ->orderByDesc('created_at')
-                ->first();
+                ->first();*/
 
-            if(!$watchTimes){
+            if(!$lastWatchTime){
                 return;
             }
 
-            if ($watchTimes->created_at >= Carbon::now()->subSeconds($duration)->format('Y-m-d H:i:s')) {
+            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration - 1)->format('Y-m-d H:i:s')) {
                 $validator->errors()->add('watch_time', 'Your watch time duration is bigger than datetime of last submitted watch time record.');
             }
         });

@@ -62,6 +62,8 @@ Route::group([], __DIR__.'/partial-routes/notification.php');
 
 Route::group([], __DIR__.'/partial-routes/option.php');
 
+Route::group([], __DIR__.'/partial-routes/security_rate_limit.php');
+
 Route::group([], __DIR__.'/partial-routes/report.php');
 
 Route::group([], __DIR__.'/partial-routes/account.php');

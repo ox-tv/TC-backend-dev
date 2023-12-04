@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -270,6 +271,7 @@ class LoginController extends Controller
         }
 
         if (!($user = $userQuery->first())){
+            abort(403, 'We are updating this section. We will be back soon.');
             // new user
             $user = new User();
             $user->auth_wallet = $request->get('address');
@@ -286,6 +288,8 @@ class LoginController extends Controller
                 $referrer = User::where('referral_code', $request->get('referral_code'))->first();
                 $user->referrer_id = $referrer->id;
             }
+
+            $user->registration_ip = getClientIP($request);
 
             $user->save();
 
@@ -312,6 +316,8 @@ class LoginController extends Controller
 
             return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
         }
+
+        Log::channel('coinmarketcap')->info(getClientIP($request));
 
         $result['profile'] = UserResource::make($user->append('role_name'));
         $result['token'] =  $user->createToken('access_token')->accessToken;

@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Congratulation, and welcome to Today’s Crypto!</title>
+    <title>Congratulations, and welcome to Today’s Crypto!</title>
 
     <style type="text/css">
         p{
@@ -440,7 +440,7 @@
                                             <tbody><tr>
                                                 <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
 
-                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/TC-Email-logo-light2.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+                                                    <a href="http://www.todayscrypto.com" title="" class="" target="_blank"><img align="center" alt="" src="{{ asset('assets/images/Auto-Email-Logo.png') }}" style="width:170px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                                     </a>
 
                                                 </td>
@@ -506,16 +506,11 @@
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
                                                     <div style="text-align: center;"><p style="color:#202020">
-                                                            <strong><span style="font-size:18px">Congratulation, and welcome to Today’s Crypto!</span></strong><br>
+                                                            <strong><span style="font-size:18px">Congratulations, and welcome to Today’s Crypto!</span></strong><br>
                                                             <br>
-                                                            You are gifted two months of free Hodl Membership, meaning
-                                                            you can enjoy Today’s Crypto utterly free from Ads and
-                                                            unlimited tracking of coins/tokens. Set up your custom
-                                                            content feed by clicking the “Customize” button next to your
-                                                            “Videos for you” section on the home page for the best
-                                                            possible experience.<br>
-                                                            <br>
-                                                            Best wishes from the team at Today’s Crypto</p></div>
+                                                            Set up your custom content feed by clicking the “Customize” button next to your
+                                                            “Videos for you” section on the home page for the best possible experience.
+                                                            You will also earn your first 25 TCG tokens for doing so! Happy streaming.</p></div>
 
                                                 </td>
                                             </tr>
@@ -569,7 +564,7 @@
 
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
-                                                    <span style="color:#202020"><strong>Make sure to follow us on Twitter, Telegram & Linkedin for regular updates!</strong></span>
+                                                    <span style="color:#202020"><strong>Follow us on X or join our official Telegram group for regular updates!</strong></span>
                                                 </td>
                                             </tr>
                                             </tbody></table>
@@ -610,13 +605,13 @@
 
                                                                                 <tbody><tr>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
-                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/Twitter_Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://twitter.com/TodaysCryptoCom" target="_blank"><img src="{{ asset('assets/images/X-Email-Icon.png') }}" alt="Twitter" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:10px; padding-bottom:9px;">
-                                                                                        <a href="https://t.me/todayscryptodotcom" target="_blank"><img src="{{ asset('assets/images/Telegram_Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://t.me/todayscrypto" target="_blank"><img src="{{ asset('assets/images/Telegram-Email-Icon.png') }}" alt="Telegram" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                     <td align="center" valign="top" class="mcnFollowIconContent" style="padding-right:0; padding-bottom:9px;">
-                                                                                        <a href="https://www.linkedin.com/company/todayscryptocom/" target="_blank"><img src="{{ asset('assets/images/LinkeIn_Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
+                                                                                        <a href="https://todayscrypto.com/channels/todays-crypto" target="_blank"><img src="{{ asset('assets/images/TC-Email-Icon.png') }}" alt="Linkedin" class="mcnFollowBlockIcon" width="48" style="width:24px; max-width:24px; display:block;"></a>
                                                                                     </td>
                                                                                 </tr>
 

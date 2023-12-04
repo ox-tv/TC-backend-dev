@@ -22,6 +22,11 @@ class User extends Authenticatable
     const STATUS_INACTIVE = 1;
     const STATUS_ACTIVE = 2;
 
+    const STATUS_TEXT = [
+        self::STATUS_INACTIVE => 'inactive',
+        self::STATUS_ACTIVE => 'active',
+    ];
+
     // roles
     const ADMIN_ROLE = 'admin';
     const PUBLISHER_ROLE = 'publisher';
@@ -102,6 +107,11 @@ class User extends Authenticatable
 
     public function scopeSearchEmail($query, $keyword){
         $query->where('email', 'LIKE', '%'.$keyword.'%');
+        return $query;
+    }
+
+    public function scopeSearchAuthWallet($query, $keyword){
+        $query->where('auth_wallet', 'LIKE', '%'.$keyword.'%');
         return $query;
     }
 
@@ -407,6 +417,10 @@ class User extends Authenticatable
     public function getIsHeroMembershipAutoRenewalAttribute(){
         $res = PricingUser::where('user_id', $this->id)->where('status', PricingUser::STATUS_COMPLETED)->orderBy('created_at', 'desc')->first();
         return $res && $res->metadata['payment_method']['name'] == 'Stripe';
+    }
+
+    public function getStatusTextAttribute(){
+        return self::STATUS_TEXT[$this->status]?? $this->status;
     }
 
 
