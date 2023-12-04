@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Libraries\CoinGeckoClient;
 use App\Models\CryptoCurrency;
+use App\Models\CryptoCurrencyPrice;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -89,6 +91,7 @@ class UpdateCryptoCurrenciesPrices extends Command
         }
 
         $data = [];
+        $priceData = [];
         $socketData = [];
         $hasUnRankCoin = false;
         foreach ($response['data'] as $value){
@@ -97,6 +100,12 @@ class UpdateCryptoCurrenciesPrices extends Command
                 $hasUnRankCoin = true;
                 break;
             }
+
+            $priceData[] = [
+                "slug" => $value['id'],
+                "price"=> $value['current_price'],
+                "last_updated" => CryptoCurrencyPrice::fromDateTime(Carbon::parse($value['last_updated'])),
+            ];
 
             $data[] = [
                 'status' => CryptoCurrency::STATUS_LIST,
@@ -121,6 +130,7 @@ class UpdateCryptoCurrenciesPrices extends Command
         }
 
         CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
+        CryptoCurrencyPrice::insert($priceData);
 
         if ($this->updateOnlyFirst250){
             broadcast(new \App\Events\Market($socketData));
@@ -151,18 +161,5 @@ class UpdateCryptoCurrenciesPrices extends Command
             "percent_change_200d" => $value['price_change_percentage_200d_in_currency'],
             "percent_change_1y" => $value['price_change_percentage_1y_in_currency'],
         ];
-    }
-
-    private function getDataForSaveHistory($value)
-    {
-        return [
-            "last_updated" => $value['last_updated'],
-            "price"=> $value['current_price'],
-        ];
-    }
-
-    private function savePricesHistorical($data)
-    {
-
     }
 }

@@ -11,13 +11,12 @@ class CryptoCurrencyPrice extends Model
 {
     protected $connection = 'mongodb';
 
-    protected $fillable = ['crypto_currency_id','price', 'last_updated'];
+    protected $fillable = ['slug','price', 'last_updated'];
 
     //protected $table = 'channel_statistics_daily';
     protected $collection = 'crypto_currency_prices';
 
     protected $casts = [
-        'crypto_currency_id' => 'integer',
         'price' => 'float',
     ];
 
@@ -30,6 +29,6 @@ class CryptoCurrencyPrice extends Model
 
     // Relations
     public function cryptoCurrency(){
-        return $this->setConnection('mysql')->belongsTo(CryptoCurrency::class);
+        return $this->setConnection('mysql')->belongsTo(CryptoCurrency::class,'slug', 'slug');
     }
 }
