@@ -7,7 +7,8 @@ Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register'
 Route::post('login/magic/{scope?}', '\App\Http\Controllers\Auth\LoginController@sendMagicLogin')->where('scope', 'admin|publisher');
 Route::post('login/magic/{token}', '\App\Http\Controllers\Auth\LoginController@verifyMagicLogin');
 Route::post('login/{scope?}', '\App\Http\Controllers\Auth\LoginController@login')->where('scope', 'admin|publisher');
-Route::post('login-with-wallet/{scope?}', '\App\Http\Controllers\Auth\LoginController@loginWithWallet')
+Route::get('login-with-wallet/get-message', '\App\Http\Controllers\Auth\Web3LoginController@getMessageForSign');
+Route::post('login-with-wallet/{scope?}', '\App\Http\Controllers\Auth\Web3LoginController@loginWithWallet')
     ->where('scope', 'admin|publisher')
     ->middleware('waf.ratelimit:5,24,h,7,D');
 
