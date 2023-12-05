@@ -52,7 +52,7 @@ class UpdateCryptoCurrenciesPrices extends Command
 
             $startTime = time();
             while(time() - $startTime < 59){
-                if (!$this->updateCoins(true)){
+                if (!$this->updateCoins(1)){
                     break;
                 }
                 sleep(20);
@@ -101,11 +101,15 @@ class UpdateCryptoCurrenciesPrices extends Command
                 break;
             }
 
-            $priceData[] = [
-                "slug" => $value['id'],
-                "price"=> $value['current_price'],
-                "last_updated" => CryptoCurrencyPrice::fromDateTime(Carbon::parse($value['last_updated'])),
-            ];
+            if (!cache()->has("CryptoCurrencyPrice_{$value['id']}_inserted")){
+                cache()->put("CryptoCurrencyPrice_{$value['id']}_inserted", true, Carbon::now()->addMinutes(5));
+
+                $priceData[] = [
+                    "slug" => $value['id'],
+                    "price"=> $value['current_price'],
+                    "last_updated" => CryptoCurrencyPrice::fromDateTime(Carbon::parse($value['last_updated'])),
+                ];
+            }
 
             $data[] = [
                 'status' => CryptoCurrency::STATUS_LIST,
