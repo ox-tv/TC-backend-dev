@@ -102,7 +102,7 @@ class UpdateCryptoCurrenciesPrices extends Command
             }
 
             if (!cache()->has("CryptoCurrencyPrice_{$value['id']}_inserted")){
-                cache()->put("CryptoCurrencyPrice_{$value['id']}_inserted", true, Carbon::now()->addMinutes(5));
+                cache()->put("CryptoCurrencyPrice_{$value['id']}_inserted", true, Carbon::now()->addMinutes(4)->addSeconds(55));
 
                 $priceData[] = [
                     "slug" => $value['id'],
