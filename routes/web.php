@@ -15,13 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    $now = \App\Models\CryptoCurrencyPrice::fromDateTime(\Carbon\Carbon::now());
-    $data = [
-        ['slug' => 'bitcoin', 'price' => 41190, 'last_updated' => $now],
-        ['slug' => 'ethereum', 'price' => 2215, 'last_updated' => $now],
-        ['slug' => 'solana', 'price' => 0.00753, 'last_updated' => $now],
-    ];
-    \App\Models\CryptoCurrencyPrice::insert($data);
     return view('welcome');
 });
 
