@@ -131,7 +131,7 @@ class UpdateCryptoCurrenciesPrices extends Command
 
         CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
         CryptoCurrencyPrice::insert($priceData);
-
+        return !$hasUnRankCoin;
         if ($this->updateOnlyFirst250){
             broadcast(new \App\Events\Market($socketData));
         }
