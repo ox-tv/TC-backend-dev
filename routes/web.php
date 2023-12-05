@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\SecurityRateLimit;
 use App\TCNotification\GeneralNotification;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,31 +15,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-
-
-    //dd(Carbon::today()->subDays(1));
-    /*$dateFilter = '2023-11-22';
-    $result = (new SecurityRateLimit())
-        ->setCollection("rate_limit_{$dateFilter}")->raw(function($collection){
-            return $collection->aggregate([
-                 ['$group' => [
-                     '_id' => ['ip_address' => '$ip_address', 'user_id' => '$user_id'],
-                 ]],
-                ['$group' => [
-                    '_id' => '$_id.ip_address',
-                    "users_count" => ['$sum' => 1]
-                ]],
-                ['$sort' => ['users_count' => -1]],
-                ['$match' => [
-                    'users_count' => ['$gte'=> 2],
-                ]],
-            ]);
-        })->pluck('users_count','_id')->toArray();
-
-    return response()->json($result);*/
+    $now = \App\Models\CryptoCurrencyPrice::fromDateTime(\Carbon\Carbon::now());
+    $data = [
+        ['slug' => 'bitcoin', 'price' => 41190, 'last_updated' => $now],
+        ['slug' => 'ethereum', 'price' => 2215, 'last_updated' => $now],
+        ['slug' => 'solana', 'price' => 0.00753, 'last_updated' => $now],
+    ];
+    \App\Models\CryptoCurrencyPrice::insert($data);
     return view('welcome');
-})/*->middleware('waf.ratelimit:4,1,m,1,D')*/;
-
+});
 
 
 
