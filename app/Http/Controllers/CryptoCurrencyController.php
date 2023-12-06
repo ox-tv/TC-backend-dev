@@ -7,6 +7,7 @@ use App\Libraries\CoinGeckoClient;
 use App\Libraries\CoinMarketCapClient;
 use App\Models\CryptoCampaign;
 use App\Models\CryptoCurrency;
+use App\Models\CryptoCurrencyPrice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -243,5 +244,14 @@ class CryptoCurrencyController extends Controller
         }
 
         return true;
+    }
+
+    public function getHistoricalPrice($cryptoCurrencySlug)
+    {
+        $prices = CryptoCurrencyPrice::where('slug', $cryptoCurrencySlug)
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->get(['price', 'created_at']);
+
+        return response()->json(['prices' => $prices]);
     }
 }

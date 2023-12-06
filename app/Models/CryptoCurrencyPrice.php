@@ -11,20 +11,22 @@ class CryptoCurrencyPrice extends Model
 {
     protected $connection = 'mongodb';
 
-    protected $fillable = ['slug','price', 'last_updated'];
+    protected $fillable = ['slug','price', 'last_updated', 'created_at'];
 
     //protected $table = 'channel_statistics_daily';
     protected $collection = 'crypto_currency_prices';
 
     protected $casts = [
         'price' => 'float',
+        'created_at' => 'datetime'
     ];
 
     protected $dates = [
         'last_updated'
     ];
 
-    public $timestamps = false;
+    const UPDATED_AT = null;
+    //public $timestamps = false;
 
 
     // Relations

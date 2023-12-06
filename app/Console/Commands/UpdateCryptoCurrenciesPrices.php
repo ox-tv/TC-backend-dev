@@ -60,7 +60,7 @@ class UpdateCryptoCurrenciesPrices extends Command
 
         }else{
             $page = 1;
-            $maxPages = 20;
+            $maxPages = 4;
             while ($page <= $maxPages){
                 if (!$this->updateCoins($page)){
                     break;
@@ -108,6 +108,7 @@ class UpdateCryptoCurrenciesPrices extends Command
                     "slug" => $value['id'],
                     "price"=> $value['current_price'],
                     "last_updated" => CryptoCurrencyPrice::fromDateTime(Carbon::parse($value['last_updated'])),
+                    "created_at" => CryptoCurrencyPrice::fromDateTime(Carbon::now()),
                 ];
             }
 
@@ -133,9 +134,9 @@ class UpdateCryptoCurrenciesPrices extends Command
             $this->listedCoins[] = $value['id'];
         }
 
-        CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
-        CryptoCurrencyPrice::insert($priceData);
-        return !$hasUnRankCoin;
+        !empty($data) && CryptoCurrency::upsert($data, ['slug'], ['name', 'symbol', 'slug', 'order', 'prices', 'status']);
+        !empty($priceData) && CryptoCurrencyPrice::insert($priceData);
+
         if ($this->updateOnlyFirst250){
             broadcast(new \App\Events\Market($socketData));
         }
