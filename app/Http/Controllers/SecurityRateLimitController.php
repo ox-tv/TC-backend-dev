@@ -80,6 +80,7 @@ class SecurityRateLimitController extends Controller
         $aggregateRoute[] = ['$limit' => 500];
 
 
+        $cacheTTL = 60;
         /*$cacheTTL = Carbon::parse($dateFilter)->isToday()? 2 * 60 : 7 * 24 * 60 * 60;
 
         if (empty($ipAddressFilter) && empty($userIdFilter) && empty($routeFilter)){
