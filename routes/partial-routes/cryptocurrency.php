@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('market/cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::get('cryptocurrencies', '\App\Http\Controllers\CryptoCurrencyController@index');
 Route::put('cryptocurrencies/{cryptocurrency}/buy/{campaign}', '\App\Http\Controllers\CryptoCampaignController@storeStatistic');
+Route::get('cryptocurrencies/{cryptocurrencyslug}/historical-price', '\App\Http\Controllers\CryptoCurrencyController@getHistoricalPrice');
 
 
 // For Login Users
