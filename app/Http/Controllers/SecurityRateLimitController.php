@@ -80,7 +80,7 @@ class SecurityRateLimitController extends Controller
         $aggregateRoute[] = ['$limit' => 500];
 
 
-        $cacheTTL = Carbon::parse($dateFilter)->isToday()? 2 * 60 : 7 * 24 * 60 * 60;
+        /*$cacheTTL = Carbon::parse($dateFilter)->isToday()? 2 * 60 : 7 * 24 * 60 * 60;
 
         if (empty($ipAddressFilter) && empty($userIdFilter) && empty($routeFilter)){
 
@@ -126,7 +126,25 @@ class SecurityRateLimitController extends Controller
                 ->raw(function($collection) use ($aggregateRoute){
                     return $collection->aggregate($aggregateRoute);
                 });
-        }
+        }*/
+
+        $result['user_id'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateUserId){
+                return $collection->aggregate($aggregateUserId);
+            });
+
+        $result['ip_address'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateIpAddress){
+                return $collection->aggregate($aggregateIpAddress);
+            });
+
+        $result['route'] = (new SecurityRateLimit())
+            ->setCollection("rate_limit_{$dateFilter}")
+            ->raw(function($collection) use ($aggregateRoute){
+                return $collection->aggregate($aggregateRoute);
+            });
 
         $result['total'] = Cache::remember("rate_limit_logs-total_count-{$dateFilter}", $cacheTTL , function () use ($dateFilter){
             return (new SecurityRateLimit())
