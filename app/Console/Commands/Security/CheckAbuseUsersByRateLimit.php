@@ -64,7 +64,7 @@ class CheckAbuseUsersByRateLimit extends Command
 
         foreach ($ipAddresses as $ipAddress){
             Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
-            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
+            Cache::put("\App\Http\Controllers\Auth\Web3LoginController@login.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
             Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(1));
         }
 
