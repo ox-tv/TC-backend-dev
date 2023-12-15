@@ -14,7 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    $ip = $request->ip();
+
+    // If the user is behind a proxy, check for X-Forwarded-For header
+    $forwardedIp = $request->header('X-Forwarded-For');
+    if ($forwardedIp) {
+        // X-Forwarded-For can contain a comma-separated list of IP addresses.
+        // The actual user's IP is usually the first one in the list.
+        $ip = explode(',', $forwardedIp)[0];
+    }
+
+    dump($request->ip(),$ip);
     return view('welcome');
 });
 
