@@ -31,27 +31,22 @@ class Web3LoginController extends Controller
         return response()->json(['key' => $key, 'message' => $message]);
     }
 
-    public function loginWithWallet(Request $request, $scope = 'user')
+    public function login(Request $request, $scope = 'user')
     {
-        $request->merge([
-            'referral_code' => strtoupper($request->get('referral_code')),
-        ]);
-
         $request->validate([
-            'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/'],
-            'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/', Rule::exists('users', 'auth_wallet')],
             'key' => ['required'],
             'signature' => [
                 'required',
                 function ($attribute, $signature, $fail) {
-                    if (!cache()->has(request()->get('key'))){
-                        throw new Exception();
-                    }
-
-                    $message = cache()->pull(request()->get('key'));
-                    $address = request()->get('address');
-
                     try {
+                        if (!cache()->has(request()->get('key'))){
+                            throw new Exception();
+                        }
+
+                        $message = cache()->pull(request()->get('key'));
+                        $address = request()->get('address');
+
                         $messageLength = strlen($message);
                         $hash = Keccak::hash("\x19Ethereum Signed Message:\n{$messageLength}{$message}", 256);
                         $sign = [
@@ -90,41 +85,7 @@ class Web3LoginController extends Controller
             $userQuery->where('role_id', $publisherRoleId);
         }
 
-        if (!($user = $userQuery->first())){
-            // new user
-            $user = new User();
-            $user->auth_wallet = $request->get('address');
-            $user->email_verified_at = Carbon::now();
-            $user->status = User::STATUS_ACTIVE;
-
-            do{
-                $referral_code = strtoupper(Str::random(6));
-            }while(User::where('referral_code', $referral_code)->exists());
-
-            $user->referral_code = $referral_code;
-
-            if($request->get('referral_code')){
-                $referrer = User::where('referral_code', $request->get('referral_code'))->first();
-                $user->referrer_id = $referrer->id;
-            }
-
-            $user->registration_ip = getClientIP($request);
-
-            $user->save();
-
-            event(new UserVerified($user));
-        }
-
-
-        if($scope == 'publisher'){
-            $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;
-            $credentials['role_id'] = $publisherRoleId;
-        }
-
-        if($scope == 'admin'){
-            $publisherRoleId = Role::firstOrCreate(['name' => User::ADMIN_ROLE])->id;
-            $credentials['role_id'] = $publisherRoleId;
-        }
+        $user = $userQuery->firstOrFail();
 
         if($user->status == User::STATUS_INACTIVE) {
 
@@ -136,7 +97,78 @@ class Web3LoginController extends Controller
             return response()->json(['code'=> 'auth.inactive_account', 'message'=>__('auth.inactive_account')], 401);
         }
 
-        Log::channel('coinmarketcap')->info(getClientIP($request));
+        $result['profile'] = UserResource::make($user->append('role_name'));
+        $result['token'] =  $user->createToken('access_token')->accessToken;
+        return response()->json($result);
+    }
+
+    public function register(Request $request)
+    {
+        $request->merge([
+            'referral_code' => strtoupper($request->get('referral_code')),
+        ]);
+
+        $request->validate([
+            'address' => ['required', 'regex:/^0x[a-fA-F0-9]{40}$/', Rule::unique('users', 'auth_wallet')],
+            'referral_code' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'key' => ['required'],
+            'signature' => [
+                'required',
+                function ($attribute, $signature, $fail) {
+                    try {
+                        if (!cache()->has(request()->get('key'))){
+                            throw new Exception();
+                        }
+
+                        $message = cache()->pull(request()->get('key'));
+                        $address = request()->get('address');
+
+                        $messageLength = strlen($message);
+                        $hash = Keccak::hash("\x19Ethereum Signed Message:\n{$messageLength}{$message}", 256);
+                        $sign = [
+                            "r" => substr($signature, 2, 64),
+                            "s" => substr($signature, 66, 64)
+                        ];
+
+                        $recId  = ord(hex2bin(substr($signature, 130, 2))) - 27;
+
+                        if ($recId != ($recId & 1)) {
+                            throw new Exception();
+                        }
+
+                        $publicKey = (new EC('secp256k1'))->recoverPubKey($hash, $sign, $recId);
+
+                        if ("0x" . substr(Keccak::hash(substr(hex2bin($publicKey->encode("hex")), 1), 256), 24) !== Str::lower($address)) {
+                            throw new Exception();
+                        }
+                    }catch (Exception $e){
+                        $fail('The '.$attribute.' is invalid.');
+                    }
+                },
+            ],
+        ]);
+
+        $user = new User();
+        $user->auth_wallet = $request->get('address');
+        $user->email_verified_at = Carbon::now();
+        $user->status = User::STATUS_ACTIVE;
+
+        do{
+            $referral_code = strtoupper(Str::random(6));
+        }while(User::where('referral_code', $referral_code)->exists());
+
+        $user->referral_code = $referral_code;
+
+        if($request->get('referral_code')){
+            $referrer = User::where('referral_code', $request->get('referral_code'))->first();
+            $user->referrer_id = $referrer->id;
+        }
+
+        $user->registration_ip = getClientIP($request);
+
+        $user->save();
+
+        event(new UserVerified($user));
 
         $result['profile'] = UserResource::make($user->append('role_name'));
         $result['token'] =  $user->createToken('access_token')->accessToken;

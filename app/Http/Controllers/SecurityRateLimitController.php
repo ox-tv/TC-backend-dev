@@ -221,7 +221,7 @@ class SecurityRateLimitController extends Controller
             $ipAddresses = array_filter($ipAddresses);
             foreach ($ipAddresses as $ipAddress){
                 Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
-                Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
+                Cache::put("\App\Http\Controllers\Auth\Web3LoginController@login.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
                 Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(3));
             }
 
@@ -269,7 +269,7 @@ class SecurityRateLimitController extends Controller
         $ipAddresses = User::whereIn('id', $userIds)->pluck('last_active_from_ip')->toArray();
         foreach ($ipAddresses as $ipAddress){
             Cache::put("\App\Http\Controllers\VideoController@watch_time_store.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
-            Cache::put("\App\Http\Controllers\Auth\LoginController@loginWithWallet.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
+            Cache::put("\App\Http\Controllers\Auth\Web3LoginController@login.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
             Cache::put("\App\Http\Controllers\Auth\RegisterController@register.ip{$ipAddress}.block", true, Carbon::now()->addDays(7));
         }
 
