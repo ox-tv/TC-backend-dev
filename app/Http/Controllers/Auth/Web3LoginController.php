@@ -148,9 +148,6 @@ class Web3LoginController extends Controller
             ],
         ]);
 
-        dd($request->all());
-
-
         $user = new User();
         $user->auth_wallet = $request->get('address');
         $user->email_verified_at = Carbon::now();
