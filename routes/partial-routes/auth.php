@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register')->middleware('waf.ratelimit:5,24,h,7,D');
+Route::post('register', '\App\Http\Controllers\Auth\RegisterController@register')->middleware('waf.ratelimit:3,200,h,7,D');
 
 Route::post('login/magic/{scope?}', '\App\Http\Controllers\Auth\LoginController@sendMagicLogin')->where('scope', 'admin|publisher');
 Route::post('login/magic/{token}', '\App\Http\Controllers\Auth\LoginController@verifyMagicLogin');
