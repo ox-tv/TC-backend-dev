@@ -17,7 +17,7 @@ class CheckRequestHasValidHash
             return $next($request);
         }
 
-        $receivedHash = $request->header('x-TC-HASH');
+        $receivedHash = $request->header('X-TC-HASH');
         $dataToHash = json_encode($request->all());
 
         $expectedHash = hash('sha256', $dataToHash . $secretKey);
