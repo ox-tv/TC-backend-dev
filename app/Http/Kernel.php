@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         '2fa.or.email-verification' => \App\Http\Middleware\Check2FAorEmailVerification::class,
         'access.check' => \App\Http\Middleware\CheckingAccessibilityUsingUserPlan::class,
         'waf.ratelimit' => \App\Http\Middleware\TCRateLimit::class,
+        'waf.validate-hash' => \App\Http\Middleware\CheckRequestHasValidHash::class,
     ];
 }
