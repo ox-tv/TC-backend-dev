@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\WAFNotValidRequestLog;
 use App\Services\_2FAService;
 use Carbon\Carbon;
 use Closure;
@@ -23,6 +24,15 @@ class CheckRequestHasValidHash
         $expectedHash = hash('sha256', $dataToHash . $secretKey);
 
         if ($receivedHash !== $expectedHash) {
+            $ip = getClientIP($request);
+            $userID = $request->user()? $request->user()->id: null;
+            $routeName = $request->route()->getActionName();
+            WAFNotValidRequestLog::create([
+                'ip_address' => $ip,
+                'user_id' => $userID,
+                'route' => $routeName,
+            ]);
+
             abort(403, 'Unauthorized');
         }
 
