@@ -33,7 +33,7 @@ class CheckRequestHasValidHash
                 'route' => $routeName,
             ]);
 
-            abort(403, 'Unauthorized');
+            //abort(403, 'Unauthorized');
         }
 
         return $next($request);
