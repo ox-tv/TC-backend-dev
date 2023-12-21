@@ -11,21 +11,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
-class CheckUsersIPAddress extends Command
+class CheckSuspiciousIPAddress extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'tc:security:check-users-ip';
+    protected $signature = 'tc:security:check-suspicious-ip';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check users IP Address';
+    protected $description = 'Check Suspicious IP Address';
 
     /**
      * Execute the console command.
