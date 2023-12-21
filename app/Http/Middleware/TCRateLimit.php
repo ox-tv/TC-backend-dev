@@ -33,7 +33,7 @@ class TCRateLimit
         $blockNumber = $params[3]; // 1
         $blockUnit = $params[4]; // h
 
-        $ip = getClientIP($request);
+        $ip = getClientIP();
         $userID = $request->user()? $request->user()->id: null;
         $routeName = $request->route()->getActionName();
         $datetime = Carbon::now()->toDateTimeString();
@@ -87,7 +87,7 @@ class TCRateLimit
         $blockNumber = $params[3]; // 1
         $blockUnit = $params[4]; // h
 
-        $ip = getClientIP($request);
+        $ip = getClientIP();
         $routeName = $request->route()->getActionName();
 
         $count = intval(Cache::get("{$routeName}.ip{$ip}.count"));

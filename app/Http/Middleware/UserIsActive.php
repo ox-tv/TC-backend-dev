@@ -33,7 +33,7 @@ class UserIsActive
 
         if (($user = auth('api')->user()) && !Cache::has('user_'.$user->id.'_last_actived_at_stored')){
             $user->last_actived_at = Carbon::now();
-            $user->last_active_from_ip = getClientIP($request);
+            $user->last_active_from_ip = getClientIP();
             $user->save();
             Cache::put('user_'.$user->id.'_last_actived_at_stored', true, 600);
         }

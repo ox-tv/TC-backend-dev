@@ -156,8 +156,10 @@ if(!function_exists('is_json_string')){
 }
 
 if(!function_exists('getClientIP')){
-    function getClientIP($request)
+    function getClientIP()
     {
+        $request = request();
+
         if( !empty( $request->header('X-TC-CLIENT-IP') ) ){
             return $request->header('X-TC-CLIENT-IP');
         }elseif( !empty( $request->server('HTTP_CF_CONNECTING_IP') ) ){
