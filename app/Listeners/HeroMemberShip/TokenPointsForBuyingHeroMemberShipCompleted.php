@@ -5,6 +5,7 @@ namespace App\Listeners\HeroMemberShip;
 use App\Events\User\BuyingHeroMemberShipCompleted;
 use App\Events\User\CustomFeedFilled;
 use App\Models\TokenPoint;
+use App\Models\WAFSuspiciousIPAddress;
 use App\Repository\Eloquent\TokenPointRepository;
 
 class TokenPointsForBuyingHeroMemberShipCompleted
@@ -18,6 +19,10 @@ class TokenPointsForBuyingHeroMemberShipCompleted
 
     public function handle(BuyingHeroMemberShipCompleted $event)
     {
+        if (WAFSuspiciousIPAddress::isExistsIP(getClientIP())){
+            return true;
+        }
+
         $user = $event->user;
         $pricingUser = $event->pricingUser;
         $plan = $pricingUser->pricing->plan;

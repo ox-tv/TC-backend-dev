@@ -54,6 +54,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('plans:check-hero-expiry')->daily();
 
+        $schedule->command('tc:security:check-suspicious-ip')->runInBackground()->everyTwoHours();
+
         $schedule->command('tcg:update-claimable')->runInBackground()->dailyAt('08:00');
 
         $schedule->command('auto_import')->runInBackground()->everyMinute();

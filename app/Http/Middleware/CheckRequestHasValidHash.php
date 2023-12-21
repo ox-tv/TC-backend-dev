@@ -24,7 +24,7 @@ class CheckRequestHasValidHash
         $expectedHash = hash('sha256', $dataToHash . $secretKey);
 
         if ($receivedHash !== $expectedHash) {
-            $ip = getClientIP($request);
+            $ip = getClientIP();
             $userID = $request->user()? $request->user()->id: null;
             $routeName = $request->route()->getActionName();
             WAFNotValidRequestLog::create([

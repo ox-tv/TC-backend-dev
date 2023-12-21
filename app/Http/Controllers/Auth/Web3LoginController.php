@@ -164,7 +164,7 @@ class Web3LoginController extends Controller
             $user->referrer_id = $referrer->id;
         }
 
-        $user->registration_ip = getClientIP($request);
+        $user->registration_ip = getClientIP();
 
         $user->save();
 

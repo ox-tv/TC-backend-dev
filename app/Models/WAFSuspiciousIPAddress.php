@@ -17,4 +17,9 @@ class WAFSuspiciousIPAddress extends Model
     protected $casts = [
 
     ];
+
+    public static function isExistsIP($ip)
+    {
+        return self::where('ip_address', $ip)->exists();
+    }
 }
