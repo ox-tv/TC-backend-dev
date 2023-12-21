@@ -7,6 +7,7 @@ use App\Events\VideoViewed;
 use App\Models\MonetizePoint;
 use App\Models\TokenPoint;
 use App\Models\UserMeta;
+use App\Models\WAFSuspiciousIPAddress;
 use App\Repository\Eloquent\MonetizePointRepository;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
@@ -28,11 +29,15 @@ class TokenPointsForUserVerified
      */
     public function handle(UserVerified $event)
     {
+        if (WAFSuspiciousIPAddress::isExistsIP(getClientIP())){
+            return;
+        }
+
         $user = $event->user;
         $referrer = $user->referrer;
 
         if (!$referrer){
-            return true;
+            return;
         }
 
         if ($referrer->channel){
@@ -65,6 +70,6 @@ class TokenPointsForUserVerified
             }
         }
 
-        return true;
+        return;
     }
 }

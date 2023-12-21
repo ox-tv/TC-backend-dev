@@ -4,6 +4,7 @@ namespace App\Listeners\Video;
 
 use App\Events\VideoWatched;
 use App\Models\TokenPoint;
+use App\Models\WAFSuspiciousIPAddress;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -20,6 +21,10 @@ class TokenPointsForVideoWatched
 
     public function handle(VideoWatched $event)
     {
+        if (WAFSuspiciousIPAddress::isExistsIP(getClientIP())){
+            return true;
+        }
+
         $user = $event->user;
         $video = $event->video;
         $startTime = $event->startTime;
