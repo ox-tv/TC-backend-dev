@@ -14,6 +14,11 @@ class CustomRule
         return new ForbiddenWordsRule($forbiddenWords);
     }
 
+    public static function isEthereumWalletAddress(): IsEthereumWalletAddress
+    {
+        return new IsEthereumWalletAddress();
+    }
+
     public static function alphaSpace(): AlphaSpace
     {
         return new AlphaSpace();

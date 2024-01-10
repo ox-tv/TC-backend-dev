@@ -21,7 +21,7 @@ class TCPolygonClient
     /*
      * Can pass multi symbols separated by comma
      * */
-    public function getTCGBalance($walletAddress)
+    public function getNFTsByOwner($walletAddress)
     {
         $result = [
             'success' => false,
@@ -35,16 +35,16 @@ class TCPolygonClient
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ]
-            ])->get("{$this->baseUrl}/address/{$walletAddress}/balance");
+            ])->get("{$this->baseUrl}/nft/{$walletAddress}");
 
             $body = $response->json();
 
-            if(!$response->successful() || !$body['success']){
+            if(!$response->successful()){
                 throw new Exception(!empty($body['errorCode'])? $body['errorCode'] . ':' . $body['errorMessage'] : '', $response->status());
             }
 
             $result['success'] = true;
-            $result['balance'] = $body['balance'];
+            $result['data'] = $body;
             return $result;
 
         }catch(Exception $e){
