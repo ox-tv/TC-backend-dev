@@ -50,16 +50,18 @@ class TokenPointsForVideoWatched
         $watchTimeDuration = array_sum($totalTimes);
 
         $durationInMinute = intval($watchTimeDuration / 60);
+        $tokenValue = $durationInMinute * $user->hero_multiplier;
+        $maxTokenToEarn = $this->tokenPointRepository->maximumEarnForVideoByUser($user);
 
-        $maxMinutesToEarn = $user->is_hero? 180 : 30;
+        if ($tokenValue > $maxTokenToEarn){return true;}
 
-        if ($durationInMinute >= $maxMinutesToEarn){return true;}
-        $durationInMinute = min($durationInMinute, $maxMinutesToEarn);
+        $tokenValue = min($tokenValue, $maxTokenToEarn);
 
-        Cache::put('user_daily_watch_limit_reached', $durationInMinute >= $maxMinutesToEarn, Carbon::now()->endOfDay());
+        Cache::put('user_daily_watch_limit_reached', $tokenValue >= $maxTokenToEarn, Carbon::now()->endOfDay());
 
 
         $type = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
+
         $row = Cache::remember("tokenpoint_user{$user->id}_type{$type}_current", Carbon::now()->endOfDay() , function () use ($user, $type){
             return TokenPoint::where('date', Carbon::now()->startOfDay())
                 ->where('user_id', $user->id)
@@ -68,13 +70,13 @@ class TokenPointsForVideoWatched
         });
 
         if ($row){
-            $row->amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
+            $row->amount = $tokenValue;
             $row->save();
         }else{
             $row = $this->tokenPointRepository->add([
                 'user_id' => $user->id,
                 'type' => $type,
-                'amount' => $user->is_hero? $durationInMinute * 2 : $durationInMinute,
+                'amount' => $tokenValue,
             ]);
         }
 

@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'wallet' => $this->whenAppended('auth_wallet'),
             'hero_member_at' => $this->hero_member_at,
             'hero_due_at' => $this->hero_due_at,
+            'hero_multiplier' => $this->hero_multiplier,
             'muted_until' => $this->muted_until,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -48,6 +49,7 @@ class UserResource extends JsonResource
             'deletion_feedback' => $this->whenAppended('deletion_feedback'),
             'deleted_at' => $this->whenAppended('deleted_at'),
             'status' => $this->whenAppended('status_text'),
+            'hero_type' => $this->hero_type_text,
 
             // Custom attributes with query
             'username' => $this->username,

@@ -10,6 +10,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 });
 
+Route::post('tc-polygon/update-hero-data', '\App\Http\Controllers\TCPolygonController@nftTokenTransfered')->name('tc-polygon.update-hero-data');
 
 Route::post('users/username/check', '\App\Http\Controllers\UserController@usernameCheck')->name('users.username.check');
 Route::post('users/referral-code/check', '\App\Http\Controllers\UserController@referralCodeCheck')->name('users.referral-code.check');
@@ -51,5 +52,6 @@ Route::group([
     Route::get('publisher-requests', '\App\Http\Controllers\UserController@index')->name('publisher_requests');
     Route::put('publisher-requests/{user}/confirm', '\App\Http\Controllers\PublisherController@confirm')->name('publisher_requests.confirm');
     Route::put('publisher-requests/{user}/reject', '\App\Http\Controllers\PublisherController@reject')->name('publisher_requests.reject');
+
 
 });

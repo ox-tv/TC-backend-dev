@@ -3,6 +3,7 @@
 namespace App\Repository\Eloquent;
 
 use App\Models\TokenPoint;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
@@ -51,4 +52,15 @@ class TokenPointRepository
 
         return $model;
     }
+
+    public function maximumEarnForVideoByUser($user)
+    {
+        if ($user->is_old_hero_type){
+            return 360;
+        }
+
+        $multiplier = str_replace('.',',',floatval($user->hero_multiplier));
+        return config("user.max_token_for_watching_video_per_day.{$user->hero_type_text}_{$multiplier}") ?? 10;
+    }
+
 }
