@@ -27,6 +27,14 @@ class User extends Authenticatable
         self::STATUS_ACTIVE => 'active',
     ];
 
+    const HERO_TYPE_WHITE = 1;
+    const HERO_TYPE_BLACK = 2;
+
+    const HERO_TYPE_TEXT = [
+        self::HERO_TYPE_WHITE => 'white',
+        self::HERO_TYPE_BLACK => 'black',
+    ];
+
     // roles
     const ADMIN_ROLE = 'admin';
     const PUBLISHER_ROLE = 'publisher';
@@ -115,16 +123,19 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeIsHero($query){
-        $query->where('hero_due_at', '>', now());
+    public function scopeIsHero($query)
+    {
+//        $query->where('hero_due_at', '>', now());
+        $query->whereNotNull('hero_type');
         return $query;
     }
 
     public function scopeIsNonHero($query){
-        $query->where(function ($query) {
-            $query->whereNull('hero_due_at')
-                ->orWhere('hero_due_at', '<=', now());
-        });
+        $query->whereNull('hero_type');
+//        $query->where(function ($query) {
+//            $query->whereNull('hero_due_at')
+//                ->orWhere('hero_due_at', '<=', now());
+//        });
         return $query;
     }
 
@@ -245,7 +256,19 @@ class User extends Authenticatable
     // Attributes
     public function getIsHeroAttribute()
     {
-        return $this->hero_due_at > now();
+        return !empty($this->hero_type) || $this->hero_due_at > now();
+    }
+    public function getIsOldHeroTypeAttribute()
+    {
+        return empty($this->hero_type) && $this->hero_due_at > now();
+    }
+    public function getHeroMultiplierAttribute($value)
+    {
+        if ($this->is_old_hero_type){
+            return 2;
+        }
+
+        return $value ?? 1;
     }
 
     public function getHasMembershipHistoryAttribute()
@@ -421,6 +444,12 @@ class User extends Authenticatable
 
     public function getStatusTextAttribute(){
         return self::STATUS_TEXT[$this->status]?? $this->status;
+    }
+
+
+
+    public function getHeroTypeTextAttribute(){
+        return self::HERO_TYPE_TEXT[$this->hero_type]?? $this->hero_type;
     }
 
 
