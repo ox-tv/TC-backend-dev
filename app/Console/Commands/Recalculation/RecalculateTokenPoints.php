@@ -45,20 +45,35 @@ class RecalculateTokenPoints extends Command
     {
         $this->tokenPointRepository = new TokenPointRepository();
 
-        $user_ids = TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
-            ->where('type', TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO)
-            ->where('amount', 360)
-            ->pluck('user_id')->toArray();
+        $watchTimes = DB::table('watch_times')
+            ->whereDate('created_at', '>=', Carbon::parse('2024-01-08 00:00:00'))
+            ->whereDate('created_at', '<=', Carbon::parse('2024-01-08 23:59:59'))
+            ->groupBy('user_id')
+            ->selectRaw("SUM(end_time - start_time) as duration, user_id")
+            ->get();
 
-        $user_ids = array_merge($user_ids, TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
-            ->where('type', TokenPoint::TYPE_WATCH_A_VIDEO)
-            ->where('amount', 30)
-            ->pluck('user_id')->toArray());
+        foreach ($watchTimes as $watchTime) {
+            $user = User::find($watchTime->user_id);
+
+            $pointType = $user->is_hero ? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
+            $durationInMinute = intval($watchTime->duration / 60);
+            $amount = $user->is_hero ? $durationInMinute * 2 : $durationInMinute;
+            $max = $user->is_hero? 360 : 30;
+            $amount = min($amount, $max);
+
+            $this->tokenPointRepository->add([
+                'user_id' => $user->id,
+                'type' => $pointType,
+                'amount' => $amount,
+                'date' => Carbon::parse('2024-01-08 00:00:00')->startOfDay(),
+                'activate_at' => Carbon::parse('2024-01-08 23:59:59'),
+            ]);
+        }
+
 
         $watchTimes = DB::table('watch_times')
-            ->whereIn('user_id', $user_ids)
-            ->whereDate('created_at', '>=', Carbon::today()->subDays(1)->startOfDay())
-            //->whereDate('created_at', '<=', Carbon::today()->subDays(1)->endOfDay())
+            ->whereDate('created_at', '>=', Carbon::parse('2024-01-09 00:00:00'))
+            ->whereDate('created_at', '<=', Carbon::parse('2024-01-09 12:07:40'))
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
             ->get();
@@ -69,32 +84,25 @@ class RecalculateTokenPoints extends Command
             $pointType = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
             $durationInMinute = intval($watchTime->duration / 60);
             $amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
+            $max = $user->is_hero? 360 : 30;
+            $amount = min($amount, $max);
 
-            $yesterdayRow = TokenPoint::where('date', Carbon::now()->subDays(1)->startOfDay())
+            $row = TokenPoint::where('date', Carbon::parse('2024-01-09 00:00:00')->startOfDay())
                 ->where('user_id', $user->id)
                 ->where('type', $pointType)
                 ->first();
 
-            $todayRow = TokenPoint::where('date', Carbon::now()/*->subDays(1)*/->startOfDay())
-                ->where('user_id', $user->id)
-                ->where('type', $pointType)
-                ->first();
-
-            $submitedAmount = ($yesterdayRow? $yesterdayRow->amount : 0) + ($todayRow? $todayRow->amount : 0);
-
-            if ($amount > $submitedAmount){
-                if ($todayRow){
-                    $todayRow->amount = $todayRow->amount + ($amount - $submitedAmount);
-                    $todayRow->save();
-                }else{
-                    $todayRow = $this->tokenPointRepository->add([
-                        'user_id' => $user->id,
-                        'type' => $pointType,
-                        'amount' => $amount - $submitedAmount,
-                        //'date' => Carbon::now()->subDays(1)->startOfDay(),
-                        //'activate_at' => Carbon::now()->subDays(1),
-                    ]);
-                }
+            if ($row){
+                $row->amount = $row->amount + $amount;
+                $row->save();
+            }else{
+                $this->tokenPointRepository->add([
+                    'user_id' => $user->id,
+                    'type' => $pointType,
+                    'amount' => $amount,
+                    'date' => Carbon::parse('2024-01-09 00:00:00')->startOfDay(),
+                    'activate_at' => Carbon::parse('2024-01-09 23:59:59'),
+                ]);
             }
         }
 
