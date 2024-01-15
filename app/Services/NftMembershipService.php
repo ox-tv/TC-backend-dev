@@ -53,7 +53,7 @@ class NftMembershipService
                 !empty($row['metadata']['attributes'][0]['value'])
                 && $row['metadata']['attributes'][0]['value'] > $user->hero_multiplier
             ) {
-                $user->hero_multiplier = $row['metadata']['attributes'][0]['value'];
+                $user->hero_multiplier = $row['metadata']['attributes'][0]['value'] * ($user->hero_type == User::HERO_TYPE_BLACK? 5 : 1);
             }
         }
 
