@@ -81,9 +81,9 @@ class RecalculateTokenPoints extends Command
                 'user_id' => $user->id,
                 'type' => $tokenType,
                 'amount' => $tokenValue,
-                'date' => TokenPoint::fromDateTime($day->startOfDay()),
-                'activate_at' => TokenPoint::fromDateTime($day->endOfDay()),
-                'claimable_at' => TokenPoint::fromDateTime($day->addDay()->startOfDay()),
+                'date' => TokenPoint::fromDateTime((clone $day)->startOfDay()),
+                'activate_at' => TokenPoint::fromDateTime((clone $day)->endOfDay()),
+                'claimable_at' => TokenPoint::fromDateTime((clone $day)->addDay()->startOfDay()),
                 'claimable_by' => 'FakeByReCalculate',
             ];
         }
