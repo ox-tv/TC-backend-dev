@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Repository\Eloquent\LoyaltyPointRepository;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -18,7 +19,7 @@ class RecalculateTokenPoints extends Command
      *
      * @var string
      */
-    protected $signature = 'tc:recalc:token-points';
+    protected $signature = 'tc:recalc:token-points {--date=}';
 
     /**
      * The console command description.
@@ -36,74 +37,113 @@ class RecalculateTokenPoints extends Command
 
     public function handle()
     {
-        $this->recalculateYesterdayExceptClaimableTokens();
+        $date = $this->option('date');
+        $this->recalculate($date);
 
         return 0;
     }
 
-    private function recalculateYesterdayExceptClaimableTokens()
+    private function recalculate($date)
+    {
+        $this->tokenPointRepository = new TokenPointRepository();
+        $day = Carbon::parse($date);
+
+        $watchTimes = DB::table('watch_times')
+            ->whereDate('created_at', $day)
+            ->select(["end_time", "start_time", "user_id"])
+            ->get()->toArray();
+
+        $durations = [];
+        foreach ($watchTimes as $watchtime){
+            $duration = $durations[$watchtime->user_id] ?? 0;
+            $duration += ($watchtime->end_time - $watchtime->start_time);
+            $durations[$watchtime->user_id] = $duration;
+        }
+
+        // handle for each user
+        $dataToDB = [];
+        foreach ($durations as $userId => $duration){
+
+            $user = User::find($userId);
+            if (!$user){continue;}
+
+            $wasHero = $user->hero_due_at >= $day;
+            $heroMultiplier = $wasHero? 2 : 1;
+            $maxTokenToEarn = $day >= Carbon::parse('2023-11-15')? ($wasHero? 180 : 30) : 10000;
+            $tokenType = $wasHero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
+
+            $durationInMinute = intval($duration / 60);
+            $tokenValue = $durationInMinute * $heroMultiplier;
+
+            $tokenValue = min($tokenValue, $maxTokenToEarn);
+
+            $dataToDB[] = [
+                'user_id' => $user->id,
+                'type' => $tokenType,
+                'amount' => $tokenValue,
+                'date' => TokenPoint::fromDateTime($day->startOfDay()),
+                'activate_at' => TokenPoint::fromDateTime($day->endOfDay()),
+                'claimable_at' => TokenPoint::fromDateTime($day->addDay()->startOfDay()),
+                'claimable_by' => 'FakeByReCalculate',
+            ];
+        }
+
+        if (!empty($dataToDB)){
+            TokenPoint::insert($dataToDB);
+        }
+
+        return true;
+    }
+
+    private function recalculateYesterdayExceptClaimableTokens2()
     {
         $this->tokenPointRepository = new TokenPointRepository();
 
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', '>=', Carbon::parse('2024-01-08 00:00:00'))
-            ->whereDate('created_at', '<=', Carbon::parse('2024-01-08 23:59:59'))
-            ->groupBy('user_id')
-            ->selectRaw("SUM(end_time - start_time) as duration, user_id")
-            ->get();
+        $users = User::where('status', 2)->where('watch_time','>',0)->where('last_actived_at','>',Carbon\Carbon::now()->subMonth())->get();
 
-        foreach ($watchTimes as $watchTime) {
-            $user = User::find($watchTime->user_id);
+        foreach ($users as $user){
+            $dataToDB = [];
+            $periods = CarbonPeriod::create(Carbon::parse('2023-11-01'), '1 day', Carbon::now());
 
-            $pointType = $user->is_hero ? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
-            $durationInMinute = intval($watchTime->duration / 60);
-            $amount = $user->is_hero ? $durationInMinute * 2 : $durationInMinute;
-            $max = $user->is_hero? 360 : 30;
-            $amount = min($amount, $max);
+            foreach ($periods as $day) {
+                $wasHero = $user->hero_due_at >= $day;
+                $heroMultiplier = $wasHero? 2 : 1;
+                $maxTokenToEarn = $wasHero? 360 : 30;
+                $tokenType = $wasHero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
 
-            $this->tokenPointRepository->add([
-                'user_id' => $user->id,
-                'type' => $pointType,
-                'amount' => $amount,
-                'date' => Carbon::parse('2024-01-08 00:00:00')->startOfDay(),
-                'activate_at' => Carbon::parse('2024-01-08 23:59:59'),
-            ]);
-        }
+                $watchTimes = DB::table('watch_times')
+                    ->whereDate('created_at', $day)
+                    ->where('user_id', $user->id)
+                    ->select(["end_time", "start_time"])->get();
 
+                $totalTimes = [];
+                foreach ($watchTimes as $watchTime){
+                    $totalTimes[] = $watchTime->end_time - $watchTime->start_time;
+                }
 
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', '>=', Carbon::parse('2024-01-09 00:00:00'))
-            ->whereDate('created_at', '<=', Carbon::parse('2024-01-09 12:07:40'))
-            ->groupBy('user_id')
-            ->selectRaw("SUM(end_time - start_time) as duration, user_id")
-            ->get();
+                $watchTimeDuration = array_sum($totalTimes);
 
-        foreach ($watchTimes as $watchTime) {
-            $user = User::find($watchTime->user_id);
+                $durationInMinute = intval($watchTimeDuration / 60);
+                $tokenValue = $durationInMinute * $heroMultiplier;
 
-            $pointType = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
-            $durationInMinute = intval($watchTime->duration / 60);
-            $amount = $user->is_hero? $durationInMinute * 2 : $durationInMinute;
-            $max = $user->is_hero? 360 : 30;
-            $amount = min($amount, $max);
+                $tokenValue = min($tokenValue, $maxTokenToEarn);
 
-            $row = TokenPoint::where('date', Carbon::parse('2024-01-09 00:00:00')->startOfDay())
-                ->where('user_id', $user->id)
-                ->where('type', $pointType)
-                ->first();
-
-            if ($row){
-                $row->amount = $row->amount + $amount;
-                $row->save();
-            }else{
-                $this->tokenPointRepository->add([
+                $dataToDB[] = [
                     'user_id' => $user->id,
-                    'type' => $pointType,
-                    'amount' => $amount,
-                    'date' => Carbon::parse('2024-01-09 00:00:00')->startOfDay(),
-                    'activate_at' => Carbon::parse('2024-01-09 23:59:59'),
-                ]);
+                    'type' => $tokenType,
+                    'amount' => $tokenValue,
+                    'date' => $day->startOfDay(),
+                    'activate_at' => $day->endOfDay(),
+                    'claimable_at' => $day->addDay()->startOfDay(),
+                    'claimable_by' => 'FakeByReCalculate',
+                ];
             }
+
+            // Bulk insert to DB
+            TokenPoint::insert($dataToDB);
+
+            // Mark User as recalculated
+
         }
 
     }

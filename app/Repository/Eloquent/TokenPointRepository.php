@@ -56,7 +56,7 @@ class TokenPointRepository
     public function maximumEarnForVideoByUser($user)
     {
         if ($user->is_old_hero_type){
-            return 360;
+            return 180;
         }
 
         $multiplier = str_replace('.',',',floatval($user->hero_multiplier));
