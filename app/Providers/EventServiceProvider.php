@@ -97,7 +97,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         UserVerified::class => [
-            MonetizePointsForUserVerified::class,
+            //MonetizePointsForUserVerified::class,
             LoyaltyPointsForUserVerified::class,
             TokenPointsForUserVerified::class,
             UserVerifiedDataForUserStatisticsDaily::class,
