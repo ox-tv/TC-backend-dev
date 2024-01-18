@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Recalculation;
 
+use App\Models\PricingUser;
 use App\Models\TokenPoint;
 use App\Models\User;
 use App\Repository\Eloquent\LoyaltyPointRepository;
@@ -37,13 +38,112 @@ class RecalculateTokenPoints extends Command
 
     public function handle()
     {
-        $date = $this->option('date');
-        $this->recalculate($date);
+        //$date = $this->option('date');
+        //$this->recalculateTokensForWatchTimesByDate($date);
+
+        $this->recalculateTokensForBuyingMembership();
+        $this->recalculateTokensForFillCustomFeed();
 
         return 0;
     }
 
-    private function recalculate($date)
+    private function recalculateTokensForFillCustomFeed(): void
+    {
+        $coinRows = DB::table('crypto_currency_user')
+            ->selectRaw('user_id, COUNT(*) as cnt')
+            ->groupBy('user_id')
+            ->get()->toArray();
+
+
+        $dataToDB = [];
+        foreach ($coinRows as $row){
+            if ($row->cnt < 3){
+                continue;
+            }
+
+            $tagCount = DB::table('tag_user')
+                ->where('user_id', $row->user_id)
+                ->count();
+
+            if ($tagCount < 3){
+                continue;
+            }
+
+            if (TokenPoint::where('user_id', $row->user_id)->whereIn('type', [TokenPoint::TYPE_CUSTOM_FEED_FIILED, TokenPoint::TYPE_CUSTOM_FEED_FIILED_AS_HERO])->exists()){
+                continue;
+            }
+
+            $user = User::find($row->user_id);
+            if (!$user){continue;}
+
+            $day = $user->created_at;
+
+            $wasHero = $user->hero_due_at >= $day;
+            $valuePerToken = $wasHero? config('points.token.fill_custom_feed_as_hero') : config('points.token.fill_custom_feed');
+            $tokenType = $wasHero? TokenPoint::TYPE_CUSTOM_FEED_FIILED_AS_HERO : TokenPoint::TYPE_CUSTOM_FEED_FIILED;
+
+            $dataToDB[] = [
+                'user_id' => $user->id,
+                'type' => $tokenType,
+                'amount' => $valuePerToken,
+                'date' => TokenPoint::fromDateTime((clone $day)->startOfDay()),
+                'activate_at' => TokenPoint::fromDateTime((clone $day)->endOfDay()),
+                'claimable_at' => TokenPoint::fromDateTime((clone $day)->addDay()->startOfDay()),
+                'claimable_by' => 'FakeByReCalculate',
+            ];
+
+        }
+
+        if (!empty($dataToDB)){
+            TokenPoint::insert($dataToDB);
+        }
+    }
+
+    private function recalculateTokensForBuyingMembership(): void
+    {
+        $pricingUsers = PricingUser::where('status', PricingUser::STATUS_COMPLETED)
+            ->where('metadata->plan->interval', 365)
+            ->get();
+
+        $rows = [];
+        foreach ($pricingUsers as $pricingUser){
+            $number = $rows["{$pricingUser->user_id}_{$pricingUser->created_at->format('Y-m-d')}"]??0;
+            $number++;
+            $rows["{$pricingUser->user_id}_{$pricingUser->created_at->format('Y-m-d')}"] = $number;
+        }
+
+        $dataToDB = [];
+        foreach ($rows as $key => $number){
+            [$userId, $date] = explode('_', $key);
+            $day = Carbon::parse($date);
+
+            $user = User::find($userId);
+            if (!$user){continue;}
+
+            $wasHero = $user->hero_due_at >= $day;
+            $valuePerToken = $wasHero? config('points.token.buying_yearly_membership_as_hero') : config('points.token.buying_yearly_membership');
+            $tokenType = $wasHero? TokenPoint::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP_AS_HERO : TokenPoint::TYPE_BUYING_YEARLY_HERO_MEMBERSHIP;
+
+            $dataToDB[] = [
+                'user_id' => $user->id,
+                'type' => $tokenType,
+                'amount' => $valuePerToken * $number,
+                'date' => TokenPoint::fromDateTime((clone $day)->startOfDay()),
+                'activate_at' => TokenPoint::fromDateTime((clone $day)->endOfDay()),
+                'claimable_at' => TokenPoint::fromDateTime((clone $day)->addDay()->startOfDay()),
+                'claimable_by' => 'FakeByReCalculate',
+            ];
+        }
+
+        if (!empty($dataToDB)){
+            TokenPoint::insert($dataToDB);
+        }
+    }
+
+    /*
+     * $date format: Y-m-d
+     */
+    private function recalculateTokensForWatchTimesByDate($date): void
     {
         $this->tokenPointRepository = new TokenPointRepository();
         $day = Carbon::parse($date);
@@ -91,8 +191,6 @@ class RecalculateTokenPoints extends Command
         if (!empty($dataToDB)){
             TokenPoint::insert($dataToDB);
         }
-
-        return true;
     }
 
     private function recalculateYesterdayExceptClaimableTokens2()
