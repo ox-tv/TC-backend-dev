@@ -40,8 +40,14 @@ class RecalculateChannelStatisticsDaily extends Command
     {
         $dateFrom = Carbon::parse($this->option('dateFrom'));
         $dateTo = Carbon::parse($this->option('dateTo'));
-        //$dateFrom = Carbon::parse('2023-06-01');
-        //$dateTo = Carbon::parse('2024-01-07');
+
+        if (
+            $dateFrom->format('Y-m-d') != $this->option('dateFrom')
+            || $dateTo->format('Y-m-d') != $this->option('dateTo')
+        ){
+            dd('Invalid dateFrom or dateTo option');
+        }
+
         Channel2StatisticsDaily::whereBetween('date', [$dateFrom, $dateTo])->delete();
 
         $periods = CarbonPeriod::create($dateFrom, '1 day', $dateTo);
