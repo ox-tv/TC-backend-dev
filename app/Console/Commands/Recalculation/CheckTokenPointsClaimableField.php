@@ -62,8 +62,11 @@ class CheckTokenPointsClaimableField extends Command
 
         $userIds3 = [66300];
 
+        $totalUserIds = array_merge($userIds, $userIds2, $userIds3);
 
-        TokenPoint::whereIn('user_id', array_merge($userIds, $userIds2, $userIds3))
+        dump(count($userIds), count($userIds2), count($totalUserIds));
+
+        TokenPoint::whereIn('user_id', $totalUserIds)
             ->where('claimable_by', 'FakeByReCalculate')
             ->update([
                 'claimable_at' => null,
