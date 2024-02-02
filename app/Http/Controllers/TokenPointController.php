@@ -48,9 +48,10 @@ class TokenPointController extends Controller
         $result['today_tokens_distributed'] = TokenPoint::where('date', Carbon::now()->startOfDay())->sum('amount');
 
         if (auth('api')->check()){
+            $user = auth('api')->user();
             $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
             $result['user_locked_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
-            $result['user_daily_watch_limit_reached'] = Cache::get('user_daily_watch_limit_reached');
+            $result['user_daily_watch_limit_reached'] = Cache::get("user{$user->id}_daily_watch_limit_reached");
         }
 
         return response()->json($result);
