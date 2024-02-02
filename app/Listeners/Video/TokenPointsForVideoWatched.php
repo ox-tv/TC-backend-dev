@@ -57,7 +57,7 @@ class TokenPointsForVideoWatched
 
         $tokenValue = min($tokenValue, $maxTokenToEarn);
 
-        Cache::put('user_daily_watch_limit_reached', $tokenValue >= $maxTokenToEarn, Carbon::now()->endOfDay());
+        Cache::put("user{$user->id}_daily_watch_limit_reached", $tokenValue >= $maxTokenToEarn, Carbon::now()->endOfDay());
 
 
         $type = $user->is_hero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
