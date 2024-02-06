@@ -50,64 +50,132 @@ class CheckingTokenPointUpdateClaimable extends Command
 
         \Artisan::call('tc:security:rate-limit:check-abuse-users --date=yesterday');
 
-        while (1){
-            $carbonNow = Carbon::now();
-            $carbonStartOfDay = Carbon::now()->startOfDay();
+        $carbonNow = Carbon::now();
+        $carbonStartOfDay = Carbon::now()->startOfDay();
 
-            $tokenPoints = TokenPoint::raw(function($collection) use ($carbonStartOfDay) {
-                return $collection->aggregate([
-                    ['$match' => [
-                        'activate_at' => ['$lt'=> TokenPoint::fromDateTime($carbonStartOfDay)],
-                        'claimable_at' => ['$eq'=> null],
-                        'amount' => ['$gt'=> 0],
-                    ]],
-                    ['$group' => [
-                        '_id' => '$user_id',
-                        'user_id' => ['$last' => '$user_id'],
-                        'points' => ['$sum' => '$amount'],
-                    ]]/*,
-                    ['$match' => [
-                        '$or' => [['points' => ['$gte'=> 500]], ['user_id' => [ '$in' => TokenPoint::whereNotNull('claimable_at')->pluck('user_id')->toArray() ]]],
-                    ]]*/,
-                    [ '$limit' => 1000 ]
-                ]);
-            });
+        $tokenPoints = TokenPoint::raw(function($collection) use ($carbonStartOfDay) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'activate_at' => ['$lt'=> TokenPoint::fromDateTime($carbonStartOfDay)],
+                    'claimable_at' => ['$eq'=> null],
+                    'amount' => ['$gt'=> 0],
+                ]],
+                ['$group' => [
+                    '_id' => '$user_id',
+                    'user_id' => ['$last' => '$user_id'],
+                    'points' => ['$sum' => '$amount'],
+                ]],
+                /*['$match' => [
+                    '$or' => [['points' => ['$gte'=> 500]], ['user_id' => [ '$in' => TokenPoint::whereNotNull('claimable_at')->pluck('user_id')->toArray() ]]],
+                ]],*/
+            ]);
+        });
 
-            $addresses = [];
-            $amounts = [];
-            $finalUserIds = [];
+        $addresses = [];
+        $amounts = [];
+        $finalUserIds = [];
 
-            foreach ($tokenPoints as $tokenPoint){
-                $wallet = $tokenPoint->user->auth_wallet ?? null;
+        foreach ($tokenPoints as $tokenPoint){
+            $wallet = $tokenPoint->user->auth_wallet ?? null;
 
-                if (!$wallet){
-                    continue;
-                }
-
-                $addresses[] = $wallet;
-                $amounts[] = $tokenPoint->points;
-                $finalUserIds[] = $tokenPoint->user_id;
+            if (!$wallet){
+                continue;
             }
 
-            if (empty($finalUserIds)){
-                break;
-            }
+            $addresses[] = $wallet;
+            $amounts[] = $tokenPoint->points;
+            $finalUserIds[] = $tokenPoint->user_id;
+        }
 
-            $res = $polyganClient->updateClaimable($addresses, $amounts);
+        if (empty($finalUserIds)){
+            return 0;
+        }
+
+        // Chunk and update claimable
+        $countPerRequest = 1000;
+        $max = count($addresses);
+
+        for ($i = 0; $i < $max; $i += $countPerRequest ){
+            $chunkAddresses = array_slice($addresses, $i, $countPerRequest);
+            $chunkAmounts = array_slice($amounts, $i, $countPerRequest);
+            $chunkUserIds = array_slice($finalUserIds, $i, $countPerRequest);
+
+            $res = $polyganClient->updateClaimable($chunkAddresses, $chunkAmounts);
 
             if (!$res['success']){
                 Mail::to(['robert@todayscrypto.com', 'aahelali@gmail.com'])
                     ->queue(new GlobalMail('Update Claimable Error', "Please check update claimable process!"));
-                break;
+                return 0;
             }
 
             TokenPoint::whereNull('claimable_at')
                 ->where('activate_at', '<', $carbonStartOfDay)
-                ->whereIn('user_id', $finalUserIds)
+                ->whereIn('user_id', $chunkUserIds)
                 ->update([
                     'claimable_at' => TokenPoint::fromDateTime($carbonNow)
                 ]);
         }
+
+
+
+//        while (1){
+//            $carbonNow = Carbon::now();
+//            $carbonStartOfDay = Carbon::now()->startOfDay();
+//
+//            $tokenPoints = TokenPoint::raw(function($collection) use ($carbonStartOfDay) {
+//                return $collection->aggregate([
+//                    ['$match' => [
+//                        'activate_at' => ['$lt'=> TokenPoint::fromDateTime($carbonStartOfDay)],
+//                        'claimable_at' => ['$eq'=> null],
+//                        'amount' => ['$gt'=> 0],
+//                    ]],
+//                    ['$group' => [
+//                        '_id' => '$user_id',
+//                        'user_id' => ['$last' => '$user_id'],
+//                        'points' => ['$sum' => '$amount'],
+//                    ]]/*,
+//                    ['$match' => [
+//                        '$or' => [['points' => ['$gte'=> 500]], ['user_id' => [ '$in' => TokenPoint::whereNotNull('claimable_at')->pluck('user_id')->toArray() ]]],
+//                    ]]*/,
+//                    [ '$limit' => 1000 ]
+//                ]);
+//            });
+//
+//            $addresses = [];
+//            $amounts = [];
+//            $finalUserIds = [];
+//
+//            foreach ($tokenPoints as $tokenPoint){
+//                $wallet = $tokenPoint->user->auth_wallet ?? null;
+//
+//                if (!$wallet){
+//                    continue;
+//                }
+//
+//                $addresses[] = $wallet;
+//                $amounts[] = $tokenPoint->points;
+//                $finalUserIds[] = $tokenPoint->user_id;
+//            }
+//
+//            if (empty($finalUserIds)){
+//                break;
+//            }
+//
+//            $res = $polyganClient->updateClaimable($addresses, $amounts);
+//
+//            if (!$res['success']){
+//                Mail::to(['robert@todayscrypto.com', 'aahelali@gmail.com'])
+//                    ->queue(new GlobalMail('Update Claimable Error', "Please check update claimable process!"));
+//                break;
+//            }
+//
+//            TokenPoint::whereNull('claimable_at')
+//                ->where('activate_at', '<', $carbonStartOfDay)
+//                ->whereIn('user_id', $finalUserIds)
+//                ->update([
+//                    'claimable_at' => TokenPoint::fromDateTime($carbonNow)
+//                ]);
+//        }
 
         return 0;
     }
