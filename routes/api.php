@@ -56,6 +56,8 @@ Route::group([], __DIR__.'/partial-routes/upload.php');
 
 Route::group([], __DIR__.'/partial-routes/earning.php');
 
+Route::group([], __DIR__.'/partial-routes/monetization.php');
+
 Route::group([], __DIR__.'/partial-routes/language.php');
 
 Route::group([], __DIR__.'/partial-routes/notification.php');
