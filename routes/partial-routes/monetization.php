@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+
+
+
+// For Login Users
+Route::group(['middleware' => 'auth:api'], function(){
+
+
+});
+
+
+// For Publishers
+Route::group([
+    'middleware' => 'auth.role',
+    'as' => 'publisher',
+    'prefix' => 'publisher',
+    'role' => ['publisher', 'admin']
+], function(){
+
+});
+
+
+// For Admins
+Route::group([
+    'middleware' => 'auth.role',
+    'as' => 'admin.',
+    'prefix' => 'admin',
+    'role' => 'admin'
+], function(){
+
+
+    Route::get('monetization/qualified-channels', '\App\Http\Controllers\MonetizationController@qualifiedChannels')->name('monetization.qualified-channels');
+    Route::put('monetization/budget', '\App\Http\Controllers\MonetizationController@setBudget')->name('monetization.store_budget');
+    Route::get('monetization/budget', '\App\Http\Controllers\MonetizationController@getBudget')->name('monetization.get_budget');
+
+});
