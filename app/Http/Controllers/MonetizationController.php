@@ -82,10 +82,15 @@ class MonetizationController extends Controller
         $budget = $request->get('budget');
         $month = Carbon::parse($request->get('month'));
 
-        $monetization = new Monetization();
-        $monetization->month = $month->format('Y-m');
+        $monetization = Monetization::whereDate('month', $month->format('Y-m-d'))->first();
+
+        if (!$monetization){
+            $monetization = new Monetization();
+            $monetization->month = $month->format('Y-m');
+            $monetization->status = Monetization::STATUS_UNPAID;
+        }
+
         $monetization->budget = $budget;
-        $monetization->status = Monetization::STATUS_UNPAID;
         $monetization->save();
 
         return response()->json(["message" => "ok"]);
@@ -101,17 +106,10 @@ class MonetizationController extends Controller
         $from = $date->copy()->startOfYear()->format('Y-m-d');
         $to = $date->copy()->endOfYear()->format('Y-m-d');
 
-        $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
-        $records = [];
-        foreach ($monthPeriods as $month) {
-            $record = Monetization::whereDate('month', $month->format('Y-m-d'))->latest()->first();
-
-            if (!$record){
-                continue;
-            }
-
-            $records[] = $record;
-        }
+        $records = Monetization::orderBy('month', 'ASC')
+            ->whereDate('month', '>=', $from)
+            ->whereDate('month', '<=', $to)
+            ->get();
 
         return $records;
     }
