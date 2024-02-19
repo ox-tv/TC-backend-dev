@@ -15,16 +15,21 @@ class CreateMonetizationPayoutsTable extends Migration
     {
         Schema::create('monetization_payouts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('monetization_id');
+            $table->foreign('monetization_id')
+                ->references('id')
+                ->on('monetization')
+                ->onDelete('cascade');
             $table->unsignedBigInteger('channel_id');
             $table->foreign('channel_id')
                 ->references('id')
                 ->on('channels')
                 ->onDelete('cascade');
-            $table->string('wallet_address')->nullable();
-            $table->float('amount');
             $table->tinyInteger('status');
-            $table->json('parameters');
-            $table->json('payment_details');
+            $table->string('wallet_address')->nullable();
+            $table->float('amount')->nullable();
+            $table->json('metrics')->nullable();
+            $table->json('payment_details')->nullable();
             $table->timestamps();
         });
     }
