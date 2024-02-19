@@ -19,7 +19,7 @@ class MonetizationPayout extends Model
 
     protected $casts = [
         'payment_details' => 'array',
-        'parameters' => 'array',
+        'metrics' => 'array',
     ];
 
 
