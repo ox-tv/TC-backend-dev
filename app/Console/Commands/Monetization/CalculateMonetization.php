@@ -56,7 +56,7 @@ class CalculateMonetization extends Command
                     $q->where('date', '<=', $endOfMonth)
                         ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
                 });
-            })->sum('points');
+            })->sum('amount');
 
         $monthRate = $totalMonthPoints > 0 ? $monetizationMonth->budget / $totalMonthPoints : 0;
 
@@ -128,7 +128,7 @@ class CalculateMonetization extends Command
                         $q->where('date', '<=', $endOfMonth)
                             ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
                     });
-                })->sum('points');
+                })->sum('amount');
             $earningAmount = $points * $monthRate;
             $monetizationPayout->amount = ($earningAmount > 0)? $earningAmount: 0;
 
