@@ -33,6 +33,7 @@ Route::group([
 
 
     Route::get('monetization/qualified-channels', '\App\Http\Controllers\MonetizationController@qualifiedChannels')->name('monetization.qualified-channels');
+    Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@payouts')->name('monetization.payouts');
     Route::put('monetization/budget', '\App\Http\Controllers\MonetizationController@setBudget')->name('monetization.store_budget');
     Route::get('monetization/budget', '\App\Http\Controllers\MonetizationController@getBudget')->name('monetization.get_budget');
 
