@@ -104,17 +104,6 @@ class CalculateMonetization extends Command
                 ->sum('likes_hero');
             $likesNoneHero = $likesTotal - $likesHero;
 
-            $monetizationPayout->metrics = [
-                'subscribers_total' => $subTotal,
-                'subscribers_hero' => $subHero,
-                'subscribers_non_hero' => $subNonHero,
-                'views' => $views,
-                'watch_times' => $watchTimes,
-                'likes_total' => $likesTotal,
-                'likes_hero' => $likesHero,
-                'likes_non_hero' => $likesNoneHero,
-            ];
-
             // Calc Points
             $points = MonetizePoint::active()
                 ->where('channel_id', $channel->id)
@@ -131,6 +120,19 @@ class CalculateMonetization extends Command
                 })->sum('amount');
             $earningAmount = $points * $monthRate;
             $monetizationPayout->amount = ($earningAmount > 0)? $earningAmount: 0;
+
+            $monetizationPayout->metrics = [
+                'subscribers_total' => $subTotal,
+                'subscribers_hero' => $subHero,
+                'subscribers_non_hero' => $subNonHero,
+                'views' => $views,
+                'watch_times' => $watchTimes,
+                'likes_total' => $likesTotal,
+                'likes_hero' => $likesHero,
+                'likes_non_hero' => $likesNoneHero,
+                'points' => $points,
+                'share' => $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0,
+            ];
 
             $monetizationPayout->save();
         }
