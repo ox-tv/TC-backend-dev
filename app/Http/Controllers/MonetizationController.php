@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Earning\EarningItem;
+use App\Http\Resources\Monetization\MonetizationPayoutResource;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Models\Channel;
 use App\Models\Earning;
 use App\Models\Monetization;
+use App\Models\MonetizationPayout;
 use App\Models\MonetizePoint;
 use App\Models\Option;
 use App\Models\Transaction;
@@ -20,52 +22,32 @@ use Illuminate\Support\Facades\DB;
 
 class MonetizationController extends Controller
 {
-    public function index(Request $request)
+    public function payouts(Request $request)
     {
-        $earningQuery = Earning::query();
+        $query = MonetizationPayout::query();
 
         $filters = $request->get('filters', []);
-        $userIdFilter = Arr::get($filters, 'user_id');
-        $channelIdFilter = Arr::get($filters, 'channel_id');
+        $monthFilter = Arr::get($filters, 'month');
         $statusFilter = Arr::get($filters, 'status');
-        $fromFilter = Arr::get($filters, 'from');
-        $toFilter = Arr::get($filters, 'to');
-        $currencyFilter = Arr::get($filters, 'currency');
 
-        if ($channelIdFilter){
-            $channel = Channel::findOrFail($channelIdFilter);
-            $userIdFilter = $channel->owner()->withTrashed()->firstOrFail()->id;
+        if ($monthFilter){
+            $month = Carbon::parse($monthFilter)->startOfMonth();
+        }else{
+            $month = Carbon::now()->startOfMonth();
         }
 
-        if ($request->is('/api/publisher/*')){
-            $userIdFilter = auth()->id();
-        }
-
-        if ($userIdFilter){
-            $earningQuery->where('user_id', $userIdFilter);
-        }
+        $monetization = Monetization::whereDate('month', $month)->first();
+        $query->where('monetization_id', $monetization->id??0);
 
         if ($statusFilter){
-            $earningQuery->where('status', array_flip(Earning::STATUS_TEXT)[$statusFilter]);
+            $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
         }
 
-        if ($currencyFilter){
-            $earningQuery->where('currency', $currencyFilter);
-        }
+        $payouts = $query->paginate();
 
-        if ($fromFilter){
-            $earningQuery->where('created_at', '>=', $fromFilter);
-        }
+        $payouts->load('channel');
 
-        if ($toFilter){
-            $earningQuery->where('created_at', '<=', $toFilter);
-        }
-
-        $earningQuery->orderByDesc('date');
-
-        $earnings = $earningQuery->paginate();
-
-        return EarningItem::collection($earnings);
+        return MonetizationPayoutResource::collection($payouts);
     }
 
 
