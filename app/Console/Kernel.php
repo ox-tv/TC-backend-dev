@@ -58,6 +58,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('tcg:update-claimable')->runInBackground()->dailyAt('08:00');
 
+        $schedule->command('tc:monetization:calc')->runInBackground()->dailyAt('01:00');
+
         $schedule->command('auto_import')->runInBackground()->everyMinute();
 
     }
