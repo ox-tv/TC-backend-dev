@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands\Monetization;
 
+use App\Mail\MagicLoginMail;
+use App\Mail\MonetizationMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
 use App\Models\Monetization;
@@ -9,6 +11,7 @@ use App\Models\MonetizationPayout;
 use App\Models\MonetizePoint;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class CalculateMonetization extends Command
 {
@@ -135,6 +138,14 @@ class CalculateMonetization extends Command
             ];
 
             $monetizationPayout->save();
+
+            if (
+                $endOfMonth->format('Y-m-d') == $now->copy()->subDay()->format('Y-m-d')
+                && $channel->owner->email
+            ){
+                Mail::to($channel->owner->email)
+                    ->queue(new MonetizationMail($channel->name, $monetizationPayout->amount));
+            }
         }
 
         return 0;
