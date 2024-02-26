@@ -22,6 +22,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MonetizationController extends Controller
@@ -98,6 +99,19 @@ class MonetizationController extends Controller
             ->get();
 
         return $records;
+    }
+
+    public function markAsPaid(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', Rule::exists('monetization_payouts', 'id')],
+        ]);
+
+        MonetizationPayout::whereIn('id', $request->get('ids'))
+            ->update(['status' => MonetizationPayout::STATUS_PAID]);
+
+        return response()->json(["message" => "ok"]);
     }
 
     public function qualifiedChannels()

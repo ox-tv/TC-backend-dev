@@ -10,7 +10,6 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 
 });
-Route::get('monetization/payouts/export', '\App\Http\Controllers\MonetizationController@exportMonetizationPayouts')->name('monetization.payouts.export');
 
 
 // For Publishers
@@ -38,4 +37,5 @@ Route::group([
     Route::put('monetization/budget', '\App\Http\Controllers\MonetizationController@setBudget')->name('monetization.store_budget');
     Route::get('monetization/budget', '\App\Http\Controllers\MonetizationController@getBudget')->name('monetization.get_budget');
     Route::get('monetization/payouts/export', '\App\Http\Controllers\MonetizationController@exportMonetizationPayouts')->name('monetization.payouts.export');
+    Route::put('monetization/payouts/mark-as-paid', '\App\Http\Controllers\MonetizationController@markAsPaid')->name('monetization.payouts.mark-as-paid');
 });
