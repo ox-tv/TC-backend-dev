@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MonetizationExport;
+use App\Exports\PublisherEarningsExport;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Earning\EarningItem;
 use App\Http\Resources\Monetization\MonetizationPayoutResource;
@@ -13,12 +15,14 @@ use App\Models\MonetizationPayout;
 use App\Models\MonetizePoint;
 use App\Models\Option;
 use App\Models\Transaction;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MonetizationController extends Controller
 {
@@ -108,5 +112,23 @@ class MonetizationController extends Controller
         return ChannelResource::collection($channels);
     }
 
+    public function exportMonetizationPayouts(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|date',
+        ]);
 
+        $month = Carbon::parse($request->get('month'))->startOfMonth();
+
+        $monetization = Monetization::whereDate('month', $month)->first();
+
+        $payouts = MonetizationPayout::whereNotNull('wallet_address')
+            ->where('monetization_id', $monetization->id??0)->get();
+
+        $payouts->load(['channel']);
+
+        $fileName = 'monetization-' . $month->format('Y-m') . '.csv';
+
+        return Excel::download(new MonetizationExport($payouts), $fileName, \Maatwebsite\Excel\Excel::CSV, ['Content-Type' => 'text/csv']);
+    }
 }
