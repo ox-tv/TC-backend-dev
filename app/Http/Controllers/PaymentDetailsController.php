@@ -85,6 +85,7 @@ class PaymentDetailsController extends Controller
         $request->validate([
             //'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
             //'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
+            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
             'street_address' => ['required'],
             'street_number' => ['required'],
             'postal_code' => ['required'],
@@ -96,7 +97,7 @@ class PaymentDetailsController extends Controller
 
         $newPaymentDetails = new PaymentDetails();
         $newPaymentDetails->user_id = $user->id;
-        $newPaymentDetails->status = PaymentDetails::STATUS_NEW;
+        $newPaymentDetails->status = PaymentDetails::STATUS_VERIFIED;
         $newPaymentDetails->last_status_at = Carbon::now();
         $newPaymentDetails->proof_code = Str::upper(Str::random(16));
 
@@ -117,9 +118,13 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->country = $request->get('country');
         $newPaymentDetails->company_name = $request->get('company_name');
         $newPaymentDetails->vat_number = $request->get('vat_number');
-        //$newPaymentDetails->eth_address = $request->get('eth_address');
+        $newPaymentDetails->eth_address = $request->get('eth_address');
 
         $newPaymentDetails->save();
+
+        // Change eth_address in users table
+        $user->eth_address = $request->get('eth_address');
+        $user->save();
 
         return response()->json(['status' => 'ok']);
     }
@@ -127,7 +132,7 @@ class PaymentDetailsController extends Controller
     public function storeEthAddress(Request $request){
 
         $request->validate([
-        'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
+            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
         ]);
 
         $user = auth('api')->user();
