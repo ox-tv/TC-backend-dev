@@ -33,6 +33,7 @@ class MonetizationPayoutResource extends JsonResource
 
             // Relations
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
+            'monetization' => $this->whenLoaded('monetization'),
         ];
     }
 }

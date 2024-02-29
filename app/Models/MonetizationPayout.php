@@ -29,6 +29,10 @@ class MonetizationPayout extends Model
         return $this->belongsTo('App\Models\Channel');
     }
 
+    public function monetization(){
+        return $this->belongsTo('App\Models\Monetization');
+    }
+
     // Attributes
     public function getStatusTextAttribute(){
         return self::STATUS_TEXT[$this->status]?? $this->status;

@@ -19,6 +19,8 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
+
+    Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@publisherPayouts')->name('monetization.payouts');
     Route::get('monetization/qualified-status', '\App\Http\Controllers\MonetizationController@qualifiedStatus')->name('monetization.qualified-status');
     Route::get('monetization/current-month-budget', '\App\Http\Controllers\MonetizationController@getTotalDistributedMoney')->name('monetization.total_distributed_money');
 
@@ -35,7 +37,7 @@ Route::group([
 
 
     Route::get('monetization/qualified-channels', '\App\Http\Controllers\MonetizationController@qualifiedChannels')->name('monetization.qualified-channels');
-    Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@payouts')->name('monetization.payouts');
+    Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@adminPayouts')->name('monetization.payouts');
     Route::put('monetization/budget', '\App\Http\Controllers\MonetizationController@setBudget')->name('monetization.store_budget');
     Route::get('monetization/budget', '\App\Http\Controllers\MonetizationController@getBudget')->name('monetization.get_budget');
     Route::get('monetization/payouts/export', '\App\Http\Controllers\MonetizationController@exportMonetizationPayouts')->name('monetization.payouts.export');
