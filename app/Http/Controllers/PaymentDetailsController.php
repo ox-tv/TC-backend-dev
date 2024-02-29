@@ -123,6 +123,7 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->save();
 
         // Change eth_address in users table
+        $user->identity_verified_at = Carbon::now();
         $user->eth_address = $request->get('eth_address');
         $user->save();
 
