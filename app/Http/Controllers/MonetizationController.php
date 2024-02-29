@@ -3,32 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MonetizationExport;
-use App\Exports\PublisherEarningsExport;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\Earning\EarningItem;
 use App\Http\Resources\Monetization\MonetizationPayoutResource;
-use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
-use App\Models\Earning;
 use App\Models\Monetization;
 use App\Models\MonetizationPayout;
-use App\Models\MonetizePoint;
-use App\Models\Option;
-use App\Models\Transaction;
-use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MonetizationController extends Controller
 {
-    public function payouts(Request $request)
+    public function adminPayouts(Request $request)
     {
         $query = MonetizationPayout::query();
 
@@ -52,6 +41,27 @@ class MonetizationController extends Controller
         $payouts = $query->paginate();
 
         $payouts->load('channel');
+
+        return MonetizationPayoutResource::collection($payouts);
+    }
+
+    public function publisherPayouts(Request $request)
+    {
+        $query = MonetizationPayout::query();
+
+        $filters = $request->get('filters', []);
+        $statusFilter = Arr::get($filters, 'status');
+
+
+        if ($statusFilter){
+            $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
+        }
+
+        $query->orderBy('created_at', 'desc');
+
+        $payouts = $query->paginate();
+
+        $payouts->load(['channel', 'monetization']);
 
         return MonetizationPayoutResource::collection($payouts);
     }
