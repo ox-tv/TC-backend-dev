@@ -80,7 +80,7 @@ class PaymentDetailsController extends Controller
             return response()->json(['message' => 'You already have ongoing request.'], 422);
         }
 
-        $lastPaymentDetails = $user->paymentDetails()->verified()->latest()->first();
+//        $lastPaymentDetails = $user->paymentDetails()->verified()->latest()->first();
 
         $request->validate([
             //'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
@@ -101,15 +101,18 @@ class PaymentDetailsController extends Controller
         $newPaymentDetails->last_status_at = Carbon::now();
         $newPaymentDetails->proof_code = Str::upper(Str::random(16));
 
-        $meta = $user->meta()->where('key', UserMeta::IDENTIFICATION_DETAILS)->first();
+//        $meta = $user->meta()->where('key', UserMeta::IDENTIFICATION_DETAILS)->first();
+//
+//        if ($meta){
+//            $newPaymentDetails->first_name = $meta->value['data']['docFirstName'];
+//            $newPaymentDetails->last_name = $meta->value['data']['docLastName'];
+//        }else{
+//            $newPaymentDetails->first_name = $lastPaymentDetails->first_name?? $request->get('first_name');
+//            $newPaymentDetails->last_name = $lastPaymentDetails->last_name?? $request->get('last_name');
+//        }
 
-        if ($meta){
-            $newPaymentDetails->first_name = $meta->value['data']['docFirstName'];
-            $newPaymentDetails->last_name = $meta->value['data']['docLastName'];
-        }else{
-            $newPaymentDetails->first_name = $lastPaymentDetails->first_name?? $request->get('first_name');
-            $newPaymentDetails->last_name = $lastPaymentDetails->last_name?? $request->get('last_name');
-        }
+        $newPaymentDetails->first_name = $request->get('first_name');
+        $newPaymentDetails->last_name = $request->get('last_name');
 
         $newPaymentDetails->street_address = $request->get('street_address');
         $newPaymentDetails->street_number = $request->get('street_number');
