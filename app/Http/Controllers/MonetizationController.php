@@ -9,6 +9,7 @@ use App\Http\Resources\Earning\EarningItem;
 use App\Http\Resources\Monetization\MonetizationPayoutResource;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Models\Channel;
+use App\Models\Channel2StatisticsDaily;
 use App\Models\Earning;
 use App\Models\Monetization;
 use App\Models\MonetizationPayout;
@@ -144,5 +145,20 @@ class MonetizationController extends Controller
         $fileName = 'monetization-' . $month->format('Y-m') . '.csv';
 
         return Excel::download(new MonetizationExport($payouts), $fileName, \Maatwebsite\Excel\Excel::CSV, ['Content-Type' => 'text/csv']);
+    }
+
+    public function qualifiedStatus()
+    {
+        $result = [];
+
+        $channel = auth('api')->user()->channel()->firstOrFail();
+
+        $result['is_qualified'] = (bool) $channel->monetization_qualified_at;
+        $result['qualified_at'] = $channel->monetization_qualified_at;
+
+        $result['watch_time_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('watch_time_total'));
+        $result['subscribers_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total')) - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
+
+        return response()->json($result);
     }
 }

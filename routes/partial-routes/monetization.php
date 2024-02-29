@@ -19,6 +19,7 @@ Route::group([
     'prefix' => 'publisher',
     'role' => ['publisher', 'admin']
 ], function(){
+    Route::get('monetization/qualified-status', '\App\Http\Controllers\MonetizationController@qualifiedStatus')->name('monetization.qualified-status');
 
 });
 
