@@ -10,6 +10,8 @@ use App\Http\Requests\ChannelUpdate;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Models\Channel;
 use App\Models\Earning;
+use App\Models\Monetization;
+use App\Models\MonetizationPayout;
 use App\Models\MonetizePoint;
 use App\Models\User;
 use App\Services\_2FAService;
@@ -312,11 +314,18 @@ class ChannelController extends Controller
         $from = Arr::get($filters, 'from');
         $to = Arr::get($filters, 'to');
 
-        $earningAmount = Earning::where('user_id', $user->id)->when($from, function ($q, $from){
-                $q->where('date', '>=', $from);
-            })->when($to, function ($q, $to){
-                $q->where('date', '<=', $to);
-            })->sum('amount');
+        $monetizationIds = Monetization::when($from, function ($q, $from){
+            $q->where('month', '>=', $from);
+        })->when($to, function ($q, $to){
+            $q->where('month', '<=', $to);
+        })->pluck('id')->toArray();
+        $MonetizationPayoutsAmount = MonetizationPayout::when($user, function($q, $user){$q->where('channel_id', $user->channel->id);})
+            ->whereIn('monetization_id', $monetizationIds)->sum('amount');
+//        $earningAmount = Earning::where('user_id', $user->id)->when($from, function ($q, $from){
+//                $q->where('date', '>=', $from);
+//            })->when($to, function ($q, $to){
+//                $q->where('date', '<=', $to);
+//            })->sum('amount');
 
         // Calc total points
         $pointsQuery = MonetizePoint::when($from && !$to, function ($q) use ($from){
@@ -345,7 +354,7 @@ class ChannelController extends Controller
         $result = [
             'points_total' => intval($pointsQuery->sum('amount')),
             'points_channel' => intval($pointsQuery->where('channel_id', $user->channel->id)->sum('amount')),
-            'earning_channel' => intval($earningAmount),
+            'earning_channel' => intval($MonetizationPayoutsAmount),
         ];
 
         return response()->json($result);
@@ -365,12 +374,15 @@ class ChannelController extends Controller
         $monthPeriods = CarbonPeriod::create($from, '1 month', $to);
 
         foreach ($monthPeriods as $month) {
-            $from_day = $month->startOfMonth()->format("Y-m-d H:i:s");
-            $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
+            $from_day = $month->copy()->startOfMonth()->format("Y-m-d H:i:s");
+            $to_day = $month->copy()->endOfMonth()->format("Y-m-d H:i:s");
 
-            $earningAmount = Earning::where('user_id', $user->id)
-                ->whereDate('date', $month->startOfMonth()->format("Y-m-d"))
-                ->sum('amount');
+            $monetization = Monetization::whereDate('month', $month->copy()->startOfMonth())->first();
+            $MonetizationPayoutsAmount = MonetizationPayout::when($user, function($q, $user){$q->where('channel_id', $user->channel->id);})
+                ->where('monetization_id', $monetization->id??0)->sum('amount');
+//            $earningAmount = Earning::where('user_id', $user->id)
+//                ->whereDate('date', $month->copy()->startOfMonth()->format("Y-m-d"))
+//                ->sum('amount');
 
             $pointsTotal = MonetizePoint::where('channel_id', $user->channel->id)
                 ->where(function($q) use($from_day, $to_day){
@@ -388,7 +400,7 @@ class ChannelController extends Controller
                 'points_hero' => 0,
                 'points_non_hero' => 0,
                 'points_total' => intval($pointsTotal),
-                'earning' => intval($earningAmount),
+                'earning' => intval($MonetizationPayoutsAmount),
             ];
         }
 
