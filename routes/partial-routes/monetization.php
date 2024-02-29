@@ -20,6 +20,7 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function(){
     Route::get('monetization/qualified-status', '\App\Http\Controllers\MonetizationController@qualifiedStatus')->name('monetization.qualified-status');
+    Route::get('monetization/current-month-budget', '\App\Http\Controllers\MonetizationController@getTotalDistributedMoney')->name('monetization.total_distributed_money');
 
 });
 
