@@ -161,4 +161,13 @@ class MonetizationController extends Controller
 
         return response()->json($result);
     }
+
+    public function getTotalDistributedMoney()
+    {
+        $month = Carbon::now()->startOfMonth();
+
+        $monetization = Monetization::whereDate('month', $month)->firstOrFail();
+
+        return $monetization->budget;
+    }
 }
