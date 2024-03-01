@@ -41,7 +41,7 @@ class MonetizePointsForUserVerified
 
         $monetizeReferralPointsIsActive = $referrer->meta()->where('key', UserMeta::MonetizeReferralPointsIsActive)->first();
 
-        return $this->monetizePointRepository->add([
+        $this->monetizePointRepository->add([
             'channel_id' => $channel->id,
             'activated_at' => $monetizeReferralPointsIsActive && $monetizeReferralPointsIsActive->value? Carbon::now() : null,
             'type' => MonetizePoint::TYPE_REFERRAL,
@@ -51,5 +51,7 @@ class MonetizePointsForUserVerified
             'type',
             'date',
         ]);
+
+        return;
     }
 }
