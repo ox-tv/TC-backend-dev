@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Channel;
+use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -36,11 +37,16 @@ class CheckQualifiedChannelsForMonetization extends Command
 
         foreach ($channels as $channel){
 
-            if ($channel->subscribers_count < $minimumSubscribers){
+            $watchTimeTotal = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('watch_time_total'));
+            $subscribersTotal = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total')) - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
+
+            dump("{$channel->id},{$channel->name},{$watchTimeTotal},{$subscribersTotal}");
+
+            if ($subscribersTotal < $minimumSubscribers){
                 continue;
             }
 
-            if ($channel->watch_time < $minimumWatchHoursOnChannel){
+            if ($watchTimeTotal < $minimumWatchHoursOnChannel){
                 continue;
             }
 
