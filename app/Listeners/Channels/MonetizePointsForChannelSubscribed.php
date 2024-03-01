@@ -40,14 +40,14 @@ class MonetizePointsForChannelSubscribed
 
         // Check channel is qualified
         if (!$channel->monetization_qualified_at || $channel->monetization_qualified_at > Carbon::now()){
-            return 0;
+            return;
         }
 
         // Calc point and add to DB
         $point = ($pointsPerChannelSubscribed * $subscribersCount);
         $point += (-1 * $pointsPerChannelSubscribed * $unSubscribersCount);
 
-        return $this->monetizePointRepository->add([
+        $this->monetizePointRepository->add([
             'channel_id' => $channel->id,
             'activated_at' => Carbon::now(),
             'type' => MonetizePoint::TYPE_SUBSCRIPTION,
@@ -57,5 +57,7 @@ class MonetizePointsForChannelSubscribed
             'type',
             'date',
         ]);
+
+        return;
     }
 }

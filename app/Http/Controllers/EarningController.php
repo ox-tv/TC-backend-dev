@@ -233,17 +233,8 @@ class EarningController extends Controller
             $to_day = $month->endOfMonth()->format("Y-m-d H:i:s");
 
             $affectedTotalPointsQuery = MonetizePoint::active()
-                ->where(function ($q) use($from_day, $to_day){
-                    $q->where(function($q) use($from_day, $to_day){
-                        $q->notCalculated()
-                            ->where('date', '>=', Carbon::parse($from_day))
-                            ->where('date', '<=', Carbon::parse($to_day))
-                            ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                    })->orWhere(function($q) use($from_day, $to_day){
-                        $q->where('date', '<=', Carbon::parse($to_day))
-                            ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                    });
-                });
+                ->where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day));
 
 
             $totalMonthPoints = $affectedTotalPointsQuery->sum('points');
@@ -257,17 +248,8 @@ class EarningController extends Controller
                 $points = $affectedChannelPointsQuery->where('channel_id', $channel->id);
                 MonetizePoint::active()
                     ->where('channel_id', $channel->id)
-                    ->where(function ($q) use($from_day, $to_day){
-                        $q->where(function($q) use($from_day, $to_day){
-                            $q->notCalculated()
-                                ->where('date', '>=', Carbon::parse($from_day))
-                                ->where('date', '<=', Carbon::parse($to_day))
-                                ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                        })->orWhere(function($q) use($from_day, $to_day){
-                            $q->where('date', '<=', Carbon::parse($to_day))
-                                ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                        });
-                    })
+                    ->where('date', '>=', Carbon::parse($from_day))
+                    ->where('date', '<=', Carbon::parse($to_day))
                     ->sum('points');
 
                 $earningAmount = $points * $monthRate;

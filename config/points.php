@@ -11,7 +11,7 @@ return [
         'per_dislike_video_as_non_hero' => env('MONETIZE_POINTS_PER_DISLIKE_VIDEO_AS_NON_HERO', 50),
         'per_subscribe_channel_as_hero' => env('MONETIZE_POINTS_PER_SUBSCRIBE_CHANNEL_AS_HERO', 3),
         'per_subscribe_channel_as_non_hero' => env('MONETIZE_POINTS_PER_SUBSCRIBE_CHANNEL_AS_NON_HERO', 1),
-        'per_referral' => env('MONETIZE_POINTS_PER_REFERRAL', 1000),
+        'per_referral' => env('MONETIZE_POINTS_PER_REFERRAL', 200),
     ],
 
     'loyalty' => [
@@ -27,7 +27,7 @@ return [
     'token' => [
         // as publisher
         'publish_a_media' => 500,
-        'answer_a_comment' => 100,
+        'answer_a_comment' => 10,
         'referrer_as_publisher' => 1000,
 
         // as end user

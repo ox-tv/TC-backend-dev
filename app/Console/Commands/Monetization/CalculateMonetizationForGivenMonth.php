@@ -43,17 +43,9 @@ class CalculateMonetizationForGivenMonth extends Command
         $endOfMonth = $now->copy()->subDay()->endOfMonth();
 
         $totalMonthPoints = MonetizePoint::active()
-            ->where(function ($q) use($startOfMonth, $endOfMonth){
-                $q->where(function($q) use($startOfMonth, $endOfMonth){
-                    $q
-                        ->where('date', '>=', $startOfMonth)
-                        ->where('date', '<=', $endOfMonth)
-                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                })->orWhere(function($q) use($endOfMonth){
-                    $q->where('date', '<=', $endOfMonth)
-                        ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                });
-            })->sum('amount');
+            ->where('date', '>=', $startOfMonth)
+            ->where('date', '<=', $endOfMonth)
+            ->sum('amount');
 
         $monthRate = $totalMonthPoints > 0 ? 100 / $totalMonthPoints : 0;
 
@@ -93,17 +85,9 @@ class CalculateMonetizationForGivenMonth extends Command
             // Calc Points
             $points = MonetizePoint::active()
                 ->where('channel_id', $channel->id)
-                ->where(function ($q) use($startOfMonth, $endOfMonth){
-                    $q->where(function($q) use($startOfMonth, $endOfMonth){
-                        $q
-                            ->where('date', '>=', $startOfMonth)
-                            ->where('date', '<=', $endOfMonth)
-                            ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                    })->orWhere(function($q) use($endOfMonth){
-                        $q->where('date', '<=', $endOfMonth)
-                            ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                    });
-                })->sum('amount');
+                ->where('date', '>=', $startOfMonth)
+                ->where('date', '<=', $endOfMonth)
+                ->sum('amount');
 
             $share = $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0;
 
