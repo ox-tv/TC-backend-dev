@@ -32,6 +32,6 @@ class MonetizationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Monetization')->view('emails.monetization-dark');
+        return $this->from('monetize@todayscrypto.com')->subject('Monetization')->view('emails.monetization-dark');
     }
 }
