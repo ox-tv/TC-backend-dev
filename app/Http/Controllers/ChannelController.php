@@ -328,27 +328,11 @@ class ChannelController extends Controller
 //            })->sum('amount');
 
         // Calc total points
-        $pointsQuery = MonetizePoint::when($from && !$to, function ($q) use ($from){
-                $q->where(function($q) use($from){
-                    $q->where('date', '>=', Carbon::parse($from))
-                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                })->orWhere(function($q){
-                    $q->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                });
-            })
-            ->when(!$from && $to, function ($q) use ($to){
+        $pointsQuery = MonetizePoint::
+            when($from, function ($q) use ($from){
+                $q->where('date', '>=', Carbon::parse($from));
+            })->when($to, function ($q) use ($to){
                 $q->where('date', '<=', Carbon::parse($to));
-            })
-            ->when($from && $to, function ($q) use ($from, $to){
-                $q->where(function($q) use($from, $to){
-                    $q
-                        ->where('date', '>=', Carbon::parse($from))
-                        ->where('date', '<=', Carbon::parse($to))
-                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                })->orWhere(function($q) use($from, $to){
-                    $q->where('date', '<=', Carbon::parse($to))
-                        ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                });
             });
 
         $result = [
@@ -385,15 +369,9 @@ class ChannelController extends Controller
 //                ->sum('amount');
 
             $pointsTotal = MonetizePoint::where('channel_id', $user->channel->id)
-                ->where(function($q) use($from_day, $to_day){
-                    $q
-                        ->where('date', '>=', Carbon::parse($from_day))
-                        ->where('date', '<=', Carbon::parse($to_day))
-                        ->where('type', '!=', MonetizePoint::TYPE_SUBSCRIPTION);
-                })->orWhere(function($q) use($from_day, $to_day){
-                    $q->where('date', '<=', Carbon::parse($to_day))
-                        ->where('type', MonetizePoint::TYPE_SUBSCRIPTION);
-                })->sum('amount');
+                ->where('date', '>=', Carbon::parse($from_day))
+                ->where('date', '<=', Carbon::parse($to_day))
+                ->sum('amount');
 
             $result[$month->format("Y-m")] = [
                 'date' => $month->format("Y-m"),
