@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\ChannelQualifiedMail;
+use App\Mail\MonetizationMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class CheckQualifiedChannelsForMonetization extends Command
 {
@@ -52,6 +55,8 @@ class CheckQualifiedChannelsForMonetization extends Command
 
             $channel->monetization_qualified_at = Carbon::now();
             $channel->save();
+
+            Mail::to($channel->owner->email)->queue(new ChannelQualifiedMail($channel->name));
         }
 
         return 0;
