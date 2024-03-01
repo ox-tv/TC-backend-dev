@@ -143,8 +143,7 @@ class CalculateMonetization extends Command
                 $endOfMonth->format('Y-m-d') == $now->copy()->subDay()->format('Y-m-d')
                 && $channel->owner->email
             ){
-                Mail::to($channel->owner->email)
-                    ->queue(new MonetizationMail($channel->name, $monetizationPayout->amount));
+                Mail::to($channel->owner->email)->queue(new MonetizationMail($channel->name, $monetizationPayout->amount));
             }
         }
 
