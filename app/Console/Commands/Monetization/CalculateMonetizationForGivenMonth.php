@@ -61,7 +61,7 @@ class CalculateMonetizationForGivenMonth extends Command
             ->where('monetization_qualified_at', '<=', $now)
             ->get();
 
-        dump("channelId,channelName,points,subTotal,watchTimesInHour,views");
+        dump("channelId,channelName,points,share,subTotal,watchTimesInHour,views");
 
         foreach ($qualifiedChannels as $channel){
 
@@ -105,6 +105,8 @@ class CalculateMonetizationForGivenMonth extends Command
                     });
                 })->sum('amount');
 
+            $share = $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0;
+
 /*            $monetizationPayout->metrics = [
                 'subscribers_total' => $subTotal,
                 'subscribers_hero' => $subHero,
@@ -115,12 +117,12 @@ class CalculateMonetizationForGivenMonth extends Command
                 'likes_hero' => $likesHero,
                 'likes_non_hero' => $likesNoneHero,
                 'points' => $points,
-                'share' => $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0,
+                'share' => $share,
             ];*/
 
             $watchTimesInHour = $watchTimes / (60*60);
 
-            dump("{$channel->id},{$channel->name},{$points},{$subTotal},{$watchTimesInHour},{$views}");
+            dump("{$channel->id},{$channel->name},{$points},{$share},{$subTotal},{$watchTimesInHour},{$views}");
 
         }
 
