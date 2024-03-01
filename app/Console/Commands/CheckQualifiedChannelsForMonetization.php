@@ -33,7 +33,7 @@ class CheckQualifiedChannelsForMonetization extends Command
         $minimumSubscribers = 500;
         $minimumWatchHoursOnChannel = 2000 * 60 * 60;
 
-        $channels = Channel::whereNull('monetization_qualified_at')->take(10)->get();
+        $channels = Channel::whereNull('monetization_qualified_at')->get();
 
         foreach ($channels as $channel){
 

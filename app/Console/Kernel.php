@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("crypto_currencies:update --updateOnlyFirst250=true")->runInBackground()->everyMinute();
         $schedule->command("crypto_currencies:update --updateOnlyFirst250=false")->runInBackground()->everyTenMinutes();
 
-        $schedule->command('tc:channels:check-monetization-qualification')->runInBackground()->hourly();
+        $schedule->command('tc:channels:check-monetization-qualification')->runInBackground()->daily();
 
         $keep = config('general.notifications.keep');
         $schedule->command("notifications:dump --keep={$keep}")->runInBackground()->monthly();
