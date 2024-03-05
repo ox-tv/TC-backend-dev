@@ -166,8 +166,11 @@ class MonetizationController extends Controller
         $result['is_qualified'] = (bool) $channel->monetization_qualified_at;
         $result['qualified_at'] = $channel->monetization_qualified_at;
 
-        $result['watch_time_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('watch_time_total'));
-        $result['subscribers_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total')) - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
+//        $result['watch_time_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('watch_time_total'));
+//        $result['subscribers_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total')) - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
+
+        $result['subscribers_total'] = intval($channel->watch_time);
+        $result['watch_time_total'] = intval($channel->subscribers_count);
 
         return response()->json($result);
     }
