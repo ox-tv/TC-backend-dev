@@ -298,7 +298,7 @@ class GeneralController extends Controller
         return $result;
     }
 
-    public function publisherDashboard(Request $request)
+    public function publisherDashboardOverview(Request $request)
     {
         $result = [
             'overview' => [
@@ -310,7 +310,6 @@ class GeneralController extends Controller
                 'upload_videos_total' => 0,
                 'published_videos' => 0,
             ],
-            'statistics' => [],
         ];
 
         $channel = auth('api')->user()->channel;
@@ -326,6 +325,16 @@ class GeneralController extends Controller
         $result['overview']['upload_videos_total'] = intval($channelStatisticsQuery->sum('upload_videos_total'));
         $result['overview']['published_videos'] = intval($channelStatisticsQuery->sum('published_videos')) - intval($channelStatisticsQuery->sum('unpublished_videos'));
 
+        return response()->json($result);
+    }
+
+    public function publisherDashboardCharts(Request $request)
+    {
+        $result = [
+            'statistics' => [],
+        ];
+
+        $channel = auth('api')->user()->channel;
 
         // Statistics by channel id
         $filters = $request->get('filters', []);

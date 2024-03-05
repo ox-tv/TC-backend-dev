@@ -19,9 +19,10 @@ Route::group([
     'role' => ['publisher', 'admin']
 ], function() {
 
-    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('.score-board');
+    Route::get('score_board', '\App\Http\Controllers\PublisherController@scoreBoard')->name('score-board');
 
-    Route::get('dashboard', '\App\Http\Controllers\GeneralController@publisherDashboard')->name('dashboard');
+    Route::get('dashboard/overview', '\App\Http\Controllers\GeneralController@publisherDashboardOverview')->name('dashboard-overview');
+    Route::get('dashboard/charts', '\App\Http\Controllers\GeneralController@publisherDashboardCharts')->name('dashboard-charts');
 
 });
 
