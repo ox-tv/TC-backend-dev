@@ -169,8 +169,8 @@ class MonetizationController extends Controller
 //        $result['watch_time_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('watch_time_total'));
 //        $result['subscribers_total'] = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total')) - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
 
-        $result['subscribers_total'] = intval($channel->watch_time);
-        $result['watch_time_total'] = intval($channel->subscribers_count);
+        $result['subscribers_total'] = intval($channel->subscribers_count);
+        $result['watch_time_total'] = intval($channel->watch_time);
 
         return response()->json($result);
     }
