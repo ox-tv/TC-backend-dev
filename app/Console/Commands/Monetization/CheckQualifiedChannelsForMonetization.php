@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Monetization;
 
 use App\Mail\ChannelQualifiedMail;
-use App\Mail\MonetizationMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
