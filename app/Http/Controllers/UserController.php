@@ -571,9 +571,13 @@ class UserController extends Controller
             $user->channel->append(['subscribers_count', 'monetization_qualified_at', 'youtube_next_scrap_at']);
         }
 
-        $user->verifiedPaymentDetails->append(['eth_address']);
-        $user->lastPaymentDetails->append(['eth_address']);
+        if ($user->verifiedPaymentDetails){
+            $user->verifiedPaymentDetails->append(['eth_address']);
+        }
 
+        if ($user->lastPaymentDetails){
+            $user->lastPaymentDetails->append(['eth_address']);
+        }
 
         return UserResource::make($user);
     }
