@@ -565,13 +565,15 @@ class UserController extends Controller
             'isHeroMembershipAutoRenewal',
             'channelAutoImportIsActive',
             'favoriteCryptoCurrenciesCount',
-            'verifiedPaymentDetails.eth_address',
-            'lastPaymentDetails.eth_address',
         ]);
 
         if ($user->channel){
             $user->channel->append(['subscribers_count', 'monetization_qualified_at', 'youtube_next_scrap_at']);
         }
+
+        $user->verifiedPaymentDetails->append(['eth_address']);
+        $user->lastPaymentDetails->append(['eth_address']);
+
 
         return UserResource::make($user);
     }
