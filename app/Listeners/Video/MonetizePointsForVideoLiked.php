@@ -51,13 +51,14 @@ class MonetizePointsForVideoLiked
         $point = ($pointsPerLikeVideo * $likeAmount);
         $point += (-1 * $pointsPerDisLikeVideo * $dislikeAmount);
 
-        return $this->monetizePointRepository->add([
+        $this->monetizePointRepository->add([
             'channel_id' => $channel->id,
             'related_to_type' => Video::class,
             'related_to_id' => $video->id,
             'activated_at' => Carbon::now(),
             'type' => MonetizePoint::TYPE_VIDEO_LIKED,
             'amount' => $point,
+            'monetization_multiplier' => $channel->monetization_multiplier,
         ], [
             'channel_id',
             'related_to_type',

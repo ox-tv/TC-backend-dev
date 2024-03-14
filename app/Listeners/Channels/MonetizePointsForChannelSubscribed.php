@@ -52,6 +52,7 @@ class MonetizePointsForChannelSubscribed
             'activated_at' => Carbon::now(),
             'type' => MonetizePoint::TYPE_SUBSCRIPTION,
             'amount' => $point,
+            'monetization_multiplier' => $channel->monetization_multiplier,
         ], [
             'channel_id',
             'type',

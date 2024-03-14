@@ -22,6 +22,9 @@ class MonetizePointRepository
         if (!isset($data['amount'])){
             throw new Exception('Something bad happened.');
         }
+        if (!isset($data['monetization_multiplier'])){
+            throw new Exception('Something bad happened.');
+        }
         if (!empty($data['date']) && !($data['date'] instanceof Carbon)){
             throw new Exception('Something bad happened.');
         }
@@ -52,7 +55,8 @@ class MonetizePointRepository
         $model->is_calculated = $data['is_calculated'];
         $model->related_to_type = $data['related_to_type'];
         $model->related_to_id = $data['related_to_id'];
-        $model->amount = $model->amount + $data['amount'];
+        $model->original_amount = round($model->original_amount + $data['amount'], 2);
+        $model->amount = round($this->CalculateMultipliedAmount($model->original_amount, $data['monetization_multiplier']), 2);
 
         $model->save();
 
@@ -71,5 +75,14 @@ class MonetizePointRepository
         }
 
         return $multiplier;
+    }
+
+    private function CalculateMultipliedAmount($amount, $multiplier)
+    {
+        if ($multiplier === null){
+            $multiplier = 0;
+        }
+
+        return $amount * $multiplier;
     }
 }

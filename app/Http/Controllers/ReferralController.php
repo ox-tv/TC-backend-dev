@@ -37,13 +37,14 @@ class ReferralController extends Controller
         $pointsAmountToActive = MonetizePoint::where('type', MonetizePoint::TYPE_REFERRAL)
             ->where('channel_id', $channel->id)
             ->whereNull('activated_at')
-            ->sum('amount');
+            ->sum('original_amount');
 
         $this->monetizePointRepository->add([
             'channel_id' => $channel->id,
             'activated_at' => Carbon::now(),
             'type' => MonetizePoint::TYPE_REFERRAL,
             'amount' => $pointsAmountToActive,
+            'monetization_multiplier' => $channel->monetization_multiplier,
         ], [
             'channel_id',
             'type',

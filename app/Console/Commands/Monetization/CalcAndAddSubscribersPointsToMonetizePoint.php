@@ -61,6 +61,7 @@ class CalcAndAddSubscribersPointsToMonetizePoint extends Command
                 'activated_at' => Carbon::now(),
                 'type' => MonetizePoint::TYPE_SUBSCRIPTION,
                 'amount' => $point,
+                'monetization_multiplier' => $channel->monetization_multiplier,
                 'date' => Carbon::now()->startOfMonth(),
             ], [
                 'channel_id',
