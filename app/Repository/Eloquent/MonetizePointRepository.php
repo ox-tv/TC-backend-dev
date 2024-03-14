@@ -80,7 +80,7 @@ class MonetizePointRepository
     private function CalculateMultipliedAmount($amount, $multiplier)
     {
         if ($multiplier === null){
-            $multiplier = 0;
+            $multiplier = 1;
         }
 
         return $amount * $multiplier;
