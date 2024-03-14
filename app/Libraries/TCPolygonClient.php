@@ -69,7 +69,7 @@ class TCPolygonClient
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ]
-            ])->get("{$this->baseUrl}/balance/{$walletAddress}");
+            ])->get("{$this->baseUrl}/address/{$walletAddress}/balance");
 
             $body = $response->json();
 
