@@ -46,6 +46,7 @@ class MonetizePointsForUserVerified
             'activated_at' => $monetizeReferralPointsIsActive && $monetizeReferralPointsIsActive->value? Carbon::now() : null,
             'type' => MonetizePoint::TYPE_REFERRAL,
             'amount' => $pointsPerReferral,
+            'monetization_multiplier' => $channel->monetization_multiplier,
         ], [
             'channel_id',
             'type',
