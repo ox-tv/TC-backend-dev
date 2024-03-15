@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Monetization;
 
+use App\Libraries\TCPolygonClient;
 use App\Mail\ChannelQualifiedMail;
-use App\Mail\MonetizationMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
+use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -57,6 +58,30 @@ class CheckQualifiedChannelsForMonetization extends Command
             $channel->save();
 
             Mail::to($channel->owner->email)->queue(new ChannelQualifiedMail($channel->name));
+        }
+
+
+        // Check qualified channels token balance and calculate multiplier
+        $qualifiedChannels = Channel::whereNotNull('monetization_qualified_at')->get();
+        $monetizePointRepository = new MonetizePointRepository();
+        $polygonClient = new TCPolygonClient();
+
+        foreach ($qualifiedChannels as $channel){
+
+            $monetizationMultiplier = 1;
+
+            if ($channel->owner->verifiedPaymentDetails){
+                $walletAddress = $channel->owner->verifiedPaymentDetails->eth_address;
+                $res = $polygonClient->getBalanceByOwner($walletAddress);
+
+                if ($res['success']){
+                    $walletBalance = $res['balance'];
+                    $monetizationMultiplier = $monetizePointRepository->ConvertBalanceToMonetizationMultiplier($walletBalance);
+                }
+            }
+
+            $channel->monetization_multiplier = $monetizationMultiplier;
+            $channel->save();
         }
 
         return 0;

@@ -26,7 +26,7 @@ class TCPolygonClient
         $result = [
             'success' => false,
             'message' => '',
-            'balance' => null,
+            'data' => null,
         ];
 
         try {
@@ -45,6 +45,40 @@ class TCPolygonClient
 
             $result['success'] = true;
             $result['data'] = $body;
+            return $result;
+
+        }catch(Exception $e){
+            $result['success'] = false;
+            $result['message'] = $e->getMessage();
+            Log::error($result['message']);
+            return $result;
+        }
+    }
+
+    public function getBalanceByOwner($walletAddress)
+    {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'balance' => null,
+        ];
+
+        try {
+            $response = Http::withOptions([
+                'verify' => false,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ]
+            ])->get("{$this->baseUrl}/address/{$walletAddress}/balance");
+
+            $body = $response->json();
+
+            if(!$response->successful()){
+                throw new Exception(!empty($body['errorCode'])? $body['errorCode'] . ':' . $body['errorMessage'] : '', $response->status());
+            }
+
+            $result['success'] = true;
+            $result['balance'] = $body['balance'];
             return $result;
 
         }catch(Exception $e){
