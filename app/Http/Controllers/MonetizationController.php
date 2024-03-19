@@ -19,11 +19,13 @@ class MonetizationController extends Controller
 {
     public function adminPayouts(Request $request)
     {
-        $query = MonetizationPayout::query();
+        $perPage = $request->get('per_page')?? null;
 
         $filters = $request->get('filters', []);
         $monthFilter = Arr::get($filters, 'month');
         $statusFilter = Arr::get($filters, 'status');
+
+        $query = MonetizationPayout::query();
 
         if ($monthFilter){
             $month = Carbon::parse($monthFilter)->startOfMonth();
@@ -38,7 +40,7 @@ class MonetizationController extends Controller
             $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
         }
 
-        $payouts = $query->paginate();
+        $payouts = $query->paginate($perPage);
 
         $payouts->load('channel');
 
@@ -47,6 +49,8 @@ class MonetizationController extends Controller
 
     public function publisherPayouts(Request $request)
     {
+        $perPage = $request->get('per_page')?? null;
+
         $query = MonetizationPayout::query();
 
         $filters = $request->get('filters', []);
@@ -59,7 +63,7 @@ class MonetizationController extends Controller
 
         $query->orderBy('created_at', 'desc');
 
-        $payouts = $query->paginate();
+        $payouts = $query->paginate($perPage);
 
         $payouts->load(['channel', 'monetization']);
 
@@ -125,12 +129,14 @@ class MonetizationController extends Controller
         return response()->json(["message" => "ok"]);
     }
 
-    public function qualifiedChannels()
+    public function qualifiedChannels(Request $request)
     {
+        $perPage = $request->get('per_page')?? null;
+
         $channels = Channel::whereNotNull('monetization_qualified_at')
             ->where('monetization_qualified_at', '<=', Carbon::now())
             ->orderBy('monetization_qualified_at', 'DESC')
-            ->paginate();
+            ->paginate($perPage);
 
         $channels->load('owner.verifiedPaymentDetails');
 
