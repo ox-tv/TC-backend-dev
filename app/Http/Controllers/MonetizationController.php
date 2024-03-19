@@ -20,6 +20,7 @@ class MonetizationController extends Controller
     public function adminPayouts(Request $request)
     {
         $perPage = $request->get('per_page')?? null;
+        $sort = $request->get('sort')?? null;
 
         $filters = $request->get('filters', []);
         $monthFilter = Arr::get($filters, 'month');
@@ -38,6 +39,21 @@ class MonetizationController extends Controller
 
         if ($statusFilter){
             $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
+        }
+
+        // Sort
+        switch ($sort){
+            case 'amount_desc' :{
+                $query->orderBy('amount', 'DESC');
+                break;
+            }
+            case 'amount_asc' :{
+                $query->orderBy('amount', 'ASC');
+                break;
+            }
+            default :{
+                break;
+            }
         }
 
         $payouts = $query->paginate($perPage);
