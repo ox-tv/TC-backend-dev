@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Models\Channel;
 use App\Models\PaymentDetails;
+use App\Models\User;
 use App\Models\UserMeta;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -72,9 +73,11 @@ class PaymentDetailsController extends Controller
         return PaymentDetailsResource::collection($paymentDetails);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, User $user = null)
     {
-        $user = auth('api')->user();
+        if (!$user){
+            $user = auth('api')->user();
+        }
 
         if ($user->paymentDetails()->nonArchived()->onGoing()->count() > 0){
             return response()->json(['message' => 'You already have ongoing request.'], 422);
@@ -85,7 +88,17 @@ class PaymentDetailsController extends Controller
         $request->validate([
             //'first_name' => [Rule::requiredIf(!$lastPaymentDetails)],
             //'last_name' => [Rule::requiredIf(!$lastPaymentDetails)],
-            'eth_address' => 'required|regex:/^0x[a-fA-F0-9]{40}$/',
+            'eth_address' => [
+                'required',
+                'regex:/^0x[a-fA-F0-9]{40}$/',
+                function($attribute, $value, $fail) use($user){
+                    if (
+                        $value &&
+                        PaymentDetails::where('eth_address', $value)->where('user_id', '!=', $user->id)->exists()
+                    ) {
+                        $fail('The wallet address is submitted by another user.');
+                    }
+                }],
             'street_address' => ['required'],
             'street_number' => ['required'],
             'postal_code' => ['required'],
