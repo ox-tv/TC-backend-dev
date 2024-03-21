@@ -42,6 +42,7 @@ class NftMembershipService
         if (!empty($nftTokens)) {
             // We have black edition
             $user->hero_type = User::HERO_TYPE_BLACK;
+            $user->hero_multiplier = $user->hero_multiplier * 5;
         }else{
             // So all is white
             $nftTokens = $response['data'];
