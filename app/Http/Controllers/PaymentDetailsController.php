@@ -108,6 +108,14 @@ class PaymentDetailsController extends Controller
             'vat_number' => ['nullable'],
         ]);
 
+        if (
+            !$request->is('api/admin/*') &&
+            $user->verifiedPaymentDetails &&
+            $user->verifiedPaymentDetails->updated_at->addDays(40) < Carbon::now()
+        ){
+            return response()->json(['message' => 'You reached the edit limit.'], 422);
+        }
+
         $newPaymentDetails = new PaymentDetails();
         $newPaymentDetails->user_id = $user->id;
         $newPaymentDetails->status = PaymentDetails::STATUS_VERIFIED;
