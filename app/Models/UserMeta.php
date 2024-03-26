@@ -23,6 +23,7 @@ class UserMeta extends Model
     const UserNameChangedAt = 'username_changed_at';
     const LoginTypeWallet = 'login_type_wallet';
     const LoginTypeCredentials = 'login_type_credentials';
+    const PublisherTCGBalanceWarningAt = 'publisher_tcg_balance_warning_at';
 
     const KEYS_WITH_JSON_VALUE = [
         self::PAYMENT_DETAILS,

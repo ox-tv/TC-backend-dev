@@ -4,8 +4,10 @@ namespace App\Console\Commands\Monetization;
 
 use App\Libraries\TCPolygonClient;
 use App\Mail\ChannelQualifiedMail;
+use App\Mail\PublisherLowTCGBalanceMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
+use App\Models\UserMeta;
 use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -78,6 +80,17 @@ class CheckQualifiedChannelsForMonetization extends Command
                     $walletBalance = $res['balance'];
                     $monetizationMultiplier = $monetizePointRepository->ConvertBalanceToMonetizationMultiplier($walletBalance);
                 }
+            }
+
+            if ($monetizationMultiplier < 1 && $channel->monetization_multiplier >= 1){
+                // Send email
+                $owner = $channel->owner;
+                $owner->meta()->updateOrCreate(
+                    ['key' => UserMeta::PublisherTCGBalanceWarningAt],
+                    ['value' => Carbon::now()]
+                );
+
+                Mail::to($owner->email)->queue(new PublisherLowTCGBalanceMail($channel->name));
             }
 
             $channel->monetization_multiplier = $monetizationMultiplier;
