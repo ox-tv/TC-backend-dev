@@ -30,6 +30,6 @@ class PublisherLowTCGBalanceMail extends Mailable
      */
     public function build()
     {
-        return $this->from('monetize@todayscrypto.com')->subject('Monetization - Low TCG Balance')->view('emails.monetization-low-tcg-balance-dark');
+        return $this->from('monetize@todayscrypto.com')->subject('Your content monetization has stopped')->view('emails.monetization-low-tcg-balance-dark');
     }
 }
