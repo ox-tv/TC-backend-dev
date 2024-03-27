@@ -304,6 +304,8 @@ class UserController extends Controller
             'favoriteTags',
             'favoriteCryptoCurrencies',
             'bookmarkVideos',
+            'verifiedPaymentDetails',
+            'lastPaymentDetails',
         ])->append([
             'eth_address',
             'auth_wallet',
@@ -318,6 +320,14 @@ class UserController extends Controller
             'is_conversion',
             'loyalty_points',
         ]);
+
+        if ($user->verifiedPaymentDetails){
+            $user->verifiedPaymentDetails->append(['eth_address']);
+        }
+
+        if ($user->lastPaymentDetails){
+            $user->lastPaymentDetails->append(['eth_address']);
+        }
 
         return UserResource::make($user);
     }
