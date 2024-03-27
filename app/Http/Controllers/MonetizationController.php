@@ -156,6 +156,12 @@ class MonetizationController extends Controller
 
         $channels->load('owner.verifiedPaymentDetails');
 
+        foreach ($channels as $channel){
+            if ($channel->owner->verifiedPaymentDetails){
+                $channel->owner->verifiedPaymentDetails->append(['eth_address']);
+            }
+        }
+
         return ChannelResource::collection($channels);
     }
 
