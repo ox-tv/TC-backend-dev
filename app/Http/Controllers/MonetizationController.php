@@ -65,6 +65,9 @@ class MonetizationController extends Controller
 
     public function publisherPayouts(Request $request)
     {
+        $user = auth('api')->user();
+        $channel = $user->channel;
+
         $perPage = $request->get('per_page')?? null;
 
         $query = MonetizationPayout::query();
@@ -72,6 +75,7 @@ class MonetizationController extends Controller
         $filters = $request->get('filters', []);
         $statusFilter = Arr::get($filters, 'status');
 
+        $query->where('channel_id', $channel->id);
 
         if ($statusFilter){
             $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
