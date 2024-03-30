@@ -71,7 +71,10 @@ class CalculateMonetization extends Command
                 $monetizationPayout->monetization_id = $monetizationMonth->id;
                 $monetizationPayout->status = MonetizationPayout::STATUS_UNPAID;
                 $monetizationPayout->payment_details = $channel->owner->verified_payment_details?? null;
-                $monetizationPayout->wallet_address = $channel->owner->verified_payment_details->eth_address?? null;
+            }
+
+            if ($channel->owner->verified_payment_details){
+                $monetizationPayout->wallet_address = $channel->owner->verified_payment_details->eth_address;
             }
 
             // subscribers
@@ -83,6 +86,8 @@ class CalculateMonetization extends Command
                 ->where('date', '>=', $startOfMonth)
                 ->where('date', '<=', $endOfMonth)
                 ->sum('views_total');
+            //$viewsPoint = MonetizePoint::where('type', MonetizePoint::TYPE_VIDEO_VIEWED)
+
             $watchTimes = Channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $startOfMonth)
                 ->where('date', '<=', $endOfMonth)
@@ -110,12 +115,17 @@ class CalculateMonetization extends Command
 
             $monetizationPayout->metrics = [
                 'subscribers_total' => $subTotal,
+                //'subscribers_total_point' => $subTotal,
                 'subscribers_hero' => $subHero,
                 'subscribers_non_hero' => $subNonHero,
                 'views' => $views,
+                //'views_point' => $views,
                 'watch_times' => $watchTimes,
+                //'watch_times_point' => $watchTimes,
                 'likes_total' => $likesTotal,
+                //'likes_total_point' => $likesTotal,
                 'likes_hero' => $likesHero,
+                //'likes_hero_point' => $likesHero,
                 'likes_non_hero' => $likesNoneHero,
                 'points' => $points,
                 'share' => $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0,
