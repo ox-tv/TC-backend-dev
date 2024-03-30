@@ -215,4 +215,36 @@ class MonetizationController extends Controller
 
         return $monetization->budget;
     }
+
+    public function generateImageForPublisherEarnings(Request $request){
+        if(!$request->get('amount')){
+            abort(404);
+        }
+
+        header('Content-type: image/png');
+
+        $baseFilePath = base_path().'/storage/cha-ching.png';
+
+        $ubuntuBoldFontPath = base_path()."/storage/Ubuntu-Bold.ttf";
+
+        $image = imagecreatefrompng($baseFilePath);
+
+        $amountColor = imagecolorallocate($image, 81, 175, 149);
+
+        $black = imagecolorallocate($image, 0, 0, 0);
+
+        imagecolortransparent($image, $black);
+
+        $font_path = $ubuntuBoldFontPath;
+
+        $text = '$'.$request->get('amount', 0);
+
+        imagettftext($image, 92, 0, 75, 300, $amountColor, $font_path, $text);
+
+        imagepng($image);
+
+        imagedestroy($image);
+
+    }
+
 }

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 
-
+Route::get('monetization/generate-image', '\App\Http\Controllers\MonetizationController@generateImageForPublisherEarnings');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
