@@ -117,7 +117,7 @@ class CalculateMonetization extends Command
                 ->where('channel_id', $channel->id)
                 ->where('date', '>=', $startOfMonth)
                 ->where('date', '<=', $endOfMonth)
-                ->where('type', MonetizePoint::TYPE_REFERRAL)
+                ->where('type', MonetizePoint::TYPE_SUBSCRIPTION)
                 ->sum('amount');
             $viewsPoint = MonetizePoint::active()
                 ->where('channel_id', $channel->id)
