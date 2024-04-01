@@ -113,19 +113,36 @@ class CalculateMonetization extends Command
             $earningAmount = $points * $monthRate;
             $monetizationPayout->amount = ($earningAmount > 0)? $earningAmount: 0;
 
+            $subTotalPoint = MonetizePoint::active()
+                ->where('channel_id', $channel->id)
+                ->where('date', '>=', $startOfMonth)
+                ->where('date', '<=', $endOfMonth)
+                ->where('type', MonetizePoint::TYPE_REFERRAL)
+                ->sum('amount');
+            $viewsPoint = MonetizePoint::active()
+                ->where('channel_id', $channel->id)
+                ->where('date', '>=', $startOfMonth)
+                ->where('date', '<=', $endOfMonth)
+                ->where('type', MonetizePoint::TYPE_VIDEO_VIEWED)
+                ->sum('amount');
+            $likesTotalPoint = MonetizePoint::active()
+                ->where('channel_id', $channel->id)
+                ->where('date', '>=', $startOfMonth)
+                ->where('date', '<=', $endOfMonth)
+                ->where('type', MonetizePoint::TYPE_VIDEO_LIKED)
+                ->sum('amount');
+
             $monetizationPayout->metrics = [
                 'subscribers_total' => $subTotal,
-                //'subscribers_total_point' => $subTotal,
+                'subscribers_total_point' => $subTotalPoint,
                 'subscribers_hero' => $subHero,
                 'subscribers_non_hero' => $subNonHero,
                 'views' => $views,
-                //'views_point' => $views,
+                'views_point' => $viewsPoint,
                 'watch_times' => $watchTimes,
-                //'watch_times_point' => $watchTimes,
                 'likes_total' => $likesTotal,
-                //'likes_total_point' => $likesTotal,
+                'likes_total_point' => $likesTotalPoint,
                 'likes_hero' => $likesHero,
-                //'likes_hero_point' => $likesHero,
                 'likes_non_hero' => $likesNoneHero,
                 'points' => $points,
                 'share' => $totalMonthPoints > 0 ? $points / $totalMonthPoints * 100 : 0,
