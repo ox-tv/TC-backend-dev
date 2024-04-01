@@ -78,8 +78,10 @@ class CalculateMonetization extends Command
             }
 
             // subscribers
-            $subTotal = $channel->subscribers_count;
-            $subHero = $channel->hero_subscribers_count;
+            $subTotal = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total'))
+                - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
+            $subHero = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_hero'))
+                - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_hero'));
             $subNonHero = $subTotal - $subHero;
 
             $views = Channel2StatisticsDaily::where('channel_id', $channel->id)
