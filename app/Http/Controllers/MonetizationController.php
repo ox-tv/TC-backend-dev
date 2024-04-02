@@ -221,6 +221,7 @@ class MonetizationController extends Controller
             abort(404);
         }
 
+        header('Access-Control-Allow-Origin: *');
         header('Content-type: image/png');
 
         $baseFilePath = base_path().'/storage/cha-ching.png';
