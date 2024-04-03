@@ -10,10 +10,10 @@
             border: 0;
         }
 
-        .tc-print-page{
-            page-break-after: always;
-            page-break-inside: avoid;
-        }
+        /*.tc-print-page{*/
+        /*    page-break-after: always;*/
+        /*    page-break-inside: avoid;*/
+        /*}*/
 
         .green {
             color: #44e900;
