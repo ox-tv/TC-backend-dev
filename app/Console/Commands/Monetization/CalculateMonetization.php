@@ -20,7 +20,7 @@ class CalculateMonetization extends Command
      *
      * @var string
      */
-    protected $signature = 'tc:monetization:calc';
+    protected $signature = 'tc:monetization:calc {--now=}';
 
     /**
      * The console command description.
@@ -39,6 +39,10 @@ class CalculateMonetization extends Command
     public function handle()
     {
         $now = Carbon::now();
+        if ($this->option('now')){
+            $now = Carbon::parse($this->option('now'));
+        }
+
         $startOfMonth = $now->copy()->subDay()->startOfMonth();
         $endOfMonth = $now->copy()->subDay()->endOfMonth();
 
@@ -70,11 +74,11 @@ class CalculateMonetization extends Command
                 $monetizationPayout->channel_id = $channel->id;
                 $monetizationPayout->monetization_id = $monetizationMonth->id;
                 $monetizationPayout->status = MonetizationPayout::STATUS_UNPAID;
-                $monetizationPayout->payment_details = $channel->owner->verified_payment_details?? null;
             }
 
-            if ($channel->owner->verified_payment_details){
-                $monetizationPayout->wallet_address = $channel->owner->verified_payment_details->eth_address;
+            if ($channel->owner->verifiedPaymentDetails){
+                $monetizationPayout->wallet_address = $channel->owner->verifiedPaymentDetails->eth_address;
+                $monetizationPayout->payment_details = $channel->owner->verifiedPaymentDetails;
             }
 
             // subscribers
@@ -152,12 +156,12 @@ class CalculateMonetization extends Command
 
             $monetizationPayout->save();
 
-            if (
-                $endOfMonth->format('Y-m-d') == $now->copy()->subDay()->format('Y-m-d')
-                && $channel->owner->email
-            ){
-                Mail::to($channel->owner->email)->queue(new MonetizationMail($channel->name, $monetizationPayout->amount));
-            }
+//            if (
+//                $endOfMonth->format('Y-m-d') == $now->copy()->subDay()->format('Y-m-d')
+//                && $channel->owner->email
+//            ){
+//                Mail::to($channel->owner->email)->queue(new MonetizationMail($channel->name, $monetizationPayout->amount));
+//            }
         }
 
         return 0;
