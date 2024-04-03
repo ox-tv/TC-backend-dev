@@ -131,10 +131,10 @@
                     <tr>
                         <td>
                             <h3>INVOICE / REPORT</h3>
-                            <span>FEBRUARY - 2024</span>
+                            <span>{{ $payout->monetization->month->format("F - Y") }}</span>
                         </td>
                         <td>
-                            <h1><span>Total USDT</span>&nbsp;&nbsp;&nbsp;<span class="green">$XX</span></h1>
+                            <h1><span>Total USDT</span>&nbsp;&nbsp;&nbsp;<span class="green">${{ $payout->amount }}</span></h1>
 
                         </td>
                     </tr>
@@ -162,13 +162,13 @@
                             <div>
                                 <h5>Sender</h5>
                                 <p>
-                                    Channel name<br>
-                                    Firstname LastName <br>
-                                    Company name <br>
-                                    VAT number <br>
-                                    Billing address Street no <br>
-                                    Postal code - City <br>
-                                    Country <br>
+                                    {{ $payout->channel->name }}<br>
+                                    {{ $payout->payment_details['first_name']?? '-' }} {{ $payout->payment_details['last_name']?? '-' }} <br>
+                                    {{ $payout->payment_details['company_name']?? '-' }} <br>
+                                    {{ $payout->payment_details['vat_number']?? '-' }} <br>
+                                    {{ $payout->payment_details['street_address']?? '-' }} {{ $payout->payment_details['street_number']?? '-' }} <br>
+                                    {{ $payout->payment_details['postal_code']?? '-' }} - {{ $payout->payment_details['city']?? '-' }} <br>
+                                    {{ $payout->payment_details['country']?? '-' }} <br>
                                 </p>
                             </div>
                         </td>
@@ -195,9 +195,9 @@
                             <td>
                                 <span></span>
                             </td>
-                            <td>
-                                <span>POINTS</span>
-                            </td>
+{{--                            <td>--}}
+{{--                                <span>POINTS</span>--}}
+{{--                            </td>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -207,35 +207,35 @@
                                 <span>HOLD Subscribers</span>
                             </td>
                             <td>
-                                <span>XXXX</span><br>
-                                <span>XXXX</span>
+                                <span>{{ $payout->metrics['subscribers_total']?? '-' }}</span><br>
+                                <span>{{ $payout->metrics['subscribers_hero']?? '-' }}</span>
                             </td>
-                            <td>
-                                <span>XXXX</span><br>
-                                <span>XXXX</span>
-                            </td>
+{{--                            <td>--}}
+{{--                                <span>XXXX</span><br>--}}
+{{--                                <span>XXXX</span>--}}
+{{--                            </td>--}}
                         </tr>
                         <tr>
                             <td>
                                 <span>Video views</span>
                             </td>
                             <td>
-                                <span>XXXX</span>
+                                <span>{{ $payout->metrics['views']?? '-' }}</span>
                             </td>
-                            <td>
-                                <span>XXXX</span>
-                            </td>
+{{--                            <td>--}}
+{{--                                <span>XXXX</span>--}}
+{{--                            </td>--}}
                         </tr>
                         <tr>
                             <td>
                                 <span>Watch hours</span>
                             </td>
                             <td>
-                                <span>XXXX</span>
+                                <span>{{ $payout->metrics['watch_times']?? '-' }}</span>
                             </td>
-                            <td>
-                                <span>XXXX</span>
-                            </td>
+{{--                            <td>--}}
+{{--                                <span>XXXX</span>--}}
+{{--                            </td>--}}
                         </tr>
                         <tr>
                             <td>
@@ -243,24 +243,24 @@
                                 <span>HOLD likes</span>
                             </td>
                             <td>
-                                <span>XXXX</span><br>
-                                <span>XXXX</span>
+                                <span>{{ $payout->metrics['likes_total']?? '-' }}</span><br>
+                                <span>{{ $payout->metrics['likes_hero']?? '-' }}</span>
                             </td>
-                            <td>
-                                <span>XXXX</span><br>
-                                <span>XXXX</span>
-                            </td>
+{{--                            <td>--}}
+{{--                                <span>XXXX</span><br>--}}
+{{--                                <span>XXXX</span>--}}
+{{--                            </td>--}}
                         </tr>
                         </tbody>
                         <tfoot>
                         <tr class="total-earned">
                             <td>Total points earned</td>
-                            <td>XXXX</td>
+                            <td>{{ $payout->metrics['points']?? '-' }}</td>
                             <td></td>
                         </tr>
                         <tr class="total-share">
                             <td><h2>Total share in %</h2></td>
-                            <td><h2>XX</h2></td>
+                            <td><h2>{{ $payout->metrics['share']?? '-' }}</h2></td>
                             <td></td>
                         </tr>
                         </tfoot>
@@ -272,7 +272,7 @@
             <div class="received-address">
                 <p>
                     Payment will be processed within 10 days. <br>
-                    Receiving address x0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                    Receiving address {{ $payout->wallet_address }}
                 </p>
             </div>
 
