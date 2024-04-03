@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('monetization/generate-image', '\App\Http\Controllers\MonetizationController@generateImageForPublisherEarnings');
 
-Route::get('monetization/payouts/export/pdf', '\App\Http\Controllers\MonetizationController@exportEarningAsPDF')->name('monetization.payouts.export.pdf');
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
@@ -25,6 +24,7 @@ Route::group([
     Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@publisherPayouts')->name('monetization.payouts');
     Route::get('monetization/qualified-status', '\App\Http\Controllers\MonetizationController@qualifiedStatus')->name('monetization.qualified-status');
     Route::get('monetization/current-month-budget', '\App\Http\Controllers\MonetizationController@getTotalDistributedMoney')->name('monetization.total_distributed_money');
+    Route::get('monetization/payouts/export/pdf', '\App\Http\Controllers\MonetizationController@exportEarningAsPDF')->name('monetization.payouts.export.pdf');
 
 });
 
@@ -42,6 +42,7 @@ Route::group([
     Route::get('monetization/payouts', '\App\Http\Controllers\MonetizationController@adminPayouts')->name('monetization.payouts');
     Route::put('monetization/budget', '\App\Http\Controllers\MonetizationController@setBudget')->name('monetization.store_budget');
     Route::get('monetization/budget', '\App\Http\Controllers\MonetizationController@getBudget')->name('monetization.get_budget');
-    Route::get('monetization/payouts/export', '\App\Http\Controllers\MonetizationController@exportMonetizationPayouts')->name('monetization.payouts.export');
+    Route::get('monetization/payouts/export/csv', '\App\Http\Controllers\MonetizationController@exportMonetizationPayouts')->name('monetization.payouts.export');
+
     Route::put('monetization/payouts/mark-as-paid', '\App\Http\Controllers\MonetizationController@markAsPaid')->name('monetization.payouts.mark-as-paid');
 });

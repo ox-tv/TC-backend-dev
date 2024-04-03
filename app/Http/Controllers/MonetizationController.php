@@ -263,13 +263,15 @@ class MonetizationController extends Controller
         $month = Carbon::parse($request->get('month'))->startOfMonth();
 
         $monetization = Monetization::whereDate('month', $month)->first();
-
-        $payouts = MonetizationPayout::whereNotNull('wallet_address')
-            ->where('monetization_id', $monetization->id??0)->get();
+        $query = MonetizationPayout::where('monetization_id', $monetization->id??0);
+        if ($request->is('/api/publisher/*')){
+            $user = auth('api')->user();
+            $channel = $user->channel;
+            $query->where('channel_id', $channel->id);
+        }
+        $payouts = $query->get();
 
         $payouts->load(['channel', 'monetization']);
-
-        return $payouts;
 
         $pdf = Pdf::loadView('export-layouts.payout-pdf', ['payouts' => $payouts]);
 
