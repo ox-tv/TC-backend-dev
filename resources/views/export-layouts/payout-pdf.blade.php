@@ -4,16 +4,33 @@
     <meta charset="UTF-8">
     <title>PDF Invoice</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .tc-print-page{
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+
+        .green {
+            color: #44e900;
+        }
+
         body {
             font-family: Arial, Helvetica, sans-serif;
             padding: 50px;
         }
 
-        .header {
-            background: #2c2d34;
-            color: white;
-            border-radius: 20px;
-            padding: 0 30px;
+        table {
+            border-collapse: collapse;
+        }
+
+        .header h3 {
+            margin-bottom: 5px;
+            font-size: 20px;
         }
 
         table {
@@ -28,139 +45,249 @@
             text-align: right;
         }
 
-        .details header table td:nth-child(1) {
-            width: 30%;
-        }
-
-        .details header table td:nth-child(3) {
-            text-align: right;
+        .thank-you {
+            margin: 50px 0 60px;
         }
 
         .addressTable {
-            margin: 100px 0;
+            margin: 70px 0 50px;
         }
 
         .addressTable td {
             vertical-align: top;
         }
 
-        h2 {
-            font-size: 16px;
-            margin-bottom: 40px;
-            margin-top: 0;
+        .addressTable h5{
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        .received-address {
+            margin-top: 30px;
+        }
+
+        .question {
+            margin-top: 30px;
+        }
+
+        .details h3 {
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
+
+        .details table thead td{
+            font-weight: bold;
+            font-size: 15px;
+            padding-bottom: 20px;
+        }
+
+        .details table td:nth-child(1) {
+            width: 30%;
+        }
+
+        .details table tbody td{
+            border-bottom: 2px solid #000;
+            padding: 9px 0;
+        }
+
+        .details table tfoot .total-earned td{
+
+            padding: 25px 0;
+        }
+
+        .details table tfoot .total-share h2{
+            font-size: 22px;
         }
 
         .details header {
-            background: #2c2d34;
-            color: white;
-            border-radius: 20px;
-            padding: 15px;
+            padding: 20px;
+            border: 2px solid #000;
+            border-radius: 10px;
         }
 
         .details p {
             margin-top: 50px;
         }
-
-        .question {
-            border-radius: 20px;
-            background: #2c2d34;
-            color: white;
-            margin-top: 70px;
-            padding: 15px;
+        .bottom-logo{
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            max-width: 150px;
         }
-
+        .bottom-logo img{
+            width: 150px;
+        }
     </style>
 </head>
 <body>
-<header class="header">
-    <table>
-        <thead>
-        <tr>
-            <td>
-                <h1>INVOICE</h1>
+    @foreach($payouts as $payout)
+        <div class="tc-print-page">
+            <header class="header">
+                <table>
+                    <thead>
+                    <tr>
+                        <td>
+                            <h3>INVOICE / REPORT</h3>
+                            <span>FEBRUARY - 2024</span>
+                        </td>
+                        <td>
+                            <h1><span>Total USDT</span>&nbsp;&nbsp;&nbsp;<span class="green">$XX</span></h1>
 
-            </td>
-            <td>
-                <span>{{ $earning->transaction->updated_at }}</span>
+                        </td>
+                    </tr>
+                    </thead>
+                </table>
+            </header>
+            <div class="addressTable">
+                <table>
+                    <thead>
+                    <tr>
+                        <td>
+                            <div>
+                                <h5>Receiver</h5>
+                                <p>
+                                    BLOCKBEAST AB <br>
+                                    Transportvägen 12 <br>
+                                    246 42 Löddeköpinge <br>
+                                    SK - SWEDEN <br>
+                                    VAT no: SE559355317401 <br>
+                                </p>
+                            </div>
 
-            </td>
-        </tr>
-        </thead>
-    </table>
-</header>
-<div class="addressTable">
-    <table>
-        <thead>
-        <tr>
-            <td>
-                <div>
-                    <h2>Invoice Recipient</h2>
-                    <p>
-                        BlockBeast AB <br>
-                        (todayscrypto.com) <br>
-                        VAT no: SE559355317401 <br>
-                        Org no: 559355-3174 <br>
-                        Transportvägen 12 <br>
-                        SE-246 42, Löddeköpinge <br>
-                        SWEDEN
-                    </p>
-                </div>
+                        </td>
+                        <td>
+                            <div>
+                                <h5>Sender</h5>
+                                <p>
+                                    Channel name<br>
+                                    Firstname LastName <br>
+                                    Company name <br>
+                                    VAT number <br>
+                                    Billing address Street no <br>
+                                    Postal code - City <br>
+                                    Country <br>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
 
-            </td>
-            <td>
-                <div>
-                    <h2>Client</h2>
-                    <p>
-                        {{ $earning->client_information['first_name'] }} {{ $earning->client_information['last_name'] }}<br>
+            <div class="thank-you">
+                <p>
+                    Thank you for being a part of Today's Crypto!
+                </p>
+            </div>
 
-                        @if(!empty($earning->client_information['company_name']))
-                        {{ $earning->client_information['company_name'] }} <br>
-                        @endif
+            <div class="details">
+                <h3>REPORT</h3>
+                <header>
+                    <table>
+                        <thead>
+                        <tr>
+                            <td>
+                                <span>STATISTICS</span>
+                            </td>
+                            <td>
+                                <span></span>
+                            </td>
+                            <td>
+                                <span>POINTS</span>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <span>Subscriber count (1th)</span><br>
+                                <span>HOLD Subscribers</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span><br>
+                                <span>XXXX</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span><br>
+                                <span>XXXX</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Video views</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Watch hours</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Video likes</span><br>
+                                <span>HOLD likes</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span><br>
+                                <span>XXXX</span>
+                            </td>
+                            <td>
+                                <span>XXXX</span><br>
+                                <span>XXXX</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr class="total-earned">
+                            <td>Total points earned</td>
+                            <td>XXXX</td>
+                            <td></td>
+                        </tr>
+                        <tr class="total-share">
+                            <td><h2>Total share in %</h2></td>
+                            <td><h2>XX</h2></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </header>
 
-                        {{ $earning->client_information['street_address'] }} {{ $earning->client_information['street_number'] }} <br>
-                        {{ $earning->client_information['postal_code'] }}, {{ $earning->client_information['city'] }} <br>
-                        {{ strtoupper($earning->client_information['country']) }} <br>
-                        @if(!empty($earning->client_information['vat_number']))
-                            VAT no: {{ $earning->client_information['vat_number'] }} <br>
-                        @endif
-                    </p>
-                </div>
-            </td>
-        </tr>
-        </thead>
-    </table>
-</div>
+            </div>
 
-<div class="details">
-    <h2>Details</h2>
-    <header>
-        <table>
-            <thead>
-            <tr>
-                <td>
-                    <span>Content Monetization</span>
-                </td>
-                <td>
-                    <span>{{ $earning->date }}</span>
-                </td>
-                <td>
-                    <span>{{ $earning->amount }} USDC</span>
-                </td>
-            </tr>
-            </thead>
-        </table>
-    </header>
-    <p>
-        The amount (USDC) is sent to client over the Ethereum blockchain to address: <br>
-        {{ $earning->client_information['eth_address'] }}
-    </p>
-</div>
+            <div class="received-address">
+                <p>
+                    Payment will be processed within 10 days. <br>
+                    Receiving address x0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                </p>
+            </div>
 
-<div class="question">
-    <p>
-        Do you have questions about your payout? <br>
-        Then, do not hesitate to contact us by opening a ticket in your publisher panel.
-    </p>
-</div>
+            <div class="question">
+                <p>
+                    Questions? <br>
+                    monetize@todayscrypto.com
+                </p>
+            </div>
+
+            <div class="bottom-logo">
+                <img src="https://cl-dev.todayscrypto.com/assets/images/pdf-invoice-logo.png" alt="">
+            </div>
+        </div>
+    @endforeach
+
 </body>
 </html>

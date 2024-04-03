@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('monetization/generate-image', '\App\Http\Controllers\MonetizationController@generateImageForPublisherEarnings');
 
+Route::get('monetization/payouts/export/pdf', '\App\Http\Controllers\MonetizationController@exportEarningAsPDF')->name('monetization.payouts.export.pdf');
+
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
