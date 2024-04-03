@@ -263,7 +263,7 @@ class MonetizationController extends Controller
 
         $monetization = Monetization::whereDate('month', $month)->first();
         $query = MonetizationPayout::where('monetization_id', $monetization->id??0);
-        if ($request->is('/api/publisher/*')){
+        if (!$request->is('api/admin/*')){
             $user = auth('api')->user();
             $channel = $user->channel;
             $query->where('channel_id', $channel->id);
