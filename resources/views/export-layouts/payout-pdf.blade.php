@@ -207,8 +207,8 @@
                                 <span>HOLD Subscribers</span>
                             </td>
                             <td>
-                                <span>{{ number_format($payout->metrics['subscribers_total']?? 0, 2) }}</span><br>
-                                <span>{{ number_format($payout->metrics['subscribers_hero']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['subscribers_total']?? 0) }}</span><br>
+                                <span>{{ number_format($payout->metrics['subscribers_hero']?? 0) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
@@ -220,7 +220,7 @@
                                 <span>Video views</span>
                             </td>
                             <td>
-                                <span>{{ number_format($payout->metrics['views']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['views']?? 0) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span>--}}
@@ -243,8 +243,8 @@
                                 <span>HOLD likes</span>
                             </td>
                             <td>
-                                <span>{{ number_format($payout->metrics['likes_total']?? 0, 2) }}</span><br>
-                                <span>{{ number_format($payout->metrics['likes_hero']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['likes_total']?? 0) }}</span><br>
+                                <span>{{ number_format($payout->metrics['likes_hero']?? 0) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
