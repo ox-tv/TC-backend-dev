@@ -134,7 +134,7 @@
                             <span>{{ $payout->monetization->month->format("F - Y") }}</span>
                         </td>
                         <td>
-                            <h1><span>Total USDT</span>&nbsp;&nbsp;&nbsp;<span class="green">${{ $payout->amount }}</span></h1>
+                            <h1><span>Total USDT</span>&nbsp;&nbsp;&nbsp;<span class="green">${{ round($payout->amount, 1) }}</span></h1>
 
                         </td>
                     </tr>
@@ -207,8 +207,8 @@
                                 <span>HOLD Subscribers</span>
                             </td>
                             <td>
-                                <span>{{ $payout->metrics['subscribers_total']?? '-' }}</span><br>
-                                <span>{{ $payout->metrics['subscribers_hero']?? '-' }}</span>
+                                <span>{{ round($payout->metrics['subscribers_total']?? 0, 2) }}</span><br>
+                                <span>{{ round($payout->metrics['subscribers_hero']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
@@ -220,7 +220,7 @@
                                 <span>Video views</span>
                             </td>
                             <td>
-                                <span>{{ $payout->metrics['views']?? '-' }}</span>
+                                <span>{{ round($payout->metrics['views']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span>--}}
@@ -231,7 +231,7 @@
                                 <span>Watch hours</span>
                             </td>
                             <td>
-                                <span>{{ $payout->metrics['watch_times']?? '-' }}</span>
+                                <span>{{ round($payout->metrics['watch_times']?? 0, 2)/60/60 }} Hour(s)</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span>--}}
@@ -243,8 +243,8 @@
                                 <span>HOLD likes</span>
                             </td>
                             <td>
-                                <span>{{ $payout->metrics['likes_total']?? '-' }}</span><br>
-                                <span>{{ $payout->metrics['likes_hero']?? '-' }}</span>
+                                <span>{{ round($payout->metrics['likes_total']?? 0, 2) }}</span><br>
+                                <span>{{ round($payout->metrics['likes_hero']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
@@ -255,12 +255,12 @@
                         <tfoot>
                         <tr class="total-earned">
                             <td>Total points earned</td>
-                            <td>{{ $payout->metrics['points']?? '-' }}</td>
+                            <td>{{ round($payout->metrics['points']?? 0, 2) }}</td>
                             <td></td>
                         </tr>
                         <tr class="total-share">
                             <td><h2>Total share in %</h2></td>
-                            <td><h2>{{ $payout->metrics['share']?? '-' }}</h2></td>
+                            <td><h2>{{ round($payout->metrics['share']?? 0, 2) }}</h2></td>
                             <td></td>
                         </tr>
                         </tfoot>
