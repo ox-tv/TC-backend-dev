@@ -76,9 +76,9 @@ class CalculateMonetization extends Command
                 $monetizationPayout->status = MonetizationPayout::STATUS_UNPAID;
             }
 
-            if ($channel->owner->verifiedPaymentPetails){
-                $monetizationPayout->wallet_address = $channel->owner->verifiedPaymentPetails->eth_address;
-                $monetizationPayout->payment_details = $channel->owner->verifiedPaymentPetails;
+            if ($channel->owner->verifiedPaymentDetails){
+                $monetizationPayout->wallet_address = $channel->owner->verifiedPaymentDetails->eth_address;
+                $monetizationPayout->payment_details = $channel->owner->verifiedPaymentDetails;
             }
 
             // subscribers
