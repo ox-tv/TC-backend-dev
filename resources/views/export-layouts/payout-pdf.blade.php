@@ -207,8 +207,8 @@
                                 <span>HOLD Subscribers</span>
                             </td>
                             <td>
-                                <span>{{ round($payout->metrics['subscribers_total']?? 0, 2) }}</span><br>
-                                <span>{{ round($payout->metrics['subscribers_hero']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['subscribers_total']?? 0, 2) }}</span><br>
+                                <span>{{ number_format($payout->metrics['subscribers_hero']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
@@ -220,7 +220,7 @@
                                 <span>Video views</span>
                             </td>
                             <td>
-                                <span>{{ round($payout->metrics['views']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['views']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span>--}}
@@ -231,7 +231,7 @@
                                 <span>Watch hours</span>
                             </td>
                             <td>
-                                <span>{{ round($payout->metrics['watch_times']?? 0, 2)/60/60 }} Hour(s)</span>
+                                <span>{{ number_format(($payout->metrics['watch_times']?? 0)/60/60, 2) }} Hour(s)</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span>--}}
@@ -243,8 +243,8 @@
                                 <span>HOLD likes</span>
                             </td>
                             <td>
-                                <span>{{ round($payout->metrics['likes_total']?? 0, 2) }}</span><br>
-                                <span>{{ round($payout->metrics['likes_hero']?? 0, 2) }}</span>
+                                <span>{{ number_format($payout->metrics['likes_total']?? 0, 2) }}</span><br>
+                                <span>{{ number_format($payout->metrics['likes_hero']?? 0, 2) }}</span>
                             </td>
 {{--                            <td>--}}
 {{--                                <span>XXXX</span><br>--}}
@@ -255,12 +255,12 @@
                         <tfoot>
                         <tr class="total-earned">
                             <td>Total points earned</td>
-                            <td>{{ round($payout->metrics['points']?? 0, 2) }}</td>
+                            <td>{{ number_format($payout->metrics['points']?? 0, 2) }}</td>
                             <td></td>
                         </tr>
                         <tr class="total-share">
                             <td><h2>Total share in %</h2></td>
-                            <td><h2>{{ round($payout->metrics['share']?? 0, 2) }}</h2></td>
+                            <td><h2>{{ number_format($payout->metrics['share']?? 0, 2) }}</h2></td>
                             <td></td>
                         </tr>
                         </tfoot>
