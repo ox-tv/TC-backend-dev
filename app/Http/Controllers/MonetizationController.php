@@ -10,10 +10,12 @@ use App\Models\Channel2StatisticsDaily;
 use App\Models\Monetization;
 use App\Models\MonetizationPayout;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MonetizationController extends Controller
 {
@@ -76,6 +78,10 @@ class MonetizationController extends Controller
         $statusFilter = Arr::get($filters, 'status');
 
         $query->where('channel_id', $channel->id);
+
+        $query->whereHas('monetization', function (Builder $query) {
+            $query->where('month', '<', Carbon::now()->firstOfMonth());
+        });
 
         if ($statusFilter){
             $query->where('status', array_flip(MonetizationPayout::STATUS_TEXT)[$statusFilter]);
@@ -245,6 +251,28 @@ class MonetizationController extends Controller
 
         imagedestroy($image);
 
+    }
+
+    public function exportEarningAsPDF(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|date',
+        ]);
+
+        $month = Carbon::parse($request->get('month'))->startOfMonth();
+
+        $monetization = Monetization::whereDate('month', $month)->first();
+
+        $payouts = MonetizationPayout::whereNotNull('wallet_address')
+            ->where('monetization_id', $monetization->id??0)->get();
+
+        $payouts->load(['channel', 'monetization']);
+
+        return $payouts;
+
+        $pdf = Pdf::loadView('export-layouts.payout-pdf', ['payouts' => $payouts]);
+
+        return $pdf->download("payouts-{$month->format('Y-m')}.pdf");
     }
 
 }
