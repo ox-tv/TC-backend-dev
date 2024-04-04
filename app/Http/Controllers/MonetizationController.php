@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\MonetizationExport;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Monetization\MonetizationPayoutResource;
+use App\Mail\MonetizationPaidMail;
 use App\Models\Channel;
 use App\Models\Channel2StatisticsDaily;
 use App\Models\Monetization;
@@ -13,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -151,6 +153,15 @@ class MonetizationController extends Controller
 
         MonetizationPayout::whereIn('id', $request->get('ids'))
             ->update(['status' => MonetizationPayout::STATUS_PAID]);
+
+        // Send email
+        $payouts = MonetizationPayout::whereIn('id', $request->get('ids'))->get();
+        $payouts->load(['channel.owner']);
+        foreach ($payouts as $payout){
+            if (!empty($payout->channel->owner->email)){
+                Mail::to($payout->channel->owner->email)->queue(new MonetizationPaidMail($payout->amount));
+            }
+        }
 
         return response()->json(["message" => "ok"]);
     }
