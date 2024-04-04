@@ -508,6 +508,9 @@
                                                     <div style="text-align: left;"><span style="color:#202020">We are delighted to inform you that we have paid you {{ $amount }} USDT for your last monetization month.</span><br>
                                                         &nbsp;</div>
 
+                                                    <div style="text-align: left;"><span style="color:#202020"><img align="center" alt="" src="{{ url("api/monetization/generate-image?amount={$amount}") }}" style="width:100%; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage"></span><br>
+                                                        &nbsp;</div>
+
                                                     <div style="text-align: left;"><span style="color:#202020">Thank you for your participation!</span><br>
                                                         &nbsp;</div>
 
