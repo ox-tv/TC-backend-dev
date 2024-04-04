@@ -84,15 +84,15 @@ class CalculateMonetization extends Command
             // subscribers
             $subTotal = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_total'))
                 - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_total'));
-            $subHero = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_hero'))
-                - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_hero'));
+//            $subHero = intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('subscribers_hero'))
+//                - intval(channel2StatisticsDaily::where('channel_id', $channel->id)->sum('unsubscribers_hero'));
+            $subHero = $channel->hero_subscribers_count;
             $subNonHero = $subTotal - $subHero;
 
             $views = Channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $startOfMonth)
                 ->where('date', '<=', $endOfMonth)
                 ->sum('views_total');
-            //$viewsPoint = MonetizePoint::where('type', MonetizePoint::TYPE_VIDEO_VIEWED)
 
             $watchTimes = Channel2StatisticsDaily::where('channel_id', $channel->id)
                 ->where('date', '>=', $startOfMonth)
