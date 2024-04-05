@@ -162,13 +162,27 @@
                             <div>
                                 <h5>Sender</h5>
                                 <p>
-                                    {{ $payout->channel->name }}<br>
-                                    {{ $payout->payment_details['first_name']?? '-' }} {{ $payout->payment_details['last_name']?? '-' }} <br>
-                                    {{ $payout->payment_details['company_name']?? '-' }} <br>
-                                    {{ $payout->payment_details['vat_number']?? '-' }} <br>
-                                    {{ $payout->payment_details['street_address']?? '-' }} {{ $payout->payment_details['street_number']?? '-' }} <br>
-                                    {{ $payout->payment_details['postal_code']?? '-' }} - {{ $payout->payment_details['city']?? '-' }} <br>
-                                    {{ $payout->payment_details['country']?? '-' }} <br>
+                                    @if($payout->channel->name)
+                                        {{ $payout->channel->name }}<br>
+                                    @endif
+                                    @if($payout->payment_details['first_name'] || $payout->payment_details['last_name'])
+                                        {{ $payout->payment_details['first_name'] }} {{ $payout->payment_details['last_name'] }} <br>
+                                    @endif
+                                    @if($payout->payment_details['company_name'])
+                                        {{ $payout->payment_details['company_name'] }} <br>
+                                    @endif
+                                    @if($payout->payment_details['vat_number'])
+                                        {{ $payout->payment_details['vat_number'] }} <br>
+                                    @endif
+                                    @if($payout->payment_details['street_address'] || $payout->payment_details['street_number'])
+                                        {{ $payout->payment_details['street_address'] }} {{ $payout->payment_details['street_number'] }} <br>
+                                    @endif
+                                    @if($payout->payment_details['postal_code'] || $payout->payment_details['city'])
+                                        {{ $payout->payment_details['postal_code'] }} - {{ $payout->payment_details['city'] }} <br>
+                                    @endif
+                                    @if($payout->payment_details['country'])
+                                        {{ $payout->payment_details['country'] }} <br>
+                                    @endif
                                 </p>
                             </div>
                         </td>
