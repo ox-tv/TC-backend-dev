@@ -22,6 +22,7 @@ class Option extends Model
     const FORBIDDEN_WORDS = 'forbidden_words';
     const AD_SPACES = 'ad_spaces';
     const AD_TIERS_DATA = 'ad_tiers_data';
+    const TCG_CIRCULATION_SUPPLY = 'tcg_circulation_supply';
 
     const REASONS = [
         self::VIDEO_REPORT_REASONS,

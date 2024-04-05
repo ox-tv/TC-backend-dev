@@ -50,6 +50,27 @@ class OptionController extends Controller
         return $value;
     }
 
+    // TCG Circulation Supply
+    public function setTcgCirculationSupply(Request $request)
+    {
+        $request->validate([
+            'circulation_supply' => 'required|numeric',
+        ]);
+
+        $circulationSupplys = $request->get('circulation_supply')?? 0;
+
+        Option::set(Option::TCG_CIRCULATION_SUPPLY, $circulationSupplys);
+
+        return response()->json(["message" => "ok"]);
+    }
+
+    public function getTcgCirculationSupply(Request $request)
+    {
+        $forbiddenWords = Option::get(Option::TCG_CIRCULATION_SUPPLY);
+
+        return $forbiddenWords? $forbiddenWords->value : 0;
+    }
+
     // Forbidden Words
     public function setForbiddenWords(Request $request)
     {

@@ -9,6 +9,8 @@ Route::get('options/forbidden-words', '\App\Http\Controllers\OptionController@ge
 
 Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdByKey')->name("options.ad-spaces.get.by_key");
 
+Route::get('options/tcg-circulation-supply', '\App\Http\Controllers\OptionController@getTcgCirculationSupply')->name("options.tcg-circulation-supply.get");
+
 
 
 // For Login Users
@@ -42,6 +44,7 @@ Route::group([
     Route::get('options/reasons/{key}', '\App\Http\Controllers\OptionController@getReasonsOption')->name("options.reasons.get");
 
     Route::post('options/forbidden-words', '\App\Http\Controllers\OptionController@setForbiddenWords')->name("options.forbidden-words.store");
+    Route::post('options/tcg-circulation-supply', '\App\Http\Controllers\OptionController@setTcgCirculationSupply')->name("options.tcg-circulation-supply.store");
 
     Route::get('options/ad-spaces', '\App\Http\Controllers\OptionController@getAdSpace')->name("options.ad-spaces.get");
     Route::post('options/ad-spaces', '\App\Http\Controllers\OptionController@setAdSpace')->name("options.ad-spaces.store");
