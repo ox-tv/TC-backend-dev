@@ -50,7 +50,9 @@ class VideoStatisticsDailyIncreaseView
 
         $statistics->save();
 
-        Log::channel('metrics')->warning("Channel2StatisticsDaily_{$video->id}_view:{$statistics->views_total}");
+        if ($channel->monetization_qualified_at && $channel->monetization_qualified_at <= Carbon::now()){
+            Log::channel('metrics')->warning("Channel2StatisticsDaily_{$video->id}_view:{$statistics->views_total}");
+        }
 
         return $statistics;
     }
