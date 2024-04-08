@@ -61,6 +61,6 @@ class MonetizePointsForVideoViewed
             ->where('type', MonetizePoint::TYPE_VIDEO_VIEWED)
             ->where('date', Carbon::now()->startOfDay())
             ->first();
-        $row && Log::channel('metrics')->warning("MonetizePoint_{$video->id}_view:{$row->amount}");
+        $row && Log::channel('metrics')->warning("MonetizePoint_{$video->id}_view:{$row->original_amount}");
     }
 }
