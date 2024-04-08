@@ -124,6 +124,13 @@ return [
             'days' => 14,
             'permission' => 0644,
         ],
+        'metrics' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/metrics/log.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'permission' => 0644,
+        ],
     ],
 
 ];

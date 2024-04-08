@@ -7,6 +7,7 @@ use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class VideoStatisticsDailyIncreaseView
 {
@@ -48,6 +49,8 @@ class VideoStatisticsDailyIncreaseView
         }
 
         $statistics->save();
+
+        Log::channel('metrics')->warning("Channel2StatisticsDaily_{$video->id}_view:{$statistics->views_total}");
 
         return $statistics;
     }

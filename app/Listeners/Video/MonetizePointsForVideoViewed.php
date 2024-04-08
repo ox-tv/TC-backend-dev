@@ -9,6 +9,7 @@ use App\Repository\Eloquent\MonetizePointRepository;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class MonetizePointsForVideoViewed
 {
@@ -52,5 +53,14 @@ class MonetizePointsForVideoViewed
             'type',
             'date',
         ]);
+
+        // Just log
+        $row = MonetizePoint::where('channel_id', $channel->id)
+            ->where('related_to_type', Video::class)
+            ->where('related_to_id', $video->id)
+            ->where('type', MonetizePoint::TYPE_VIDEO_VIEWED)
+            ->where('date', Carbon::now()->startOfDay())
+            ->first();
+        $row && Log::channel('metrics')->warning("MonetizePoint_{$video->id}_view:{$row->amount}");
     }
 }
