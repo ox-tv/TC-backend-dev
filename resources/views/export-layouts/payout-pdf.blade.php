@@ -16,7 +16,7 @@
         /*}*/
 
         .green {
-            color: #44e900;
+            color: #1B7C04;
         }
 
         body {
