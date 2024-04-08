@@ -3,12 +3,8 @@
 namespace App\Listeners\Comments;
 
 use App\Events\Comments\CommentCreated;
-use App\Events\VideoViewed;
-use App\Models\Channel2StatisticsDaily;
 use App\Models\TokenPoint;
 use App\Repository\Eloquent\TokenPointRepository;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class TokenPointsForCommentCreated
 {
@@ -19,12 +15,6 @@ class TokenPointsForCommentCreated
         $this->tokenPointRepository = $tokenPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(CommentCreated $event)
     {
         $comment = $event->comment;

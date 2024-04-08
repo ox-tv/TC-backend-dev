@@ -3,7 +3,6 @@
 namespace App\Listeners\Channels;
 
 use App\Events\Channels\ChannelUpdated;
-use App\Events\VideoViewed;
 use App\Models\Channel;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
@@ -12,12 +11,6 @@ use TCNotification;
 class SendNotificationOnChannelUpdated
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(ChannelUpdated $event)
     {
         $oldChannel = $event->oldChannel;

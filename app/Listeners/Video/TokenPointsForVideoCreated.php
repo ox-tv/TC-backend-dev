@@ -3,12 +3,9 @@
 namespace App\Listeners\Video;
 
 use App\Events\VideoCreated;
-use App\Events\VideoViewed;
-use App\Models\Channel2StatisticsDaily;
 use App\Models\TokenPoint;
 use App\Models\Video;
 use App\Repository\Eloquent\TokenPointRepository;
-use Carbon\Carbon;
 
 class TokenPointsForVideoCreated
 {
@@ -19,12 +16,6 @@ class TokenPointsForVideoCreated
         $this->tokenPointRepository = $tokenPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoCreated $event)
     {
         $video = $event->video;

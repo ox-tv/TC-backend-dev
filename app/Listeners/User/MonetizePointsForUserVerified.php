@@ -3,7 +3,6 @@
 namespace App\Listeners\User;
 
 use App\Events\UserVerified;
-use App\Events\VideoViewed;
 use App\Models\MonetizePoint;
 use App\Models\UserMeta;
 use App\Repository\Eloquent\MonetizePointRepository;
@@ -18,12 +17,6 @@ class MonetizePointsForUserVerified
         $this->monetizePointRepository = $monetizePointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(UserVerified $event)
     {
         $user = $event->user;

@@ -22,12 +22,6 @@ class TokenPointsForVideoUpdated
         $this->tokenPointRepository = $tokenPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoUpdated $event)
     {
         $oldVideo = $event->oldVideo;

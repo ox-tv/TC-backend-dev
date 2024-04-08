@@ -3,12 +3,8 @@
 namespace App\Listeners\User;
 
 use App\Events\UserVerified;
-use App\Events\VideoViewed;
-use App\Models\MonetizePoint;
 use App\Models\TokenPoint;
-use App\Models\UserMeta;
 use App\Models\WAFSuspiciousIPAddress;
-use App\Repository\Eloquent\MonetizePointRepository;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
 
@@ -21,12 +17,6 @@ class TokenPointsForUserVerified
         $this->tokenPointRepository = $tokenPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(UserVerified $event)
     {
         if (WAFSuspiciousIPAddress::isExistsIP(getClientIP())){

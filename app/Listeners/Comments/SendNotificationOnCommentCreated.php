@@ -4,7 +4,6 @@ namespace App\Listeners\Comments;
 
 use Amir\Permission\Models\Role;
 use App\Events\Comments\CommentCreated;
-use App\Events\VideoViewed;
 use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
@@ -14,12 +13,6 @@ use TCNotification;
 
 class SendNotificationOnCommentCreated
 {
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(CommentCreated $event)
     {
         $publisherRoleId = Role::firstOrCreate(['name' => User::PUBLISHER_ROLE])->id;

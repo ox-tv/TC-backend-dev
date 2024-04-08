@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\UserVerified;
-use App\Events\VideoViewed;
 use App\Models\UserStatisticsDaily;
 use Carbon\Carbon;
 
@@ -19,12 +18,6 @@ class UserVerifiedDataForUserStatisticsDaily
         //
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(UserVerified $event)
     {
         $user = $event->user;

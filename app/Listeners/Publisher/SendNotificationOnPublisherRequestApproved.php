@@ -3,7 +3,6 @@
 namespace App\Listeners\Publisher;
 
 use App\Events\Publisher\PublisherRequestApproved;
-use App\Events\VideoViewed;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
 use TCNotification;
@@ -11,12 +10,6 @@ use TCNotification;
 class SendNotificationOnPublisherRequestApproved
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(PublisherRequestApproved $event)
     {
         $user = $event->user;

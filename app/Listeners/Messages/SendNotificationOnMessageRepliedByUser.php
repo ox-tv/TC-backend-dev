@@ -3,7 +3,6 @@
 namespace App\Listeners\Messages;
 
 use App\Events\Messages\MessageRepliedByUser;
-use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Notification;
 use App\Models\User;
@@ -13,12 +12,6 @@ use TCNotification;
 class SendNotificationOnMessageRepliedByUser
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(MessageRepliedByUser $event)
     {
         $message = $event->message;

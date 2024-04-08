@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\VideoDeleted;
-use App\Events\VideoViewed;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
@@ -12,12 +11,6 @@ use TCNotification;
 class SendNotificationOnVideoDeleted
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoDeleted $event)
     {
         $video = $event->video;

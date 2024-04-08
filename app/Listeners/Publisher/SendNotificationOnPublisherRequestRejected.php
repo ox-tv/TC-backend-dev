@@ -3,7 +3,6 @@
 namespace App\Listeners\Publisher;
 
 use App\Events\Publisher\PublisherRequestRejected;
-use App\Events\VideoViewed;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
 use TCNotification;
@@ -11,12 +10,6 @@ use TCNotification;
 class SendNotificationOnPublisherRequestRejected
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(PublisherRequestRejected $event)
     {
         $user = $event->user;

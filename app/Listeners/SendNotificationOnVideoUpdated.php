@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\VideoUpdated;
-use App\Events\VideoViewed;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
@@ -14,12 +13,6 @@ use TCNotification;
 class SendNotificationOnVideoUpdated
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoUpdated $event)
     {
         $oldVideo = $event->oldVideo;

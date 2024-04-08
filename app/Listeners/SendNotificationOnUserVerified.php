@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\UserVerified;
-use App\Events\VideoViewed;
-use App\Mail\ImportRequestCompletedMail;
 use App\Mail\WelcomeToReferralUserMail;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
@@ -14,12 +12,6 @@ use TCNotification;
 class SendNotificationOnUserVerified
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(UserVerified $event)
     {
         $user = $event->user;

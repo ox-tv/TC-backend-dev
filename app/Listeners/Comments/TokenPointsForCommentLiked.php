@@ -3,13 +3,9 @@
 namespace App\Listeners\Comments;
 
 use App\Events\CommentLiked;
-use App\Events\Comments\CommentCreated;
-use App\Events\VideoViewed;
-use App\Models\Channel2StatisticsDaily;
 use App\Models\Logs\LogCommentLikedOnce;
 use App\Models\TokenPoint;
 use App\Repository\Eloquent\TokenPointRepository;
-use Carbon\Carbon;
 
 class TokenPointsForCommentLiked
 {
@@ -20,12 +16,6 @@ class TokenPointsForCommentLiked
         $this->tokenPointRepository = $tokenPointRepository;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(CommentLiked $event)
     {
         $user = $event->user;

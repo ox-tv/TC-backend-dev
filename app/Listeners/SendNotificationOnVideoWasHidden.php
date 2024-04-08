@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Events\VideoViewed;
 use App\Events\VideoWasHidden;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Notification;
@@ -11,13 +10,6 @@ use TCNotification;
 
 class SendNotificationOnVideoWasHidden
 {
-
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoWasHidden $event)
     {
         $video = $event->video;

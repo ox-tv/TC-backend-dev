@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Events\VideoViewed;
 use App\Events\VideoWatched;
 use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
@@ -20,12 +19,6 @@ class VideoWatchedDataForVideoStatisticsDaily
         //
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoWatched $event)
     {
         $user = $event->user;

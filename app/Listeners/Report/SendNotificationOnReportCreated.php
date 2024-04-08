@@ -3,7 +3,6 @@
 namespace App\Listeners\Report;
 
 use App\Events\Report\ReportCreated;
-use App\Events\VideoViewed;
 use App\Http\Resources\Comment\CommentResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Models\Comment;
@@ -15,12 +14,6 @@ use TCNotification;
 class SendNotificationOnReportCreated
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(ReportCreated $event)
     {
         $report = $event->report;

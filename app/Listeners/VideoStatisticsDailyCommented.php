@@ -3,18 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\Comments\CommentCreated;
-use App\Events\VideoViewed;
 use App\Models\Channel2StatisticsDaily;
 use Carbon\Carbon;
 
 class VideoStatisticsDailyCommented
 {
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(CommentCreated $event)
     {
         $comment = $event->comment;

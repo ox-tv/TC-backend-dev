@@ -3,7 +3,6 @@
 namespace App\Listeners\Publisher;
 
 use App\Events\Publisher\NewPublisherRequested;
-use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Http\Resources\User\UserResource;
 use App\Models\Notification;
@@ -15,12 +14,6 @@ use TCNotification;
 class SendNotificationOnNewPublisherRequested
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(NewPublisherRequested $event)
     {
         $user = $event->user;

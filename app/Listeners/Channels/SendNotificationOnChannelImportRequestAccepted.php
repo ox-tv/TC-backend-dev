@@ -3,7 +3,6 @@
 namespace App\Listeners\Channels;
 
 use App\Events\Channels\ChannelImportRequestAccepted;
-use App\Events\VideoViewed;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
@@ -11,13 +10,6 @@ use TCNotification;
 
 class SendNotificationOnChannelImportRequestAccepted
 {
-
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(ChannelImportRequestAccepted $event)
     {
         $channel = $event->channel;

@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\VideoUpdated;
-use App\Events\VideoViewed;
 use App\Models\Channel2StatisticsDaily;
 use App\Models\Video;
 use Carbon\Carbon;
@@ -11,12 +10,6 @@ use Carbon\Carbon;
 class ChannelStatisticsDailyVideoUpdated
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(VideoUpdated $event)
     {
         $oldVideo = $event->oldVideo;

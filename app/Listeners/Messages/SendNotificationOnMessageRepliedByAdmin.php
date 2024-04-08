@@ -3,7 +3,6 @@
 namespace App\Listeners\Messages;
 
 use App\Events\Messages\MessageRepliedByAdmin;
-use App\Events\VideoViewed;
 use App\Http\Resources\Message\MessageItem;
 use App\Models\Notification;
 use App\TCNotification\GeneralNotification;
@@ -12,12 +11,6 @@ use TCNotification;
 class SendNotificationOnMessageRepliedByAdmin
 {
 
-    /**
-     * Handle the event.
-     *
-     * @param  VideoViewed  $event
-     * @return void
-     */
     public function handle(MessageRepliedByAdmin $event)
     {
         $message = $event->message;
