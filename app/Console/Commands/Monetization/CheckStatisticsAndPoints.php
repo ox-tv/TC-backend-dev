@@ -68,7 +68,7 @@ class CheckStatisticsAndPoints extends Command
                 ->where('date', $day)
                 ->sum('views_total');
 
-            if (floatval($viewsPoint) != floatval(floatval($viewsTotal)/10)){
+            if (round($viewsPoint, 2) != round(floatval($viewsTotal)/10,2)){
                 dump($day->format('Y-m-d H:i:s'), $viewsPoint,$viewsTotal);
             }
         }
