@@ -68,13 +68,12 @@ class CheckStatisticsAndPoints extends Command
                 ->where('date', $endOfMonth)
                 ->sum('views_total');
 
-            if ($viewsPoint != ($viewsTotal/10)){
-                dump($day->format('Y-m-d'));
+            if (floatval($viewsPoint) != floatval(floatval($viewsTotal)/10)){
+                dump($day->format('Y-m-d H:i:s'), $viewsPoint,$viewsTotal);
             }
         }
 
         return 0;
     }
-
 
 }
