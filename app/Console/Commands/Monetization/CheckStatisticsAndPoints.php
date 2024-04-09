@@ -65,7 +65,7 @@ class CheckStatisticsAndPoints extends Command
 
 
             $viewsTotal = Channel2StatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', $endOfMonth)
+                ->where('date', $day)
                 ->sum('views_total');
 
             if (floatval($viewsPoint) != floatval(floatval($viewsTotal)/10)){
