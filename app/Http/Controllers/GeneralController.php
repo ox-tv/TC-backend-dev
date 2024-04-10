@@ -238,6 +238,106 @@ class GeneralController extends Controller
         return $result;
     }
 
+    public function homeTrendingVideos(Request $request)
+    {
+        $perPage = $request->get('per_page')?:24;
+
+        $videoIds =  Cache::remember('home_total_video_ids', 60 * 60 , function () {
+            return Video::typeVideo()->published()->pluck('id')->toArray();
+        });
+
+        $trendingVideoIds = Channel2StatisticsDaily::raw(function($collection) use ($videoIds) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                    'video_id' => ['$in'=> $videoIds],
+                ]],
+                ['$group' => [
+                    '_id' => '$video_id',
+                    'amount' => [
+                        '$sum' => [
+                            '$add' => [
+                                '$views_total',
+                                ['$multiply' => [['$subtract' => ['$likes_total', '$dislikes_total']], 50]]
+                            ]
+                        ]
+                    ],
+                ]],
+                ['$sort' => ['amount' => -1, '_id' => -1]],
+                ['$limit' => 240]
+            ]);
+        })->pluck('_id')->toArray();
+
+        $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
+
+        $trendingVideos = Video::published()->typeVideo()
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->orderByRaw((!empty($orderByTrendingVideoIds)?"FIELD(id,$orderByTrendingVideoIds) DESC, ": "") . "published_at DESC")
+            ->with(['channel'])
+            ->paginate($perPage);
+
+        $trendingVideos->append(['is_bookmarked']);
+
+        return VideoHomeResource::collection($trendingVideos);
+    }
+    public function homeVideosForYou(Request $request)
+    {
+        $user = auth('api')->user();
+        $perPage = $request->get('per_page')?:24;
+
+        $userFavoriteTagIds = DB::table('tag_user')
+            ->select('tag_id')
+            ->where('user_id', $user->id)
+            ->pluck('tag_id')
+            ->toArray();
+
+        if (empty($userFavoriteTagIds)){
+            $userFavoriteTagIds = DB::table('tag_video')
+                ->selectRaw('COUNT(*) AS count, `tag_id`')
+                ->groupBy('tag_id')
+                ->orderBy('count','DESC')
+                ->take(15)
+                ->pluck('tag_id')->toArray();
+        }
+
+        $customFeedSetting = $user->meta()->where('key', UserMeta::CustomFeedSetting)->first();
+        $userFavoriteCoinIds = [];
+
+        if (!$customFeedSetting || $customFeedSetting->value['crypto_currencies_content_based']){
+            $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                ->select('crypto_currency_id')
+                ->where('user_id', $user->id)
+                ->pluck('crypto_currency_id')
+                ->toArray();
+        }
+
+        if (empty($userFavoriteCoinIds)){
+            $userFavoriteCoinIds = DB::table('crypto_currency_user')
+                ->selectRaw('COUNT(*) AS count, `crypto_currency_id`')
+                ->groupBy('crypto_currency_id')
+                ->orderBy('count','DESC')
+                ->take(15)
+                ->pluck('crypto_currency_id')->toArray();
+        }
+
+        $videosForYou = Video::published()
+            ->where(function ($query) use ($userFavoriteCoinIds, $userFavoriteTagIds){
+                $query->whereHas('tags', function ($query) use ($userFavoriteTagIds){
+                    $query->whereIn('id', $userFavoriteTagIds);
+                })->orWhereHas('crypto_currencies', function ($query) use ($userFavoriteCoinIds){
+                    $query->whereIn('id', $userFavoriteCoinIds);
+                });
+            })
+            ->with(['channel'])
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage);
+
+        $videosForYou->append(['is_bookmarked']);
+
+        return VideoHomeResource::collection($videosForYou);
+    }
+
     public function adminDashboard(Request $request)
     {
         $result = [
