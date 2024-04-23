@@ -376,7 +376,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => [
-                'nullable', 'string', 'between:4,14',
+                'nullable', 'string', ((!$request->is('api/admin/*'))?'between:4,14':null),
                 CustomRule::forbiddenWords($forbiddenWords),
                 CustomRule::uniqueTrimmed(User::PUNCTUATION_MARKS, 'users', 'username')
                     ->ignore($user->id)
