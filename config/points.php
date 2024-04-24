@@ -33,6 +33,7 @@ return [
         // as end user
         'referral_via_publisher' => 100,
 
+        'view_video_via_share_link' => 3,
         'referrer' => 5,
         'referrer_as_hero' => 10,
         'watch_a_video' => 5,
