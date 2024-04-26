@@ -27,10 +27,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     // -- bulk remove video from playlist
     Route::put('playlist/remove', '\App\Http\Controllers\PlaylistController@bulkRemove');
 
-    Route::put('videos/{idOrUrlHash}/increase-share-link-count', '\App\Http\Controllers\VideoController@increaseShareLinkCount');
+    Route::put('videos/{idOrUrlHash}/increase-share-link-count', '\App\Http\Controllers\VideoShareLinkController@increaseShareLinkCount');
+    Route::get('share-links/videos', '\App\Http\Controllers\VideoShareLinkController@shareLinkVideos');
+    Route::get('share-links/statistics', '\App\Http\Controllers\VideoShareLinkController@shareLinkStatistics');
 });
 
-Route::put('videos/{idOrUrlHash}/increase-share-link-view', '\App\Http\Controllers\VideoController@increaseShareLinkView');
+Route::put('videos/{idOrUrlHash}/increase-share-link-view', '\App\Http\Controllers\VideoShareLinkController@increaseShareLinkView');
 
 Route::put('videos/{ir_or_url_hash}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
 Route::get('videos/{ir_or_url_hash}', '\App\Http\Controllers\VideoController@show');

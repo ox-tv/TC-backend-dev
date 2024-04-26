@@ -11,4 +11,15 @@ class VideoShareLink extends Model
 
     const UPDATED_AT = null;
 
+
+    public function video(){
+        return $this->setConnection('mysql')->belongsTo('App\Models\Video');
+    }
+
+
+    public function getTotalViewsAttribute(){
+        return VideoShareLinkStatistics::where('referrer_id', $this->user_id)
+            ->where('video_id', $this->video_id)
+            ->count();
+    }
 }
