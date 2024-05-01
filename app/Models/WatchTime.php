@@ -10,4 +10,7 @@ class WatchTime extends Model
 
     public const AllRowsCachePeriod = 24 * 60 * 60;
     public const LastRowCachePeriod = 60 * 60;
+
+    const MERGE_STATUS_MERGING = 1;
+    const MERGE_STATUS_MERGED = 2;
 }
