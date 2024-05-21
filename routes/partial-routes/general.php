@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 
 // Home Page
 Route::get('home', '\App\Http\Controllers\GeneralController@home');
+Route::get('home/channels/trending', '\App\Http\Controllers\GeneralController@homeTrendingChannels');
+Route::get('home/channels/top', '\App\Http\Controllers\GeneralController@homeTopChannels');
 Route::get('home/videos/trending', '\App\Http\Controllers\GeneralController@homeTrendingVideos');
-Route::get('home/videos/for-you', '\App\Http\Controllers\GeneralController@homeTrendingVideos');
+Route::get('home/videos/for-you', '\App\Http\Controllers\GeneralController@homeVideosForYou');
 
 // search
 Route::get('search/{keyword}', '\App\Http\Controllers\SearchController@index');

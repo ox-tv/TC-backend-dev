@@ -238,6 +238,56 @@ class GeneralController extends Controller
         return $result;
     }
 
+    public function homeTopChannels(Request $request)
+    {
+        $perPage = $request->get('per_page')?:15;
+        $filters = $request->get('filters', []);
+        $searchFilter = Arr::get($filters, 'search');
+
+        $topChannels = Channel::published()
+            ->when($searchFilter, function($q, $searchFilter){$q->searchTitle($searchFilter);})
+            ->withCount('subscribers')
+            ->orderBy('subscribers_count', 'desc')
+            ->paginate($perPage);
+
+        $topChannels->append('is_subscribed');
+
+        return ChannelHomeResource::collection($topChannels);
+    }
+
+    public function homeTrendingChannels(Request $request)
+    {
+        $perPage = $request->get('per_page')?:15;
+        $filters = $request->get('filters', []);
+        $searchFilter = Arr::get($filters, 'search');
+
+        // Trending Channels
+        $trendingChannelIds = Channel2StatisticsDaily::raw(function($collection) {
+            return $collection->aggregate([
+                ['$match' => [
+                    'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                ]],
+                ['$group' => [
+                    '_id' => '$channel_id',
+                    'amount' => ['$sum' => ['$add' => [['$subtract'=> ['$subscribers_total', '$unsubscribers_total']], ['$subtract'=> ['$likes_total', '$dislikes_total']]]]],
+                ]],
+                ['$sort' => ['amount' => -1, '_id' => -1]],
+                ['$limit' => 300]
+            ]);
+        })->pluck('_id')->toArray();
+
+        $orderByTrendingChannelIds = implode(',', array_reverse($trendingChannelIds));
+
+        $trendingChannels = Channel::published()
+            ->when($searchFilter, function($q, $searchFilter){$q->searchTitle($searchFilter);})
+            ->orderByRaw((!empty($orderByTrendingChannelIds)?"FIELD(id,$orderByTrendingChannelIds) DESC, ": "") . "Created_at DESC")
+            ->paginate($perPage);
+
+        $trendingChannels->append(['is_subscribed', 'subscribers_count']);
+
+        return ChannelHomeResource::collection($trendingChannels);
+    }
+
     public function homeTrendingVideos(Request $request)
     {
         $perPage = $request->get('per_page')?:24;
