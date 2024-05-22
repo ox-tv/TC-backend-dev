@@ -250,7 +250,7 @@ class GeneralController extends Controller
             ->orderBy('subscribers_count', 'desc')
             ->paginate($perPage);
 
-        $topChannels->append('is_subscribed');
+        $topChannels->append(['is_subscribed', 'subscribers_count']);
 
         return ChannelHomeResource::collection($topChannels);
     }

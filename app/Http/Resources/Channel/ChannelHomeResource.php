@@ -27,6 +27,7 @@ class ChannelHomeResource extends JsonResource
 
             // Custom attributes with query
             'is_subscribed' => $this->whenAppended('is_subscribed'),
+            'subscribers_count' => $this->whenAppended('subscribers_count'),
 
             // Relations
         ];
