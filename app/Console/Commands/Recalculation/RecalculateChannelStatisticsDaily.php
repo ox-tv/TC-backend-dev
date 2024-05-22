@@ -66,7 +66,11 @@ class RecalculateChannelStatisticsDaily extends Command
 
     private function recalculateWatchTimesAndViews($day)
     {
-        $rows = WatchTime::whereDate('created_at', $day)->get();
+        dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
+        $rows = WatchTime::
+        //where('created_at', '>=', $day->startOfDay())
+        //->where('created_at', '<=', $day->endOfDay())
+        whereDate('created_at', $day)->get();
         $viewsHistory = [];
         $watchTimeHistory = [];
 

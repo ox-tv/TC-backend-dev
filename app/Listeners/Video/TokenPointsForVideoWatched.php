@@ -37,7 +37,10 @@ class TokenPointsForVideoWatched
                 ->selectRaw("SUM(end_time - start_time) as duration")
                 ->first()->duration?? 0;*/
 
+        //dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
         $watchTimes = DB::table('watch_times')
+            //->where('created_at', '>=', Carbon::today()->startOfDay())
+            //->where('created_at', '<=', Carbon::today()->endOfDay())
             ->whereDate('created_at', Carbon::today())
             ->where('user_id', $user->id)
             ->select(["end_time", "start_time"])->get();

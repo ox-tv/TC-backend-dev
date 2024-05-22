@@ -148,7 +148,10 @@ class RecalculateTokenPoints extends Command
         $this->tokenPointRepository = new TokenPointRepository();
         $day = Carbon::parse($date);
 
+        dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
         $watchTimes = DB::table('watch_times')
+            //->where('created_at', '>=', $day->startOfDay())
+            //->where('created_at', '<=', $day->endOfDay())
             ->whereDate('created_at', $day)
             ->select(["end_time", "start_time", "user_id"])
             ->get()->toArray();
@@ -209,7 +212,11 @@ class RecalculateTokenPoints extends Command
                 $maxTokenToEarn = $wasHero? 360 : 30;
                 $tokenType = $wasHero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
 
+
+                dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
                 $watchTimes = DB::table('watch_times')
+                    //->where('created_at', '>=', $day->startOfDay())
+                    //->where('created_at', '<=', $day->endOfDay())
                     ->whereDate('created_at', $day)
                     ->where('user_id', $user->id)
                     ->select(["end_time", "start_time"])->get();
@@ -251,7 +258,10 @@ class RecalculateTokenPoints extends Command
         $this->tokenPointRepository = new TokenPointRepository();
 
         // Recalc yesterday
+        dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
         $watchTimes = DB::table('watch_times')
+            //->where('created_at', '>=', Carbon::today()->subDays(1)->startOfDay())
+            //->where('created_at', '<=', Carbon::today()->subDays(1)->endOfDay())
             ->whereDate('created_at', Carbon::today()->subDays(1))
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
@@ -284,7 +294,10 @@ class RecalculateTokenPoints extends Command
         }
 
         // Recalc today
+        dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
         $watchTimes = DB::table('watch_times')
+            //->where('created_at', '>=', Carbon::today()->startOfDay())
+            //->where('created_at', '<=', Carbon::today()->endOfDay())
             ->whereDate('created_at', Carbon::today())
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
