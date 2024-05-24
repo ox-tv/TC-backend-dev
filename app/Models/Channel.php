@@ -156,6 +156,10 @@ class Channel extends Model
         return $this->hasManyThrough(Comment::class, Video::class);
     }
 
+    public function language(){
+        return $this->belongsTo('App\Models\Language');
+    }
+
 
     // Attribute
 

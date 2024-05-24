@@ -110,6 +110,8 @@ class ChannelController extends Controller
             })
             ->firstOrFail();
 
+        $channel->load(['language']);
+
         if ($adminPanel || $publisherPanel){
             $channel->append([
                 'is_subscribed',
@@ -153,6 +155,10 @@ class ChannelController extends Controller
             $channel->user_id = $request->get('user_id');
         }else{
             $channel->user_id = auth('guard')->id();
+        }
+
+        if($request->get('language')){
+            $channel->language_id = $request->get('language');
         }
 
         $channel->slogan = $request->get('slogan', $channel->slogan);
@@ -239,6 +245,10 @@ class ChannelController extends Controller
 
         if($request->get('intro_video_id')){
             $channel->intro_video_id = $request->get('intro_video_id');
+        }
+
+        if($request->get('language')){
+            $channel->language_id = $request->get('language');
         }
 
         $channel->slogan = $request->get('slogan', $channel->slogan);

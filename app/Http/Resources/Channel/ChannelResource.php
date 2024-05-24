@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Channel;
 
+use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Channel;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -41,6 +42,7 @@ class ChannelResource extends JsonResource
             'deleted_at' => $this->whenAppended('deleted_at'),
             "youtube_last_scraped_at" => $this->youtube_last_scraped_at,
             "monetization_qualified_at" => $this->whenAppended('monetization_qualified_at'),
+            'language_id' => $this->language_id,
 
             // Custom attributes without query
             'status' => $this->status_text,
@@ -63,6 +65,7 @@ class ChannelResource extends JsonResource
 
             // Relations
             'owner' => UserResource::make($this->whenLoaded('owner')),
+            'language' => LanguageResource::make($this->whenLoaded('language')),
         ];
     }
 }

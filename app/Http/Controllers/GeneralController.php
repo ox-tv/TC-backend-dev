@@ -250,6 +250,7 @@ class GeneralController extends Controller
             ->orderBy('subscribers_count', 'desc')
             ->paginate($perPage);
 
+        $topChannels->load('language');
         $topChannels->append(['is_subscribed', 'subscribers_count']);
 
         return ChannelHomeResource::collection($topChannels);
@@ -283,6 +284,7 @@ class GeneralController extends Controller
             ->orderByRaw((!empty($orderByTrendingChannelIds)?"FIELD(id,$orderByTrendingChannelIds) DESC, ": "") . "Created_at DESC")
             ->paginate($perPage);
 
+        $trendingChannels->load('language');
         $trendingChannels->append(['is_subscribed', 'subscribers_count']);
 
         return ChannelHomeResource::collection($trendingChannels);
