@@ -23,6 +23,7 @@ class ChannelHomeResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'language_id' => $this->language_id,
+            "slogan" => $this->slogan,
 
             // Custom attributes without query
             'avatar_thumbnails' => $this->avatar_thumbnails,
