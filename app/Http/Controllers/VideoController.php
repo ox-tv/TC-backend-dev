@@ -32,8 +32,10 @@ use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoMeta;
 use App\Models\WatchTime;
+use App\Models\WatchTimeMongo;
 use App\Repository\Eloquent\TagRepository;
 use App\Repository\Eloquent\VideoRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
@@ -886,75 +888,74 @@ class VideoController extends Controller
     {
         $video = Video::published()->where('id', $videoId)->firstOrFail();
         $user = auth("api")->user();
-        $originalStart = $start = $request->get("start_time");
-        $originalEnd = $end = $request->get("end_time");
-        $duration = 0;
+        $originalStart = $request->get("start_time");
+        $originalEnd = $request->get("end_time");
 
-        $allWatchTimes = Cache::remember("watchtime_user{$user->id}_video{$video->id}", WatchTime::AllRowsCachePeriod , function () use ($user, $video){
-            return DB::table('watch_times')
-                ->where('user_id', $user->id)
+        $incomingWatchTime = new WatchTimeMongo();
+        $incomingWatchTime->video_id = $video->id;
+        $incomingWatchTime->user_id = $user->id;
+        $incomingWatchTime->start_time = $originalStart;
+        $incomingWatchTime->end_time = $originalEnd;
+
+        $allWatchTimes = Cache::remember("watchtime_user{$user->id}_video{$video->id}", WatchTimeMongo::AllRowsCachePeriod , function () use ($user, $video){
+            return WatchTimeMongo::
+                where('user_id', $user->id)
                 ->where('video_id', $video->id)
                 ->get();
         });
-
-        $watchTimes = $allWatchTimes->filter(function ($row, $key) use ($originalStart, $originalEnd) {
-            return ($row->start_time >= $originalStart && $row->start_time < $originalEnd)
-                || ($row->end_time > $originalStart && $row->end_time <= $originalEnd)
-                || ($row->start_time >= $originalStart && $row->end_time <= $originalEnd)
-                || ($row->start_time <= $originalStart && $row->end_time >= $originalEnd);
-        })->sortBy('start_time');
+        $oldDuration = $allWatchTimes->sum('end_time') - $allWatchTimes->sum('start_time');
+        $allWatchTimes->push($incomingWatchTime);
 
 
-        // Calc new rows
-        $newRows = [];
-        foreach ($watchTimes as $watchTime){
+        $newRecords = collect([]);
+        foreach ($allWatchTimes as $row)
+        {
+            $filteredRecords = $newRecords->filter(function ($item) use ($row){
+                return
+                    ($item->start_time <= $row->start_time && $row->start_time <= $item->end_time)
+                    || ($item->start_time <= $row->end_time && $row->end_time <= $item->end_time)
+                    || ($item->start_time >= $row->start_time && $row->end_time >= $item->end_time);
+            });
 
-            $end = $watchTime->start_time;
-
-            if ($end <= $start){
-                $start = $watchTime->end_time;
-                continue;
+            if (!$filteredRecords->isEmpty()){
+                $newRecords = $newRecords->filter(function ($value) use ($filteredRecords) {
+                    $return = true;
+                    foreach ($filteredRecords as $filteredRecord){
+                        if($value->start_time == $filteredRecord->start_time
+                            && $value->end_time == $filteredRecord->end_time){$return = false;}
+                    }
+                    return $return;
+                });
+                $row->start_time = min($filteredRecords->min('start_time'), $row->start_time);
+                $row->end_time = max($filteredRecords->max('end_time'), $row->end_time);
             }
 
-            $newRows[] = [
-                "start_time" => $start,
-                "end_time" => $end
-            ];
-
-            $duration += ($end - $start);
-
-            $start = $watchTime->end_time;
+            $newRecords->push($row);
         }
 
-        if ($originalEnd - $start > 0){
-            $newRows[] = [
-                "start_time" => $start,
-                "end_time" => $originalEnd
+        $newRecords->sortBy('start_time');
+        $newDuration = $newRecords->sum('end_time') - $newRecords->sum('start_time');
+
+        // Prepare to insert
+        $data = [];
+        foreach ($newRecords as $newRecord){
+            $data[] = [
+                'video_id' => $video->id,
+                'user_id' => $user->id,
+                'start_time' => $newRecord->start_time,
+                'end_time' => $newRecord->end_time,
+                'created_at' => WatchTimeMongo::fromDateTime(Carbon::now()),
+                'updated_at' => WatchTimeMongo::fromDateTime(Carbon::now()),
             ];
-
-            $duration += ($originalEnd - $start);
         }
+        // Remove Olds and add new records
+        WatchTimeMongo::where('user_id', $user->id)->where('video_id', $video->id)->delete();
+        WatchTimeMongo::insert($data);
 
-        // Add to Database
-        DB::transaction(function () use ($video, $user, $newRows, $allWatchTimes) {
-            foreach ($newRows as $row){
-                /*$video->watch_times()->attach($user->id, [
-                    "start_time" => $row['start_time'],
-                    "end_time" => $row['end_time']
-                ]);*/
-                $watchTimeModel = new WatchTime();
-                $watchTimeModel->video_id = $video->id;
-                $watchTimeModel->user_id = $user->id;
-                $watchTimeModel->start_time = $row['start_time'];
-                $watchTimeModel->end_time = $row['end_time'];
-                $watchTimeModel->save();
+        Cache::put("watchtime_user{$user->id}_last_updated_at", Carbon::now(), WatchTimeMongo::LastRowCachePeriod);
+        Cache::put("watchtime_user{$user->id}_video{$video->id}", $newRecords, WatchTimeMongo::AllRowsCachePeriod);
 
-                Cache::put("watchtime_user{$user->id}_last", $watchTimeModel, WatchTime::LastRowCachePeriod);
-
-                $allWatchTimes->push((object)$watchTimeModel->getAttributes());
-                Cache::put("watchtime_user{$user->id}_video{$video->id}", $allWatchTimes, WatchTime::AllRowsCachePeriod);
-            }
-        });
+        $duration = $newDuration - $oldDuration;
 
         $video->watch_time += $duration;
         $video->save();
@@ -962,9 +963,7 @@ class VideoController extends Controller
         $user->watch_time += $duration;
         $user->save();
 
-        foreach ($newRows as $row){
-            event(new VideoWatched($video, $user, $row['start_time'], $row['end_time']));
-        }
+        event(new VideoWatched($video, $user, $originalStart, $originalEnd));
 
         return response()->json(["message" => "ok"]);
     }

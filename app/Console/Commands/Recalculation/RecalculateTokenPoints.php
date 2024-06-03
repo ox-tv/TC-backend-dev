@@ -5,6 +5,7 @@ namespace App\Console\Commands\Recalculation;
 use App\Models\PricingUser;
 use App\Models\TokenPoint;
 use App\Models\User;
+use App\Models\WatchTimeMongo;
 use App\Repository\Eloquent\LoyaltyPointRepository;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
@@ -148,8 +149,7 @@ class RecalculateTokenPoints extends Command
         $this->tokenPointRepository = new TokenPointRepository();
         $day = Carbon::parse($date);
 
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', $day)
+        $watchTimes = WatchTimeMongo::whereDate('created_at', $day)
             ->select(["end_time", "start_time", "user_id"])
             ->get()->toArray();
 
@@ -209,8 +209,8 @@ class RecalculateTokenPoints extends Command
                 $maxTokenToEarn = $wasHero? 360 : 30;
                 $tokenType = $wasHero? TokenPoint::TYPE_WATCH_A_VIDEO_AS_HERO : TokenPoint::TYPE_WATCH_A_VIDEO;
 
-                $watchTimes = DB::table('watch_times')
-                    ->whereDate('created_at', $day)
+
+                $watchTimes = WatchTimeMongo::whereDate('created_at', $day)
                     ->where('user_id', $user->id)
                     ->select(["end_time", "start_time"])->get();
 
@@ -251,8 +251,7 @@ class RecalculateTokenPoints extends Command
         $this->tokenPointRepository = new TokenPointRepository();
 
         // Recalc yesterday
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', Carbon::today()->subDays(1))
+        $watchTimes = WatchTimeMongo::whereDate('created_at', Carbon::today()->subDays(1))
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
             ->get();
@@ -284,8 +283,7 @@ class RecalculateTokenPoints extends Command
         }
 
         // Recalc today
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', Carbon::today())
+        $watchTimes = WatchTimeMongo::whereDate('created_at', Carbon::today())
             ->groupBy('user_id')
             ->selectRaw("SUM(end_time - start_time) as duration, user_id")
             ->get();

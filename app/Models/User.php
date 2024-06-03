@@ -232,10 +232,6 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Video')->withPivot('relation')->where('relation', UserVideo::BOOKMARKED_RELATION);
     }
 
-    public function watch_times(){
-        return $this->belongsToMany('App\Models\Video', "watch_times")->withTimestamps()->withPivot(["start_time","end_time"]);
-    }
-
     public function favoriteCryptoCurrencies(){
         return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_user');
     }

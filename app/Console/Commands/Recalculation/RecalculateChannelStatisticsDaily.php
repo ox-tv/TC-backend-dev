@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserVideo;
 use App\Models\Video;
 use App\Models\WatchTime;
+use App\Models\WatchTimeMongo;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Console\Command;
@@ -66,7 +67,7 @@ class RecalculateChannelStatisticsDaily extends Command
 
     private function recalculateWatchTimesAndViews($day)
     {
-        $rows = WatchTime::whereDate('created_at', $day)->get();
+        $rows = WatchTimeMongo::whereDate('created_at', $day)->get();
         $viewsHistory = [];
         $watchTimeHistory = [];
 

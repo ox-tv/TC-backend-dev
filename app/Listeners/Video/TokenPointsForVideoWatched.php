@@ -5,6 +5,7 @@ namespace App\Listeners\Video;
 use App\Events\VideoWatched;
 use App\Models\TokenPoint;
 use App\Models\WAFSuspiciousIPAddress;
+use App\Models\WatchTimeMongo;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -37,8 +38,8 @@ class TokenPointsForVideoWatched
                 ->selectRaw("SUM(end_time - start_time) as duration")
                 ->first()->duration?? 0;*/
 
-        $watchTimes = DB::table('watch_times')
-            ->whereDate('created_at', Carbon::today())
+        $watchTimes = WatchTimeMongo::
+            whereDate('created_at', Carbon::today())
             ->where('user_id', $user->id)
             ->select(["end_time", "start_time"])->get();
 

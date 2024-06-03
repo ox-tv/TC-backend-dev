@@ -48,18 +48,18 @@ class WatchTimeStore extends FormRequest
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
-            $lastWatchTime = Cache::get("watchtime_user{$user->id}_last");
+            $lastWatchTimeUpdatedAT = Cache::get("watchtime_user{$user->id}_last_updated_at");
             /*$lastWatchTime = DB::table('watch_times')
                 ->where('user_id', $user->id)
                 //->where('video_id', $video->id)
                 ->orderByDesc('created_at')
                 ->first();*/
 
-            if(!$lastWatchTime){
+            if(!$lastWatchTimeUpdatedAT){
                 return;
             }
 
-            if ($lastWatchTime->created_at >= Carbon::now()->subSeconds($duration - 1)->format('Y-m-d H:i:s')) {
+            if ($lastWatchTimeUpdatedAT >= Carbon::now()->subSeconds($duration - 1)->format('Y-m-d H:i:s')) {
                 $validator->errors()->add('watch_time', 'Your watch time duration is bigger than datetime of last submitted watch time record.');
             }
         });
