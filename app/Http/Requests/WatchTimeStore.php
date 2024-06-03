@@ -22,6 +22,14 @@ class WatchTimeStore extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'start_time' => intval($this->request->get('start_time')),
+            'end_time' => intval($this->request->get('end_time')),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
