@@ -891,6 +891,8 @@ class VideoController extends Controller
         $originalStart = $request->get("start_time");
         $originalEnd = $request->get("end_time");
 
+        Cache::put("watchtime_user{$user->id}_last_updated_at", Carbon::now(), WatchTimeMongo::LastRowCachePeriod);
+
         $incomingWatchTime = new WatchTimeMongo();
         $incomingWatchTime->video_id = $video->id;
         $incomingWatchTime->user_id = $user->id;
@@ -952,7 +954,6 @@ class VideoController extends Controller
         WatchTimeMongo::where('user_id', $user->id)->where('video_id', $video->id)->delete();
         WatchTimeMongo::insert($data);
 
-        Cache::put("watchtime_user{$user->id}_last_updated_at", Carbon::now(), WatchTimeMongo::LastRowCachePeriod);
         Cache::put("watchtime_user{$user->id}_video{$video->id}", $newRecords, WatchTimeMongo::AllRowsCachePeriod);
 
         $duration = $newDuration - $oldDuration;
