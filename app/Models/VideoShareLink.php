@@ -11,6 +11,12 @@ class VideoShareLink extends Model
 
     const UPDATED_AT = null;
 
+    public function scopeWhereDate($query, $column, $carbonDate)
+    {
+        return $query->where($column, '>=', (clone $carbonDate)->startOfDay())
+            ->where($column, '<=', (clone $carbonDate)->endOfDay());
+    }
+
 
     public function video(){
         return $this->setConnection('mysql')->belongsTo('App\Models\Video');
