@@ -13,6 +13,7 @@ use App\Models\Tag;
 use App\Models\TokenPoint;
 use App\Models\User;
 use App\Models\WatchTime;
+use App\Models\WatchTimeMongo;
 use App\Repository\Eloquent\TagRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -294,7 +295,7 @@ class SecurityRateLimitController extends Controller
     {
         $perPage = $request->get('per_page') ?: 15;
 
-        $watchTimes = WatchTime::where('user_id', $userId)->paginate($perPage);
+        $watchTimes = WatchTimeMongo::where('user_id', $userId)->paginate($perPage);
 
         return WatchTimeResource::collection($watchTimes);
     }

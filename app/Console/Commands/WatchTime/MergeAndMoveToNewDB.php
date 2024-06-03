@@ -25,7 +25,6 @@ class MergeAndMoveToNewDB extends Command
     /**
      * Execute the console command.
      *
-     * dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
      * @return int
      */
     public function handle()

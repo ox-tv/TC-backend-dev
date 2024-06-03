@@ -5,6 +5,7 @@ namespace App\Listeners\Video;
 use App\Events\VideoWatched;
 use App\Models\TokenPoint;
 use App\Models\WAFSuspiciousIPAddress;
+use App\Models\WatchTimeMongo;
 use App\Repository\Eloquent\TokenPointRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -37,11 +38,8 @@ class TokenPointsForVideoWatched
                 ->selectRaw("SUM(end_time - start_time) as duration")
                 ->first()->duration?? 0;*/
 
-        //dd('whereDate is not work in mongoDB (after move watchTime from mysql to mongo)');
-        $watchTimes = DB::table('watch_times')
-            //->where('created_at', '>=', Carbon::today()->startOfDay())
-            //->where('created_at', '<=', Carbon::today()->endOfDay())
-            ->whereDate('created_at', Carbon::today())
+        $watchTimes = WatchTimeMongo::
+            whereDate('created_at', Carbon::today())
             ->where('user_id', $user->id)
             ->select(["end_time", "start_time"])->get();
 
