@@ -19,7 +19,7 @@ class WatchTimeStore extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth('api')->check() || !empty($this->request->get('session_id'));
     }
 
     protected function prepareForValidation(): void
@@ -40,28 +40,22 @@ class WatchTimeStore extends FormRequest
         return [
             'start_time' => ['required', "numeric", "lt:end_time"],
             'end_time' => ['required', "numeric"],
+            'session_id' => ['nullable', "string", "min:12"],
         ];
     }
 
     public function withValidator($validator)
     {
-        $validator->after(function ($validator) {
-
-            $user = auth('api')->user();
-            //$idOrUrlHash = $this->route('idOrUrlHash');
-            //$video = Video::published()->where('id', $idOrUrlHash)->orWhere('url_hash', $idOrUrlHash)->firstOrFail();
+        $validator->after(function ($validator)
+        {
+            $userID = auth('api')->check()? auth('api')->id(): $this->get('session_id');
             $duration = $this->get('end_time') - $this->get('start_time') - 1;
 
             if ($duration > 50){
                 $validator->errors()->add('duration', 'Watch time duration is too long.');
             }
 
-            $lastWatchTimeUpdatedAT = Cache::get("watchtime_user{$user->id}_last_updated_at");
-            /*$lastWatchTime = DB::table('watch_times')
-                ->where('user_id', $user->id)
-                //->where('video_id', $video->id)
-                ->orderByDesc('created_at')
-                ->first();*/
+            $lastWatchTimeUpdatedAT = Cache::get("watchtime_user{$userID}_last_updated_at");
 
             if(!$lastWatchTimeUpdatedAT){
                 return;
