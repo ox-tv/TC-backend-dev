@@ -884,24 +884,25 @@ class VideoController extends Controller
         return $video->view_count;
     }
 
-    public function watch_time_store(WatchTimeStore $request, $videoId)
+    public function watchTimeStore(WatchTimeStore $request, $videoId)
     {
         $video = Video::published()->where('id', $videoId)->firstOrFail();
+        $userID = auth('api')->check()? auth('api')->id(): $request->get('session_id');
         $user = auth("api")->user();
         $originalStart = $request->get("start_time");
         $originalEnd = $request->get("end_time");
 
-        Cache::put("watchtime_user{$user->id}_last_updated_at", Carbon::now(), WatchTimeMongo::LastRowCachePeriod);
+        Cache::put("watchtime_user{$userID}_last_updated_at", Carbon::now(), WatchTimeMongo::LastRowCachePeriod);
 
         $incomingWatchTime = new WatchTimeMongo();
         $incomingWatchTime->video_id = $video->id;
-        $incomingWatchTime->user_id = $user->id;
+        $incomingWatchTime->user_id = $userID;
         $incomingWatchTime->start_time = $originalStart;
         $incomingWatchTime->end_time = $originalEnd;
 
-        $allWatchTimes = Cache::remember("watchtime_user{$user->id}_video{$video->id}", WatchTimeMongo::AllRowsCachePeriod , function () use ($user, $video){
+        $allWatchTimes = Cache::remember("watchtime_user{$userID}_video{$video->id}", WatchTimeMongo::AllRowsCachePeriod , function () use ($userID, $video){
             return WatchTimeMongo::
-                where('user_id', $user->id)
+                where('user_id', $userID)
                 ->where('video_id', $video->id)
                 ->get();
         });
@@ -943,7 +944,7 @@ class VideoController extends Controller
         foreach ($newRecords as $newRecord){
             $data[] = [
                 'video_id' => $video->id,
-                'user_id' => $user->id,
+                'user_id' => $userID,
                 'start_time' => $newRecord->start_time,
                 'end_time' => $newRecord->end_time,
                 'created_at' => WatchTimeMongo::fromDateTime(Carbon::now()),
@@ -951,18 +952,20 @@ class VideoController extends Controller
             ];
         }
         // Remove Olds and add new records
-        WatchTimeMongo::where('user_id', $user->id)->where('video_id', $video->id)->delete();
+        WatchTimeMongo::where('user_id', $userID)->where('video_id', $video->id)->delete();
         WatchTimeMongo::insert($data);
 
-        Cache::put("watchtime_user{$user->id}_video{$video->id}", $newRecords, WatchTimeMongo::AllRowsCachePeriod);
+        Cache::put("watchtime_user{$userID}_video{$video->id}", $newRecords, WatchTimeMongo::AllRowsCachePeriod);
 
         $duration = $newDuration - $oldDuration;
 
         $video->watch_time += $duration;
         $video->save();
 
-        $user->watch_time += $duration;
-        $user->save();
+        if ($user){
+            $user->watch_time += $duration;
+            $user->save();
+        }
 
         event(new VideoWatched($video, $user, $originalStart, $originalEnd));
 
