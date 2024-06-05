@@ -20,6 +20,10 @@ class LoyaltyPointsForVideoWatched
 
     public function handle(VideoWatched $event)
     {
+        if (!$event->user){
+            return 0;
+        }
+
         $user = $event->user;
         $video = $event->video;
         $startTime = $event->startTime;

@@ -26,6 +26,10 @@ class TokenPointsForVideoWatched
             return true;
         }
 
+        if (!$event->user){
+            return 0;
+        }
+
         $user = $event->user;
         $video = $event->video;
         $startTime = $event->startTime;
