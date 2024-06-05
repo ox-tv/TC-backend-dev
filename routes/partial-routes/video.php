@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watch_time_store')->middleware(['waf.validate-hash', 'waf.ratelimit:8,1,m,1,D']);
 
     // Video like/dislike routes
     Route::put('videos/{video}/like', '\App\Http\Controllers\UserVideoRelationController@like')->middleware('user.unmute');
@@ -32,6 +31,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('share-links/statistics', '\App\Http\Controllers\VideoShareLinkController@shareLinkStatistics');
 });
 
+Route::post('videos/{idOrUrlHash}/watch', '\App\Http\Controllers\VideoController@watchTimeStore')->middleware(['waf.validate-hash', 'waf.ratelimit:8,1,m,1,D']);
 Route::put('videos/{idOrUrlHash}/increase-share-link-view', '\App\Http\Controllers\VideoShareLinkController@increaseShareLinkView');
 
 Route::put('videos/{ir_or_url_hash}/increase_view', '\App\Http\Controllers\VideoController@increase_view');
