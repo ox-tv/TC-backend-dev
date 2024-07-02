@@ -169,3 +169,27 @@ if(!function_exists('getClientIP')){
         }
     }
 }
+
+if(!function_exists('sendImporterStatusToSlack')){
+    function sendImporterStatusToSlack($text)
+    {
+        $channelName = 'importer-status';
+        $url = env('SLACK_IMPORTER_HOOK_URL');
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode([
+                "channel" => $channelName,
+                "text" => $text,
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json; charset=utf-8',
+            ],
+        ]);
+        curl_exec($curl);
+        curl_close($curl);
+    }
+}
