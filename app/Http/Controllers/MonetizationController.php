@@ -197,6 +197,8 @@ class MonetizationController extends Controller
         $monetization = Monetization::whereDate('month', $month)->first();
 
         $payouts = MonetizationPayout::whereNotNull('wallet_address')
+            ->whereNotNull('payment_details')
+            ->where('payment_details->first_name','!=','-')
             ->where('monetization_id', $monetization->id??0)->get();
 
         $payouts->load(['channel']);
