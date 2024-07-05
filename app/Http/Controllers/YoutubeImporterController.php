@@ -134,7 +134,7 @@ class YoutubeImporterController extends Controller
         $video->file_url = $request->get('file_url');
         $video->thumbnail_url = $request->get('thumbnail');
         $video->user_id = $request->get('user_id');
-        $video->status = Video::STATUS_PUBLISHED;
+        $video->status = $request->get('user_id') == "97003" ? Video::STATUS_DRAFT : Video::STATUS_PUBLISHED;
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
         $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT;
 
@@ -199,6 +199,8 @@ class YoutubeImporterController extends Controller
         }
 
         event(new VideoCreated($video));
+
+        sendImporterStatusToSlack("New Video Imported". $video->title);
 
         return VideoResource::make($video);
     }
