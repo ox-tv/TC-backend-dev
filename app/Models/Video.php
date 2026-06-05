@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\OrderDescScope;
 use App\Repository\Eloquent\UserRepository;
+use App\Support\MediaPlaceholders;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -402,16 +403,33 @@ class Video extends Model
 
     public function getFileUrlAttribute($value)
     {
+        if (MediaPlaceholders::enabled()) {
+            $replacement = MediaPlaceholders::videoUrlForModelId($this->id);
+            if ($replacement !== null) {
+                return $replacement;
+            }
+        }
+
         return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :Storage::disk('videos')->url($this->file_path);
     }
 
     public function getThumbnailUrlAttribute($value)
     {
+        if (MediaPlaceholders::enabled()) {
+            return MediaPlaceholders::thumbnailUrlForModelId($this->id);
+        }
+
         return $value? : $this->thumbnail;
     }
 
     public function getThumbnailsAttribute()
     {
+        if (MediaPlaceholders::enabled()) {
+            $thumb = MediaPlaceholders::thumbnailUrlForModelId($this->id);
+
+            return MediaPlaceholders::thumbnailVariants($thumb);
+        }
+
         if (!$this->attributes['thumbnail_url']){
             return [];
         }

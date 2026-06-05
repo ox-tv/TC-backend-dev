@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Repository\Eloquent\UserRepository;
+use App\Support\MediaPlaceholders;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -229,14 +230,42 @@ class Channel extends Model
         return $this->youtube_last_scraped_at? $this->youtube_last_scraped_at->addHours(config('yi.auto_import_frequency')) : null;
     }
 
+    public function getAvatarUrlAttribute($value)
+    {
+        if (MediaPlaceholders::enabled()) {
+            return MediaPlaceholders::channelAvatarUrlForId((int) $this->id);
+        }
+
+        return $value;
+    }
+
+    public function getCoverUrlAttribute($value)
+    {
+        if (MediaPlaceholders::enabled()) {
+            return MediaPlaceholders::channelCoverUrlForId((int) $this->id);
+        }
+
+        return $value;
+    }
+
     public function getAvatarAttribute($value)
     {
+        if (MediaPlaceholders::enabled()) {
+            return MediaPlaceholders::channelAvatarUrlForId((int) $this->id);
+        }
+
         return $this->avatar_url? : $value;
         //return $this->avatar_url? (strpos($this->avatar_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->avatar_url) : $this->avatar_url) : $value;
     }
 
     public function getAvatarThumbnailsAttribute()
     {
+        if (MediaPlaceholders::enabled()) {
+            $base = MediaPlaceholders::channelAvatarUrlForId((int) $this->id);
+
+            return MediaPlaceholders::thumbnailVariants($base);
+        }
+
         if (!$this->attributes['avatar_url']){
             return [];
         }
@@ -251,12 +280,22 @@ class Channel extends Model
 
     public function getCoverAttribute($value)
     {
+        if (MediaPlaceholders::enabled()) {
+            return MediaPlaceholders::channelCoverUrlForId((int) $this->id);
+        }
+
         return $this->cover_url? : $value;
         //return $this->cover_url? (strpos($this->cover_url, 'cloudflarestorage') !== false? getR2TemporaryUrl($this->cover_url) : $this->cover_url) : $value;
     }
 
     public function getCoverThumbnailsAttribute()
     {
+        if (MediaPlaceholders::enabled()) {
+            $base = MediaPlaceholders::channelCoverUrlForId((int) $this->id);
+
+            return MediaPlaceholders::thumbnailVariants($base);
+        }
+
         if (!$this->attributes['cover_url']){
             return [];
         }

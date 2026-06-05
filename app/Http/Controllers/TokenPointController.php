@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use MongoDB\BSON\UTCDateTime;
 
 class TokenPointController extends Controller
 {
@@ -45,12 +46,13 @@ class TokenPointController extends Controller
         ];
 
         $result['total_tokens_distributed'] = TokenPoint::sum('amount');
-        $result['today_tokens_distributed'] = TokenPoint::where('date', Carbon::now()->startOfDay())->sum('amount');
+        $result['today_tokens_distributed'] = TokenPoint::where('date', $this->mongoUtc(Carbon::now()->startOfDay()))->sum('amount');
 
         if (auth('api')->check()){
             $user = auth('api')->user();
-            $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->sum('amount');
-            $result['user_locked_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
+            $nowUtc = $this->mongoUtc(Carbon::now());
+            $result['user_total_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', $nowUtc)->sum('amount');
+            $result['user_locked_tokens'] = TokenPoint::where('user_id', auth('api')->id())->where('activate_at', '<=', $nowUtc)->whereNull('claimable_at')->sum('amount');
             $result['user_daily_watch_limit_reached'] = Cache::get("user{$user->id}_daily_watch_limit_reached");
         }
 
@@ -109,11 +111,12 @@ class TokenPointController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
-            $heroQuery = TokenPoint::where('date', Carbon::parse($day->format('Y-m-d')))
+            $dayUtc = $this->mongoUtc(Carbon::parse($day->format('Y-m-d')));
+            $heroQuery = TokenPoint::where('date', $dayUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_HERO);
-            $userQuery = TokenPoint::where('date', Carbon::parse($day->format('Y-m-d')))
+            $userQuery = TokenPoint::where('date', $dayUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_USER);
-            $publisherQuery = TokenPoint::where('date', Carbon::parse($day->format('Y-m-d')))
+            $publisherQuery = TokenPoint::where('date', $dayUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_PUBLISHER);
 
             $statistics[$day->format('Y-m-d')] = [
@@ -135,14 +138,16 @@ class TokenPointController extends Controller
         foreach ($monthPeriods as $month) {
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
-            $heroQuery = TokenPoint::where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())
+            $fromUtc = $this->mongoUtc($month->copy()->startOfMonth());
+            $toUtc = $this->mongoUtc($month->copy()->endOfMonth());
+            $heroQuery = TokenPoint::where('date', '>=', $fromUtc)
+                ->where('date', '<=', $toUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_HERO);
-            $userQuery = TokenPoint::where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())
+            $userQuery = TokenPoint::where('date', '>=', $fromUtc)
+                ->where('date', '<=', $toUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_USER);
-            $publisherQuery = TokenPoint::where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())
+            $publisherQuery = TokenPoint::where('date', '>=', $fromUtc)
+                ->where('date', '<=', $toUtc)
                 ->whereIn('type', TokenPoint::TYPE_FOR_PUBLISHER);
 
             $statistics[$date] = [
@@ -154,5 +159,14 @@ class TokenPointController extends Controller
         }
 
         return $statistics;
+    }
+
+    /**
+     * BSON date for Mongo queries. Avoids jenssegers passing format('Uv') (string)
+     * into UTCDateTime, which fails on newer ext-mongodb builds.
+     */
+    private function mongoUtc(Carbon $dt): UTCDateTime
+    {
+        return new UTCDateTime((int) ($dt->timestamp * 1000));
     }
 }

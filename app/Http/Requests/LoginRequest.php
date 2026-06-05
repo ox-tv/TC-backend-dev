@@ -30,7 +30,7 @@ class LoginRequest extends FormRequest
             'email' => 'required_without:login|string|email',
             'login' => 'required_without:email|string',
             'password' => ['required', 'string'],
-            'captcha' => [Rule::requiredIf(request()->get('email') != config('yi.account')), 'captcha_api:' . request('captcha_key') . ',math']
+            //'captcha' => [Rule::requiredIf(request()->get('email') != config('yi.account')), 'captcha_api:' . request('captcha_key') . ',math']
         ];
     }
 

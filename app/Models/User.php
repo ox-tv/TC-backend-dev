@@ -13,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Billable;
 use Laravel\Passport\HasApiTokens;
+use MongoDB\BSON\UTCDateTime;
 
 class User extends Authenticatable
 {
@@ -360,12 +361,25 @@ class User extends Authenticatable
 
     public function getTokenPointsTotalAmountAttribute()
     {
-        return TokenPoint::where('user_id', $this->id)->where('activate_at', '<=', Carbon::now())->sum('amount');
+        return TokenPoint::where('user_id', $this->id)
+            ->where('activate_at', '<=', $this->mongoUtcDate(Carbon::now()))
+            ->sum('amount');
     }
 
     public function getTokenPointsLockedAmountAttribute()
     {
-        return TokenPoint::where('user_id', $this->id)->where('activate_at', '<=', Carbon::now())->whereNull('claimable_at')->sum('amount');
+        return TokenPoint::where('user_id', $this->id)
+            ->where('activate_at', '<=', $this->mongoUtcDate(Carbon::now()))
+            ->whereNull('claimable_at')
+            ->sum('amount');
+    }
+
+    /**
+     * BSON date for Mongo comparisons (Carbon is mishandled by jenssegers/mongodb on PHP 8.3+).
+     */
+    private function mongoUtcDate(Carbon $dt): UTCDateTime
+    {
+        return new UTCDateTime((int) ($dt->unix() * 1000));
     }
 
     public function getPublisherRequestDetailsAttribute($value)

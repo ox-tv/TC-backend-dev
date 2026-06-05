@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use MongoDB\BSON\UTCDateTime;
 
 class VideoStatisticsDailyIncreaseView
 {
@@ -37,7 +38,7 @@ class VideoStatisticsDailyIncreaseView
         $statistics = Channel2StatisticsDaily::firstOrNew([
             'video_id' => $video->id,
             'channel_id' => $channel->id,
-            'date' => Carbon::now()->startOfDay(),
+            'date' => new UTCDateTime((int) (Carbon::now()->startOfDay()->timestamp * 1000)),
         ]);
 
         $statistics->views_total += 1;
