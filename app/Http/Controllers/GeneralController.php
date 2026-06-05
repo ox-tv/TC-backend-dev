@@ -24,6 +24,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
+use MongoDB\BSON\UTCDateTime;
 
 class GeneralController extends Controller
 {
@@ -43,7 +45,7 @@ class GeneralController extends Controller
             $trendingChannelIds = Channel2StatisticsDaily::raw(function($collection) {
                 return $collection->aggregate([
                     ['$match' => [
-                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                        'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(30))],
                     ]],
                     ['$group' => [
                         '_id' => '$channel_id',
@@ -66,12 +68,13 @@ class GeneralController extends Controller
         $result['trending_channels'] = ChannelHomeResource::collection($trendingChannels);
 
 
-        // Trending Videos
-        $trendingVideos = Cache::remember('home_trending_videos', 60 * 60 , function () use ($videoIds) {
-            $trendingVideoIds = Channel2StatisticsDaily::raw(function($collection) use ($videoIds) {
+        // Trending Videos — cache only Mongo trending id ordering; Video rows reload each request so
+        // updated published_at/titles/etc. are visible without waiting out the TTL.
+        $trendingVideoIds = Cache::remember('home_trending_video_ids', 60 * 60, function () use ($videoIds) {
+            return Channel2StatisticsDaily::raw(function ($collection) use ($videoIds) {
                 return $collection->aggregate([
                     ['$match' => [
-                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                        'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(3))],
                         'video_id' => ['$in'=> $videoIds],
                     ]],
                     ['$group' => [
@@ -86,20 +89,22 @@ class GeneralController extends Controller
                         ],
                     ]],
                     ['$sort' => ['amount' => -1, '_id' => -1]],
-                    ['$limit' => 24]
+                    ['$limit' => 24],
                 ]);
-            })->pluck('_id')->toArray();
-
-            $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
-
-            return Video::published()->typeVideo()
-                ->withoutGlobalScope(OrderDescScope::class)
-                ->orderByRaw((!empty($orderByTrendingVideoIds)?"FIELD(id,$orderByTrendingVideoIds) DESC, ": "") . "published_at DESC")
-                ->take(24)
-                ->with(['channel'])
-                ->get()
-                ->append(['is_bookmarked']);
+            })->pluck('_id')->map(function ($id) {
+                return (int) $id;
+            })->toArray();
         });
+
+        $orderByTrendingVideoIds = implode(',', array_reverse($trendingVideoIds));
+
+        $trendingVideos = Video::published()->typeVideo()
+            ->withoutGlobalScope(OrderDescScope::class)
+            ->orderByRaw((!empty($orderByTrendingVideoIds) ? 'FIELD(id,'.$orderByTrendingVideoIds.') DESC, ' : '') . 'published_at DESC')
+            ->take(24)
+            ->with(['channel'])
+            ->get()
+            ->append(['is_bookmarked']);
 
         $result['trending_videos'] = VideoHomeResource::collection($trendingVideos);
 
@@ -109,7 +114,7 @@ class GeneralController extends Controller
             $trendingPodcastIds = Channel2StatisticsDaily::raw(function($collection) use ($podcastIds) {
                 return $collection->aggregate([
                     ['$match' => [
-                        'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                        'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(3))],
                         'video_id' => ['$in'=> $podcastIds],
                     ]],
                     ['$group' => [
@@ -266,7 +271,7 @@ class GeneralController extends Controller
         $trendingChannelIds = Channel2StatisticsDaily::raw(function($collection) {
             return $collection->aggregate([
                 ['$match' => [
-                    'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(30))],
+                    'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(30))],
                 ]],
                 ['$group' => [
                     '_id' => '$channel_id',
@@ -301,7 +306,7 @@ class GeneralController extends Controller
         $trendingVideoIds = Channel2StatisticsDaily::raw(function($collection) use ($videoIds) {
             return $collection->aggregate([
                 ['$match' => [
-                    'date' => ['$gte'=> Channel2StatisticsDaily::fromDateTime(Carbon::now()->subDays(3))],
+                    'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(3))],
                     'video_id' => ['$in'=> $videoIds],
                 ]],
                 ['$group' => [
@@ -430,11 +435,29 @@ class GeneralController extends Controller
         $result['videos_hours_minutes'] = round(Video::withTrashed()->sum('duration') / 60);
         $result['videos_sizes_MB'] = rand(1,99);
 
-        $result['total_hero_members'] = User::withTrashed()->isHero()->count();
-        $result['new_hero_members_this_month'] = User::withTrashed()->isHero()->whereHas('pricing', function ($q) use ($startOfMonth){
-            $q->where('pricing_user.created_at', '>=', $startOfMonth->format('Y-m-d H:i:s'));
-        })->count();
+        if (Schema::hasColumn('users', 'hero_type')) {
+            $result['total_hero_members'] = User::withTrashed()->isHero()->count();
+            $result['new_hero_members_this_month'] = User::withTrashed()->isHero()->whereHas('pricing', function ($q) use ($startOfMonth) {
+                $q->where('pricing_user.created_at', '>=', $startOfMonth->format('Y-m-d H:i:s'));
+            })->count();
+        } else {
+            // Older DBs pending migration `2024_01_03_141522_add_new_hero_fields_to_users_table`:
+            // `isHero()` relies on hero_type — approximate from legacy Hero columns.
+            $result['total_hero_members'] = User::withTrashed()
+                ->where(function ($query) use ($now) {
+                    $query->whereNotNull('hero_member_at')
+                        ->orWhere(function ($q) use ($now) {
+                            $q->whereNotNull('hero_due_at')
+                                ->where('hero_due_at', '>=', $now->format('Y-m-d H:i:s'));
+                        });
+                })
+                ->count();
 
+            $result['new_hero_members_this_month'] = User::withTrashed()
+                ->whereNotNull('hero_member_at')
+                ->whereDate('hero_member_at', '>=', $startOfMonth->format('Y-m-d'))
+                ->count();
+        }
 
         $result['total_expired_members'] = User::withTrashed()->whereNotNull('hero_due_at')
             ->whereDate('hero_due_at','<', $now->format('Y-m-d H:i:s'))->count();
@@ -552,12 +575,15 @@ class GeneralController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
+            // Pass BSON UTCDateTime — Mongo query builder mishandles Carbon (format('Uv') → string on newer PHP).
+            $mongoDay = $this->mongoUtc(Carbon::parse($day->format('Y-m-d'))->startOfDay());
+
             $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+                ->where('date', $mongoDay)->get();
 
             $monetizePointsQuery = MonetizePoint::where('channel_id', $channel->id)
                 ->whereNotNull('activated_at')
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+                ->where('date', $mongoDay)->get();
 
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
@@ -587,13 +613,13 @@ class GeneralController extends Controller
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
             $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+                ->where('date', '>=', $this->mongoUtc($month->copy()->startOfMonth()))
+                ->where('date', '<=', $this->mongoUtc($month->copy()->endOfMonth()))->get();
 
             $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
                 ->whereNotNull('activated_at')
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+                ->where('date', '>=', $this->mongoUtc($month->copy()->startOfMonth()))
+                ->where('date', '<=', $this->mongoUtc($month->copy()->endOfMonth()))->get();
 
             $statistics[$date] = [
                 'date' => $date,
@@ -634,5 +660,13 @@ class GeneralController extends Controller
             ->queue(new AdvertisementInquireMail($data));
 
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * BSON date for Mongo queries (Carbon is broken with jenssegers/mongodb on PHP 8.3+: format('Uv') is a string).
+     */
+    private function mongoUtc(Carbon $dt): UTCDateTime
+    {
+        return new UTCDateTime((int) ($dt->timestamp * 1000));
     }
 }

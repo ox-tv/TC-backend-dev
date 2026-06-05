@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlaceholderChannelAvatarController;
 use App\TCNotification\GeneralNotification;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('placeholder/channel/{channel}/avatar.svg', PlaceholderChannelAvatarController::class)
+    ->name('placeholders.channel_avatar');
 
 
 

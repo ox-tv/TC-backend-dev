@@ -29,11 +29,12 @@
         "maatwebsite/excel": "^3.1",
         "mantas-done/subtitles": "^0.3.10",
         "mews/captcha": "^3.2",
+        "mongodb/mongodb": "2.1.2 as 1.99.100",
         "overtrue/laravel-passport-cache-token": "^3.2",
         "php-ffmpeg/php-ffmpeg": "^0.17.0",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2.2",
-        "pusher/pusher-php-server": "~3.0",
+        "pusher/pusher-php-server": "^4.0|^5.0|^6.0|^7.0",
         "simplito/elliptic-php": "^1.0",
         "spatie/db-dumper": "^2.21"
     },

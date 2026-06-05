@@ -46,7 +46,7 @@ class LoginController extends Controller
         $credentials = [
             $loginType => $login,
             'password' => $request->get('password'),
-            //'status' => User::STATUS_ACTIVE
+            'role_id' => null
         ];
 
         if($scope == 'publisher'){

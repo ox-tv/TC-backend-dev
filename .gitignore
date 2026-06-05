@@ -3,6 +3,8 @@
 /public/storage
 /storage/*.key
 /vendor
+.DS_Store
+Brewfile
 .env
 .env.backup
 .phpunit.result.cache
@@ -16,3 +18,7 @@ yarn-error.log
 .env.*
 
 .rnd
+
+# Local placeholder media (generated or downloaded; see scripts/generate-placeholder-video-thumbnails.sh)
+/public/media/placeholders/sample-videos/
+/public/media/placeholders/video-thumbnails/

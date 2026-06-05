@@ -49,13 +49,7 @@ if(!function_exists('getR2TemporaryUrl'))
 {
     function getR2TemporaryUrl($fileUrl)
     {
-        $s3 = Storage::disk('r2');
-        $config = config('filesystems.disks.r2');
-
-        $r2EndPoint = str_replace('//r2', "//{$config['account_id']}.r2", $config['endpoint']) . $config['bucket'] . '/';
-
-        $filePath = str_replace($r2EndPoint, '', $fileUrl);
-        return $s3->temporaryUrl($filePath, now()->addDay());
+        return asset('media/r2-placeholder.svg');
     }
 }
 

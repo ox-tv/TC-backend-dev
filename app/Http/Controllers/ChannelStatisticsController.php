@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use MongoDB\BSON\UTCDateTime;
 
 class ChannelStatisticsController extends Controller
 {
@@ -44,11 +45,11 @@ class ChannelStatisticsController extends Controller
 
         })->when($fromFilter, function ($query, $fromFilter) {
 
-            return $query->where('date', '>=', Carbon::parse($fromFilter));
+            return $query->where('date', '>=', $this->mongoUtc(Carbon::parse($fromFilter)->startOfDay()));
 
         })->when($toFilter, function ($query, $toFilter) {
 
-            return $query->where('date', '<=', Carbon::parse($toFilter));
+            return $query->where('date', '<=', $this->mongoUtc(Carbon::parse($toFilter)->endOfDay()));
         });
 
         if (in_array(($channel->slug?? null), ['roberts-sloppy-media', 'aahelali', 'roberts-channel'])){
@@ -93,8 +94,8 @@ class ChannelStatisticsController extends Controller
             $channelStatisticsQuery = channel2StatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->where('date', '>=', Carbon::parse($from_day))
-                ->where('date', '<=', Carbon::parse($to_day))->get();
+                ->where('date', '>=', $this->mongoUtc(Carbon::parse($from_day)->startOfDay()))
+                ->where('date', '<=', $this->mongoUtc(Carbon::parse($to_day)->endOfDay()))->get();
 
             $statistics[$monthString] = $this->makeResult($channelStatisticsQuery, $monthString);
         }
@@ -134,10 +135,12 @@ class ChannelStatisticsController extends Controller
 
         foreach ($periods as $day) {
 
+            $mongoDay = $this->mongoUtc(Carbon::parse($day->format('Y-m-d'))->startOfDay());
+
             $channelStatisticsQuery = channel2StatisticsDaily::when($channel, function ($query, $channel) {
                     return $query->where('channel_id', $channel->id);
                 })
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+                ->where('date', $mongoDay)->get();
 
             $statistics[$day->format('Y-m-d')] = $this->makeResult($channelStatisticsQuery, $day->format('Y-m-d'));
         }
@@ -502,11 +505,13 @@ class ChannelStatisticsController extends Controller
         $periods = CarbonPeriod::create($from, '1 day', $to);
 
         foreach ($periods as $day) {
+            $mongoDay = $this->mongoUtc(Carbon::parse($day->format('Y-m-d'))->startOfDay());
+
             $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+                ->where('date', $mongoDay)->get();
 
             $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
-                ->where('date', Carbon::parse($day->format('Y-m-d')))->get();
+                ->where('date', $mongoDay)->get();
 
             $statistics[$day->format('Y-m-d')] = [
                 'date' => $day->format('Y-m-d'),
@@ -550,12 +555,12 @@ class ChannelStatisticsController extends Controller
             $date = $month->copy()->startOfMonth()->format("Y-m-d");
 
             $channelStatisticsQuery = channel2StatisticsDaily::where('channel_id', $channel->id)
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+                ->where('date', '>=', $this->mongoUtc($month->copy()->startOfMonth()))
+                ->where('date', '<=', $this->mongoUtc($month->copy()->endOfMonth()))->get();
 
             $monetizePointQuery = MonetizePoint::where('channel_id', $channel->id)
-                ->where('date', '>=', $month->copy()->startOfMonth())
-                ->where('date', '<=', $month->copy()->endOfMonth())->get();
+                ->where('date', '>=', $this->mongoUtc($month->copy()->startOfMonth()))
+                ->where('date', '<=', $this->mongoUtc($month->copy()->endOfMonth()))->get();
 
             $statistics[$date] = [
                 'date' => $date,
@@ -588,5 +593,10 @@ class ChannelStatisticsController extends Controller
         }
 
         return $statistics;
+    }
+
+    private function mongoUtc(Carbon $dt): UTCDateTime
+    {
+        return new UTCDateTime((int) ($dt->timestamp * 1000));
     }
 }

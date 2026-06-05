@@ -1,0 +1,4 @@
+# One URL per line. Examples (uncomment and add your own):
+# https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+# /media/placeholders/sample-videos/local-demo.mp4
+# media/placeholders/sample-videos/local-demo.mp4
