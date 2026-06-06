@@ -40,7 +40,6 @@ class VideoStore extends FormRequest
                 })
             ],
             'categories.*.id' => 'exists:categories,id',
-            'crypto_currencies.*' => 'exists:crypto_currencies,id',
             'category' => [
                 'exists:categories,id',
                 Rule::requiredIf(function () {

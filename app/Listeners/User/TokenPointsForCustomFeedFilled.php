@@ -19,7 +19,7 @@ class TokenPointsForCustomFeedFilled
     {
         $user = $event->user;
 
-        if ($user->favoriteCryptoCurrencies()->count() < 3 || $user->favoriteTags()->count() < 3){
+        if ($user->favoriteTags()->count() < 3){
             return true;
         }
 

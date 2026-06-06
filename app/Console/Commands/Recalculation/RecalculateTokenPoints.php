@@ -50,23 +50,15 @@ class RecalculateTokenPoints extends Command
 
     private function recalculateTokensForFillCustomFeed(): void
     {
-        $coinRows = DB::table('crypto_currency_user')
+        $tagRows = DB::table('tag_user')
             ->selectRaw('user_id, COUNT(*) as cnt')
             ->groupBy('user_id')
             ->get()->toArray();
 
 
         $dataToDB = [];
-        foreach ($coinRows as $row){
+        foreach ($tagRows as $row){
             if ($row->cnt < 3){
-                continue;
-            }
-
-            $tagCount = DB::table('tag_user')
-                ->where('user_id', $row->user_id)
-                ->count();
-
-            if ($tagCount < 3){
                 continue;
             }
 

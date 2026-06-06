@@ -101,14 +101,6 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'coinmarketcap' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/coinmarketcap/api.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
-            'permission' => 0644,
-        ],
-
         'ratelimit' => [
             'driver' => 'daily',
             'path' => storage_path('logs/ratelimit/api.log'),
@@ -117,13 +109,6 @@ return [
             'permission' => 0644,
         ],
 
-        'coingecko' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/coingecko/api.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
-            'permission' => 0644,
-        ],
         'metrics' => [
             'driver' => 'daily',
             'path' => storage_path('logs/metrics/log.log'),

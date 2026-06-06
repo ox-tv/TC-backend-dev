@@ -7,7 +7,6 @@ use App\Http\Resources\Channel\ChannelHomeResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Chapter\ChapterResource;
 use App\Http\Resources\Comment\CommentResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\Playlist\PlaylistResource;
 use App\Http\Resources\Report\ReportMinimalItem;

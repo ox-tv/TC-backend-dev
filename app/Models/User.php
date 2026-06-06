@@ -233,9 +233,6 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Video')->withPivot('relation')->where('relation', UserVideo::BOOKMARKED_RELATION);
     }
 
-    public function favoriteCryptoCurrencies(){
-        return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_user');
-    }
 
     public function favoriteTags(){
         return $this->belongsToMany('App\Models\Tag');
@@ -345,11 +342,6 @@ class User extends Authenticatable
     public function getReferralsCountAttribute()
     {
         return $this->referrals()->count();
-    }
-
-    public function getFavoriteCryptoCurrenciesCountAttribute()
-    {
-        return $this->favoriteCryptoCurrencies()->count();
     }
 
     public function getSubscribedChannelsCountAttribute()
