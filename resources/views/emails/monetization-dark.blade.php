@@ -508,7 +508,7 @@
                                                     <div style="text-align: left;"><span style="color:#202020">Hi {{ $channelName }}</span><br>
                                                         &nbsp;</div>
 
-                                                    <div style="text-align: left;"><span style="color:#202020">Your channel at Today's Crypto made you USDT {{ $amount }} last month!</span><br>
+                                                    <div style="text-align: left;"><span style="color:#202020">Your channel at Oxin TV made you USDT {{ $amount }} last month!</span><br>
                                                         &nbsp;</div>
 
                                                     <div style="text-align: left;"><span style="color:#202020">Monetization earnings will be paid out within 10 days.

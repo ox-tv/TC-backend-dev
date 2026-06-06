@@ -27,6 +27,6 @@ class WelcomeToReferralUserMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Congratulations, and welcome to Today’s Crypto!')->view('emails.welcome-to-referral-user-dark');
+        return $this->subject('Congratulations, and welcome to Oxin TV!')->view('emails.welcome-to-referral-user-dark');
     }
 }

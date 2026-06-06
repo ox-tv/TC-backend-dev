@@ -591,10 +591,10 @@
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
                                                     <div style="text-align: center;"><p style="color:#202020">
-                                                            <span style="font-size:14px">It has been a pleasure having you on Today’s Crypto, and we hope to see you again in the future.</span>
+                                                            <span style="font-size:14px">It has been a pleasure having you on Oxin TV, and we hope to see you again in the future.</span>
                                                             <br><br>
                                                             <span style="font-size:14px">Best regards,</span><br>
-                                                            <span style="font-size:14px">Team Today’s Crypto</span>
+                                                            <span style="font-size:14px">Team Oxin TV</span>
                                                         </p></div>
 
                                                 </td>

@@ -193,7 +193,7 @@
 
             <div class="thank-you">
                 <p>
-                    Thank you for being a part of Today's Crypto!
+                    Thank you for being a part of Oxin TV!
                 </p>
             </div>
 

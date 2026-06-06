@@ -508,7 +508,7 @@
                                                     <div style="text-align: left;"><span style="color:#202020">Hey, {{ $channelName }}</span><br>
                                                         &nbsp;</div>
 
-                                                    <div style="text-align: left;"><span style="color:#202020">We are happy to inform you that your channel has qualified for content monetization on Today’s Crypto, well done!
+                                                    <div style="text-align: left;"><span style="color:#202020">We are happy to inform you that your channel has qualified for content monetization on Oxin TV, well done!
                                                         <br>Keep track of your monetization earnings via your publisher panel <a title="HERE" href="{{ config("general.PUBLISHER_PANEL_URL") }}" target="_blank" style="font-weight: bold;letter-spacing: normal;">HERE</a> </span><br>
                                                         &nbsp;</div>
 
