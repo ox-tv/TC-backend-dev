@@ -38,8 +38,4 @@ return [
         'checkout_failure_url' => env('STRIPE_CHECKOUT_FAILURE_URL', 'https://todayscrypto.com/'),
     ],
 
-    'tc_polygon' => [
-        'base_url' => env('TC_POLYGON_BASE_URL')
-    ],
-
 ];

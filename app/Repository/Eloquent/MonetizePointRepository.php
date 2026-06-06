@@ -63,20 +63,6 @@ class MonetizePointRepository
         return $model;
     }
 
-    public function ConvertBalanceToMonetizationMultiplier($balance)
-    {
-        $config = config("channel.min_balance_for_monetization_multiplier");
-        $multiplier = 0;
-
-        foreach ($config as $minBalance => $value){
-            if ($balance >= $minBalance && $multiplier < $value){
-                $multiplier = $value;
-            }
-        }
-
-        return $multiplier;
-    }
-
     private function CalculateMultipliedAmount($amount, $multiplier)
     {
         if ($multiplier === null){
