@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Your Hodl Membership is ending soon</title>
+    <title>Your Premium Membership is ending soon</title>
 
     <style type="text/css">
         p{
@@ -506,21 +506,20 @@
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
                                                     <div style="text-align: center;"><p style="color:#202020">
-                                                            <strong><span style="font-size:18px">Your Hodl Membership is ending soon</span></strong><br>
+                                                            <strong><span style="font-size:18px">Your Premium Membership is ending soon</span></strong><br>
                                                             <br>
-                                                            We hope you enjoy Today’s Crypto and your Hodl Membership.
+                                                            We hope you enjoy Oxin TV and your Premium Membership.
                                                             <br><br>
                                                             Time flies when having fun, and we want you to know that
-                                                            your Hodl Membership expires in seven days. However,
+                                                            your Premium Membership expires in seven days. However,
                                                             your membership will renew automatically on the expiry day
-                                                            if you have paid with a debit or credit card. Likewise,
-                                                            if you have paid with Crypto, you can renew your membership
+                                                            if you have paid with a debit or credit card. You can also renew your membership
                                                             <a href="{{ $heroMembershipPageLink }}" target="_blank">HERE</a> if you find it valuable.
                                                             By doing so, you also help our beloved publishers and us to become
-                                                            the best source for trusted crypto news and market updates.
+                                                            the best place to watch and share great videos.
                                                             <br>
                                                             <br>
-                                                            Best wishes from the team at Today’s Crypto</p></div>
+                                                            Best wishes from the team at Oxin TV</p></div>
 
                                                 </td>
                                             </tr>
