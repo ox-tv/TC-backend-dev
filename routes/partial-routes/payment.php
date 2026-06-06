@@ -8,10 +8,6 @@ Route::apiResource('plans', '\App\Http\Controllers\PlanController')->only(['inde
 Route::apiResource('payment-methods', '\App\Http\Controllers\PaymentMethodController')->only(['index']);
 
 
-// CoinBase
-Route::post('coinbase/webhook-handler', '\App\Http\Controllers\CoinbaseController@webHookHandler');
-
-
 
 // For Login Users
 Route::group(['middleware' => 'auth:api'], function(){
