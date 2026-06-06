@@ -32,11 +32,9 @@ class ProfileController extends Controller
     {
         $user = auth('api')->user();
 
-        $loginTypeWalletStatus = ($meta = $user->meta()->where('key', UserMeta::LoginTypeWallet)->first())? (bool) $meta->value : (bool) $user->auth_wallet;
         $LoginTypeCredentialsStatus = ($meta = $user->meta()->where('key', UserMeta::LoginTypeCredentials)->first())? (bool) $meta->value : (bool) $user->email;
 
         return response()->json([
-            'login_type_wallet' => $loginTypeWalletStatus,
             'login_type_credentials' => $LoginTypeCredentialsStatus,
         ]);
     }
@@ -49,21 +47,8 @@ class ProfileController extends Controller
     public function setLoginType(Request $request)
     {
         $user = auth('api')->user();
-        $loginTypeWalletStatus = ($meta = $user->meta()->where('key', UserMeta::LoginTypeWallet)->first())? (bool) $meta->value : (bool) $user->auth_wallet;
-        $LoginTypeCredentialsStatus = ($meta = $user->meta()->where('key', UserMeta::LoginTypeCredentials)->first())? (bool) $meta->value : (bool) $user->email;
 
         $request->validate([
-            'login_type_wallet' => [
-                function($attribute, $value, $fail) use($user){
-                    if ($value === true && !$user->auth_wallet) {
-                        $fail('You do not have a wallet.');
-                    }
-                },
-                Rule::requiredIf(request()->get('login_type_credentials') === false || (!$LoginTypeCredentialsStatus && !request()->get('login_type_credentials') && !request()->get('login_type_wallet'))), 'boolean'
-            ],
-            'login_type_credentials' => [
-                Rule::requiredIf(request()->get('login_type_wallet') === false || (!$loginTypeWalletStatus && !request()->get('login_type_wallet') && !request()->get('login_type_credentials'))), 'boolean'
-            ],
             'credentials.email' => [
                 Rule::requiredIf(request()->get('login_type_credentials') === true && !$user->email),
                 Rule::unique('users', 'email')->where(function($q) {
@@ -81,13 +66,6 @@ class ProfileController extends Controller
             $user->email = $request->get('credentials')['email'];
             $user->password = Hash::make($request->get('credentials')['password']);
             $user->save();
-        }
-
-        if ($request->get('login_type_wallet') !== null){
-            $user->meta()->updateOrCreate(
-                ['key' => UserMeta::LoginTypeWallet],
-                ['value' => $request->get('login_type_wallet')]
-            );
         }
 
         if ($request->get('login_type_credentials') !== null){

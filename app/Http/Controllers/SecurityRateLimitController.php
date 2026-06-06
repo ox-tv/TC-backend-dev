@@ -250,10 +250,10 @@ class SecurityRateLimitController extends Controller
 
         $users = $query->get();
 
-        $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
+        $users->append(['status_text', 'registration_ip', 'last_active_from_ip'])->load(['referrer']);
 
         foreach ($users as $user){
-            $user->referrer && $user->referrer->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+            $user->referrer && $user->referrer->append(['status_text', 'registration_ip', 'last_active_from_ip']);
         }
 
         return UserResource::collection($users);
@@ -286,7 +286,7 @@ class SecurityRateLimitController extends Controller
 
         $users = User::where('referrer_id', $userId)->paginate($perPage);
 
-        $users->append(['auth_wallet', 'status_text', 'registration_ip', 'last_active_from_ip']);
+        $users->append(['status_text', 'registration_ip', 'last_active_from_ip']);
 
         return UserResource::collection($users);
     }

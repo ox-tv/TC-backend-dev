@@ -119,10 +119,6 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeSearchAuthWallet($query, $keyword){
-        $query->where('auth_wallet', 'LIKE', '%'.$keyword.'%');
-        return $query;
-    }
 
     public function scopeIsHero($query)
     {
