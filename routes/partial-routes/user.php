@@ -10,8 +10,6 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 });
 
-Route::post('tc-polygon/update-hero-data', '\App\Http\Controllers\TCPolygonController@nftTokenTransfered')->name('tc-polygon.update-hero-data');
-
 Route::post('users/username/check', '\App\Http\Controllers\UserController@usernameCheck')->name('users.username.check');
 Route::post('users/referral-code/check', '\App\Http\Controllers\UserController@referralCodeCheck')->name('users.referral-code.check');
 
