@@ -27,7 +27,6 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('publisher/apply', '\App\Http\Controllers\PublisherController@becomeAPublisher')->name('publisher.apply');
 
     Route::post('profile/eth-address', '\App\Http\Controllers\UserController@changeETHAddress')->name('change-eth-address');
-    Route::post('profile/wallet-address', '\App\Http\Controllers\UserController@setAuthWallet')->name('set-wallet-address');
 
     // Delete account
     Route::delete('account/delete', '\App\Http\Controllers\UserController@deleteAccount')->name("account.delete")->middleware(['2fa.or.email-verification']);
