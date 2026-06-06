@@ -400,7 +400,18 @@ class Video extends Model
             }
         }
 
-        return $value? (strpos($value, 'cloudflarestorage') !== false? getR2TemporaryUrl($value): $value) :Storage::disk('videos')->url($this->file_path);
+        // Serve videos from local storage. Cloud (R2/S3) temporary-URL reads have been
+        // removed for the demo: a usable (local) URL is returned as-is, a cloud-hosted
+        // or missing file falls back to the local file, and otherwise to a dummy sample.
+        if (!empty($value) && !preg_match('#cloudflarestorage|amazonaws#i', $value)) {
+            return $value;
+        }
+
+        if (!empty($this->file_path) && Storage::disk('videos')->exists($this->file_path)) {
+            return Storage::disk('videos')->url($this->file_path);
+        }
+
+        return asset('media/sample-video.mp4');
     }
 
     public function getThumbnailUrlAttribute($value)
