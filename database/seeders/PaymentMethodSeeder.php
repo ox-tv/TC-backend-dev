@@ -19,10 +19,6 @@ class PaymentMethodSeeder extends Seeder
                 'name' => 'Stripe',
                 'description' => 'Stripe payment method',
             ],
-            [
-                'name' => 'Coinbase',
-                'description' => 'Coinbase payment method',
-            ],
         ];
 
         foreach ($paymentMethods as $paymentMethod){
