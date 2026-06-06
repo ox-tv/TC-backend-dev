@@ -22,6 +22,59 @@ Route::get('/', function () {
 Route::get('placeholder/channel/{channel}/avatar.svg', PlaceholderChannelAvatarController::class)
     ->name('placeholders.channel_avatar');
 
+/*
+ | Local image-thumbnail resizer (demo stand-in for the production CDN/resizer).
+ | The API returns resized variant URLs like /storage/<folder>/<w>_<h>/<file>.
+ | Those sized files don't exist on local disk, so this route lazily generates a
+ | width-resized JPEG (cached to disk) from the original, falling back to the
+ | original image if resizing isn't possible.
+ */
+Route::get('storage/{folder}/{size}/{file}', function (string $folder, string $size, string $file) {
+    abort_unless(
+        in_array($folder, ['channels', 'videos-thumbnails', 'videos'], true)
+        && preg_match('/^(auto|\d+)_(auto|\d+)$/', $size),
+        404
+    );
+
+    $file = basename($file);
+    $original = storage_path("app/public/{$folder}/{$file}");
+    abort_unless(is_file($original), 404);
+
+    $mime = strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'png' ? 'image/png' : 'image/jpeg';
+    $serve = fn (string $path) => response(file_get_contents($path), 200, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+
+    $target = storage_path("app/public/{$folder}/{$size}/{$file}");
+    if (is_file($target)) {
+        return $serve($target);
+    }
+
+    [$w] = explode('_', $size);
+    if (is_numeric($w) && function_exists('imagescale') && str_ends_with(strtolower($file), '.jpg')) {
+        try {
+            $src = @imagecreatefromjpeg($original);
+            if ($src) {
+                $scaled = imagescale($src, (int) $w);
+                if ($scaled) {
+                    @mkdir(dirname($target), 0775, true);
+                    imagejpeg($scaled, $target, 85);
+                    imagedestroy($scaled);
+                }
+                imagedestroy($src);
+                if (is_file($target)) {
+                    return $serve($target);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to original
+        }
+    }
+
+    return $serve($original);
+})->where('file', '[^/]+')->name('storage.thumbnail');
+
 
 
 // TODO: Remove testing routes for broadcasting when front-end side finished
