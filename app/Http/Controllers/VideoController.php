@@ -15,14 +15,12 @@ use App\Http\Requests\VideoStore;
 use App\Http\Requests\VideoUpdate;
 use App\Http\Requests\WatchTimeStore;
 use App\Http\Resources\Comment\CommentResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Video\VideoResource;
 use App\Http\Resources\VideoCollection;
 use App\Models\Category;
 use App\Models\ChannelUser;
 use App\Models\Comment;
 use App\Models\CommentUser;
-use App\Models\CryptoCurrency;
 use App\Models\Language;
 use App\Models\Option;
 use App\Models\Playlist;
@@ -88,8 +86,6 @@ class VideoController extends Controller
         $mediaTypeFilter = Arr::get($filters, 'media_type');
         $categoryId = Arr::get($filters, 'category_id');
         $categorySlug = Arr::get($filters, 'category_slug');
-        $cryptoCurrencyId = Arr::get($filters, 'cryptocurrency_id');
-        $cryptoCurrencySlug = Arr::get($filters, 'cryptocurrency_slug');
         $playlistId = Arr::get($filters, 'playlist');
         $playlistHash = Arr::get($filters, 'playlist_hash');
         $channelId = Arr::get($filters, 'channel');
@@ -107,11 +103,6 @@ class VideoController extends Controller
         if($playlistHash){
             $playlist = Playlist::where('url_hash', $playlistHash)->firstOrFail();
             $playlistId = $playlist->id;
-        }
-
-        if($cryptoCurrencySlug){
-            $cryptoCurrency = CryptoCurrency::where('slug', $cryptoCurrencySlug)->firstOrFail();
-            $cryptoCurrencyId = $cryptoCurrency->id;
         }
 
         if($timeFilter){
@@ -158,10 +149,6 @@ class VideoController extends Controller
 
         if($categoryId){
             $query->filterCategory($categoryId);
-        }
-
-        if(!empty($cryptoCurrencyId)){
-            $query->filterCryptoCurrency($cryptoCurrencyId);
         }
 
         if($playlistId){
@@ -228,12 +215,6 @@ class VideoController extends Controller
         if($categorySlug){
             $result->additional([
                 'category' => $categorySlug == "all" ? "All" : $category->name
-            ]);
-        }
-
-        if($cryptoCurrencySlug){
-            $result->additional([
-                'cryptocurrency' => CryptoCurrencyResource::make($cryptoCurrency)
             ]);
         }
 
@@ -320,11 +301,6 @@ class VideoController extends Controller
                 $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
             }
 
-            // adding crypto currencies
-            if($request->get('crypto_currencies')){
-                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
-            }
-
             // adding tags
             if($request->get('tags')){
                 $tags = collect($request->get('tags', []));
@@ -397,7 +373,6 @@ class VideoController extends Controller
                 'channel',
                 'category',
                 'language',
-                'crypto_currencies',
                 'tags',
                 'playlists',
                 'subtitles.language',
@@ -498,11 +473,6 @@ class VideoController extends Controller
                 }else{
                     $video->categories()->sync(Category::where('id', $request->get('categories'))->get());
                 }
-            }
-
-            // updating crypto currency
-            if($request->get('crypto_currencies')){
-                $video->crypto_currencies()->sync($request->get('crypto_currencies'));
             }
 
             // updating tags

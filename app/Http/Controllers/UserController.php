@@ -302,7 +302,6 @@ class UserController extends Controller
             'referrals',
             'meta',
             'favoriteTags',
-            'favoriteCryptoCurrencies',
             'bookmarkVideos',
             'verifiedPaymentDetails',
             'lastPaymentDetails',
@@ -574,7 +573,6 @@ class UserController extends Controller
             'loyalty_points',
             'isHeroMembershipAutoRenewal',
             'channelAutoImportIsActive',
-            'favoriteCryptoCurrenciesCount',
         ]);
 
         if ($user->channel){
@@ -676,7 +674,6 @@ class UserController extends Controller
             'referrer',
             'meta',
             'favoriteTags',
-            'favoriteCryptoCurrencies',
         ])->append([
             'eth_address',
             'role_name',

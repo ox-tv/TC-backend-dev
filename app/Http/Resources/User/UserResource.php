@@ -4,7 +4,6 @@ namespace App\Http\Resources\User;
 
 use App\Http\Resources\_2FA\_2FAResource;
 use App\Http\Resources\Channel\ChannelResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\PaymentDetails\PaymentDetailsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Http\Resources\Video\VideoResource;
@@ -68,7 +67,6 @@ class UserResource extends JsonResource
             'is_hero_membership_auto_renewal' => $this->whenAppended('isHeroMembershipAutoRenewal'),
             'channel_auto_import_is_active' => $this->whenAppended('channelAutoImportIsActive'),
             'referrals_count' => $this->whenAppended('referrals_count'),
-            'favorite_crypto_currencies_count' => $this->whenAppended('favoriteCryptoCurrenciesCount'),
             'token_points_total_amount' => $this->whenAppended('tokenPointsTotalAmount'),
             'token_points_locked_amount' => $this->whenAppended('tokenPointsLockedAmount'),
 
@@ -79,7 +77,6 @@ class UserResource extends JsonResource
             'referrals' => UserResource::collection($this->whenLoaded('referrals')),
             'meta' => $this->whenLoaded('meta'),
             'favorite_tags' => TagResource::collection($this->whenLoaded('favoriteTags')),
-            'favorite_crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('favoriteCryptoCurrencies')),
             'bookmark_videos' => VideoResource::collection($this->whenLoaded('bookmarkVideos')),
             'verified_payment_details' => PaymentDetailsResource::make($this->whenLoaded('verifiedPaymentDetails')),
             'last_payment_details' => PaymentDetailsResource::make($this->whenLoaded('lastPaymentDetails')),

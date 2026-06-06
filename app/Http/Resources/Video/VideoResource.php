@@ -6,7 +6,6 @@ use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Channel\ChannelResource;
 use App\Http\Resources\Chapter\ChapterResource;
 use App\Http\Resources\Comment\CommentResource;
-use App\Http\Resources\CryptoCurrency\CryptoCurrencyResource;
 use App\Http\Resources\Language\LanguageResource;
 use App\Http\Resources\Playlist\PlaylistResource;
 use App\Http\Resources\Report\ReportMinimalItem;
@@ -72,7 +71,6 @@ class VideoResource extends JsonResource
             'channel' => ChannelResource::make($this->whenLoaded('channel')),
             'category' => CategoryResource::make($this->whenLoaded('category')),
             'language' => LanguageResource::make($this->whenLoaded('language')),
-            'crypto_currencies' => CryptoCurrencyResource::collection($this->whenLoaded('crypto_currencies')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'playlists' => PlaylistResource::collection($this->whenLoaded('playlists')),
             'subtitles' => SubtitleResource::collection($this->whenLoaded('subtitles')),

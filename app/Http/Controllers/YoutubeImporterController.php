@@ -11,7 +11,6 @@ use App\Http\Resources\Video\VideoResource;
 use App\Libraries\YIClient;
 use App\Models\Category;
 use App\Models\Channel;
-use App\Models\CryptoCurrency;
 use App\Models\Language;
 use App\Models\Subtitle;
 use App\Models\Tag;
@@ -102,27 +101,10 @@ class YoutubeImporterController extends Controller
         preg_match_all('/#(\w+)/', $request->get('description'), $hashTags);
         $tags = $hashTags[1];
 
-        $cryptoCurrencyIDs = false;
-
         $finalTags = [];
 
         if($tags){
-            $excludedTags = explode(",", config('yi.auto_import_excluded_tags_for_cryptocurrency'));
-
-            $filteredTags = array_filter($tags, function ($value) use($excludedTags) {
-                return !in_array($value, $excludedTags);
-            });
-
-            $finalTags = array_unique($filteredTags);
-
-            $cryptoCurrencyIDs = CryptoCurrency::
-            select("id")
-                ->where(function ($query) use ($finalTags){
-                    $query->whereIn('symbol', $finalTags)
-                        ->orWhereIn('name', $finalTags);
-                })
-                ->where('order', '<', '1000000')
-                ->pluck('id');
+            $finalTags = array_unique($tags);
         }
 
         $video = new Video();
@@ -138,18 +120,13 @@ class YoutubeImporterController extends Controller
         $video->media_type = Video::MEDIA_TYPE_VIDEO;
         $video->upload_method = Video::UPLOAD_METHOD_YOUTUBE_AUTO_IMPORT;
 
-        DB::transaction(function () use ($request, $video, $finalTags, $cryptoCurrencyIDs){
+        DB::transaction(function () use ($request, $video, $finalTags){
 
             $video->save();
 
             // adding categories
             if($request->get('categories')){
                 $video->categories()->saveMany(Category::whereIn('id', $request->get('categories'))->get());
-            }
-
-            // adding crypto currencies
-            if($cryptoCurrencyIDs){
-                $video->crypto_currencies()->sync($cryptoCurrencyIDs);
             }
 
             // adding tags

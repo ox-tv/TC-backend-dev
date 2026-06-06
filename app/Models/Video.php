@@ -228,13 +228,6 @@ class Video extends Model
         return $query;
     }
 
-    public function scopeFilterCryptoCurrency($query, $cryptoCurrencyId){
-        $query->whereHas('crypto_currencies', function($q) use ($cryptoCurrencyId){
-            $q->where('crypto_currencies.id', $cryptoCurrencyId);
-        });
-        return $query;
-    }
-
     // playlist scope
     public function scopeInPlaylist($query, $playlistId){
         $query->whereHas('playlists', function($q) use ($playlistId){
@@ -249,9 +242,6 @@ class Video extends Model
         return $this->belongsToMany('App\Models\Category');
     }
 
-    public function crypto_currencies(){
-        return $this->belongsToMany('App\Models\CryptoCurrency', 'crypto_currency_video');
-    }
 
     public function category(){
         return $this->belongsTo('App\Models\Category');
