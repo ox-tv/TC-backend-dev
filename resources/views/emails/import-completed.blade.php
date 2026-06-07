@@ -515,7 +515,7 @@
                                                 <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
                                                     <div style="text-align: center;"><strong><span style="font-size:18px">Good news!</span></strong><br>
-                                                        <span style="font-size:14px">Your YouTube videos are now imported into your TC channel.<br>
+                                                        <span style="font-size:14px">Your YouTube videos are now imported into your Oxin TV channel.<br>
 <br>
 If you want to change any video title,&nbsp;description, or add tags, you can easily do this via your publisher panel.</span></div>
 
