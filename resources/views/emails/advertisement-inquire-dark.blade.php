@@ -509,7 +509,7 @@
                                                             <strong><span style="font-size:18px">New Advertisement Inquire Form Filled</span></strong><br>
                                                             <br>
                                                             Name of Company/Project: <strong>{{$data['c_p_name']}}</strong><br>
-                                                            Company/Project Channel Url on TC: <strong>{{$data['c_p_channel_url']}}</strong><br>
+                                                            Company/Project Channel Url on Oxin TV: <strong>{{$data['c_p_channel_url']}}</strong><br>
                                                             Company/Project Website: <strong>{{$data['c_p_website']}}</strong><br>
                                                             Full Name: <strong>{{$data['full_name']}}</strong><br>
                                                             Email Address: <strong>{{$data['email']}}</strong><br>

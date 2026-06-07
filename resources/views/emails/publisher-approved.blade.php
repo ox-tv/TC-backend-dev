@@ -517,7 +517,7 @@
 <br>
 <span style="color:#FF0000"><strong>Want help exporting and importing videos from your YouTube channel?</strong></span><br>
 <br>
-With your permission, we can export and import your YouTube videos for the last 3 months directly to your TC channel.<br>
+With your permission, we can export and import your YouTube videos for the last 3 months directly to your Oxin TV channel.<br>
 <br>
 For this service, just click the "Request Import" button below. You can create a request later via our message center inside your publisher panel if you do not want to do this now.</span></div>
 

@@ -511,7 +511,7 @@ Your application has now been reviewed and approved. You could now access everyt
                                                         <br>
                                                         <span style="color:#202020"><strong>Want help exporting and importing media from your existing YouTube channel?</strong></span><br>
                                                         <br>
-                                                        <span style="color:#202020">We can export and import your YouTube channel and videos for the last three months directly to your TC channel with your permission.<br>
+                                                        <span style="color:#202020">We can export and import your YouTube channel and videos for the last three months directly to your Oxin TV channel with your permission.<br>
 <br>
 For this service, click the "Request Import" button below. You can create a request later via our support center inside the publisher panel if you don't want to do this now.</span></div>
 
