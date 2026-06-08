@@ -32,10 +32,12 @@ class Video extends Model
 
     const MEDIA_TYPE_VIDEO = 1;
     const MEDIA_TYPE_PODCAST = 2;
+    const MEDIA_TYPE_LIVESTREAM = 3;
 
     const MEDIA_TYPE_TEXT = [
         self::MEDIA_TYPE_VIDEO => 'video',
         self::MEDIA_TYPE_PODCAST => 'podcast',
+        self::MEDIA_TYPE_LIVESTREAM => 'livestream',
     ];
 
     const FILE_TYPE_VIDEO = 'video';
@@ -138,6 +140,11 @@ class Video extends Model
 
     public function scopeTypePodcast($query){
         $query->where('media_type', self::MEDIA_TYPE_PODCAST);
+        return $query;
+    }
+
+    public function scopeTypeLivestream($query){
+        $query->where('media_type', self::MEDIA_TYPE_LIVESTREAM);
         return $query;
     }
 
