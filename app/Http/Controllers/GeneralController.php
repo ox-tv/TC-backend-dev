@@ -39,6 +39,9 @@ class GeneralController extends Controller
         $podcastIds = Cache::remember('home_total_podcast_ids', 60 * 60 , function () {
             return Video::typePodcast()->published()->pluck('id')->toArray();
         });
+        $livestreamIds = Cache::remember('home_total_livestream_ids', 60 * 60 , function () {
+            return Video::typeLivestream()->published()->pluck('id')->toArray();
+        });
 
         // Trending Channels
         $trendingChannels = Cache::remember('home_trending_channels', 60 * 60 , function () {
@@ -145,6 +148,44 @@ class GeneralController extends Controller
         });
 
         $result['trending_podcasts'] = VideoHomeResource::collection($trendingPodcasts);
+
+
+        // Trending Live Streams
+        $trendingLivestreams = Cache::remember('home_trending_livestreams', 60 * 60 , function () use ($livestreamIds) {
+            $trendingLivestreamIds = Channel2StatisticsDaily::raw(function($collection) use ($livestreamIds) {
+                return $collection->aggregate([
+                    ['$match' => [
+                        'date' => ['$gte'=> $this->mongoUtc(Carbon::now()->subDays(3))],
+                        'video_id' => ['$in'=> $livestreamIds],
+                    ]],
+                    ['$group' => [
+                        '_id' => '$video_id',
+                        'amount' => [
+                            '$sum' => [
+                                '$add' => [
+                                    '$views_total',
+                                    ['$multiply' => [['$subtract' => ['$likes_total', '$dislikes_total']], 50]]
+                                ]
+                            ]
+                        ],
+                    ]],
+                    ['$sort' => ['amount' => -1, '_id' => -1]],
+                    ['$limit' => 24]
+                ]);
+            })->pluck('_id')->toArray();
+
+            $orderByTrendingLivestreamIds = implode(',', array_reverse($trendingLivestreamIds));
+
+            return Video::published()->typeLivestream()
+                ->withoutGlobalScope(OrderDescScope::class)
+                ->orderByRaw((!empty($orderByTrendingLivestreamIds)?"FIELD(id,$orderByTrendingLivestreamIds) DESC, ": "") . "published_at DESC")
+                ->take(24)
+                ->with(['channel'])
+                ->get()
+                ->append(['is_bookmarked']);
+        });
+
+        $result['trending_livestreams'] = VideoHomeResource::collection($trendingLivestreams);
 
 
         // Latest Media On TC
