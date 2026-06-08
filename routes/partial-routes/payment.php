@@ -17,8 +17,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::delete('stripe/subscription/cancel', '\App\Http\Controllers\StripeController@cancelSubscription');
 
     Route::post('pricing/{pricing}', '\App\Http\Controllers\HeroMembershipController@store')->name('pricing.store');
-    Route::post('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
-    Route::get('pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
+    Route::match(['get', 'post'], 'pricing/{pricing}/process', '\App\Http\Controllers\HeroMembershipController@processPayment')->name('pricing.processPayment');
     Route::get('profile/pricing', '\App\Http\Controllers\HeroMembershipController@index')->name('profile.pricing');
 
 });
