@@ -293,7 +293,7 @@
             <div class="question">
                 <p>
                     Questions? <br>
-                    monetize@todayscrypto.com
+                    monetize@oxintv.com
                 </p>
             </div>
 

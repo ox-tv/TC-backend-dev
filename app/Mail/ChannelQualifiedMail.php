@@ -30,6 +30,6 @@ class ChannelQualifiedMail extends Mailable
      */
     public function build()
     {
-        return $this->from('monetize@todayscrypto.com')->subject('Your channel has been qualified')->view('emails.channel-qualified-dark');
+        return $this->from('monetize@oxintv.com')->subject('Your channel has been qualified')->view('emails.channel-qualified-dark');
     }
 }

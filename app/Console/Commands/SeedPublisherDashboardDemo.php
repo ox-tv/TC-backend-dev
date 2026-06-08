@@ -42,7 +42,7 @@ class SeedPublisherDashboardDemo extends Command
             $users = User::publishers()->orderBy('id')->get();
         } else {
             $this->warn('Pass a publisher email, or use --all.');
-            $this->line('Example: php artisan publisher:dashboard-demo conor@todayscrypto.com');
+            $this->line('Example: php artisan publisher:dashboard-demo conor@oxintv.com');
 
             return 1;
         }

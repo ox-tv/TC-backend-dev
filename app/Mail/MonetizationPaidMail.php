@@ -30,6 +30,6 @@ class MonetizationPaidMail extends Mailable
      */
     public function build()
     {
-        return $this->from('monetize@todayscrypto.com')->subject('You’ve got paid!')->view('emails.monetization-paid-dark');
+        return $this->from('monetize@oxintv.com')->subject('You’ve got paid!')->view('emails.monetization-paid-dark');
     }
 }
